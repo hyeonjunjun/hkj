@@ -62,26 +62,34 @@ export interface Project {
 export const PROJECTS: Project[] = [
     {
         id: "sift",
-        title: "SIFT",
-        client: "Personal",
+        title: "Sift: Digital Sanctuary",
+        client: "HKJ Studio",
         sector: "Mobile · AI",
         year: "2025",
-        tags: ["Full Stack", "UX of AI", "Mobile"],
+        tags: ["Digital Sanctuary", "UX of AI", "React Native"],
         image: "/images/sift-v2.jpg",
-        mood: "#8b9e6b",
-        pitch: "AI-powered content curation — paste any URL, get an instant summary.",
+        mood: "#CF957B",
+        pitch: "Curate your digital diet. A digital sanctuary that interprets chaotic social media links into a structured library.",
         editorial: {
-            headline: "Save Anything, Understand Everything",
-            subhead: "Content Intelligence",
-            copy: "Sift transforms how you save content from the internet. Paste any URL — TikTok, Instagram, YouTube, or the open web — and Sift instantly scrapes, summarizes, and organizes it into a beautiful feed. Built with an optimistic-insert architecture that makes saving feel instant, even while the backend orchestrates scrapers and AI in the background.",
+            headline: "Save Anything, Understand Everything.",
+            subhead: "The Knowledge Architect",
+            copy: "Sift elevates your digital consumption by turning fleeting social media moments into a permanent, curated library. It combines advanced social media scraping, AI synthesis, and editorial presentation in a premium, warm aesthetic. Functioning as a 'personal librarian,' Sift strips away the noise to leave only what matters—guiding passive browsing into an active, structured knowledge base through 'The Gist', a single-sentence summary for every page.",
             images: ["/images/sift-v2.jpg", "/images/sift-v2.jpg", "/images/sift-v2.jpg"],
         },
         process: {
-            title: "The Rough",
-            copy: "The process focused on mapping the transition from a messy browser history to a refined knowledge graph. We prototyped the 'Sift Thread'—a continuous stream of summaries that allows for rapid scanning of saved data.",
+            title: "Quiet Luxury",
+            copy: "The design language pursues a 'Digital Tactility' aesthetic—avoiding tech-cold blues and aggressive gamification in favor of warm earth tones (espresso, oat, clay). We paired classical serif typefaces (Playfair Display) with a modern humanist sans-serif (Satoshi) to position the app as a digital literary journal. Generous whitespace, organic radii, and subtle noise textures create a physical, calming experience.",
             images: ["/placeholder-rough-1.png"]
         },
         highlights: [
+            {
+                id: "tactility",
+                title: "Digital Tactility",
+                description: "SIFT rejects harsh gradients and flashy UI. Instead, we focused on 'perceptual consistency' by defining all palettes in the OKLCH color space with 3 tiers of warm shadows. Every pressable area engages physical haptic feedback, grounding the experience.",
+                challenge: "How do you make an AI-driven app feel like a grounded, physical sanctuary rather than a typical productivity tool?",
+                recipe: "OKLCH Color Space + Subtle Haptics + Custom Animation Easing",
+                images: ["/images/sift-v2.jpg"],
+            },
             {
                 id: "curation",
                 title: "Optimistic Curation",
@@ -93,21 +101,22 @@ export const PROJECTS: Project[] = [
         ],
         engineering: {
             title: "Engineering",
-            copy: "Implemented a multi-stage scavenging pipeline using Apify for headless scraping and GPT-4o for document vectorization and summarization. The architecture ensures data sovereignty while providing high-speed retrieval.",
-            signals: ["Vector Search", "Headless Scraping", "Real-time Sync"],
+            copy: "The backend utilizes a multi-stage scavenging pipeline using Apify for headless scraping and GPT-4o for AI extraction. On the frontend, a bespoke design system named 'Gentle SIFT' relies on Reanimated 4.1 and Moti for declarative, ease-in-out animations—strictly avoiding spring physics to maintain a calm brand personality. The UI consumes an OKLCH color scale dynamically mapped to hex values.",
+            signals: ["Vector Search", "OKLCH Theme Context API", "Declarative Animation", "Headless Scraping"],
             images: ["/placeholder-eng-1.png"]
         },
         statistics: [
+            { label: "Color Space", value: "OKLCH" },
+            { label: "Radii Scale", value: "14-48dp" },
             { label: "Components Built", value: "40+" },
-            { label: "Data Migrations", value: "2" },
         ],
         launchVideos: [],
         contributors: [{ name: "Ryan Jun", role: "Founder & Engineer" }],
         schematic: {
-            stack: ["React Native", "Supabase", "Vercel", "OpenAI GPT-4o", "Apify"],
-            grid: "iOS HIG · 8px Baseline",
-            typography: "SF Pro / SF Mono",
-            colors: ["#8b9e6b", "#0a0a0a", "#faf9f7"],
+            stack: ["React Native", "NativeWind", "Supabase", "GPT-4o", "Apify"],
+            grid: "16-48dp Padding · Organic",
+            typography: "Playfair Display / Satoshi",
+            colors: ["#443732", "#FDFCF8", "#CF957B"],
         },
     },
     {
@@ -218,7 +227,7 @@ export const PROJECTS: Project[] = [
     {
         id: "future-habitat",
         title: "Habitat 04",
-        client: "Studio Nabi",
+        client: "HKJ Studio",
         sector: "Experimental Living",
         year: "2026",
         tags: ["Coming Soon", "Architecture", "VR"],
@@ -247,7 +256,7 @@ export const PROJECTS: Project[] = [
     {
         id: "urban-void",
         title: "Urban Void",
-        client: "Studio Nabi",
+        client: "HKJ Studio",
         sector: "Public Installation",
         year: "2026",
         tags: ["Coming Soon", "Interaction", "Installation"],

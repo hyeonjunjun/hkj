@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { PROJECTS } from "@/constants/projects";
-import { useTextScramble } from "@/hooks/useTextScramble";
 import Link from "next/link";
 
 /**
@@ -29,7 +28,7 @@ function ShowcaseSlide({ project, index }: { project: any, index: number }) {
         offset: ["start end", "end start"]
     });
 
-    const { displayText: scrambledTitle, scramble } = useTextScramble(project.title);
+
 
     // Parallax and Reveal transforms
     const imgScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, 1, 1.1]);
@@ -61,7 +60,7 @@ function ShowcaseSlide({ project, index }: { project: any, index: number }) {
                     {/* Visual Specimen */}
                     <Link href={`/work/${project.id}`}>
                         <motion.div
-                            className="relative w-[280px] sm:w-[480px] aspect-[4/5] bg-ink/5 rounded-sm overflow-hidden shadow-2xl group cursor-pointer"
+                            className="relative w-[280px] sm:w-[480px] aspect-[4/5] bg-canvas overflow-hidden group cursor-pointer shrink-0"
                             style={{ opacity: imgOpacity }}
                             initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                             whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
@@ -93,26 +92,25 @@ function ShowcaseSlide({ project, index }: { project: any, index: number }) {
                         </div>
 
                         <h2
-                            className="font-display italic text-[clamp(4.5rem,15vw,13rem)] leading-[0.85] text-ink drop-shadow-2xl mix-blend-difference"
-                            onMouseEnter={scramble}
+                            className="font-sans font-bold uppercase text-[clamp(4.5rem,10vw,12rem)] leading-[0.85] tracking-tighter text-canvas mix-blend-difference"
                         >
-                            {scrambledTitle}
+                            {project.title}
                         </h2>
 
-                        <div className="mt-8 sm:mt-12 flex gap-8 font-pixel text-[9px] sm:text-[11px] tracking-[0.25em] uppercase text-ink-muted/80">
-                            <span className="bg-base/40 backdrop-blur-sm px-4 py-2 border border-ink/5 rounded-full">{project.sector}</span>
+                        <div className="mt-8 sm:mt-12 flex gap-8 font-sans text-[10px] sm:text-[12px] font-bold tracking-widest uppercase text-canvas mix-blend-difference">
+                            <span>{project.sector}</span>
                             <span className="opacity-20 self-center">/</span>
-                            <span className="bg-base/40 backdrop-blur-sm px-4 py-2 border border-ink/5 rounded-full">{project.year}</span>
+                            <span>{project.year}</span>
                         </div>
                     </motion.div>
                 </div>
 
                 {/* ─── Progress Tracker (Vertical) ─── */}
                 <div className="absolute right-8 sm:right-12 top-1/2 -translate-y-1/2 flex flex-col items-center gap-6 z-30">
-                    <span className="font-pixel text-[10px] text-accent">{String(index + 1).padStart(2, '0')}</span>
-                    <div className="h-20 w-[1px] bg-ink/5 relative overflow-hidden">
+                    <span className="font-sans font-bold text-[10px] text-ink">{String(index + 1).padStart(2, '0')}</span>
+                    <div className="h-20 w-[1px] bg-ink/10 relative overflow-hidden">
                         <motion.div
-                            className="absolute top-0 left-0 w-full bg-accent origin-top"
+                            className="absolute top-0 left-0 w-full bg-ink origin-top"
                             style={{ scaleY: scrollYProgress }}
                         />
                     </div>

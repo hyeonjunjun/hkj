@@ -574,7 +574,7 @@ export default function ScrollStage({ project }: ScrollStageProps) {
 
                     <footer className="px-6 sm:px-12 lg:px-0 py-12 border-t border-ink/[0.06] flex justify-between items-center bg-canvas lg:pr-12">
                         <span className="font-pixel text-[9px] tracking-[0.3em] uppercase text-ink-faint">
-                            Studio Nabi © 2026
+                            HKJ Studio © 2025
                         </span>
                         <button
                             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

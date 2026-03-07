@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motio
 import Link from "next/link";
 import type { Project } from "@/constants/projects";
 import { useDesignStore } from "@/store/useDesignStore";
-import { useTextScramble } from "@/hooks/useTextScramble";
+
 
 interface SpecimenRowProps {
     project: Project;
@@ -26,8 +26,6 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
     const setActiveMood = useDesignStore((state) => state.setActiveMood);
     const setIsFocussed = useDesignStore((state) => state.setIsFocussed);
 
-    const { displayText: scrambledTitle, scramble: scrambleTitle } = useTextScramble(project.title);
-    const { displayText: scrambledClient, scramble: scrambleClient } = useTextScramble(project.client);
 
     // Cursor Tracking (Relative to viewport for global follow)
     const mouseX = useMotionValue(0);
@@ -63,12 +61,6 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
         return () => window.removeEventListener('resize', updateTitlePosition);
     }, []);
 
-    useEffect(() => {
-        if (isHovered) {
-            scrambleTitle();
-            scrambleClient();
-        }
-    }, [isHovered, scrambleTitle, scrambleClient, project.title, project.client]);
 
     return (
         <motion.div
@@ -94,11 +86,6 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
                 {/* ─── Main Row ─── */}
                 <motion.div
                     className="flex items-center justify-between py-6 sm:py-8 transition-colors duration-500"
-                    animate={{
-                        height: isHovered ? "110px" : "80px",
-                        paddingBottom: isHovered ? "40px" : "0px"
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                     <div className="flex items-center gap-12 sm:gap-16">
                         {/* Index */}
@@ -121,13 +108,13 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
                         <motion.h3
                             layoutId={`project-title-${project.id}`}
                             ref={titleRef}
-                            className="font-display text-[clamp(1.4rem,3vw,2.4rem)] leading-none tracking-tight text-ink group-hover:text-accent transition-colors duration-500 whitespace-nowrap"
+                            className="font-sans font-bold uppercase text-[clamp(1.5rem,3vw,2.5rem)] leading-none tracking-tighter text-ink transition-all duration-300 group-hover:tracking-wider whitespace-nowrap"
                             animate={{
                                 x: isHovered ? (springX.get() - mouseX.get()) * 0.1 : 0,
                                 y: isHovered ? (springY.get() - mouseY.get()) * 0.1 : 0,
                             }}
                         >
-                            {isHovered ? scrambledTitle : project.title}
+                            {project.title}
                         </motion.h3>
                     </div>
 
@@ -142,7 +129,7 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
                                 Client
                             </motion.span>
                             <span className="font-pixel text-[10px] text-ink-muted uppercase">
-                                {isHovered ? scrambledClient : project.client}
+                                {project.client}
                             </span>
                         </div>
                         <div className="flex flex-col items-end">
@@ -158,78 +145,10 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
                     </div>
                 </motion.div>
 
-                {/* ─── Editorial Reveal (Inside expanded space) ─── */}
-                <AnimatePresence>
-                    {isHovered && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 5 }}
-                            className="absolute left-[70px] sm:left-[96px] bottom-6"
-                        >
-                            <p className="font-display italic text-sm sm:text-base text-ink-muted/80">
-                                &mdash; {project.editorial.headline}
-                            </p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* ─── Cinema Reveal Image (Liquid Mask) ─── */}
-                <AnimatePresence>
-                    {isHovered && (
-                        <motion.div
-                            initial={{
-                                opacity: 0,
-                                clipPath: "inset(100% 0% 0% 0%)",
-                                scale: 1.1
-                            }}
-                            animate={{
-                                opacity: 1,
-                                clipPath: "inset(0% 0% 0% 0%)",
-                                scale: 1
-                            }}
-                            exit={{
-                                opacity: 0,
-                                clipPath: "inset(0% 0% 100% 0%)",
-                                scale: 0.9
-                            }}
-                            transition={{
-                                duration: 0.8,
-                                ease: [0.76, 0, 0.24, 1]
-                            }}
-                            className="fixed top-0 left-0 pointer-events-none z-[100]"
-                            style={{
-                                x: springX,
-                                y: springY,
-                                translateX: "40px",
-                                translateY: "-50%",
-                            }}
-                        >
-                            <div className="relative w-[320px] h-[420px] rounded-sm overflow-hidden shadow-2xl bg-ink/5">
-                                {/* Gradient Fallback if image fails */}
-                                <div
-                                    className="absolute inset-0 opacity-20"
-                                    style={{ background: `linear-gradient(135deg, ${project.mood}, transparent)` }}
-                                />
-                                {/* Actual Image */}
-                                <img
-                                    src={project.image}
-                                    alt={project.title}
-                                    className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
-                                    onError={(e) => {
-                                        e.currentTarget.style.display = 'none';
-                                    }}
-                                />
-                                {/* Scanline overlay */}
-                                <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.05)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] z-10 bg-[length:100%_2px,3px_100%]" />
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 {/* Hover Line Sweep */}
                 <motion.div
-                    className="absolute left-0 bottom-0 h-[1px] bg-accent z-10"
+                    className="absolute left-0 bottom-0 h-[1px] bg-ink z-10"
                     initial={{ width: 0 }}
                     animate={{ width: isHovered ? "100%" : 0 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

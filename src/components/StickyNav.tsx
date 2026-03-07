@@ -20,19 +20,19 @@ export default function StickyNav() {
 
     return (
         <motion.nav
-            className="fixed top-0 left-0 right-0 z-40 bg-canvas/80 backdrop-blur-md border-b border-ink/[0.06] py-4 px-6 sm:px-12 lg:px-20 flex items-center justify-between pointer-events-none data-[visible=true]:pointer-events-auto"
+            className="fixed top-0 left-0 right-0 z-40 py-5 px-6 sm:px-12 lg:px-20 flex items-center justify-between pointer-events-none data-[visible=true]:pointer-events-auto"
             data-visible={!hidden}
             initial={{ y: -100, opacity: 0 }}
             animate={hidden ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
             <RollingLink
                 href="#hero"
-                label="Studio Nabi"
+                label="HKJ Studio"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             />
 
-            <div className="flex gap-6 sm:gap-8">
+            <div className="flex gap-8">
                 {[
                     { label: "Work", href: "#work" },
                     { label: "About", href: "#about" },

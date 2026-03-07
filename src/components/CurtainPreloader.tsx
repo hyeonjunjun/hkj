@@ -7,24 +7,24 @@ import { useStudioStore } from "@/lib/store";
 /**
  * CurtainPreloader
  * ─────────────────
- * Choreographed brand moment inspired by Studio Dialect.
+ * Choreographed brand moment.
  *
  * Sequence (~2.8s):
- *   0.3s  — "STUDIO" slides in from left, letter-by-letter
- *   0.6s  — "NABI" drops from above, letter-by-letter (spring)
- *   1.4s  — "NYC, NY · Est. 2024" fades in
+ *   0.3s  — "HKJ" drops in, letter-by-letter (spring)
+ *   0.8s  — "Studio" slides in from left
+ *   1.4s  — "NYC · Est. 2025" fades in
  *   2.0s  — Everything scales down + fades
  *   2.4s  — Curtain slides up
  */
 
-const studioVariants = {
+const topVariants = {
     hidden: {},
     visible: {
         transition: { staggerChildren: 0.04, delayChildren: 0.3 },
     },
 };
 
-const nabiVariants = {
+const bottomVariants = {
     hidden: {},
     visible: {
         transition: { staggerChildren: 0.06, delayChildren: 0.7 },
@@ -65,8 +65,7 @@ export default function CurtainPreloader() {
         <AnimatePresence>
             {visible && (
                 <motion.div
-                    className="fixed inset-0 z-[60] flex items-center justify-center"
-                    style={{ backgroundColor: "#faf9f7" }}
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-canvas"
                     initial={{ y: 0 }}
                     animate={isLoaded ? { y: "-100%" } : { y: 0 }}
                     transition={{
@@ -83,32 +82,14 @@ export default function CurtainPreloader() {
                         animate={isLoaded ? { scale: 0.92, opacity: 0 } : {}}
                         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     >
-                        {/* STUDIO — slides in from left */}
-                        <motion.div
-                            className="font-pixel text-[11px] tracking-[0.3em] uppercase text-ink-muted flex overflow-hidden"
-                            variants={studioVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            {"STUDIO".split("").map((char, i) => (
-                                <motion.span
-                                    key={`s-${i}`}
-                                    variants={letterSlideIn}
-                                    className="inline-block will-change-transform"
-                                >
-                                    {char}
-                                </motion.span>
-                            ))}
-                        </motion.div>
-
-                        {/* NABI — drops in from above */}
+                        {/* HKJ — drops in from above */}
                         <motion.div
                             className="font-display text-[clamp(3rem,10vw,6rem)] leading-[0.85] tracking-[-0.02em] text-ink mt-1 flex overflow-hidden"
-                            variants={nabiVariants}
+                            variants={bottomVariants}
                             initial="hidden"
                             animate="visible"
                         >
-                            {"NABI".split("").map((char, i) => (
+                            {"HKJ".split("").map((char, i) => (
                                 <motion.span
                                     key={`n-${i}`}
                                     variants={letterDropIn}
@@ -119,14 +100,32 @@ export default function CurtainPreloader() {
                             ))}
                         </motion.div>
 
+                        {/* Studio — slides in from left */}
+                        <motion.div
+                            className="font-sans text-[12px] tracking-[0.25em] uppercase text-ink-muted flex overflow-hidden mt-3"
+                            variants={topVariants}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {"Studio".split("").map((char, i) => (
+                                <motion.span
+                                    key={`s-${i}`}
+                                    variants={letterSlideIn}
+                                    className="inline-block will-change-transform"
+                                >
+                                    {char}
+                                </motion.span>
+                            ))}
+                        </motion.div>
+
                         {/* Subtitle */}
                         <motion.p
-                            className="font-pixel text-[9px] tracking-[0.2em] uppercase text-ink-faint mt-6"
+                            className="font-sans text-[10px] tracking-[0.2em] uppercase text-ink-faint mt-6"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 1.4, duration: 0.6 }}
                         >
-                            NYC, NY · Est. 2026
+                            NYC · Est. 2025
                         </motion.p>
                     </motion.div>
                 </motion.div>

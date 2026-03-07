@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { Instrument_Serif, Geist, Geist_Mono, Silkscreen, DotGothic16 } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import AtmosphericGrain from "@/components/AtmosphericGrain";
 import CurtainPreloader from "@/components/CurtainPreloader";
 
-import CursorDot from "@/components/CursorDot";
 
 /* ─── Typography ─── */
 
@@ -45,9 +43,9 @@ const dotGothic = DotGothic16({
 /* ─── Metadata ─── */
 
 export const metadata: Metadata = {
-  title: "Studio Nabi",
+  title: "HKJ Studio",
   description:
-    "Digital Naturalism — Portfolio of Ryan Jun. Design engineering at the intersection of craft and code.",
+    "HKJ Studio — Portfolio of Ryan Jun. Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
 };
 
 /* ─── Root Layout ─── */
@@ -63,9 +61,8 @@ export default function RootLayout({
         className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable} ${silkscreen.variable} ${dotGothic.variable} antialiased bg-canvas text-ink`}
       >
         <CurtainPreloader />
-        <AtmosphericGrain />
 
-        <CursorDot />
+
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

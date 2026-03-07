@@ -3,7 +3,7 @@ import { ImageResponse } from 'next/og'
 export const runtime = 'edge'
 
 // Image metadata
-export const alt = 'Studio Nabi - Digital Naturalism'
+export const alt = 'HKJ Studio - Design Engineering'
 export const size = {
     width: 1200,
     height: 630,
@@ -34,7 +34,7 @@ export default async function Image() {
                     }}
                 >
                     <div style={{ fontSize: 120, fontFamily: 'serif', fontStyle: 'italic', marginBottom: 20 }}>
-                        Studio Nabi
+                        HKJ Studio
                     </div>
                     <div
                         style={{

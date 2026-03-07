@@ -1,248 +1,167 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, type MotionValue } from "framer-motion";
-import Image from "next/image";
+import { useRef, useMemo } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 /**
- * IntroStatement — "The Manifesto" (v2)
- * ────────────────────────────────────
- * Character-level staggered opacity reveals for maximum precision.
- * Anchored to a rigid 12-column architectural grid.
- * Zero movement on text to eliminate blur.
+ * IntroStatement — Personable About Section
+ * ──────────────────────────────────────────
+ * Word-level opacity scroll reveal. Serif italic accent.
+ * Personal aside at the bottom.
  */
 
-const LINES = [
-    { text: "Studio Nabi is the creative vessel", highlight: true, scribble: "underline" },
-    { text: "of Ryan Jun. Based in New York,", highlight: false },
-    { text: "I build digital habitats—interfaces", highlight: false },
-    { text: "that blend technical precision", highlight: false },
-    { text: "with an inherently human soul.", highlight: true, scribble: "circle" },
-];
+/* ─── Word reveal helper ─── */
+function ScrollRevealText({
+    text,
+    className,
+    scrollYProgress,
+    startRange,
+    endRange,
+    accentPhrase,
+}: {
+    text: string;
+    className?: string;
+    scrollYProgress: any;
+    startRange: number;
+    endRange: number;
+    accentPhrase?: string;
+}) {
+    const words = text.split(" ");
 
-import { useState, useEffect } from "react";
+    return (
+        <p className={className}>
+            {words.map((word, i) => {
+                const wordStart = startRange + (i / words.length) * (endRange - startRange);
+                const wordEnd = wordStart + (1 / words.length) * (endRange - startRange) * 1.5;
+
+                const isAccent = accentPhrase && text.indexOf(accentPhrase) !== -1 &&
+                    words.slice(i, i + accentPhrase.split(" ").length).join(" ") === accentPhrase;
+
+                // Check if this word is the start of the accent phrase
+                const accentWords = accentPhrase?.split(" ") || [];
+                const isAccentWord = accentPhrase &&
+                    accentWords.includes(word) &&
+                    text.indexOf(accentPhrase) !== -1 &&
+                    i >= text.substring(0, text.indexOf(accentPhrase)).split(" ").length - 1 &&
+                    i < text.substring(0, text.indexOf(accentPhrase)).split(" ").length - 1 + accentWords.length;
+
+                return (
+                    <WordReveal
+                        key={`${word}-${i}`}
+                        word={word}
+                        scrollYProgress={scrollYProgress}
+                        wordStart={wordStart}
+                        wordEnd={wordEnd}
+                        isAccent={!!isAccentWord}
+                    />
+                );
+            })}
+        </p>
+    );
+}
+
+function WordReveal({
+    word,
+    scrollYProgress,
+    wordStart,
+    wordEnd,
+    isAccent,
+}: {
+    word: string;
+    scrollYProgress: any;
+    wordStart: number;
+    wordEnd: number;
+    isAccent: boolean;
+}) {
+    const opacity = useTransform(
+        scrollYProgress,
+        [wordStart, wordEnd],
+        [0.15, 1]
+    );
+
+    return (
+        <motion.span
+            className={`inline-block mr-[0.3em] ${isAccent
+                    ? "font-display italic text-accent"
+                    : ""
+                }`}
+            style={{ opacity }}
+        >
+            {word}
+        </motion.span>
+    );
+}
 
 export default function IntroStatement() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [time, setTime] = useState<string>("");
-
-    useEffect(() => {
-        const updateTime = () => {
-            const now = new Date();
-            setTime(now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' }));
-        };
-        updateTime();
-        const interval = setInterval(updateTime, 60000);
-        return () => clearInterval(interval);
-    }, []);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start end", "end start"]
+        offset: ["start 0.85", "end 0.4"],
     });
 
-    const smoothProgress = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    });
-
-    const butterflyX = useTransform(smoothProgress, [0, 1], ["2%", "8%"]);
-    const butterflyOpacity = useTransform(smoothProgress, [0.2, 0.4, 0.7, 0.9], [0, 0.12, 0.12, 0]);
-    const clipProgress = useTransform(scrollYProgress, [0, 0.15], [100, 0]);
+    const clipProgress = useTransform(scrollYProgress, [0, 0.1], [100, 0]);
     const clipPath = useTransform(clipProgress, (v) => `inset(${v}% 0 0 0)`);
 
     return (
         <motion.section
             id="about"
             ref={containerRef}
-            className="relative py-32 sm:py-48 lg:py-64 px-6 sm:px-12 lg:px-20 overflow-hidden bg-canvas"
+            className="relative py-32 sm:py-48 lg:py-64 px-6 sm:px-12 lg:px-20 bg-canvas"
             style={{ clipPath }}
         >
-            {/* ─── Background Layer: Continuity Line ─── */}
-            <div className="absolute left-6 sm:left-12 lg:left-20 top-0 bottom-0 w-px bg-ink/[0.06] z-0" />
+            <div className="max-w-3xl mx-auto lg:mx-0 lg:ml-[16.66%]">
 
-            {/* ─── Background Layer: Subtle Parallax Image ─── */}
-            <motion.div
-                className="absolute top-1/4 right-0 w-[500px] h-[500px] lg:w-[900px] lg:h-[900px] pointer-events-none select-none z-0"
-                style={{
-                    x: butterflyX,
-                    opacity: butterflyOpacity,
-                }}
-            >
-                <div className="relative w-full h-full mix-blend-multiply transition-opacity duration-1000 grayscale opacity-40">
-                    <Image
-                        src="/images/ethereal_butterfly.jpeg"
-                        alt=""
-                        fill
-                        className="object-contain"
-                        sizes="900px"
+                {/* ─── The Statement — word-by-word reveal ─── */}
+                <div>
+                    <ScrollRevealText
+                        text="I'm Ryan — a design engineer based in New York. I make things for the internet that are thoughtful, well-built, and occasionally a little unexpected."
+                        className="font-sans text-xl sm:text-2xl lg:text-[1.75rem] leading-relaxed text-ink font-light flex flex-wrap"
+                        scrollYProgress={scrollYProgress}
+                        startRange={0.05}
+                        endRange={0.45}
+                        accentPhrase="a little unexpected"
+                    />
+
+                    <ScrollRevealText
+                        text="Right now I'm interested in content systems, linguistic tools, and how AI can feel less like a product and more like a quiet companion."
+                        className="mt-8 font-sans text-xl sm:text-2xl lg:text-[1.75rem] leading-relaxed text-ink-muted font-light flex flex-wrap"
+                        scrollYProgress={scrollYProgress}
+                        startRange={0.35}
+                        endRange={0.75}
                     />
                 </div>
-            </motion.div>
 
-            {/* ─── 12-Column Grid Layout ─── */}
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-20">
+                {/* ─── Personal Aside ─── */}
+                <motion.div
+                    className="mt-16 pt-6 border-t border-ink/[0.06]"
+                    style={{
+                        opacity: useTransform(scrollYProgress, [0.7, 0.9], [0, 1]),
+                    }}
+                >
+                    <p className="font-sans text-[12px] text-ink-faint tracking-wide">
+                        Currently reading:{" "}
+                        <span className="text-ink-muted font-display italic">
+                            Dept. of Speculation
+                        </span>
+                        <span className="text-ink/20 mx-2">·</span>
+                        Listening to:{" "}
+                        <span className="text-ink-muted font-display italic">
+                            Ryuichi Sakamoto
+                        </span>
+                    </p>
+                </motion.div>
 
-                {/* Left Column (cols 1-4): Personable Metadata */}
-                <div className="lg:col-span-4 flex flex-col justify-between py-2 lg:pl-8">
-                    <div className="space-y-12">
-                        <div>
-                            <div className="font-dot text-[10px] text-accent mb-4">﹂소개﹂</div>
-                            <h2 className="font-pixel text-[9px] tracking-[0.3em] uppercase text-ink-faint">
-                                01 / Identity
-                            </h2>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="flex flex-col gap-1">
-                                <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase mb-1">Status</span>
-                                <div className="flex items-center gap-3">
-                                    <span className="relative flex h-1.5 w-1.5">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent"></span>
-                                    </span>
-                                    <span className="font-sans text-[11px] text-ink uppercase tracking-tight">Prototyping in NYC</span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase mb-1">Local Time</span>
-                                <span className="font-sans text-[11px] text-ink uppercase tracking-tight tabular-nums">{time || "21:23"} EST</span>
-                            </div>
-
-                            <div className="flex flex-col gap-1">
-                                <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase mb-1">Availability</span>
-                                <span className="font-sans text-[11px] text-accent uppercase tracking-tight">Select Projects Q3 2026</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="hidden lg:block pt-12">
-                        <div className="flex flex-col gap-4 border-l border-ink/[0.06] pl-6">
-                            <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase flex items-center gap-3">
-                                <span className="w-1 h-1 rounded-full bg-accent" />
-                                Narrative Craft
-                            </span>
-                            <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase flex items-center gap-3">
-                                <span className="w-1 h-1 rounded-full bg-ink/[0.2]" />
-                                Spatial Design
-                            </span>
-                            <span className="font-pixel text-[8px] text-ink-faint tracking-widest uppercase flex items-center gap-3">
-                                <span className="w-1 h-1 rounded-full bg-ink/[0.2]" />
-                                Systems Engineering
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column (cols 5-12): The Statement */}
-                <div className="lg:col-span-8">
-                    <div className="flex flex-col gap-2">
-                        {LINES.map((line, i) => (
-                            <ParagraphReveal
-                                key={i}
-                                text={line.text}
-                                highlight={line.highlight}
-                                scribble={line.scribble as any}
-                                index={i}
-                                scroll={scrollYProgress}
-                            />
-                        ))}
-                    </div>
-
-                    {/* Narrative Bridge to Work */}
-                    <motion.div
-                        className="mt-24 sm:mt-32 flex flex-col gap-6"
-                        style={{
-                            opacity: useTransform(scrollYProgress, [0.8, 0.95], [0, 1]),
-                        }}
-                    >
-                        <div className="h-px w-full bg-ink/[0.08]" />
-                        <div className="flex justify-between items-center px-1">
-                            <p className="font-pixel text-[9px] tracking-[0.25em] text-ink-muted uppercase">
-                                <span className="text-accent mr-3">◧</span>
-                                Exploring Sequence 02 — Work Index
-                            </p>
-                            <span className="font-pixel text-[9px] text-ink-faint tracking-widest uppercase">
-                                Visual Studio / 2026
-                            </span>
-                        </div>
-                    </motion.div>
-                </div>
+                {/* ─── Divider ─── */}
+                <motion.div
+                    className="mt-16 h-px w-full bg-border"
+                    style={{
+                        opacity: useTransform(scrollYProgress, [0.85, 1], [0, 1]),
+                        scaleX: useTransform(scrollYProgress, [0.85, 1], [0, 1]),
+                        transformOrigin: "left",
+                    }}
+                />
             </div>
         </motion.section>
-    );
-}
-
-/**
- * ParagraphReveal — Character-level staggered opacity reveal.
- * Eliminates all blur and jitter by avoiding motion in the primary reveal path.
- */
-function ParagraphReveal({ text, highlight, scribble, index, scroll }: {
-    text: string;
-    highlight: boolean;
-    scribble?: "underline" | "circle";
-    index: number;
-    scroll: MotionValue<number>;
-}) {
-    // Each line has a specific scroll range where it "activates"
-    const start = 0.2 + (index * 0.08);
-    const end = start + 0.2;
-    const svgReveal = useTransform(scroll, [start + 0.1, end + 0.15], [0, 1]);
-
-    // Split text into words and then characters to maintain layout stability
-    const words = text.split(" ");
-
-    return (
-        <div className="relative w-fit">
-            {/* Handwritten Annotations */}
-            {scribble === "underline" && (
-                <motion.svg
-                    className="absolute -bottom-2 -left-2 w-[calc(100%+1rem)] h-4 text-accent/80 overflow-visible pointer-events-none z-0"
-                    viewBox="0 0 100 10" preserveAspectRatio="none"
-                    style={{ pathLength: svgReveal, opacity: svgReveal }}
-                >
-                    <path d="M0,5 Q30,8 60,3 T100,5" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                </motion.svg>
-            )}
-            {scribble === "circle" && (
-                <motion.svg
-                    className="absolute -inset-y-4 -inset-x-6 w-[calc(100%+3rem)] h-[calc(100%+2rem)] text-accent/50 overflow-visible pointer-events-none z-0"
-                    viewBox="0 0 100 100" preserveAspectRatio="none"
-                    style={{ pathLength: svgReveal, opacity: svgReveal }}
-                >
-                    <path d="M50,5 C85,0 100,30 95,70 C85,100 15,100 5,70 C-5,30 15,10 50,5 Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </motion.svg>
-            )}
-
-            <p className={`relative z-10 font-display italic text-[clamp(1.6rem,3.5vw,3rem)] leading-[1.1] tracking-[-0.02em] ${highlight ? "text-ink" : "text-ink-muted"
-                }`}>
-                {words.map((word, wordIndex) => (
-                    <span key={wordIndex} className="inline-block mr-[0.25em] last:mr-0">
-                        {word.split("").map((char, charIndex) => {
-                            // Total index for the stagger (across the whole line)
-                            const charPos = text.indexOf(word) + charIndex;
-                            const charRevealStart = start + (charPos * 0.002);
-
-                            return (
-                                <motion.span
-                                    key={charIndex}
-                                    style={{
-                                        opacity: useTransform(
-                                            scroll,
-                                            [charRevealStart, charRevealStart + 0.05, end, end + 0.05],
-                                            [0, 1, 1, 0.6]
-                                        ),
-                                    }}
-                                >
-                                    {char}
-                                </motion.span>
-                            );
-                        })}
-                    </span>
-                ))}
-            </p>
-        </div>
     );
 }
