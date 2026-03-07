@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import { PROJECTS } from "@/constants/projects";
 import Image from "next/image";
 import Link from "next/link";
@@ -107,7 +107,7 @@ export default function WorkOverview() {
                         className="group flex flex-col items-center justify-center gap-2 p-4 outline-none"
                         aria-label={isLocked ? "Unlock Carousel" : "Lock Carousel"}
                     >
-                        <div className="w-12 h-12 bg-ink flex items-center justify-center text-canvas hover:invert transition-colors duration-300">
+                        <div className="w-12 h-12 border border-ink/20 bg-canvas/10 backdrop-blur-md flex items-center justify-center text-ink hover:bg-ink hover:text-canvas transition-colors duration-200">
                             <AnimatePresence mode="popLayout">
                                 {isLocked ? (
                                     <motion.div
@@ -130,17 +130,20 @@ export default function WorkOverview() {
                                 )}
                             </AnimatePresence>
                         </div>
-                        <span className="font-sans text-[10px] uppercase font-bold tracking-wider text-ink">
-                            {isLocked ? "LOCKED" : "UNLOCKED"}
+                        <span className="font-mono text-[10px] uppercase font-bold tracking-[0.2em] text-ink bg-canvas px-1">
+                            {isLocked ? "[LOCKED]" : "[SCROLL]"}
                         </span>
                     </button>
                 </div>
 
+                {/* ─── VELOCITY HUD ─── */}
+                <VelocityHUD offset={offset} isLocked={isLocked} />
+
                 {/* ─── 3-COLUMN LAYOUT ─── */}
-                <div className="w-full flex justify-between px-6 sm:px-12 lg:px-20 relative pointer-events-none">
+                <div className="w-full flex justify-between px-6 sm:px-12 lg:px-20 relative pointer-events-none h-[80vh] border-y border-ink/10 bg-canvas/40 backdrop-blur-[2px]">
 
                     {/* LEFT LIST */}
-                    <div className="w-1/4 h-[80vh] flex flex-col relative overflow-hidden hidden md:flex">
+                    <div className="w-1/4 h-full flex flex-col relative overflow-hidden hidden md:flex border-r border-ink/10">
                         {LEFT_PROJECTS.map((project, i) => (
                             <ListItem
                                 key={project.id}
@@ -155,7 +158,7 @@ export default function WorkOverview() {
                     </div>
 
                     {/* CENTER IMAGE STACK */}
-                    <div className="w-full max-w-[600px] h-[80vh] relative z-10 mx-auto">
+                    <div className="w-full max-w-[600px] h-full relative z-10 mx-auto">
                         {PROJECTS.map((project, i) => (
                             <ImageStackItem
                                 key={project.id}
@@ -170,7 +173,7 @@ export default function WorkOverview() {
                     </div>
 
                     {/* RIGHT LIST */}
-                    <div className="w-1/4 h-[80vh] flex flex-col relative overflow-hidden hidden md:flex items-end text-right">
+                    <div className="w-1/4 h-full flex flex-col relative overflow-hidden hidden md:flex items-end text-right border-l border-ink/10">
                         {RIGHT_PROJECTS.map((project, i) => (
                             <ListItem
                                 key={project.id}
@@ -194,6 +197,24 @@ export default function WorkOverview() {
 /* ──────────────────────────────
  * HELPER COMPONENTS
  * ────────────────────────────── */
+
+function VelocityHUD({ offset, isLocked }: { offset: any; isLocked: boolean }) {
+    const [vel, setVel] = useState(0);
+    const [index, setIndex] = useState(0);
+
+    useMotionValueEvent(offset, "change", (latest) => {
+        setVel(Math.abs(offset.getVelocity()));
+        setIndex(Math.floor(Math.abs(Number(latest)) / 400));
+    });
+
+    return (
+        <div className="absolute top-8 left-8 z-[60] font-mono text-[10px] sm:text-[11px] text-ink/70 uppercase tracking-widest hidden md:flex flex-col gap-1 pointer-events-none">
+            <div>VEL: {vel.toFixed(1)}</div>
+            <div>IDX: {String(index).padStart(4, '0')}</div>
+            <div>{isLocked ? "[LOCKED]" : "[UNLOCKED]"}</div>
+        </div>
+    );
+}
 
 function ListItem({ project, index, offset, itemHeight, total, isLocked, alignRight }: any) {
     // Math to unwrap the infinite sequence
@@ -221,10 +242,10 @@ function ListItem({ project, index, offset, itemHeight, total, isLocked, alignRi
             style={{ y: yTransform, opacity: opacityTransform }}
         >
             <Link href={project.tags?.includes("Coming Soon") ? "#work" : `/work/${project.id}`} className={`inline-flex items-center group ${alignRight ? "flex-row-reverse" : ""}`}>
-                <span className={`font-sans text-[10px] sm:text-[12px] font-bold uppercase text-ink-faint group-hover:text-ink transition-colors ${alignRight ? "ml-8" : "mr-8"}`}>
-                    {String(index + 1).padStart(2, "0")}/
+                <span className={`font-mono text-[10px] sm:text-[12px] font-bold uppercase text-ink-faint group-hover:text-ink transition-colors ${alignRight ? "ml-8" : "mr-8"}`}>
+                    [{String(index + 1).padStart(2, "0")}]
                 </span>
-                <span className="font-sans text-[10px] sm:text-[12px] font-bold uppercase tracking-widest text-ink group-hover:opacity-50 transition-opacity">
+                <span className="font-mono text-[10px] sm:text-[12px] font-bold uppercase tracking-widest text-ink/60 group-hover:text-ink transition-colors">
                     {project.title}
                 </span>
             </Link>
@@ -260,7 +281,7 @@ function ImageStackItem({ project, index, offset, itemHeight, total, isLocked }:
 
     return (
         <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] sm:w-[500px] aspect-[4/3] pointer-events-auto bg-canvas overflow-hidden"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] sm:w-[500px] aspect-[4/3] pointer-events-auto bg-canvas overflow-hidden border border-ink/10"
             style={{
                 y: yTransform,
                 scale: scaleTransform,

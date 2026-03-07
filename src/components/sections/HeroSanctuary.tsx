@@ -3,8 +3,9 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
+import TextDecrypt from "@/components/TextDecrypt";
 
-import BlobVideoShader from "@/components/BlobVideoShader";
+
 
 /**
  * HeroSanctuary
@@ -55,6 +56,7 @@ export default function HeroSanctuary() {
 
     /* ─── Parallax offset per line ─── */
     const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+    const [rawMouse, setRawMouse] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         const section = ref.current;
@@ -65,6 +67,7 @@ export default function HeroSanctuary() {
             const nx = (e.clientX - rect.left) / rect.width;
             const ny = (e.clientY - rect.top) / rect.height;
             setMouseOffset({ x: nx - 0.5, y: ny - 0.5 });
+            setRawMouse({ x: e.clientX, y: e.clientY });
         };
 
         section.addEventListener("mousemove", handleMove, { passive: true });
@@ -77,15 +80,23 @@ export default function HeroSanctuary() {
             ref={ref}
             className="relative h-screen w-full overflow-hidden bg-canvas"
         >
-            {/* ─── Cinematic Shader Atmosphere ─── */}
+            {/* ─── Cinematic Video Background ─── */}
             <motion.div
-                className="absolute inset-0 z-0 select-none pointer-events-auto" // Needs pointer events for the shader mouse tracking
+                className="absolute inset-0 z-0 select-none pointer-events-none"
                 style={{
                     y: videoY,
                     scale: videoScale,
                 }}
             >
-                <BlobVideoShader videoSrc="/assets/Add_soft_gentle_1080p_202602191457.mp4" />
+                <video
+                    src="https://cdn.coverr.co/videos/coverr-driving-through-the-city-at-night-8485/1080p.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover grayscale brightness-[-1] contrast-150 mix-blend-screen"
+                    style={{ filter: "brightness(2) contrast(1.5) grayscale(1) invert(1)" }}
+                />
             </motion.div>
 
 
@@ -104,31 +115,30 @@ export default function HeroSanctuary() {
                     >
                         <Link
                             href="#hero"
-                            className="font-sans text-[12px] tracking-[0.15em] uppercase hover:opacity-100 transition-opacity duration-300"
+                            className="font-mono text-[10px] sm:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-tactical-primary transition-colors duration-300"
                             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                         >
-                            HKJ Studio
+                            <TextDecrypt text="HKJ STUDIO" />
                         </Link>
                     </motion.div>
 
                     {/* Navigation — plain text */}
                     <motion.nav
-                        className="flex items-center gap-6 sm:gap-8"
+                        className="flex items-center gap-6 sm:gap-8 pointer-events-auto"
                         initial={{ opacity: 0, x: 16 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
                         {[
-                            { label: "Work", href: "#work" },
-                            { label: "About", href: "#about" },
-                            { label: "Contact", href: "#contact" },
+                            { label: "WORK", href: "#work" },
+                            { label: "ABOUT", href: "#about" },
                         ].map((item) => (
                             <Link
                                 key={item.label}
                                 href={item.href}
-                                className="font-sans text-[12px] tracking-[0.15em] uppercase opacity-50 hover:opacity-100 transition-opacity duration-300"
+                                className="font-mono text-[10px] font-bold tracking-[0.2em] uppercase opacity-70 hover:opacity-100 hover:text-tactical-primary transition-colors duration-300"
                             >
-                                {item.label}
+                                <TextDecrypt text={item.label} />
                             </Link>
                         ))}
                     </motion.nav>
@@ -145,42 +155,43 @@ export default function HeroSanctuary() {
                         {/* Line 1: Ryan Jun */}
                         <div className="overflow-hidden pb-4">
                             <motion.span
-                                className="block font-sans font-bold uppercase text-[clamp(4rem,10vw,12rem)] leading-[0.85] tracking-tighter will-change-transform"
+                                className="block font-display uppercase font-bold text-[clamp(4.5rem,10vw,12rem)] leading-[0.85] tracking-tighter will-change-transform"
                                 variants={lineReveal}
                                 style={{
                                     transform: `translate(${mouseOffset.x * PARALLAX[0] * 100}px, ${mouseOffset.y * PARALLAX[0] * 100}px)`,
-                                    transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                                    transition: "transform 0.1s linear",
                                 }}
                             >
-                                Ryan Jun
+                                <TextDecrypt text="RYAN JUN" speed={20} duration={400} />
                             </motion.span>
                         </div>
 
                         {/* Line 2: Design */}
                         <div className="overflow-hidden mt-1 pb-4">
                             <motion.span
-                                className="block font-sans font-bold uppercase text-[clamp(4rem,10vw,12rem)] leading-[0.85] tracking-tighter will-change-transform"
+                                className="block font-display uppercase font-bold text-[clamp(4.5rem,10vw,12rem)] leading-[0.85] tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50 will-change-transform text-outline"
                                 variants={lineReveal}
                                 style={{
                                     transform: `translate(${mouseOffset.x * PARALLAX[1] * 100}px, ${mouseOffset.y * PARALLAX[1] * 100}px)`,
-                                    transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                                    transition: "transform 0.1s linear",
+                                    WebkitTextStroke: "1px rgba(240,240,242,0.8)"
                                 }}
                             >
-                                Design
+                                <TextDecrypt text="DESIGN" speed={20} duration={600} />
                             </motion.span>
                         </div>
 
                         {/* Line 3: Engineer — */}
                         <div className="overflow-hidden mt-1 pb-4 flex items-baseline gap-4">
                             <motion.span
-                                className="block font-sans font-bold uppercase text-[clamp(4rem,10vw,12rem)] leading-[0.85] tracking-tighter will-change-transform"
+                                className="block font-display uppercase font-bold text-[clamp(4.5rem,10vw,12rem)] leading-[0.85] tracking-tighter will-change-transform"
                                 variants={lineReveal}
                                 style={{
                                     transform: `translate(${mouseOffset.x * PARALLAX[2] * 100}px, ${mouseOffset.y * PARALLAX[2] * 100}px)`,
-                                    transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                                    transition: "transform 0.1s linear",
                                 }}
                             >
-                                Engineer
+                                <TextDecrypt text="ENGINEER" speed={20} duration={800} />
                             </motion.span>
                             <motion.span
                                 className="font-sans font-bold text-[clamp(3.5rem,9vw,11rem)] opacity-30 will-change-transform"
@@ -196,30 +207,36 @@ export default function HeroSanctuary() {
                     </h1>
                 </motion.div>
 
-                {/* ══ BOTTOM BAR — Clean, plain text ══ */}
-                <div className="flex justify-between items-end">
-                    <motion.p
-                        className="font-sans text-[12px] tracking-wide opacity-50"
+                {/* ══ BOTTOM BAR — Coordinates and Live Data ══ */}
+                <div className="flex justify-between items-end relative z-20">
+                    <motion.div
+                        className="font-mono text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase opacity-70 flex flex-col gap-1"
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.9, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        Design Engineer — NYC
-                    </motion.p>
+                        <span className="text-ink">LOC: NYC // EST</span>
+                        <span>LAT: 40.7128N / LNG: 74.0060W</span>
+                        <span className="opacity-50">DESIGN & ENGINEERING</span>
+                    </motion.div>
 
-                    <motion.p
-                        className="font-sans text-[12px] tracking-wide opacity-30 flex items-center gap-1"
+                    <motion.div
+                        className="font-mono text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-right opacity-70 flex flex-col gap-1"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1.1, duration: 0.6 }}
                     >
-                        Available Q3 2026
-                        <motion.span
-                            className="inline-block w-[1px] h-[12px] bg-canvas"
-                            animate={{ opacity: [1, 0] }}
-                            transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-                        />
-                    </motion.p>
+                        <span>X: {String(rawMouse.x).padStart(4, '0')} Y: {String(rawMouse.y).padStart(4, '0')}</span>
+                        <span className="opacity-50">SESSION.ACTIVE</span>
+                        <span className="flex items-center justify-end gap-2 text-ink">
+                            READY
+                            <motion.span
+                                className="inline-block w-2 h-2 bg-ink/50"
+                                animate={{ opacity: [1, 0, 1] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                            />
+                        </span>
+                    </motion.div>
                 </div>
 
                 {/* ─── Scroll Indicator ─── */}

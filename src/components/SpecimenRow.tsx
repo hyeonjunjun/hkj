@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motio
 import Link from "next/link";
 import type { Project } from "@/constants/projects";
 import { useDesignStore } from "@/store/useDesignStore";
+import BoundingBox from "@/components/BoundingBox";
 
 
 interface SpecimenRowProps {
@@ -69,91 +70,57 @@ export default function SpecimenRow({ project, index }: SpecimenRowProps) {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.05 }}
         >
-            <Link
-                href={`/work/${project.id}`}
-                className="group block relative border-b border-ink/[0.06] overflow-visible"
-                data-cursor="view"
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => {
-                    setIsHovered(true);
-                    setIsFocussed(true);
-                }}
-                onMouseLeave={() => {
-                    setIsHovered(false);
-                    setIsFocussed(false);
-                }}
-            >
-                {/* ─── Main Row ─── */}
-                <motion.div
-                    className="flex items-center justify-between py-6 sm:py-8 transition-colors duration-500"
+            <BoundingBox tag="">
+                <Link
+                    href={`/work/${project.id}`}
+                    className="group block relative border-b border-ink/10 overflow-visible"
+                    data-cursor="view"
+                    onMouseEnter={() => {
+                        setIsHovered(true);
+                        setIsFocussed(true);
+                        // Handled by BoundingBox: playHover();
+                    }}
+                    onMouseLeave={() => {
+                        setIsHovered(false);
+                        setIsFocussed(false);
+                    }}
                 >
-                    <div className="flex items-center gap-12 sm:gap-16">
-                        {/* Index */}
-                        <motion.span
-                            layoutId={`project-index-${project.id}`}
-                            className="font-pixel text-[10px] text-ink-faint shrink-0"
-                            animate={{
-                                letterSpacing: ["0.1em", "0.2em", "0.1em"]
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        >
-                            {project.id}
-                        </motion.span>
-
-                        {/* Title — Magnetic Effect */}
-                        <motion.h3
-                            layoutId={`project-title-${project.id}`}
-                            ref={titleRef}
-                            className="font-sans font-bold uppercase text-[clamp(1.5rem,3vw,2.5rem)] leading-none tracking-tighter text-ink transition-all duration-300 group-hover:tracking-wider whitespace-nowrap"
-                            animate={{
-                                x: isHovered ? (springX.get() - mouseX.get()) * 0.1 : 0,
-                                y: isHovered ? (springY.get() - mouseY.get()) * 0.1 : 0,
-                            }}
-                        >
-                            {project.title}
-                        </motion.h3>
-                    </div>
-
-                    {/* Meta Detail (Hidden on mobile) */}
-                    <div className="hidden md:flex items-center gap-16 text-right">
-                        <div className="flex flex-col items-end">
-                            <motion.span
-                                className="font-pixel text-[9px] text-ink-faint uppercase tracking-wider mb-1"
-                                animate={{ opacity: [0.6, 1, 0.6] }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                            >
-                                Client
-                            </motion.span>
-                            <span className="font-pixel text-[10px] text-ink-muted uppercase">
-                                {project.client}
+                    {/* ─── Main Row ─── */}
+                    <div className="flex items-center justify-between py-6 sm:py-8 transition-colors duration-500 bg-transparent group-hover:bg-ink/[0.02]">
+                        <div className="flex items-center gap-12 sm:gap-16">
+                            {/* Index */}
+                            <span className="font-mono font-bold text-[10px] text-ink-muted shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                                [{project.id}]
                             </span>
+
+                            {/* Title */}
+                            <h3 className="font-mono font-bold uppercase text-[clamp(1.5rem,3vw,2.5rem)] leading-none tracking-widest text-ink transition-colors duration-150 whitespace-nowrap">
+                                {project.title}
+                            </h3>
                         </div>
-                        <div className="flex flex-col items-end">
-                            <motion.span
-                                className="font-pixel text-[9px] text-ink-faint uppercase tracking-wider mb-1"
-                                animate={{ opacity: [0.6, 1, 0.6] }}
-                                transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
-                            >
-                                Field
-                            </motion.span>
-                            <span className="font-pixel text-[10px] text-ink-muted uppercase">{project.sector}</span>
+
+                        {/* Meta Detail (Hidden on mobile) */}
+                        <div className="hidden md:flex items-center gap-16 text-right">
+                            <div className="flex flex-col items-end">
+                                <span className="font-mono font-bold text-[9px] text-ink-muted opacity-50 tracking-[0.2em] mb-1">
+                                    CLIENT
+                                </span>
+                                <span className="font-mono text-[10px] text-ink uppercase tracking-wider transition-colors">
+                                    {project.client}
+                                </span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span className="font-mono font-bold text-[9px] text-ink-muted opacity-50 tracking-[0.2em] mb-1">
+                                    SECTOR
+                                </span>
+                                <span className="font-mono text-[10px] text-ink uppercase tracking-wider transition-colors">
+                                    {project.sector}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </motion.div>
-
-
-                {/* Hover Line Sweep */}
-                <motion.div
-                    className="absolute left-0 bottom-0 h-[1px] bg-ink z-10"
-                    initial={{ width: 0 }}
-                    animate={{ width: isHovered ? "100%" : 0 }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                />
-            </Link>
+                </Link>
+            </BoundingBox>
         </motion.div>
     );
 }

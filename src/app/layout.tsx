@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Geist, Geist_Mono, Silkscreen, DotGothic16 } from "next/font/google";
+import { Inter, Geist, Geist_Mono, Silkscreen, DotGothic16 } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import CurtainPreloader from "@/components/CurtainPreloader";
-
+import TacticalCursor from "@/components/TacticalCursor";
+import GlobalNav from "@/components/GlobalNav";
 
 /* ─── Typography ─── */
 
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-display",
@@ -58,9 +58,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable} ${silkscreen.variable} ${dotGothic.variable} antialiased bg-canvas text-ink`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${silkscreen.variable} ${dotGothic.variable} antialiased bg-canvas text-ink`}
       >
         <CurtainPreloader />
+        <TacticalCursor />
+        <GlobalNav />
+
+        {/* Layer 1: Sensor Grid Overlay */}
+        <div className="fixed inset-0 pointer-events-none z-10 bg-sensor-grid mix-blend-overlay" />
 
 
         <SmoothScroll>{children}</SmoothScroll>
