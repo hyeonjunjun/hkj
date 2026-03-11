@@ -9,22 +9,35 @@ export default function SelectedWork() {
   return (
     <section
       data-section="work"
-      className="relative py-24 md:py-40"
-      style={{ backgroundColor: "var(--color-bg)" }}
+      className="relative"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        padding: "6rem var(--page-px) 4rem",
+      }}
     >
-      {/* Quiet section label */}
-      <div className="px-6 md:px-12 mb-16">
-        <span
-          className="font-mono uppercase tracking-[0.3em]"
-          style={{ fontSize: "var(--text-xs)", color: "var(--color-text-dim)" }}
-        >
-          Selected Work
-        </span>
+      {/* Section header — console-style */}
+      <div
+        className="flex items-center justify-between mb-12"
+        style={{
+          borderBottom: "1px solid var(--color-border)",
+          paddingBottom: "0.75rem",
+        }}
+      >
+        <span className="label">Selected Work</span>
+        <span className="label">{displayProjects.length} Projects</span>
       </div>
 
-      {displayProjects.map((project, i) => (
-        <SelectedWorkCard key={project.id} project={project} index={i} />
-      ))}
+      {/* Grid */}
+      <div
+        className="grid gap-6"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+        }}
+      >
+        {displayProjects.map((project, i) => (
+          <SelectedWorkCard key={project.id} project={project} index={i} />
+        ))}
+      </div>
     </section>
   );
 }

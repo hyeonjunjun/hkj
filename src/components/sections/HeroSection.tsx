@@ -1,21 +1,21 @@
 "use client";
 
-import { useRef } from "react";
-import dynamic from "next/dynamic";
+import { useRef, useEffect, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import SplitText from "@/components/ui/SplitText";
-import StatusBadge from "@/components/ui/StatusBadge";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { motion } from "framer-motion";
 
-const HeroSurface = dynamic(() => import("@/components/HeroSurface"), {
-  ssr: false,
-});
+/**
+ * Hero — Console Display
+ * Large monospaced name, role as a dim label,
+ * subtle oscilloscope line, grid-line texture background.
+ */
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const [year] = useState(() => new Date().getFullYear());
 
   useGSAP(
     () => {
@@ -31,7 +31,7 @@ export default function HeroSection() {
       });
 
       gsap.to(".hero-content", {
-        yPercent: -20,
+        yPercent: -15,
         opacity: 0,
         ease: "none",
         scrollTrigger: {
@@ -50,62 +50,74 @@ export default function HeroSection() {
       ref={sectionRef}
       className="relative w-full h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Ambient WebGL Background */}
-      <HeroSurface />
+      {/* 
+        Background is now handled by GlobalCanvas (FluidBackground)
+        We intentionally leave this section transparent so the WebGL context shows through.
+      */}
 
-      {/* Content — centered for maximum identity impact */}
+      {/* Content */}
       <div className="hero-content relative z-10 flex flex-col items-center text-center px-6">
-        {/* Status badge */}
-        <StatusBadge className="mb-10" />
-
-        {/* Name — the identity anchor */}
-        <SplitText
-          text="Ryan Jun"
-          tag="h1"
-          type="chars"
-          animation="slide-up"
-          stagger={0.04}
-          duration={1.2}
-          ease="power3.out"
-          delay={0.3}
-          className="font-serif italic leading-[0.9] tracking-[-0.02em]"
-          splitClassName="mx-[0.01em]"
-          style={{ fontSize: "var(--text-display)" }}
-        />
-
-        {/* Role — secondary */}
-        <SplitText
-          text="Design Engineer"
-          tag="p"
-          type="words"
-          animation="fade-in"
-          stagger={0.1}
-          duration={0.8}
-          delay={0.8}
-          className="font-serif italic mt-4"
-          splitClassName="mr-[0.25em]"
-          style={{ fontSize: "var(--text-xl)", color: "var(--color-text-dim)" }}
-        />
-
-        {/* Location + year */}
-        <p
-          className="mt-6 font-mono uppercase tracking-[0.3em] opacity-0"
-          style={{
-            color: "var(--color-text-dim)",
-            fontSize: "var(--text-xs)",
-            opacity: 0,
-            animation: "fadeInSlow 1.5s ease 1.4s forwards",
-          }}
+        {/* Status indicator */}
+        <motion.div
+          className="flex items-center gap-2 mb-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
         >
-          New York City &middot; {new Date().getFullYear()}
-        </p>
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: "#4ade80" }}
+          />
+          <span className="label" style={{ fontSize: "var(--text-xs)" }}>
+            Available for work
+          </span>
+        </motion.div>
+
+        {/* Name */}
+        <motion.h1
+          className="font-mono uppercase tracking-[0.08em] leading-none"
+          style={{ fontSize: "var(--text-display)", color: "var(--color-text)" }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          Ryan Jun
+        </motion.h1>
+
+        {/* Role */}
+        <motion.p
+          className="font-sans mt-4 tracking-[0.05em]"
+          style={{
+            fontSize: "var(--text-sm)",
+            color: "var(--color-text-dim)",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 1 }}
+        >
+          Design Engineer
+        </motion.p>
+
+        {/* Coordinates / Year */}
+        <motion.p
+          className="font-mono uppercase tracking-[0.2em] mt-6"
+          style={{
+            color: "var(--color-text-ghost)",
+            fontSize: "var(--text-xs)",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 1 }}
+        >
+          40.7128° N · NYC · {year}
+        </motion.p>
       </div>
 
-      {/* Scroll cue — centered at bottom */}
+      {/* Scroll cue */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        style={{ color: "var(--color-text-dim)" }}
-        animate={{ opacity: [0.15, 0.5, 0.15] }}
+        style={{ color: "var(--color-text-ghost)" }}
+        animate={{ opacity: [0.1, 0.4, 0.1] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       >
         <svg

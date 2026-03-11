@@ -3,20 +3,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useStudioStore } from "@/lib/store";
+import NothingEqLoader from "@/components/ui/NothingEqLoader";
 
 /**
- * Preloader — a quiet brand moment.
- * Serif "HKJ" with a gold accent line, then clip-path reveal out.
+ * Preloader — High-Fidelity & Brutal
+ * A mechanical dot-matrix style equalizer loader setting the tone.
  */
-
-const letterDrop = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring" as const, stiffness: 300, damping: 25 },
-  },
-};
 
 export default function CurtainPreloader() {
   const [visible, setVisible] = useState(true);
@@ -25,16 +17,16 @@ export default function CurtainPreloader() {
 
   useEffect(() => {
     // Check sessionStorage — only show on first visit
-    if (sessionStorage.getItem("hkj-loaded")) {
+    if (sessionStorage.getItem("hkj-loaded-v2")) {
       setLoaded(true);
       setVisible(false);
       return;
     }
 
     const timer = setTimeout(() => {
-      sessionStorage.setItem("hkj-loaded", "1");
+      sessionStorage.setItem("hkj-loaded-v2", "1");
       setLoaded(true);
-    }, 2200);
+    }, 2800); // Give enough time for the mechanical feel to register
     return () => clearTimeout(timer);
   }, [setLoaded]);
 
@@ -42,8 +34,7 @@ export default function CurtainPreloader() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-center justify-center"
-          style={{ backgroundColor: "var(--color-bg)" }}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black"
           initial={{ clipPath: "inset(0 0 0 0)" }}
           animate={
             isLoaded
@@ -51,63 +42,35 @@ export default function CurtainPreloader() {
               : { clipPath: "inset(0 0 0 0)" }
           }
           transition={{
-            duration: 0.9,
-            ease: [0.76, 0, 0.24, 1],
-            delay: isLoaded ? 0.3 : 0,
+            duration: 0.8,
+            ease: [0.83, 0, 0.17, 1], // Sharp, mechanical ease
+            delay: isLoaded ? 0.2 : 0,
           }}
           onAnimationComplete={() => {
             if (isLoaded) setVisible(false);
           }}
         >
           <motion.div
-            className="flex flex-col items-center select-none"
-            animate={isLoaded ? { scale: 0.95, opacity: 0 } : {}}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center justify-center gap-6"
+            animate={isLoaded ? { scale: 0.98, opacity: 0 } : {}}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            {/* HKJ in serif */}
-            <motion.div
-              className="font-serif italic flex overflow-hidden"
-              style={{ fontSize: "var(--text-3xl)", letterSpacing: "0.05em" }}
-              initial="hidden"
-              animate="visible"
-              transition={{ staggerChildren: 0.06, delayChildren: 0.3 }}
-            >
-              {"HKJ".split("").map((char, i) => (
-                <motion.span
-                  key={i}
-                  variants={letterDrop}
-                  className="inline-block will-change-transform"
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </motion.div>
+            <NothingEqLoader bars={5} segmentsPerBar={4} intervalMs={100} />
 
-            {/* Gold accent line */}
+            {/* Brutalist loading text */}
             <motion.div
-              className="mt-4"
-              style={{ backgroundColor: "var(--color-gold)" }}
-              initial={{ width: 0, height: 1 }}
-              animate={{ width: 40 }}
-              transition={{ delay: 0.8, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            />
-
-            {/* Subtitle */}
-            <motion.p
-              className="font-mono uppercase tracking-[0.3em] mt-4"
-              style={{
-                color: "var(--color-text-dim)",
-                fontSize: "var(--text-xs)",
-              }}
+              className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#888] flex items-center gap-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
             >
-              Studio
-            </motion.p>
+              <span>Initializing State</span>
+              <span className="w-1 h-1 bg-white inline-block animate-pulse" />
+            </motion.div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+

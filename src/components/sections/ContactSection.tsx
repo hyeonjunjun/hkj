@@ -1,13 +1,7 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
-import SplitText from "@/components/ui/SplitText";
-import MagneticButton from "@/components/ui/MagneticButton";
-import LocalTime from "@/components/ui/LocalTime";
-import RollingLink from "@/components/RollingLink";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useState, useCallback, useEffect } from "react";
+import { motion } from "framer-motion";
 
 const SOCIALS = [
   { label: "GitHub", href: "#" },
@@ -15,33 +9,32 @@ const SOCIALS = [
   { label: "Twitter", href: "#" },
 ];
 
-export default function ContactSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [copied, setCopied] = useState(false);
-  const reduced = useReducedMotion();
+function LiveClock() {
+  const [time, setTime] = useState("");
 
-  const email = "hello@hkjstudio.com";
-
-  useGSAP(
-    () => {
-      if (reduced || !sectionRef.current) return;
-
-      gsap.fromTo(
-        sectionRef.current,
-        { backgroundColor: "#0a0a0a" },
-        {
-          backgroundColor: "#111110",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            end: "top 20%",
-            scrub: 1.5,
-          },
-        }
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZoneName: "short",
+        })
       );
-    },
-    { scope: sectionRef }
-  );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return <span suppressHydrationWarning>{time || "—"}</span>;
+}
+
+export default function ContactSection() {
+  const [copied, setCopied] = useState(false);
+  const email = "hello@hkjstudio.com";
 
   const copyEmail = useCallback(async () => {
     try {
@@ -60,93 +53,120 @@ export default function ContactSection() {
 
   return (
     <section
-      ref={sectionRef}
       data-section="contact"
-      className="relative min-h-screen flex flex-col justify-center px-6 md:px-12"
+      className="relative"
+      style={{
+        padding: "6rem var(--page-px) 0",
+        borderTop: "1px solid var(--color-border)",
+      }}
     >
-      <div className="max-w-5xl">
-        {/* Heading */}
-        <SplitText
-          text="Let's work together."
-          tag="h2"
-          type="words"
-          animation="slide-up"
-          stagger={0.08}
-          duration={1}
-          ease="power3.out"
-          className="font-serif italic leading-tight mb-6"
-          splitClassName="mr-[0.25em]"
-          style={{ fontSize: "var(--text-2xl)" }}
-        />
-
-        {/* Personal note */}
-        <p
-          className="mb-10 font-mono uppercase tracking-widest"
-          style={{
-            color: "var(--color-text-dim)",
-            fontSize: "var(--text-xs)",
-          }}
+      {/* CTA area */}
+      <div className="max-w-5xl mx-auto mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          Currently open to projects that make me nervous.
-        </p>
+          <span className="label block mb-8">Contact</span>
 
-        {/* The email IS the CTA */}
-        <MagneticButton
-          strength={0.2}
-          radius={200}
-          scale={1.02}
-          onClick={copyEmail}
-          className="group"
-        >
-          <h3
-            className="font-serif italic leading-tight transition-colors duration-500"
+          <p
+            className="font-sans mb-3"
             style={{
-              fontSize: "var(--text-3xl)",
-              color: copied ? "var(--color-gold)" : "var(--color-text)",
+              fontSize: "var(--text-lg)",
+              color: "var(--color-text)",
             }}
           >
-            {copied ? "Copied." : email}
-          </h3>
-        </MagneticButton>
+            Let&apos;s work together.
+          </p>
 
-        <p
-          className="mt-4 font-mono transition-opacity duration-300"
-          style={{
-            color: "var(--color-text-dim)",
-            fontSize: "var(--text-xs)",
-            opacity: copied ? 0 : 0.5,
-          }}
-        >
-          Click to copy. I read every email.
-        </p>
+          <p
+            className="font-sans mb-10"
+            style={{
+              fontSize: "var(--text-sm)",
+              color: "var(--color-text-dim)",
+            }}
+          >
+            Open to projects that make me nervous.
+          </p>
+
+          {/* Email CTA */}
+          <button
+            onClick={copyEmail}
+            className="group font-mono uppercase tracking-[0.1em] transition-colors duration-300"
+            style={{
+              fontSize: "var(--text-xl)",
+              color: copied ? "var(--color-accent)" : "var(--color-text)",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {copied ? "Copied ✓" : email}
+          </button>
+
+          <p
+            className="mt-3 font-mono transition-opacity duration-300"
+            style={{
+              color: "var(--color-text-ghost)",
+              fontSize: "var(--text-xs)",
+              opacity: copied ? 0 : 1,
+            }}
+          >
+            Click to copy
+          </p>
+        </motion.div>
       </div>
 
-      {/* Footer area */}
+      {/* Footer bar */}
       <div
-        className="absolute bottom-0 left-0 right-0 px-6 md:px-12 py-8"
-        style={{ borderTop: "1px solid var(--color-border)" }}
+        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        style={{
+          borderTop: "1px solid var(--color-border)",
+          padding: "1rem var(--page-px) 1rem 0",
+        }}
       >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          {/* Social links with RollingLink */}
-          <div className="flex gap-8">
-            {SOCIALS.map((s) => (
-              <RollingLink key={s.label} href={s.href} label={s.label} />
-            ))}
-          </div>
-
-          <div className="flex items-center gap-8">
-            <LocalTime />
-            <span
-              className="font-mono"
+        {/* Social links */}
+        <div className="flex gap-6">
+          {SOCIALS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              className="font-mono uppercase tracking-[0.1em] transition-colors duration-300"
               style={{
-                color: "var(--color-text-dim)",
                 fontSize: "var(--text-xs)",
-                opacity: 0.4,
+                color: "var(--color-text-dim)",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--color-text)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--color-text-dim)")
+              }
             >
-              &copy; {new Date().getFullYear()} HKJ Studio
-            </span>
-          </div>
+              {s.label}
+            </a>
+          ))}
+        </div>
+
+        {/* Clock + Copyright */}
+        <div className="flex items-center gap-6">
+          <span
+            className="font-mono"
+            style={{
+              color: "var(--color-text-dim)",
+              fontSize: "var(--text-xs)",
+            }}
+          >
+            <LiveClock />
+          </span>
+          <span
+            className="font-mono"
+            style={{
+              color: "var(--color-text-ghost)",
+              fontSize: "var(--text-xs)",
+            }}
+          >
+            &copy; {new Date().getFullYear()} HKJ Studio
+          </span>
         </div>
       </div>
     </section>
