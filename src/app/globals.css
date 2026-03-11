@@ -88,6 +88,30 @@ body {
   animation: grain 0.8s steps(4) infinite;
 }
 
+/* ─── Status Badge Pulse ─── */
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+}
+
+.status-pulse {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+/* ─── Marquee ─── */
+
+.marquee-track {
+  will-change: transform;
+}
+
 /* ─── Utility Animations ─── */
 
 @keyframes fadeInSlow {

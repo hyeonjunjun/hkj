@@ -3,14 +3,17 @@
 import { useRef, useState, useCallback } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
+import SplitText from "@/components/ui/SplitText";
 import MagneticButton from "@/components/ui/MagneticButton";
+import LocalTime from "@/components/ui/LocalTime";
+import RollingLink from "@/components/RollingLink";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-/**
- * Contact — intimate, not corporate.
- * The email is the entire section. Giant. Unmissable.
- * A personal closing note, not a CTA.
- */
+const SOCIALS = [
+  { label: "GitHub", href: "#" },
+  { label: "LinkedIn", href: "#" },
+  { label: "Twitter", href: "#" },
+];
 
 export default function ContactSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -62,9 +65,23 @@ export default function ContactSection() {
       className="relative min-h-screen flex flex-col justify-center px-6 md:px-12"
     >
       <div className="max-w-5xl">
-        {/* Personal note — not a CTA */}
+        {/* Heading */}
+        <SplitText
+          text="Let's work together."
+          tag="h2"
+          type="words"
+          animation="slide-up"
+          stagger={0.08}
+          duration={1}
+          ease="power3.out"
+          className="font-serif italic leading-tight mb-6"
+          splitClassName="mr-[0.25em]"
+          style={{ fontSize: "var(--text-2xl)" }}
+        />
+
+        {/* Personal note */}
         <p
-          className="mb-8 font-mono uppercase tracking-widest"
+          className="mb-10 font-mono uppercase tracking-widest"
           style={{
             color: "var(--color-text-dim)",
             fontSize: "var(--text-xs)",
@@ -73,7 +90,7 @@ export default function ContactSection() {
           Currently open to projects that make me nervous.
         </p>
 
-        {/* The email IS the section */}
+        {/* The email IS the CTA */}
         <MagneticButton
           strength={0.2}
           radius={200}
@@ -81,7 +98,7 @@ export default function ContactSection() {
           onClick={copyEmail}
           className="group"
         >
-          <h2
+          <h3
             className="font-serif italic leading-tight transition-colors duration-500"
             style={{
               fontSize: "var(--text-3xl)",
@@ -89,7 +106,7 @@ export default function ContactSection() {
             }}
           >
             {copied ? "Copied." : email}
-          </h2>
+          </h3>
         </MagneticButton>
 
         <p
@@ -102,46 +119,35 @@ export default function ContactSection() {
         >
           Click to copy. I read every email.
         </p>
-
-        {/* Minimal links — no labeled "social links" section */}
-        <div className="mt-24 flex gap-8">
-          {["GitHub", "LinkedIn", "Twitter"].map((label) => (
-            <a
-              key={label}
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono uppercase tracking-wider transition-colors duration-300"
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-dim)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--color-gold)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--color-text-dim)")
-              }
-              data-cursor="magnetic"
-            >
-              {label}
-            </a>
-          ))}
-        </div>
       </div>
 
-      {/* Footer — barely there */}
-      <div className="absolute bottom-8 left-6 md:left-12">
-        <p
-          className="font-mono"
-          style={{
-            color: "var(--color-text-dim)",
-            fontSize: "var(--text-xs)",
-            opacity: 0.4,
-          }}
-        >
-          &copy; {new Date().getFullYear()} HKJ Studio
-        </p>
+      {/* Footer area */}
+      <div
+        className="absolute bottom-0 left-0 right-0 px-6 md:px-12 py-8"
+        style={{ borderTop: "1px solid var(--color-border)" }}
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Social links with RollingLink */}
+          <div className="flex gap-8">
+            {SOCIALS.map((s) => (
+              <RollingLink key={s.label} href={s.href} label={s.label} />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-8">
+            <LocalTime />
+            <span
+              className="font-mono"
+              style={{
+                color: "var(--color-text-dim)",
+                fontSize: "var(--text-xs)",
+                opacity: 0.4,
+              }}
+            >
+              &copy; {new Date().getFullYear()} HKJ Studio
+            </span>
+          </div>
+        </div>
       </div>
     </section>
   );
