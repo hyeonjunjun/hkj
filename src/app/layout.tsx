@@ -3,8 +3,9 @@ import { Playfair_Display, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import CurtainPreloader from "@/components/CurtainPreloader";
-import TacticalCursor from "@/components/TacticalCursor";
+import Cursor from "@/components/Cursor";
 import GlobalNav from "@/components/GlobalNav";
+import TransitionOverlay from "@/components/TransitionOverlay";
 
 /* ─── Typography ─── */
 
@@ -54,8 +55,9 @@ export default function RootLayout({
         }}
       >
         <CurtainPreloader />
-        <TacticalCursor />
+        <Cursor />
         <GlobalNav />
+        <TransitionOverlay />
 
         {/* Film Grain Overlay */}
         <div

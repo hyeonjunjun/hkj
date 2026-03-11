@@ -1,72 +1,122 @@
 "use client";
 
-import Link from "next/link";
-import { useSliderStore } from "@/store/useSliderStore";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLenis } from "lenis/react";
+
+/**
+ * Navigation — minimal, fixed, mix-blend-difference.
+ * Hides on scroll down, shows on scroll up.
+ * No slider coupling. No CTA buttons.
+ */
 
 export default function GlobalNav() {
-    const { activeSlide, totalSlides } = useSliderStore();
+  const [isVisible, setIsVisible] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const lastScrollY = useRef(0);
+  const lenis = useLenis();
 
-    // Calculate progress as a percentage
-    const progress = totalSlides > 1 ? (activeSlide / (totalSlides - 1)) * 100 : 0;
-    return (
-        <nav className="fixed inset-0 z-50 pointer-events-none mix-blend-difference text-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between uppercase tracking-widest font-mono text-[10px] leading-relaxed">
+  useEffect(() => {
+    if (!lenis) return;
 
-            {/* ─── TOP ROW ─── */}
-            <div className="flex justify-between items-start w-full pointer-events-auto">
+    const onScroll = () => {
+      const currentY = lenis.scroll;
+      if (currentY < 100) {
+        setIsVisible(true);
+      } else if (currentY > lastScrollY.current + 5) {
+        setIsVisible(false);
+      } else if (currentY < lastScrollY.current - 5) {
+        setIsVisible(true);
+      }
+      lastScrollY.current = currentY;
+    };
 
-                {/* 1. Left Stack (Links) */}
-                <div className="flex flex-col gap-1 items-start">
-                    <Link href="#work" className="hover:opacity-50 transition-opacity">WORK</Link>
-                    <Link href="#services" className="hover:opacity-50 transition-opacity">SERVICES</Link>
-                    <Link href="#about" className="hover:opacity-50 transition-opacity">ABOUT</Link>
-                    <Link href="#bts" className="hover:opacity-50 transition-opacity">BTS</Link>
-                </div>
+    lenis.on("scroll", onScroll);
+    return () => lenis.off("scroll", onScroll);
+  }, [lenis]);
 
-                {/* 2. Center Logo */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-6 sm:top-10 lg:top-12 flex flex-col items-center gap-1">
-                    <div className="flex gap-2 font-bold tracking-[0.3em] text-[12px]">
-                        <span>H</span>
-                        <span>K</span>
-                        <span>J</span>
-                    </div>
-                    <span className="text-[8px] tracking-[0.4em] opacity-70">STUDIO</span>
-                </div>
+  const scrollTo = (target: string) => {
+    setMenuOpen(false);
+    // Simple approach: scroll to section by class/id
+    const el = document.querySelector(target) as HTMLElement | null;
+    if (el && lenis) {
+      lenis.scrollTo(el, { offset: 0, duration: 1.5 });
+    }
+  };
 
-                {/* 3. Right Buttons */}
-                <div className="flex gap-4 items-center">
-                    <button className="border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors duration-300">
-                        LET'S TALK
-                    </button>
-                    <button className="border border-white/20 px-4 py-2 hover:bg-white hover:text-black transition-colors duration-300">
-                        MENU
-                    </button>
-                </div>
+  return (
+    <>
+      {/* Nav Bar */}
+      <motion.nav
+        className="fixed top-0 left-0 right-0 z-50 mix-blend-difference text-white px-6 md:px-12 py-6"
+        initial={{ y: 0 }}
+        animate={{ y: isVisible || menuOpen ? 0 : -80 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <button
+            onClick={() => lenis?.scrollTo(0, { duration: 1.5 })}
+            className="font-serif italic tracking-wide"
+            style={{ fontSize: "var(--text-base)" }}
+          >
+            HKJ
+          </button>
 
+          {/* Menu Toggle */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="font-mono uppercase tracking-widest"
+            style={{ fontSize: "var(--text-xs)" }}
+          >
+            {menuOpen ? "Close" : "Menu"}
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Full-Screen Menu Overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="fixed inset-0 z-40 flex items-center justify-center"
+            style={{ backgroundColor: "var(--color-bg)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="flex flex-col items-center gap-8">
+              {[
+                { label: "Work", target: "[data-section='work']" },
+                { label: "About", target: "[data-section='about']" },
+                { label: "Contact", target: "[data-section='contact']" },
+              ].map((item, i) => (
+                <motion.button
+                  key={item.label}
+                  onClick={() => scrollTo(item.target)}
+                  className="font-serif italic transition-colors duration-300"
+                  style={{
+                    fontSize: "var(--text-2xl)",
+                    color: "var(--color-text)",
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = "var(--color-gold)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "var(--color-text)")
+                  }
+                >
+                  {item.label}
+                </motion.button>
+              ))}
             </div>
-
-            {/* ─── BOTTOM ROW ─── */}
-            <div className="flex justify-between items-end w-full pointer-events-auto">
-                <div className="md:w-[150px]"></div> {/* Spacer for flex balance */}
-
-                {/* Slide Indicator */}
-                <div className="flex items-center gap-4 text-white/50">
-                    <span className="text-white w-4 text-right">
-                        {String(activeSlide + 1).padStart(2, '0')}
-                    </span>
-                    <div className="w-[40px] h-[1px] bg-white/20 relative">
-                        <div
-                            className="absolute left-0 top-0 h-full bg-white transition-all duration-500 ease-out min-w-[4px]"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                    <span>{String(totalSlides).padStart(2, '0')}</span>
-                </div>
-
-                <div className="md:w-[150px] text-right pointer-events-none opacity-50">
-                    <span className="hidden md:inline">SCROLL // NAVIGATE</span>
-                </div>
-            </div>
-
-        </nav>
-    );
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }

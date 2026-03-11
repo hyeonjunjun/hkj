@@ -88,6 +88,17 @@ body {
   animation: grain 0.8s steps(4) infinite;
 }
 
+/* ─── Utility Animations ─── */
+
+@keyframes fadeInSlow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* ─── Reduced Motion ─── */
 
 @media (prefers-reduced-motion: reduce) {

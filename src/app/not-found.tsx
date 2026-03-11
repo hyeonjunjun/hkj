@@ -1,25 +1,48 @@
 import Link from "next/link";
 
 export default function NotFound() {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-ink text-canvas p-4 text-center">
-            <h1 className="font-pixel text-[12vw] leading-none mb-4 text-canvas/20 select-none">
-                404
-            </h1>
-            <h2 className="font-display italic text-4xl sm:text-5xl mb-6">
-                Signal Lost
-            </h2>
-            <p className="font-sans text-sm sm:text-base text-canvas/60 max-w-md mb-12">
-                The requested data stream could not be established. The coordinates you provided do not map to a known sector.
-            </p>
-            <Link
-                href="/"
-                className="group relative inline-flex items-center gap-2 px-6 py-3 border border-canvas/20 rounded-full hover:bg-canvas hover:text-ink transition-colors duration-300"
-            >
-                <span className="font-pixel text-[10px] tracking-[0.2em] uppercase">
-                    Return to Index
-                </span>
-            </Link>
-        </div>
-    );
+  return (
+    <div
+      className="flex flex-col items-center justify-center min-h-screen p-4 text-center"
+      style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
+    >
+      <h1
+        className="font-serif italic leading-none mb-4 select-none"
+        style={{ fontSize: "12vw", opacity: 0.1 }}
+      >
+        404
+      </h1>
+      <h2
+        className="font-serif italic mb-6"
+        style={{ fontSize: "var(--text-2xl)" }}
+      >
+        Nothing here.
+      </h2>
+      <p
+        className="font-sans max-w-md mb-12"
+        style={{
+          color: "var(--color-text-dim)",
+          fontSize: "var(--text-sm)",
+        }}
+      >
+        The page you&apos;re looking for doesn&apos;t exist, or it moved
+        somewhere quieter.
+      </p>
+      <Link
+        href="/"
+        className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full transition-colors duration-300 hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+        style={{
+          border: "1px solid var(--color-border)",
+          color: "var(--color-text-dim)",
+        }}
+      >
+        <span
+          className="font-mono uppercase tracking-[0.2em]"
+          style={{ fontSize: "var(--text-xs)" }}
+        >
+          Back Home
+        </span>
+      </Link>
+    </div>
+  );
 }
