@@ -9,17 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#0a0a0a",
-        surface: "#141414",
-        border: "#2a2a2a",
-        text: "#e8e5e0",
-        "text-dim": "#8a8378",
-        gold: "#c4a265",
-        blue: "#3d5a80",
-        terracotta: "#e07a5f",
+        bg: "var(--color-bg)",
+        surface: "var(--color-surface)",
+        border: "var(--color-border)",
+        text: "var(--color-text)",
+        "text-dim": "var(--color-text-dim)",
+        accent: "var(--color-accent)",
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "Georgia", "serif"],
+        display: ["var(--font-display)", "sans-serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "monospace"],
       },

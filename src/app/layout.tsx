@@ -31,12 +31,27 @@ const newsreader = Newsreader({
 /* ── Metadata ── */
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hkjstudio.com"),
   title: {
     default: "HKJ Studio — Ryan Jun",
     template: "%s | HKJ Studio",
   },
   description:
-    "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    "Design engineering at the intersection of high-fidelity craft and deep systems thinking. Specializing in React Native, Next.js, and design systems.",
+  openGraph: {
+    title: "HKJ Studio — Ryan Jun",
+    description: "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    url: "https://hkjstudio.com",
+    siteName: "HKJ Studio",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HKJ Studio — Ryan Jun",
+    description: "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    creator: "@hyeonjunjun",
+  },
 };
 
 /* ── Root Layout ── */

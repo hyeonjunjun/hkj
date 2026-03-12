@@ -58,7 +58,7 @@ export default function SchematicView({ project }: { project: Project }) {
             </div>
 
             <div className="mt-8 text-xs text-muted-foreground text-center">
-            // END OF SCHEMATIC DATA
+            {"//"} END OF SCHEMATIC DATA
             </div>
         </motion.div>
     );

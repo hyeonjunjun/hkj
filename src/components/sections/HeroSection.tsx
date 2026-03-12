@@ -1,180 +1,111 @@
 "use client";
 
-import { useRef } from "react";
-import Image from "next/image";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "@/lib/gsap";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import SplitText from "@/components/ui/SplitText";
+import { useLenis } from "lenis/react";
+import { useTextScramble } from "@/hooks/useTextScramble";
 
-/* ─── Animation helpers ─── */
+/**
+ * ScrambleWord
+ * Adds a hacker-like scramble effect to a single word on mount and hover.
+ */
+function ScrambleWord({ word }: { word: string }) {
+  const { displayText, scramble } = useTextScramble(word);
 
-const ease = [0.16, 1, 0.3, 1] as const;
+  useEffect(() => {
+    // Short delay to let the page settle before scrambling
+    const t = setTimeout(() => {
+      scramble();
+    }, 400);
+    return () => clearTimeout(t);
+  }, [scramble]);
 
-function fadeUp(delay: number) {
-  return {
-    initial: { opacity: 0, y: 14 },
-    animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.8, ease },
-  } as const;
+  return (
+    <span 
+      onMouseEnter={scramble}
+      className="inline-block cursor-crosshair transition-colors hover:text-[var(--color-accent)]"
+    >
+      {displayText}
+    </span>
+  );
 }
-
-/* ═══════════════════════════════════════════
-   HeroSection — Full-Bleed Statement Hero
-   Inspired by Valiente / Telha Clarke
-   ═══════════════════════════════════════════ */
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
+  const lenis = useLenis();
 
-  /* ── Parallax on background image ── */
-  useGSAP(
-    () => {
-      if (reduced || !sectionRef.current || !imageRef.current) return;
-
-      gsap.to(imageRef.current, {
-        yPercent: -15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1.5,
-        },
-      });
-    },
-    { scope: sectionRef },
-  );
+  const scrollTo = (target: string) => {
+    const el = document.querySelector(target) as HTMLElement | null;
+    if (el && lenis) lenis.scrollTo(el, { offset: 0, duration: 1.5 });
+  };
 
   return (
     <section
       ref={sectionRef}
       data-section="hero"
-      className="relative w-full h-screen overflow-hidden"
-      style={{ backgroundColor: "var(--color-bg)" }}
+      className="relative w-full flex flex-col justify-end overflow-hidden"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        minHeight: "100svh",
+        padding: "var(--page-px)",
+        paddingBottom: "clamp(2rem, 5vh, 4rem)",
+      }}
     >
-      {/* ═══ Full-bleed background image ═══ */}
-      <div
-        ref={imageRef}
-        className="absolute inset-0"
-        style={{ top: "-10%", bottom: "-10%", height: "120%" }}
-      >
-        <Image
-          src="/images/sift-v2.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-          style={{ filter: "brightness(0.8)" }}
-        />
-      </div>
-
-      {/* Gradient overlay — bone from bottom for text legibility */}
-      <div
-        className="absolute inset-0 pointer-events-none"
+      {/* ═══ Background Noise / Grain Overlay (Valiente Vibe) ═══ */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.15]"
         style={{
-          background:
-            "linear-gradient(to top, rgba(243,238,230,0.95) 0%, rgba(243,238,230,0.4) 35%, rgba(243,238,230,0.1) 55%, transparent 75%)",
+          backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")",
+          backgroundRepeat: "repeat",
+          backgroundSize: "200px 200px",
+          mixBlendMode: "multiply",
         }}
       />
 
-      {/* ═══ Content overlay ═══ */}
-      <div
-        className="relative z-10 flex flex-col justify-end h-full w-full"
-        style={{ padding: "var(--page-px)", paddingTop: 64 }}
-      >
-        {/* ── Serif italic statement — positioned lower-left ── */}
-        <div className="max-w-3xl mb-12 md:mb-16">
-          <SplitText
-            text="— Driven by craft, centered on systems."
-            tag="h1"
-            type="words"
-            animation="slide-up"
-            stagger={0.06}
-            delay={0.9}
-            duration={0.8}
-            className="font-display italic"
-            style={{
-              fontSize: "clamp(1.8rem, 5vw, 3.5rem)",
-              color: "var(--color-text)",
-              lineHeight: 1.2,
-            }}
-          />
-        </div>
+      {/* ═══ Massive Typographic Statement ═══ */}
+      <div className="relative z-10 w-full flex flex-col">
+        <motion.h1 
+          className="font-display font-bold uppercase tracking-tighter leading-[0.85] w-full text-center lg:text-left"
+          style={{ fontSize: "clamp(4.5rem, 16vw, 18rem)", color: "var(--color-text)" }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="overflow-hidden">
+            <ScrambleWord word="DESIGN" />
+          </div>
+          <div className="overflow-hidden">
+            <ScrambleWord word="ENGINEERING" />
+          </div>
+        </motion.h1>
 
-        {/* ═══ BOTTOM BAR — 3 columns (Valiente-style) ═══ */}
-        <div className="grid grid-cols-1 md:grid-cols-3 items-end gap-4 md:gap-0 pb-2">
-          {/* Left: tagline */}
-          <motion.p
-            className="font-sans"
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--color-text-dim)",
-              lineHeight: 1.6,
-            }}
-            {...fadeUp(1.2)}
-          >
-            Design engineering for the AI era.
-          </motion.p>
-
-          {/* Center: scroll cue */}
+        {/* ═══ Supporting Info (Bottom Bar) ═══ */}
+        <div className="flex flex-col md:flex-row justify-between items-end mt-12 md:mt-16 lg:mt-24 gap-8">
+          
           <motion.div
-            className="hidden md:flex justify-center items-end"
-            {...fadeUp(1.3)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="w-full md:w-1/3"
           >
-            <motion.div
-              animate={{ opacity: [0.2, 0.5, 0.2] }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="flex items-center gap-2"
-            >
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: "var(--text-micro)",
-                  letterSpacing: "0.2em",
-                  color: "var(--color-text-ghost)",
-                }}
-              >
-                Scroll
-              </span>
-              <svg
-                width="1"
-                height="28"
-                viewBox="0 0 1 28"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                style={{ color: "var(--color-text-ghost)" }}
-              >
-                <line x1="0.5" y1="0" x2="0.5" y2="28" />
-              </svg>
-            </motion.div>
+            <p className="font-sans text-balance text-[var(--color-text-dim)]" style={{ fontSize: "var(--text-lg)" }}>
+              Tactile products at the intersection of high-fidelity craft and deep systems thinking.
+            </p>
           </motion.div>
 
-          {/* Right: year + location */}
-          <motion.div
-            className="md:text-right"
-            {...fadeUp(1.4)}
+          <motion.button
+            onClick={() => scrollTo("[data-section='about']")}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="group flex flex-col items-center gap-4 cursor-pointer"
           >
-            <span
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-micro)",
-                letterSpacing: "0.15em",
-                color: "var(--color-text-ghost)",
-              }}
-            >
-              Est. 2024 / NYC
+            <span className="font-mono uppercase tracking-widest text-[var(--text-micro)] text-[var(--color-text-dim)] group-hover:text-[var(--color-accent)] transition-colors">
+              Scroll To Explore
             </span>
-          </motion.div>
+            <div className="w-[1px] h-12 bg-black/20 group-hover:bg-[var(--color-accent)] transition-colors" />
+          </motion.button>
+
         </div>
       </div>
     </section>

@@ -29,18 +29,19 @@ export default function MagneticButton({
   useEffect(() => {
     if (reduced || !ref.current) return;
 
-    quickToX.current = gsap.quickTo(ref.current, "x", {
+    const node = ref.current;
+    quickToX.current = gsap.quickTo(node, "x", {
       duration: 0.6,
       ease: "power3.out",
     });
-    quickToY.current = gsap.quickTo(ref.current, "y", {
+    quickToY.current = gsap.quickTo(node, "y", {
       duration: 0.6,
       ease: "power3.out",
     });
 
     return () => {
-      if (ref.current) {
-        gsap.set(ref.current, { x: 0, y: 0, scale: 1 });
+      if (node) {
+        gsap.set(node, { x: 0, y: 0, scale: 1 });
       }
     };
   }, [reduced]);

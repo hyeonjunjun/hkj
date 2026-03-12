@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
 
 const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
@@ -14,7 +14,6 @@ interface TextDecryptProps {
 
 export default function TextDecrypt({ text, className = "", speed = 20, duration = 150 }: TextDecryptProps) {
     const [displayText, setDisplayText] = useState("");
-    const [isDecrypted, setIsDecrypted] = useState(false);
     const containerRef = useRef<HTMLSpanElement>(null);
     const isInView = useInView(containerRef, { once: true, margin: "-10% 0px" });
 
@@ -29,7 +28,6 @@ export default function TextDecrypt({ text, className = "", speed = 20, duration
             const now = Date.now();
             if (now - startTime > duration) {
                 setDisplayText(text);
-                setIsDecrypted(true);
                 return;
             }
 

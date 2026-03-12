@@ -1,43 +1,44 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   HKJ Studio · Bone & Charcoal Instrument
-   light-mode · editorial · typographic
+   HKJ Studio · Nothing OS / Teenage Engineering
+   Ash-gray · 1px borders · mono-heavy · red accent
+   Hardware spec sheet aesthetic
    ═══════════════════════════════════════════ */
 
 :root {
   /* ── Typography ── */
-  --font-display: var(--font-editorial-new), "Georgia", serif;
+  --font-display: var(--font-sans), "Helvetica Neue", "Arial", sans-serif;
   --font-mono: var(--font-space-mono), "Courier New", monospace;
   --font-sans: var(--font-satoshi), system-ui, sans-serif;
 
-  /* ── Bone & Charcoal Palette ── */
-  --color-bg: #F3EEE6;
-  --color-surface: #EDE8DF;
-  --color-surface-raised: #E4DED4;
-  --color-border: rgba(38, 38, 38, 0.12);
-  --color-border-strong: rgba(38, 38, 38, 0.25);
-  --color-border-active: rgba(38, 38, 38, 0.4);
-  --color-text: #262626;
-  --color-text-dim: #6B6B6B;
-  --color-text-ghost: #9A9A9A;
-  --color-accent: #262626;
-  --color-accent-warm: #B08968;
+  /* ── Bone & Charcoal Palette -> Light Gray & Black (Brutalist/Minimalist) ── */
+  --color-bg: #EAE8E3; /* Soft ash/light-gray */
+  --color-surface: #E4E2DF;
+  --color-surface-raised: #DDDBD8;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-strong: rgba(0, 0, 0, 0.25);
+  --color-border-active: rgba(0, 0, 0, 1);
+  --color-text: #000000;
+  --color-text-dim: #555555;
+  --color-text-ghost: #888888;
+  --color-accent: #EB3300; /* Vibrant Red-Orange */
+  --color-accent-warm: #CC2B00; /* Darker variant for hover */
 
   /* ── Fluid Type Scale ── */
-  --text-micro: clamp(0.5rem, 0.48rem + 0.1vw, 0.575rem);
-  --text-xs: clamp(0.6rem, 0.56rem + 0.15vw, 0.7rem);
-  --text-sm: clamp(0.7rem, 0.65rem + 0.2vw, 0.8rem);
-  --text-base: clamp(0.8rem, 0.75rem + 0.25vw, 0.95rem);
-  --text-lg: clamp(1rem, 0.9rem + 0.5vw, 1.3rem);
-  --text-xl: clamp(1.3rem, 1.1rem + 1vw, 2rem);
-  --text-2xl: clamp(1.8rem, 1.4rem + 2vw, 3rem);
-  --text-3xl: clamp(2.2rem, 1.6rem + 3vw, 4.5rem);
-  --text-display: clamp(3rem, 2rem + 5vw, 8rem);
+  --text-micro: clamp(0.6rem, 0.55rem + 0.1vw, 0.65rem);
+  --text-xs: clamp(0.7rem, 0.65rem + 0.15vw, 0.75rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.2vw, 0.9rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-xl: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
+  --text-2xl: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  --text-3xl: clamp(3.5rem, 2.5rem + 3vw, 5rem);
+  --text-display: clamp(4rem, 3rem + 8vw, 12rem); /* Massive scaling for brutalist headers */
 
   /* ── Layout ── */
-  --grid-gap: clamp(0.5rem, 0.4rem + 0.5vw, 1rem);
-  --page-px: clamp(1rem, 0.5rem + 2vw, 3rem);
+  --grid-gap: clamp(1rem, 0.8rem + 1vw, 2rem);
+  --page-px: clamp(1.5rem, 1rem + 3vw, 4rem);
 }
 
 /* ── Base ── */
@@ -54,8 +55,8 @@ body {
 }
 
 ::selection {
-  background-color: #262626;
-  color: #F3EEE6;
+  background-color: var(--color-accent);
+  color: #FFFFFF;
 }
 
 /* ── Utilities ── */
@@ -111,32 +112,6 @@ body {
     color: var(--color-text-ghost);
   }
 
-  /* Playlist track row */
-  .track-row {
-    display: grid;
-    grid-template-columns: 40px 1fr 200px 120px 60px 40px;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border);
-    padding: 0.75rem 0;
-    transition: background-color 0.2s ease;
-  }
-
-  @media (max-width: 1024px) {
-    .track-row {
-      grid-template-columns: 32px 1fr 60px 40px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .track-row {
-      grid-template-columns: 32px 1fr 40px;
-    }
-  }
-
-  .track-row:hover {
-    background-color: var(--color-surface-raised);
-  }
-
   /* Nothing OS dot-matrix texture */
   .dot-matrix {
     background-image: radial-gradient(
@@ -151,6 +126,23 @@ body {
     background-color: var(--color-border);
     width: 100%;
   }
+
+  /* TE-style bordered container */
+  .te-panel {
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+  }
+
+  /* Technical bracket label: [ LABEL ] */
+  .bracket-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-text-ghost);
+  }
+  .bracket-label::before { content: "[ "; }
+  .bracket-label::after { content: " ]"; }
 }
 
 /* ── Paper Noise Texture ── */
@@ -201,6 +193,11 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-border-strong);
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
 }
 
 /* ── Reduced Motion ── */

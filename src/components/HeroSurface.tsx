@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useMemo } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /**
@@ -97,11 +97,11 @@ const fragmentShader = `
 function ShaderMaterial() {
   const meshRef = useRef<THREE.Mesh>(null!);
 
-  const uniforms = useMemo(() => ({
+  const uniforms = useRef({
     uTime: { value: 0 },
     uMouse: { value: new THREE.Vector2(0.5, 0.5) },
     uResolution: { value: new THREE.Vector2(0, 0) }
-  }), []);
+  }).current;
 
   useFrame((state) => {
     uniforms.uTime.value = state.clock.getElapsedTime();

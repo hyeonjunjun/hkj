@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useState, createElement } from "react";
+import { useRef, createElement } from "react";
 import { useGSAP } from "@gsap/react";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 interface SplitTextProps {
@@ -121,6 +121,7 @@ export default function SplitText({
   return createElement(
     tag,
     {
+      // eslint-disable-next-line react-hooks/refs
       ref: containerRef,
       className: `overflow-hidden ${className}`,
       style: {

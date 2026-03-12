@@ -36,8 +36,6 @@ export default function RollingLink({
 
   const chars = label.split("");
   const STAGGER = 0.03;
-
-  // @ts-ignore - Dynamic component props typing
   return (
     <Component
       {...props}

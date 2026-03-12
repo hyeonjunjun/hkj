@@ -3,13 +3,12 @@
 import { useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
-import NothingEqLoader from "@/components/ui/NothingEqLoader";
 import LiveClock from "@/components/ui/LiveClock";
 
 /* ─────────────────────────────────────────────
-   MobileMenu — full-screen navigation overlay
-   Staggered link entrance, decorative EQ loader,
-   contact info and live clock at the bottom.
+   MobileMenu — Nothing OS / Teenage Engineering
+   Full-screen overlay with grid bg, numbered
+   navigation, technical metadata footer.
    ───────────────────────────────────────────── */
 
 interface MobileMenuProps {
@@ -24,11 +23,9 @@ interface MenuLink {
 
 const MENU_LINKS: MenuLink[] = [
   { label: "Work", target: "[data-section='work']" },
-  { label: "About", target: "[data-section='about']" },
+  { label: "Studio", target: "[data-section='about']" },
   { label: "Contact", target: "[data-section='contact']" },
 ];
-
-/* ── Animation variants ── */
 
 const overlayVariants = {
   hidden: { opacity: 0 },
@@ -37,10 +34,10 @@ const overlayVariants = {
 };
 
 const linkVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, x: -20 },
   visible: (i: number) => ({
     opacity: 1,
-    y: 0,
+    x: 0,
     transition: {
       delay: 0.15 + i * 0.08,
       duration: 0.4,
@@ -49,8 +46,8 @@ const linkVariants = {
   }),
   exit: {
     opacity: 0,
-    y: -10,
-    transition: { duration: 0.2 },
+    x: -10,
+    transition: { duration: 0.15 },
   },
 };
 
@@ -73,11 +70,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     (target: string) => {
       const el = document.querySelector(target) as HTMLElement | null;
       if (el && lenis) {
-        lenis.scrollTo(el, { offset: -50, duration: 1.5 });
+        lenis.scrollTo(el, { offset: 0, duration: 1.5 });
       }
       onClose();
     },
-    [lenis, onClose]
+    [lenis, onClose],
   );
 
   return (
@@ -90,42 +87,51 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           animate="visible"
           exit="exit"
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="fixed inset-0 z-[60] flex flex-col"
+          className="fixed inset-0 z-[60] flex flex-col overflow-hidden"
           style={{ backgroundColor: "var(--color-bg)" }}
         >
-          {/* ── Close button ── */}
+          {/* Grid background */}
           <div
-            className="flex justify-end"
-            style={{ padding: "0.5rem var(--page-px)" }}
+            className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(var(--color-text) 1px, transparent 1px), linear-gradient(90deg, var(--color-text) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+
+          {/* Top bar — nav label + close */}
+          <div
+            className="relative z-10 flex items-center justify-between border-b border-[var(--color-border)]"
+            style={{ padding: "1rem var(--page-px)" }}
           >
+            <span
+              className="font-mono uppercase tracking-[0.2em]"
+              style={{
+                fontSize: "var(--text-micro)",
+                color: "var(--color-text-ghost)",
+              }}
+            >
+              [ NAV : MENU ]
+            </span>
+
             <button
               onClick={onClose}
-              className="font-mono transition-colors duration-200"
+              className="font-mono uppercase tracking-[0.15em] border border-[var(--color-border)] px-3 py-1.5 transition-colors duration-200 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
               style={{
-                fontSize: "var(--text-sm)",
+                fontSize: "var(--text-micro)",
                 color: "var(--color-text-dim)",
-                width: 40,
-                height: 40,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--color-text)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--color-text-dim)")
-              }
               aria-label="Close navigation menu"
             >
-              &#x2715;
+              Close
             </button>
           </div>
 
-          {/* ── Navigation links ── */}
+          {/* Navigation links — numbered */}
           <nav
-            className="flex-1 flex flex-col justify-center"
-            style={{ padding: "0 var(--page-px)", gap: 24 }}
+            className="relative z-10 flex-1 flex flex-col justify-center"
+            style={{ padding: "0 var(--page-px)", gap: 0 }}
           >
             {MENU_LINKS.map((link, i) => (
               <motion.button
@@ -136,75 +142,107 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 animate="visible"
                 exit="exit"
                 onClick={() => handleNavigate(link.target)}
-                className="font-mono uppercase tracking-[0.15em] text-left transition-colors duration-300"
-                style={{
-                  fontSize: "var(--text-2xl)",
-                  color: "var(--color-text)",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--color-accent)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--color-text)")
-                }
+                className="flex items-baseline gap-4 text-left py-4 border-b border-[var(--color-border)] transition-colors duration-300 group"
               >
-                {link.label}
+                <span
+                  className="font-mono tabular-nums transition-colors duration-300 group-hover:text-[var(--color-accent)]"
+                  style={{
+                    fontSize: "var(--text-sm)",
+                    color: "var(--color-text-dim)",
+                    minWidth: 32,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className="font-display font-bold uppercase tracking-tighter transition-colors duration-300 group-hover:text-[var(--color-accent)]"
+                  style={{
+                    fontSize: "clamp(2.5rem, 10vw, 5rem)",
+                    color: "var(--color-text)",
+                    lineHeight: 1,
+                  }}
+                >
+                  {link.label}
+                </span>
               </motion.button>
             ))}
           </nav>
 
-          {/* ── Footer: EQ loader, email, clock ── */}
+          {/* Footer — system info */}
           <motion.div
             variants={footerVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="flex flex-col items-start"
-            style={{
-              padding: "0 var(--page-px)",
-              paddingBottom: "2.5rem",
-              gap: 16,
-            }}
+            className="relative z-10 border-t border-[var(--color-border)]"
+            style={{ padding: "1.5rem var(--page-px)" }}
           >
-            {/* Decorative equalizer */}
-            <NothingEqLoader
-              bars={4}
-              segmentsPerBar={3}
-              size={4}
-              gap={2}
-              intervalMs={140}
-            />
+            <div className="flex flex-col gap-4">
+              <span
+                className="font-mono uppercase tracking-[0.2em]"
+                style={{
+                  fontSize: "var(--text-micro)",
+                  color: "var(--color-text-ghost)",
+                }}
+              >
+                SYS.INFO
+              </span>
 
-            {/* Email */}
-            <a
-              href="mailto:hello@hkjstudio.com"
-              className="font-mono transition-colors duration-300"
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text-dim)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--color-text)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--color-text-dim)")
-              }
-            >
-              hello@hkjstudio.com
-            </a>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <span
+                    className="font-mono uppercase tracking-[0.15em]"
+                    style={{
+                      fontSize: "var(--text-micro)",
+                      color: "var(--color-text-ghost)",
+                    }}
+                  >
+                    Email
+                  </span>
+                  <a
+                    href="mailto:hello@hkjstudio.com"
+                    className="font-mono transition-colors duration-300 hover:text-[var(--color-accent)]"
+                    style={{
+                      fontSize: "var(--text-sm)",
+                      color: "var(--color-text)",
+                    }}
+                  >
+                    hello@hkjstudio.com
+                  </a>
+                </div>
 
-            {/* Location + Clock */}
-            <div
-              className="flex items-center font-mono uppercase tracking-[0.08em]"
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-dim)",
-                gap: 8,
-              }}
-            >
-              <span>NYC</span>
-              <span style={{ color: "var(--color-text-ghost)" }}>&mdash;</span>
-              <LiveClock showTimezone />
+                <div className="flex flex-col gap-1">
+                  <span
+                    className="font-mono uppercase tracking-[0.15em]"
+                    style={{
+                      fontSize: "var(--text-micro)",
+                      color: "var(--color-text-ghost)",
+                    }}
+                  >
+                    Local Time
+                  </span>
+                  <LiveClock
+                    showTimezone
+                    className="font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ backgroundColor: "var(--color-accent)" }}
+                />
+                <span
+                  className="font-mono uppercase tracking-[0.15em]"
+                  style={{
+                    fontSize: "var(--text-micro)",
+                    color: "var(--color-text-dim)",
+                  }}
+                >
+                  Available — NYC / Seoul
+                </span>
+              </div>
             </div>
           </motion.div>
         </motion.div>

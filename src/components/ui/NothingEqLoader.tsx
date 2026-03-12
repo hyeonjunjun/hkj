@@ -54,13 +54,15 @@ export default function NothingEqLoader({
   useEffect(() => {
     // If scroll-driven, compute levels from progress
     if (scrollProgress !== undefined) {
-      setLevels(
-        Array.from({ length: bars }, (_, i) => {
-          const barProgress = scrollProgress * bars;
-          const fill = Math.min(Math.max(barProgress - i, 0), 1);
-          return Math.round(fill * segmentsPerBar);
-        })
-      );
+      setTimeout(() => {
+        setLevels(
+          Array.from({ length: bars }, (_, i) => {
+            const barProgress = scrollProgress * bars;
+            const fill = Math.min(Math.max(barProgress - i, 0), 1);
+            return Math.round(fill * segmentsPerBar);
+          })
+        );
+      }, 0);
       return;
     }
 

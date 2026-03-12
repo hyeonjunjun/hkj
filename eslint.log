@@ -1,0 +1,150 @@
+﻿
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\AtmosphericGrain.tsx
+  3:10  warning  'motion' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\Cursor.tsx
+  35:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\Cursor.tsx:35:5
+  33 |     if (!hasFinePointer) return;
+  34 |
+> 35 |     setIsVisible(true);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |
+  37 |     const moveCursor = (e: MouseEvent) => {
+  38 |       cursorX.set(e.clientX);  react-hooks/set-state-in-effect
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\CurtainPreloader.tsx
+  24:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\CurtainPreloader.tsx:24:7
+  22 |     if (sessionStorage.getItem("hkj-loaded-v3")) {
+  23 |       setLoaded(true);
+> 24 |       setVisible(false);
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |       return;
+  26 |     }
+  27 |  react-hooks/set-state-in-effect
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\HeroSurface.tsx
+    4:28  warning  'useThree' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  107:5   error    Error: This value cannot be modified
+
+Modifying a value previously passed as an argument to a hook is not allowed. Consider moving the modification before calling the hook.
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\HeroSurface.tsx:107:5
+  105 |
+  106 |   useFrame((state) => {
+> 107 |     uniforms.uTime.value = state.clock.getElapsedTime();
+      |     ^^^^^^^^^^^^^^ `uniforms` cannot be modified
+  108 |     // Correctly map mouse from [-1, 1] to [0, 1] for the shader
+  109 |     uniforms.uMouse.value.lerp(new THREE.Vector2(state.mouse.x * 0.5 + 0.5, state.mouse.y * 0.5 + 0.5), 0.05);
+  110 |   });  react-hooks/immutability
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\RollingLink.tsx
+  40:3  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\TextDecrypt.tsx
+   4:10  warning  'motion' is defined but never used                @typescript-eslint/no-unused-vars
+  17:12  warning  'isDecrypted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\case-study\HighlightAccordion.tsx
+  3:20  warning  'useRef' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\case-study\SchematicView.tsx
+  60:77  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\case-study\ScrollStage.tsx
+  384:27  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\sections\StudioSection.tsx
+   8:8    warning  'StatusBadge' is defined but never used                                 @typescript-eslint/no-unused-vars
+  98:207  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\ui\MagneticButton.tsx
+  43:22  warning  The ref value 'ref.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'ref.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\ui\NothingEqLoader.tsx
+  57:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\ui\NothingEqLoader.tsx:57:7
+  55 |     // If scroll-driven, compute levels from progress
+  56 |     if (scrollProgress !== undefined) {
+> 57 |       setLevels(
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  58 |         Array.from({ length: bars }, (_, i) => {
+  59 |           const barProgress = scrollProgress * bars;
+  60 |           const fill = Math.min(Math.max(barProgress - i, 0), 1);  react-hooks/set-state-in-effect
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\ui\SplitText.tsx
+    3:18  warning  'useEffect' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+    3:29  warning  'useState' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+    5:16  warning  'ScrollTrigger' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  123:5   error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\components\ui\SplitText.tsx:123:5
+  121 |   return createElement(
+  122 |     tag,
+> 123 |     {
+      |     ^
+> 124 |       ref: containerRef,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 125 |       className: `overflow-hidden ${className}`,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 126 |       style: {
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 127 |         perspective: animation === "slide-up" ? "600px" : undefined,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 128 |         ...externalStyle,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 129 |       },
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 130 |     },
+      | ^^^^^^ Passing a ref to a function may read its value during render
+  131 |     children
+  132 |   );
+  133 | }  react-hooks/refs
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\hooks\useReducedMotion.ts
+  10:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\hooks\useReducedMotion.ts:10:5
+   8 |   useEffect(() => {
+   9 |     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+> 10 |     setPrefersReduced(mql.matches);
+     |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  11 |
+  12 |     const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+  13 |     mql.addEventListener("change", handler);  react-hooks/set-state-in-effect
+
+C:\Users\Ryan Jun\.gemini\antigravity\scratch\hkjstudio\src\hooks\useTextScramble.ts
+  22:28  warning  'prev' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 21 problems (10 errors, 11 warnings)
+

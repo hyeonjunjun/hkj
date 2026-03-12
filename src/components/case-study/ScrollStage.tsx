@@ -381,7 +381,7 @@ function HighlightSection({
             className="font-mono uppercase tracking-[0.3em] mb-4"
             style={{ fontSize: "var(--text-xs)", color: "var(--color-text-dim)" }}
           >
-            02.{index + 1} // HIGHLIGHT
+            02.{index + 1} {"//"} HIGHLIGHT
           </p>
           <h2
             className="font-serif italic leading-[1.1] mb-10"
