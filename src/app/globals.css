@@ -1,29 +1,33 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   HKJ Studio · Nothing OS / Teenage Engineering
-   Ash-gray · 1px borders · mono-heavy · red accent
-   Hardware spec sheet aesthetic
+   HKJ Studio · Day-to-Night UI System
+   Bone (#F7F3ED) → Dusk (#32343C) → Night (#151518)
+   Editorial serif + clean grotesk + monospace
    ═══════════════════════════════════════════ */
 
 :root {
   /* ── Typography ── */
-  --font-display: var(--font-sans), "Helvetica Neue", "Arial", sans-serif;
+  --font-serif: var(--font-editorial-new), "Georgia", serif;
+  --font-grotesk: var(--font-satoshi), system-ui, sans-serif;
   --font-mono: var(--font-space-mono), "Courier New", monospace;
-  --font-sans: var(--font-satoshi), system-ui, sans-serif;
 
-  /* ── Bone & Charcoal Palette -> Light Gray & Black (Brutalist/Minimalist) ── */
-  --color-bg: #EAE8E3; /* Soft ash/light-gray */
-  --color-surface: #E4E2DF;
-  --color-surface-raised: #DDDBD8;
-  --color-border: rgba(0, 0, 0, 0.1);
-  --color-border-strong: rgba(0, 0, 0, 0.25);
-  --color-border-active: rgba(0, 0, 0, 1);
-  --color-text: #000000;
-  --color-text-dim: #555555;
-  --color-text-ghost: #888888;
-  --color-accent: #EB3300; /* Vibrant Red-Orange */
-  --color-accent-warm: #CC2B00; /* Darker variant for hover */
+  /* Backward-compat aliases */
+  --font-display: var(--font-serif);
+  --font-sans: var(--font-grotesk);
+
+  /* ── Day Phase (Default) — Bone ── */
+  --color-bg: #F7F3ED;
+  --color-surface: #EFEAE4;
+  --color-surface-raised: #E8E3DD;
+  --color-border: rgba(21, 21, 24, 0.1);
+  --color-border-strong: rgba(21, 21, 24, 0.25);
+  --color-border-active: rgba(21, 21, 24, 1);
+  --color-text: #151518;
+  --color-text-dim: #4A4A50;
+  --color-text-ghost: #8A8A90;
+  --color-accent: #EB3300;
+  --color-accent-warm: #CC2B00;
 
   /* ── Fluid Type Scale ── */
   --text-micro: clamp(0.6rem, 0.55rem + 0.1vw, 0.65rem);
@@ -34,11 +38,43 @@
   --text-xl: clamp(1.75rem, 1.5rem + 1vw, 2.25rem);
   --text-2xl: clamp(2.5rem, 2rem + 2vw, 3.5rem);
   --text-3xl: clamp(3.5rem, 2.5rem + 3vw, 5rem);
-  --text-display: clamp(4rem, 3rem + 8vw, 12rem); /* Massive scaling for brutalist headers */
+  --text-display: clamp(4rem, 3rem + 8vw, 12rem);
 
   /* ── Layout ── */
   --grid-gap: clamp(1rem, 0.8rem + 1vw, 2rem);
   --page-px: clamp(1.5rem, 1rem + 3vw, 4rem);
+  --grid-outer: clamp(2rem, 4vw, 6rem);
+
+  /* ── Noise ── */
+  --noise-opacity: 0.03;
+}
+
+/* ── Dusk Phase ── */
+[data-color-phase="dusk"] {
+  --color-bg: #32343C;
+  --color-surface: #3A3C44;
+  --color-surface-raised: #42444C;
+  --color-text: #E8E4DE;
+  --color-text-dim: #9A9AA0;
+  --color-text-ghost: #6A6A70;
+  --color-border: rgba(232, 228, 222, 0.1);
+  --color-border-strong: rgba(232, 228, 222, 0.25);
+  --color-border-active: rgba(232, 228, 222, 1);
+  --noise-opacity: 0.04;
+}
+
+/* ── Night Phase ── */
+[data-color-phase="night"] {
+  --color-bg: #151518;
+  --color-surface: #1E1E22;
+  --color-surface-raised: #27272C;
+  --color-text: #F7F3ED;
+  --color-text-dim: #B0B0B5;
+  --color-text-ghost: #6A6A70;
+  --color-border: rgba(247, 243, 237, 0.1);
+  --color-border-strong: rgba(247, 243, 237, 0.25);
+  --color-border-active: rgba(247, 243, 237, 1);
+  --noise-opacity: 0.06;
 }
 
 /* ── Base ── */
@@ -46,12 +82,13 @@
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-grotesk);
   font-size: var(--text-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: 0.01em;
+  transition: background-color 0.1s linear, color 0.1s linear;
 }
 
 ::selection {
@@ -71,11 +108,35 @@ body {
   }
 
   .font-sans {
-    font-family: var(--font-sans);
+    font-family: var(--font-grotesk);
   }
 
   .font-display {
-    font-family: var(--font-display);
+    font-family: var(--font-serif);
+  }
+
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-grotesk {
+    font-family: var(--font-grotesk);
+  }
+
+  /* Editorial display heading — carved serif italic */
+  .editorial-display {
+    font-family: var(--font-serif);
+    font-style: italic;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  /* Handwritten annotation — serif italic, red accent */
+  .annotation {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-sm);
+    color: var(--color-accent);
   }
 
   /* TE-style label */
@@ -103,7 +164,7 @@ body {
     background-size: 60px 60px;
   }
 
-  /* Micro label — Nothing OS / TE metadata */
+  /* Micro label — measurements, coordinates, system labels */
   .micro {
     font-family: var(--font-mono);
     font-size: var(--text-micro);
@@ -112,7 +173,7 @@ body {
     color: var(--color-text-ghost);
   }
 
-  /* Nothing OS dot-matrix texture */
+  /* Dot-matrix texture */
   .dot-matrix {
     background-image: radial-gradient(
       circle, var(--color-border) 1px, transparent 1px
@@ -127,7 +188,7 @@ body {
     width: 100%;
   }
 
-  /* TE-style bordered container */
+  /* Bordered container */
   .te-panel {
     border: 1px solid var(--color-border);
     background-color: var(--color-bg);
@@ -152,7 +213,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 10;
-  opacity: 0.03;
+  opacity: var(--noise-opacity);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-repeat: repeat;
 }
@@ -171,7 +232,19 @@ body {
 /* ── Marquee ── */
 
 .marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
   will-change: transform;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }
 
 /* ── Utility Animations ── */
@@ -198,6 +271,18 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
+}
+
+/* ── Recruiter Mode Overrides ── */
+
+[data-experience="recruiter"] {
+  --color-bg: #F7F3ED;
+  --color-text: #151518;
+  --color-surface: #EFEAE4;
+  --color-text-dim: #4A4A50;
+  --color-text-ghost: #8A8A90;
+  --color-border: rgba(21, 21, 24, 0.1);
+  --color-border-strong: rgba(21, 21, 24, 0.25);
 }
 
 /* ── Reduced Motion ── */

@@ -8,132 +8,137 @@ import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { PROJECTS } from "@/constants/projects";
 
-/* ═══════════════════════════════════════════
-   SelectedWork — Nothing OS / Teenage Eng.
-   Strict table/grid layout. 1px borders.
-   Technical, spec-sheet aesthetics.
-   ═══════════════════════════════════════════ */
+/**
+ * SelectedWork — Radiance-inspired
+ *
+ * 2-column square grid with full-bleed images.
+ * Project name as mono uppercase label in top-left overlay.
+ * Hover: subtle zoom on image + dark overlay.
+ * Scroll-triggered staggered entrance.
+ *
+ * Fixes: removed double-padding bug (old code had className py-24 AND
+ * style padding: 6rem which conflicted). Now uses inline style only.
+ */
 
 export default function SelectedWork() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const displayProjects = PROJECTS.filter((p) => p.id !== "gyeol");
 
   useGSAP(
     () => {
-      if (reduced || !sectionRef.current) return;
-
-      gsap.from(".work-row", {
+      if (reduced || !gridRef.current) return;
+      const cards = gridRef.current.querySelectorAll(".work-card");
+      gsap.from(cards, {
         opacity: 0,
-        y: 20,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
+        y: 40,
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: 0.12,
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: gridRef.current,
           start: "top 80%",
           once: true,
         },
       });
     },
-    { scope: sectionRef },
+    { scope: gridRef },
   );
 
   return (
     <section
-      ref={sectionRef}
+      id="work"
       data-section="work"
-      className="relative w-full border-t border-b border-[var(--color-border)]"
       style={{
         backgroundColor: "var(--color-bg)",
+        paddingTop: "clamp(4rem, 8vw, 8rem)",
+        paddingBottom: "clamp(4rem, 8vw, 8rem)",
+        paddingLeft: "var(--page-px)",
+        paddingRight: "var(--page-px)",
       }}
     >
-      {/* ─── Header Header ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-12 border-b border-[var(--color-border)]">
-        <div className="md:col-span-2 p-6 md:p-8 md:border-r border-[var(--color-border)] flex items-center md:items-end">
-          <span className="font-mono text-[var(--text-micro)] uppercase text-[var(--color-text-ghost)] tracking-widest">
-            [ DIR: /WORK ]
-          </span>
-        </div>
-        <div className="md:col-span-10 p-6 md:p-8 flex items-center md:items-end justify-between">
-          <h2 className="font-display text-4xl md:text-6xl uppercase tracking-tighter leading-none">
-            Index
-          </h2>
-          <span className="font-mono text-[var(--text-micro)] uppercase text-[var(--color-text-ghost)] tracking-widest hidden sm:block">
-            Total Obj: {String(displayProjects.length).padStart(2, "0")}
-          </span>
-        </div>
+      {/* Section heading — centered serif italic */}
+      <h2
+        className="font-serif italic text-center"
+        style={{
+          fontSize: "clamp(1.75rem, 1.5rem + 1vw, 2.5rem)",
+          fontWeight: 400,
+          color: "var(--color-text)",
+          letterSpacing: "-0.02em",
+          marginBottom: "clamp(3rem, 5vw, 5rem)",
+        }}
+      >
+        We love what we do
+      </h2>
+
+      {/* 2-column grid */}
+      <div ref={gridRef} className="grid grid-cols-2 gap-3 lg:gap-4">
+        {PROJECTS.map((project) => (
+          <Link
+            key={project.id}
+            href={`/work/${project.id}`}
+            className="work-card group relative block overflow-hidden"
+            style={{ aspectRatio: "1 / 1" }}
+          >
+            {/* Image */}
+            <Image
+              src={project.image}
+              alt={project.title}
+              fill
+              sizes="(max-width: 768px) 50vw, 50vw"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              quality={85}
+            />
+
+            {/* Dark overlay on hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+
+            {/* Project name — top-left mono label */}
+            <span
+              className="absolute top-3 left-3 lg:top-4 lg:left-4 font-mono uppercase tracking-[0.12em] z-10"
+              style={{
+                fontSize: "clamp(0.55rem, 0.5rem + 0.15vw, 0.7rem)",
+                color: "#F2F2F2",
+                textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+              }}
+            >
+              {project.title}
+            </span>
+
+            {/* Coming soon badge for GYEOL */}
+            {project.id === "gyeol" && (
+              <span
+                className="absolute bottom-3 right-3 lg:bottom-4 lg:right-4 font-mono uppercase tracking-[0.15em] px-2.5 py-1 z-10"
+                style={{
+                  fontSize: "var(--text-micro)",
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                  color: "#151518",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                Coming Soon
+              </span>
+            )}
+          </Link>
+        ))}
       </div>
 
-      {/* ─── Projects Table ─── */}
-      <div className="flex flex-col">
-        {displayProjects.map((project, i) => {
-          const num = String(i + 1).padStart(2, "0");
-          const isLast = i === displayProjects.length - 1;
-
-          return (
-            <Link
-              key={project.id}
-              href={`/work/${project.id}`}
-              className={`work-row group grid grid-cols-1 md:grid-cols-12 ${!isLast ? 'border-b border-[var(--color-border)]' : ''} hover:bg-[var(--color-surface)] transition-colors duration-300`}
-            >
-              {/* ID */}
-              <div className="hidden md:flex md:col-span-2 p-6 md:p-8 border-r border-[var(--color-border)] items-start">
-                <span className="font-mono text-[var(--text-sm)] text-[var(--color-text-dim)] group-hover:text-[var(--color-accent)] transition-colors">
-                  {num}
-                </span>
-              </div>
-
-              {/* Image Thumbnail */}
-              <div className="md:col-span-4 p-6 md:p-8 md:border-r border-[var(--color-border)]">
-                <div
-                  className="relative w-full overflow-hidden bg-[var(--color-bg)] border border-[var(--color-border)] p-1"
-                  style={{ aspectRatio: "16/10" }}
-                >
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform group-hover:scale-105"
-                    />
-                    {/* Tech Corner brackets effect */}
-                    <div className="absolute inset-0 border border-black/5 group-hover:border-[var(--color-accent)] transition-colors duration-500 pointer-events-none mix-blend-overlay"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="md:col-span-6 p-6 md:p-8 flex flex-col justify-between gap-6">
-                <div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-2">
-                    <h3 className="font-display text-2xl md:text-4xl uppercase tracking-tight group-hover:text-[var(--color-accent)] transition-colors">
-                      {project.title.split(":")[0]}
-                    </h3>
-                    <span className="font-mono text-[var(--text-micro)] uppercase tracking-widest text-[var(--color-text-ghost)] border border-[var(--color-border)] px-2 py-1 rounded-sm w-fit shrink-0">
-                      {project.sector}
-                    </span>
-                  </div>
-                  <p className="font-sans text-[var(--text-sm)] text-[var(--color-text-dim)] max-w-md leading-relaxed">
-                    {project.pitch}
-                  </p>
-                </div>
-                
-                <div className="flex justify-between items-end mt-4 md:mt-0">
-                   <div className="flex items-center gap-2">
-                     <span className="w-1.5 h-1.5 bg-[var(--color-border)] group-hover:bg-[var(--color-accent)] transition-colors rounded-full" />
-                     <span className="font-mono text-[10px] tracking-widest uppercase text-[var(--color-text-ghost)]">OK</span>
-                   </div>
-                   <span className="font-mono text-[var(--text-micro)] text-[var(--color-text)] uppercase tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-                     [ OPEN ] 
-                     <span className="text-[var(--color-accent)]">&rarr;</span>
-                   </span>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+      {/* View all CTA */}
+      <div
+        className="flex justify-center"
+        style={{ marginTop: "clamp(2rem, 4vw, 3rem)" }}
+      >
+        <Link
+          href="/work"
+          className="font-mono uppercase tracking-[0.15em] transition-colors hover:text-[var(--color-accent)]"
+          style={{
+            fontSize: "var(--text-xs)",
+            color: "var(--color-text-dim)",
+            borderBottom: "1px solid var(--color-border)",
+            paddingBottom: "4px",
+          }}
+        >
+          View all work →
+        </Link>
       </div>
     </section>
   );

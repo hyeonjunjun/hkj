@@ -1,15 +1,31 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-/* ═══════════════════════════════════════════
-   StudioSection — Nothing OS / Teenage Eng
-   Hardware spec sheet aesthetic.
-   ═══════════════════════════════════════════ */
+/**
+ * StudioSection — Inline Editorial Interlude
+ * 
+ * Short breathing section between Hero and Work.
+ * Two columns: editorial philosophy left, capabilities right.
+ * Not a full-height section — compact and purposeful.
+ * 
+ * Fixes: removed double-padding bug (old code had className py-24 AND 
+ * style padding: 6rem which conflicted). Now uses balanced clamp padding.
+ */
+
+const CAPABILITIES = [
+  "Design Systems",
+  "React Native",
+  "Next.js / Vercel",
+  "Motion Design",
+  "Prototyping",
+  "AI Integration",
+  "Brand Identity",
+  "Systems Thinking",
+];
 
 export default function StudioSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -18,28 +34,16 @@ export default function StudioSection() {
   useGSAP(
     () => {
       if (reduced || !sectionRef.current) return;
-
-      gsap.from(".spec-row", {
-        opacity: 0,
-        x: -10,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-          once: true,
-        },
-      });
-      
-      gsap.from(".studio-image-box", {
+      const els = sectionRef.current.querySelectorAll("[data-about-reveal]");
+      gsap.from(els, {
         opacity: 0,
         y: 20,
-        duration: 0.8,
-        ease: "power2.out",
+        duration: 0.6,
+        ease: "power3.out",
+        stagger: 0.06,
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 75%",
+          start: "top 80%",
           once: true,
         },
       });
@@ -50,88 +54,86 @@ export default function StudioSection() {
   return (
     <section
       ref={sectionRef}
+      id="about"
       data-section="about"
-      className="relative w-full border-b border-[var(--color-border)]"
       style={{
         backgroundColor: "var(--color-bg)",
+        paddingTop: "clamp(4rem, 8vw, 10rem)",
+        paddingBottom: "clamp(4rem, 8vw, 10rem)",
+        paddingLeft: "var(--page-px)",
+        paddingRight: "var(--page-px)",
+        borderTop: "1px solid var(--color-border)",
       }}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[var(--color-border)]">
-        
-        {/* ─── Left: Image & Hardware Vibe ─── */}
-        <div className="p-8 lg:p-16 flex flex-col justify-center items-center relative overflow-hidden">
-          {/* Faux grid background */}
-          <div 
-            className="absolute inset-0 opacity-10 pointer-events-none"
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 max-w-[1200px] mx-auto">
+        {/* Left — Editorial */}
+        <div data-about-reveal>
+          <span
+            className="font-mono uppercase tracking-[0.2em] block mb-6"
+            style={{ fontSize: "var(--text-micro)", color: "var(--color-text-ghost)" }}
+          >
+            About
+          </span>
+          <p
+            className="font-serif"
             style={{
-              backgroundImage: "linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)",
-              backgroundSize: "20px 20px",
-              backgroundPosition: "center center"
+              fontSize: "clamp(1.25rem, 1rem + 1vw, 2rem)",
+              fontWeight: 400,
+              lineHeight: 1.4,
+              letterSpacing: "-0.01em",
+              color: "var(--color-text)",
             }}
-          />
-          
-          <div className="studio-image-box relative w-full max-w-sm border border-[var(--color-border)] p-2 bg-[var(--color-bg)] shadow-[4px_4px_0_var(--color-border)]">
-            <div className="flex justify-between items-center px-2 py-1 border-b border-[var(--color-border)] mb-2">
-               <span className="font-mono text-[10px] tracking-widest uppercase text-[var(--color-text-dim)]">FIG 1.0</span>
-               <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
-            </div>
-            <div className="relative overflow-hidden w-full" style={{ aspectRatio: "3/4" }}>
-              <Image
-                src="/images/ethereal_butterfly.jpeg"
-                alt="Studio Aesthetic"
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover grayscale contrast-125"
-              />
-            </div>
-            {/* Tech overlays */}
-            <div className="absolute bottom-4 left-4 font-mono text-[10px] text-white mix-blend-difference tracking-widest drop-shadow-md">
-              REC // 00:00:00
-            </div>
-          </div>
+          >
+            HKJ Studio is one designer-engineer building software that feels like a precision instrument. 
+            Every interface is an opportunity to create calm in complexity — where the craft disappears 
+            and the user's intent flows unobstructed.
+          </p>
+          <p
+            className="font-grotesk mt-8"
+            style={{
+              fontSize: "var(--text-sm)",
+              lineHeight: 1.7,
+              color: "var(--color-text-dim)",
+              maxWidth: "480px"
+            }}
+          >
+            Founded in NYC and Seoul, the studio specializes in the space between design and engineering — 
+            where Figma files become React components, where color theory meets OKLCH color spaces, 
+            and where every 4px matters.
+          </p>
         </div>
 
-        {/* ─── Right: Spec Sheet ─── */}
-        <div className="p-8 lg:p-16 flex flex-col justify-center bg-[var(--color-surface)]">
-          <div className="mb-12">
-            <span className="font-mono text-[var(--text-micro)] uppercase tracking-widest text-[var(--color-text-ghost)] mb-6 block border border-[var(--color-border)] w-fit px-2 py-1 bg-[var(--color-bg)]">
-              {"//"} MANUAL : SEC.01
-            </span>
-            <h2 className="font-display text-4xl lg:text-5xl uppercase tracking-tighter mb-6 leading-[0.9]">
-              Systems &<br/>Surfaces
-            </h2>
-            <p className="font-sans text-[var(--text-base)] text-[var(--color-text-dim)] max-w-md leading-relaxed">
-              A one-person studio at the intersection of high-fidelity craft and deep systems thinking. Specializing in React Native, Next.js, and design systems that feel like instruments—precise, purposeful, built to last.
-            </p>
-          </div>
-
-          {/* Specs Table */}
-          <ul className="border-t border-[var(--color-border)]">
-            <li className="spec-row flex justify-between items-center py-4 border-b border-[var(--color-border)]">
-              <span className="font-mono text-[var(--text-xs)] uppercase tracking-widest text-[var(--color-text-ghost)]">Model</span>
-              <span className="font-mono text-[var(--text-sm)] uppercase">HKJ-01</span>
-            </li>
-            <li className="spec-row flex justify-between items-center py-4 border-b border-[var(--color-border)]">
-              <span className="font-mono text-[var(--text-xs)] uppercase tracking-widest text-[var(--color-text-ghost)]">Function</span>
-              <span className="font-mono text-[var(--text-sm)] uppercase text-right">Design Engineer</span>
-            </li>
-            <li className="spec-row flex justify-between items-center py-4 border-b border-[var(--color-border)]">
-              <span className="font-mono text-[var(--text-xs)] uppercase tracking-widest text-[var(--color-text-ghost)]">Location</span>
-              <span className="font-mono text-[var(--text-sm)] uppercase text-right">NYC / Seoul</span>
-            </li>
-            <li className="spec-row flex justify-between items-center py-4 border-b border-[var(--color-border)]">
-              <span className="font-mono text-[var(--text-xs)] uppercase tracking-widest text-[var(--color-text-ghost)]">Core Stack</span>
-              <span className="font-mono text-[var(--text-sm)] uppercase text-right max-w-[150px] sm:max-w-none text-balance leading-tight">Next.js, TS, React Native</span>
-            </li>
-            <li className="spec-row flex justify-between items-center py-4 border-b border-[var(--color-border)]">
-              <span className="font-mono text-[var(--text-xs)] uppercase tracking-widest text-[var(--color-text-ghost)]">Status</span>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse hidden sm:block"></span>
-                <span className="font-mono text-[var(--text-sm)] uppercase">Available</span>
-              </div>
-            </li>
+        {/* Right — Capabilities */}
+        <div data-about-reveal>
+          <span
+            className="font-mono uppercase tracking-[0.2em] block mb-6"
+            style={{ fontSize: "var(--text-micro)", color: "var(--color-text-ghost)" }}
+          >
+            Capabilities
+          </span>
+          <ul className="space-y-0">
+            {CAPABILITIES.map((cap, i) => (
+              <li
+                key={cap}
+                data-about-reveal
+                className="flex items-center justify-between py-4"
+                style={{ borderBottom: "1px solid var(--color-border)" }}
+              >
+                <span
+                  className="font-grotesk"
+                  style={{ fontSize: "var(--text-sm)", color: "var(--color-text)", fontWeight: 450 }}
+                >
+                  {cap}
+                </span>
+                <span
+                  className="font-mono tabular-nums"
+                  style={{ fontSize: "var(--text-micro)", color: "var(--color-text-ghost)" }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </li>
+            ))}
           </ul>
-
         </div>
       </div>
     </section>

@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
+import { useRouter } from "next/navigation";
 import LiveClock from "@/components/ui/LiveClock";
 
 /* ─────────────────────────────────────────────
@@ -18,11 +19,13 @@ interface MobileMenuProps {
 
 interface MenuLink {
   label: string;
-  target: string;
+  target?: string;
+  href?: string;
 }
 
 const MENU_LINKS: MenuLink[] = [
   { label: "Work", target: "[data-section='work']" },
+  { label: "Lab", href: "/lab" },
   { label: "Studio", target: "[data-section='about']" },
   { label: "Contact", target: "[data-section='contact']" },
 ];
@@ -65,16 +68,24 @@ const footerVariants = {
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const lenis = useLenis();
+  const router = useRouter();
 
   const handleNavigate = useCallback(
-    (target: string) => {
-      const el = document.querySelector(target) as HTMLElement | null;
-      if (el && lenis) {
-        lenis.scrollTo(el, { offset: 0, duration: 1.5 });
+    (link: MenuLink) => {
+      if (link.href) {
+        router.push(link.href);
+        onClose();
+        return;
+      }
+      if (link.target) {
+        const el = document.querySelector(link.target) as HTMLElement | null;
+        if (el && lenis) {
+          lenis.scrollTo(el, { offset: 0, duration: 1.5 });
+        }
       }
       onClose();
     },
-    [lenis, onClose],
+    [lenis, onClose, router],
   );
 
   return (
@@ -141,7 +152,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                onClick={() => handleNavigate(link.target)}
+                onClick={() => handleNavigate(link)}
                 className="flex items-baseline gap-4 text-left py-4 border-b border-[var(--color-border)] transition-colors duration-300 group"
               >
                 <span
@@ -155,7 +166,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span
-                  className="font-display font-bold uppercase tracking-tighter transition-colors duration-300 group-hover:text-[var(--color-accent)]"
+                  className="font-serif italic font-bold tracking-tighter transition-colors duration-300 group-hover:text-[var(--color-accent)]"
                   style={{
                     fontSize: "clamp(2.5rem, 10vw, 5rem)",
                     color: "var(--color-text)",

@@ -9,17 +9,19 @@ import { useRef } from "react";
 import ChapterSidebar from "@/components/case-study/ChapterSidebar";
 import HighlightAccordion from "@/components/case-study/HighlightAccordion";
 import StatGrid from "@/components/case-study/StatGrid";
+import GutPunchCloser from "@/components/case-study/GutPunchCloser";
 
 /* ─── Constants ─── */
 
 const CHAPTERS = [
   { id: "ch-cover", num: "01", label: "Cover" },
-  { id: "ch-brief", num: "02", label: "The Brief" },
-  { id: "ch-process", num: "03", label: "The Process" },
-  { id: "ch-craft", num: "04", label: "The Craft" },
-  { id: "ch-engine", num: "05", label: "The Engine" },
-  { id: "ch-numbers", num: "06", label: "The Numbers" },
-  { id: "ch-credits", num: "07", label: "Credits" },
+  { id: "ch-paradox", num: "02", label: "The Paradox" },
+  { id: "ch-brief", num: "03", label: "The Brief" },
+  { id: "ch-process", num: "04", label: "The Process" },
+  { id: "ch-craft", num: "05", label: "The Craft" },
+  { id: "ch-engine", num: "06", label: "The Engine" },
+  { id: "ch-numbers", num: "07", label: "The Numbers" },
+  { id: "ch-closer", num: "08", label: "The Closer" },
 ];
 
 const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -208,7 +210,7 @@ export default function ProjectDetail() {
               [{project.sector}] // {project.year}
             </span>
             <h1
-              className="font-display leading-[0.95] tracking-[-0.02em]"
+              className="font-serif italic leading-[0.95] tracking-[-0.02em]"
               style={{
                 fontSize: "var(--text-display)",
                 color: "var(--color-text)",
@@ -253,14 +255,46 @@ export default function ProjectDetail() {
         </div>
       </section>
 
+      {/* ── Paradox + Stakes (new CH.02) ── */}
+      <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
+        {project.paradox && (
+          <section id="ch-paradox" className="pt-32 pb-24">
+            <ChapterLabel num="02" title="The Paradox" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease }}
+            >
+              <h2
+                className="editorial-display mb-8"
+                style={{ fontSize: "var(--text-2xl)", color: "var(--color-text)" }}
+              >
+                {project.paradox}
+              </h2>
+              {project.stakes && (
+                <p
+                  className="font-grotesk leading-[1.8]"
+                  style={{ fontSize: "var(--text-base)", color: "var(--color-text-dim)", maxWidth: 650 }}
+                >
+                  {project.stakes}
+                </p>
+              )}
+            </motion.div>
+          </section>
+        )}
+      </div>
+
+      <StrataBand />
+
       {/* ── Main content container ── */}
       <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
 
         {/* ════════════════════════════════════════
-           CH.02 THE BRIEF — Editorial
+           CH.03 THE BRIEF — Editorial
            ════════════════════════════════════════ */}
         <section id="ch-brief" className="pt-32 pb-24">
-          <ChapterLabel num="02" title="The Brief" />
+          <ChapterLabel num="03" title="The Brief" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -269,7 +303,7 @@ export default function ProjectDetail() {
             transition={{ duration: 0.8, ease }}
           >
             <h2
-              className="font-display leading-[1.1] mb-6"
+              className="font-serif italic leading-[1.1] mb-6"
               style={{
                 fontSize: "var(--text-2xl)",
                 color: "var(--color-text)",
@@ -340,10 +374,10 @@ export default function ProjectDetail() {
 
       <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
         {/* ════════════════════════════════════════
-           CH.03 THE PROCESS — Rough sketches
+           CH.04 THE PROCESS — Rough sketches
            ════════════════════════════════════════ */}
         <section id="ch-process" className="py-24">
-          <ChapterLabel num="03" title="The Process" />
+          <ChapterLabel num="04" title="The Process" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -352,7 +386,7 @@ export default function ProjectDetail() {
             transition={{ duration: 0.8, ease }}
           >
             <h3
-              className="font-display leading-[1.15] mb-6"
+              className="font-serif italic leading-[1.15] mb-6"
               style={{ fontSize: "var(--text-xl)", color: "var(--color-text)" }}
             >
               {project.process.title}
@@ -381,10 +415,10 @@ export default function ProjectDetail() {
         <div className="hairline" />
 
         {/* ════════════════════════════════════════
-           CH.04 THE CRAFT — Highlights Accordion
+           CH.05 THE CRAFT — Highlights Accordion
            ════════════════════════════════════════ */}
         <section id="ch-craft" className="py-24">
-          <ChapterLabel num="04" title="The Craft" />
+          <ChapterLabel num="05" title="The Craft" />
 
           {project.highlights?.length > 0 ? (
             <HighlightAccordion highlights={project.highlights} />
@@ -398,10 +432,10 @@ export default function ProjectDetail() {
 
       <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
         {/* ════════════════════════════════════════
-           CH.05 THE ENGINE — Engineering + Signals
+           CH.06 THE ENGINE — Engineering + Signals
            ════════════════════════════════════════ */}
         <section id="ch-engine" className="py-24">
-          <ChapterLabel num="05" title="The Engine" />
+          <ChapterLabel num="06" title="The Engine" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -449,10 +483,10 @@ export default function ProjectDetail() {
         <div className="hairline" />
 
         {/* ════════════════════════════════════════
-           CH.06 THE NUMBERS — Stats Dashboard
+           CH.07 THE NUMBERS — Stats Dashboard
            ════════════════════════════════════════ */}
         <section id="ch-numbers" className="py-24">
-          <ChapterLabel num="06" title="The Numbers" />
+          <ChapterLabel num="07" title="The Numbers" />
           <StatGrid stats={project.statistics} />
         </section>
       </div>
@@ -461,10 +495,12 @@ export default function ProjectDetail() {
 
       <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
         {/* ════════════════════════════════════════
-           CH.07 CREDITS — Contributors + Next
+           CH.08 THE CLOSER — Gut-Punch + Credits
            ════════════════════════════════════════ */}
-        <section id="ch-credits" className="py-24">
-          <ChapterLabel num="07" title="Credits" />
+        <section id="ch-closer" className="py-24">
+          <ChapterLabel num="08" title="The Closer" />
+
+          <GutPunchCloser text={project.gutPunch} />
 
           {/* Contributors */}
           <div className="mb-16">
@@ -543,7 +579,7 @@ export default function ProjectDetail() {
         >
           <span className="label block mb-3">← Previous</span>
           <h3
-            className="font-display leading-[1.15]"
+            className="font-serif italic leading-[1.15]"
             style={{
               fontSize: "var(--text-lg)",
               color: "var(--color-text)",
@@ -559,7 +595,7 @@ export default function ProjectDetail() {
         >
           <span className="label block mb-3">Next →</span>
           <h3
-            className="font-display leading-[1.15]"
+            className="font-serif italic leading-[1.15]"
             style={{
               fontSize: "var(--text-lg)",
               color: "var(--color-text)",

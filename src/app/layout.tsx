@@ -5,8 +5,8 @@ import SmoothScroll from "@/components/SmoothScroll";
 import CurtainPreloader from "@/components/CurtainPreloader";
 import Cursor from "@/components/Cursor";
 import GlobalNav from "@/components/GlobalNav";
-import BackgroundSurface from "@/components/BackgroundSurface";
 import GlobalMarks from "@/components/GlobalMarks";
+import ScrollColorController from "@/components/ScrollColorController";
 
 /* ── Typography ── */
 
@@ -20,13 +20,13 @@ const spaceMono = Space_Mono({
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-satoshi", // CSS var name kept generic for easy swap to Satoshi later
+  variable: "--font-satoshi",
 });
 
 const newsreader = Newsreader({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-editorial-new", // CSS var name kept generic for easy swap to Editorial New later
+  variable: "--font-editorial-new",
   style: ["normal", "italic"],
 });
 
@@ -77,11 +77,13 @@ export default function RootLayout({
         <Cursor />
         <GlobalNav />
 
-        {/* Paper Noise Texture & WebGL Fluid */}
+        {/* Paper Noise Texture */}
         <div className="paper-noise" />
-        <BackgroundSurface />
 
-        <SmoothScroll>{children}</SmoothScroll>
+        <SmoothScroll>
+          <ScrollColorController />
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );

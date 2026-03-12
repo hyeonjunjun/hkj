@@ -88,7 +88,6 @@ export default function ScrollReveal({
   );
 
   return (
-    // @ts-expect-error - dynamic tag element
     <Tag ref={ref} className={className}>
       {children}
     </Tag>

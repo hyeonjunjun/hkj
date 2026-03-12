@@ -58,6 +58,12 @@ export interface Project {
         typography: string;
         colors: string[];
     };
+    /** New Case Study fields */
+    paradox?: string;
+    stakes?: string;
+    gutPunch?: string;
+    processSteps?: Array<{ title: string; copy: string; image?: string }>;
+    has3dInspector?: boolean;
 }
 
 export const PROJECTS: Project[] = [
@@ -120,6 +126,13 @@ export const PROJECTS: Project[] = [
             typography: "Playfair Display / Satoshi",
             colors: ["#443732", "#FDFCF8", "#CF957B"],
         },
+        paradox: "How do you make an AI-driven app feel like a physical sanctuary instead of another cold productivity tool?",
+        stakes: "The average person saves 50+ links per week and never revisits them. Sift turns passive hoarding into active curation.",
+        gutPunch: "Your digital memory deserves the same care as your physical bookshelf.",
+        processSteps: [
+            { title: "Mapping the Chaos", copy: "We started by auditing our own saved links—hundreds of URLs scattered across Notes, bookmarks, and message threads. The pattern was clear: the save action is frictionless, but the retrieval is broken.", image: "/images/sift-v2.jpg" },
+            { title: "Quiet Luxury UI", copy: "We rejected tech-cold blues and aggressive gamification. Instead, warm earth tones paired with classical serif typefaces create a digital literary journal.", image: "/images/sift-v2.jpg" },
+        ],
     },
     {
         id: "verbaitim",
@@ -176,6 +189,9 @@ export const PROJECTS: Project[] = [
             typography: "Instrument Serif / Inter",
             colors: ["#FAFAFA", "#0A0A0A", "#4169E1"],
         },
+        paradox: "How do you build software that preserves languages for eternity while the technology itself becomes obsolete every 5 years?",
+        stakes: "A language dies every 14 days. Each one carries irreplaceable knowledge about medicine, ecology, and human cognition.",
+        gutPunch: "Every extinct language is a library that burned—one we could have saved.",
     },
     {
         id: "conductor",
@@ -227,6 +243,9 @@ export const PROJECTS: Project[] = [
             typography: "JetBrains Mono / Inter",
             colors: ["#E5E5E5", "#FF4400", "#111111"],
         },
+        paradox: "Can a text input become a precision instrument without sacrificing the simplicity that makes it useful?",
+        stakes: "Every prompt engineer writes in the dark. Conductor gives them a vernier caliper for thought.",
+        gutPunch: "The best tools disappear into the work. Conductor is invisible until you need it.",
     },
     {
         id: "gyeol",
@@ -236,26 +255,30 @@ export const PROJECTS: Project[] = [
         sector: "Material Science",
         year: "2026",
         tags: ["Coming Soon", "Material", "Texture"],
-        image: "/images/sift-v2.jpg", // Placeholder
+        image: "/images/sift-v2.jpg",
         mood: "#A0A0A0",
-        pitch: "A study in digital materiality and perceived textures.",
+        pitch: "A study in digital materiality and perceived textures. Exploring the boundary between screen-rendered surfaces and physical material memory.",
         editorial: {
             headline: "Digital Grain",
-            subhead: "Coming Soon",
-            copy: "Project under development.",
+            subhead: "Where Pixels Meet Patina",
+            copy: "GYEOL explores the uncanny valley between digital rendering and physical material. By mapping real-world texture data onto WebGL surfaces, we create interfaces that feel tangibly present—like touching brushed aluminum or woven fabric through glass.",
             images: ["/images/sift-v2.jpg"],
         },
-        process: { title: "Rough", copy: "Coming soon.", images: [] },
+        process: { title: "Material Research", copy: "Sampling 200+ physical textures and converting displacement maps into GPU-accelerated shaders.", images: [] },
         highlights: [],
-        engineering: { title: "Eng", copy: "Coming soon.", signals: [], images: [] },
+        engineering: { title: "Engineering", copy: "Custom PBR shader pipeline with real-time displacement mapping and subsurface scattering approximation.", signals: ["WebGL 2.0", "PBR Shading", "Displacement Maps"], images: [] },
         statistics: [],
         launchVideos: [],
         contributors: [],
         schematic: {
-            stack: ["Coming Soon"],
+            stack: ["Three.js", "React Three Fiber", "Custom GLSL"],
             grid: "Modular",
             typography: "Inter",
             colors: ["#A0A0A0"],
         },
+        paradox: "Can a screen ever truly feel like a physical surface?",
+        stakes: "Every interface we touch is smooth glass. GYEOL asks: what if it wasn't?",
+        gutPunch: "The future of UI isn't flatter. It's textured.",
+        has3dInspector: true,
     },
 ];
