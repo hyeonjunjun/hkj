@@ -8,10 +8,6 @@ interface StudioState {
   isLoaded: boolean;
   setLoaded: (v: boolean) => void;
 
-  /** Currently visible section for nav tracking */
-  activeSection: string;
-  setActiveSection: (s: string) => void;
-
   /** Project slug being transitioned to (for page transition) */
   transitionProject: string | null;
   setTransitionProject: (id: string | null) => void;
@@ -44,9 +40,6 @@ interface StudioState {
 export const useStudioStore = create<StudioState>((set) => ({
   isLoaded: false,
   setLoaded: (v) => set({ isLoaded: v }),
-
-  activeSection: "hero",
-  setActiveSection: (s) => set({ activeSection: s }),
 
   transitionProject: null,
   setTransitionProject: (id) => set({ transitionProject: id }),
