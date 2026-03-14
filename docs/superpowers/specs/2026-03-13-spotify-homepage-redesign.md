@@ -383,3 +383,14 @@ StudioPreloader, Cursor, ContactOverlay, TransitionOverlay, SmoothScroll, all ca
 | Vertical emptiness (7 rows only ~490px) | ~40vh hero section provides visual weight |
 | Player bar overlapping footer content | `padding-bottom: 56px` on page content when bar is visible |
 | Mobile bottom sheet + player bar overlap | Bottom sheet sits above player bar (higher z-index) |
+
+---
+
+## 17. Implementation Notes
+
+These are clarifications surfaced during spec review:
+
+- **Navigation constants:** `src/constants/navigation.ts` needs updating. The `NAV_LINKS` array and `NavLink` interface must support view-switching (Index/Selects/Info) alongside the existing overlay pattern (ContactOverlay). Plan this as part of the GlobalNav modification.
+- **activeOverlay + activeView interaction:** When the user is on InfoView and opens ContactOverlay, `activeView` stays `"info"` and `activeOverlay` becomes `"contact"`. The existing overlay system supports this without changes.
+- **Footer CTA removal:** The current "LET'S work together" footer CTA section is removed. Contact flow moves to InfoView (which links to ContactOverlay).
+- **activeSection cleanup:** The existing `activeSection` store field may become dead code. Audit during implementation and remove if unused.
