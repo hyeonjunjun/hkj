@@ -5,24 +5,33 @@ import { PROJECTS } from "@/constants/projects";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import ChapterSidebar from "@/components/case-study/ChapterSidebar";
 import HighlightAccordion from "@/components/case-study/HighlightAccordion";
 import StatGrid from "@/components/case-study/StatGrid";
 import GutPunchCloser from "@/components/case-study/GutPunchCloser";
+import VideoShowcase from "@/components/case-study/VideoShowcase";
 
 /* ─── Constants ─── */
 
-const CHAPTERS = [
-  { id: "ch-cover", num: "01", label: "Cover" },
-  { id: "ch-paradox", num: "02", label: "The Paradox" },
-  { id: "ch-brief", num: "03", label: "The Brief" },
-  { id: "ch-process", num: "04", label: "The Process" },
-  { id: "ch-craft", num: "05", label: "The Craft" },
-  { id: "ch-engine", num: "06", label: "The Engine" },
-  { id: "ch-numbers", num: "07", label: "The Numbers" },
-  { id: "ch-closer", num: "08", label: "The Closer" },
-];
+function buildChapters(hasVideos: boolean) {
+  const items: Array<{ id: string; label: string }> = [
+    { id: "ch-cover", label: "Cover" },
+    { id: "ch-paradox", label: "The Paradox" },
+    { id: "ch-brief", label: "The Brief" },
+    { id: "ch-process", label: "The Process" },
+  ];
+  if (hasVideos) {
+    items.push({ id: "ch-reel", label: "The Reel" });
+  }
+  items.push(
+    { id: "ch-craft", label: "The Craft" },
+    { id: "ch-engine", label: "The Engine" },
+    { id: "ch-numbers", label: "The Numbers" },
+    { id: "ch-closer", label: "The Closer" },
+  );
+  return items.map((item, i) => ({ ...item, num: String(i + 1).padStart(2, "0") }));
+}
 
 const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -35,7 +44,7 @@ function ChapterLabel({ num, title }: { num: string; title: string }) {
       style={{ borderBottom: "1px solid var(--color-border)", paddingBottom: "0.75rem" }}
     >
       <span className="micro" style={{ color: "var(--color-text-ghost)" }}>
-        CH.{num}
+        {num}
       </span>
       <span
         className="font-mono uppercase"
@@ -110,6 +119,10 @@ export default function ProjectDetail() {
 
   const project = PROJECTS.find((p) => p.id === slug);
 
+  const hasVideos = !!(project?.videos && project.videos.length > 0);
+  const chapters = useMemo(() => buildChapters(hasVideos), [hasVideos]);
+  const chapterNum = (id: string) => chapters.find((c) => c.id === id)?.num || "00";
+
   // Scroll progress bar
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -129,7 +142,7 @@ export default function ProjectDetail() {
         className="w-full h-screen flex items-center justify-center font-mono uppercase"
         style={{ fontSize: "var(--text-xs)", letterSpacing: "0.2em", color: "var(--color-text-dim)" }}
       >
-        Project Not Found [404]
+        project not found
       </div>
     );
   }
@@ -143,7 +156,7 @@ export default function ProjectDetail() {
       />
 
       {/* ── Chapter Sidebar ── */}
-      <ChapterSidebar chapters={CHAPTERS} />
+      <ChapterSidebar chapters={chapters} />
 
       {/* ── Back Button ── */}
       <motion.button
@@ -154,14 +167,14 @@ export default function ProjectDetail() {
         transition={{ delay: 0.5 }}
       >
         <span
-          className="font-mono uppercase transition-colors duration-300"
+          className="font-sans transition-colors duration-300"
           style={{
             fontSize: "var(--text-xs)",
-            letterSpacing: "0.15em",
+            letterSpacing: "0.02em",
             color: "var(--color-text-dim)",
           }}
         >
-          ← Return
+          ← back
         </span>
       </motion.button>
 
@@ -207,7 +220,7 @@ export default function ProjectDetail() {
                 color: "var(--color-text-dim)",
               }}
             >
-              [{project.sector}] // {project.year}
+              {project.sector} / {project.year}
             </span>
             <h1
               className="font-serif italic leading-[0.95] tracking-[-0.02em]"
@@ -259,7 +272,7 @@ export default function ProjectDetail() {
       <div className="max-w-[900px] mx-auto" style={{ padding: "0 var(--page-px)" }}>
         {project.paradox && (
           <section id="ch-paradox" className="pt-32 pb-24">
-            <ChapterLabel num="02" title="The Paradox" />
+            <ChapterLabel num={chapterNum("ch-paradox")} title="The Paradox" />
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -294,7 +307,7 @@ export default function ProjectDetail() {
            CH.03 THE BRIEF — Editorial
            ════════════════════════════════════════ */}
         <section id="ch-brief" className="pt-32 pb-24">
-          <ChapterLabel num="03" title="The Brief" />
+          <ChapterLabel num={chapterNum("ch-brief")} title="The Brief" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -377,7 +390,7 @@ export default function ProjectDetail() {
            CH.04 THE PROCESS — Rough sketches
            ════════════════════════════════════════ */}
         <section id="ch-process" className="py-24">
-          <ChapterLabel num="04" title="The Process" />
+          <ChapterLabel num={chapterNum("ch-process")} title="The Process" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -412,13 +425,33 @@ export default function ProjectDetail() {
           )}
         </section>
 
+        {/* ════════════════════════════════════════
+           THE REEL — B-Roll Video Showcase (conditional)
+           ════════════════════════════════════════ */}
+        {hasVideos && (
+          <>
+            <div className="hairline" />
+            <section id="ch-reel" className="py-24">
+              <ChapterLabel num={chapterNum("ch-reel")} title="The Reel" />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease }}
+              >
+                <VideoShowcase videos={project.videos!} />
+              </motion.div>
+            </section>
+          </>
+        )}
+
         <div className="hairline" />
 
         {/* ════════════════════════════════════════
-           CH.05 THE CRAFT — Highlights Accordion
+           THE CRAFT — Highlights Accordion
            ════════════════════════════════════════ */}
         <section id="ch-craft" className="py-24">
-          <ChapterLabel num="05" title="The Craft" />
+          <ChapterLabel num={chapterNum("ch-craft")} title="The Craft" />
 
           {project.highlights?.length > 0 ? (
             <HighlightAccordion highlights={project.highlights} />
@@ -435,7 +468,7 @@ export default function ProjectDetail() {
            CH.06 THE ENGINE — Engineering + Signals
            ════════════════════════════════════════ */}
         <section id="ch-engine" className="py-24">
-          <ChapterLabel num="06" title="The Engine" />
+          <ChapterLabel num={chapterNum("ch-engine")} title="The Engine" />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -486,7 +519,7 @@ export default function ProjectDetail() {
            CH.07 THE NUMBERS — Stats Dashboard
            ════════════════════════════════════════ */}
         <section id="ch-numbers" className="py-24">
-          <ChapterLabel num="07" title="The Numbers" />
+          <ChapterLabel num={chapterNum("ch-numbers")} title="The Numbers" />
           <StatGrid stats={project.statistics} />
         </section>
       </div>
@@ -498,7 +531,7 @@ export default function ProjectDetail() {
            CH.08 THE CLOSER — Gut-Punch + Credits
            ════════════════════════════════════════ */}
         <section id="ch-closer" className="py-24">
-          <ChapterLabel num="08" title="The Closer" />
+          <ChapterLabel num={chapterNum("ch-closer")} title="The Closer" />
 
           <GutPunchCloser text={project.gutPunch} />
 

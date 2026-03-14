@@ -37,10 +37,10 @@ export default function NotFound() {
         }}
       >
         <span
-          className="font-mono uppercase tracking-[0.2em]"
+          className="font-sans tracking-[0.02em]"
           style={{ fontSize: "var(--text-xs)" }}
         >
-          Back Home
+          back home
         </span>
       </Link>
     </div>

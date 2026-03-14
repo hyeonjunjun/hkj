@@ -1,29 +1,30 @@
 import type { Metadata } from "next";
-import { Space_Mono, Inter, Newsreader, Archivo } from "next/font/google";
+import { Newsreader, DM_Sans, Space_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Cursor from "@/components/Cursor";
 import GlobalNav from "@/components/GlobalNav";
-import GlobalMarks from "@/components/GlobalMarks";
-import ScrollColorController from "@/components/ScrollColorController";
+import StudioPreloader from "@/components/StudioPreloader";
+import TransitionOverlay from "@/components/TransitionOverlay";
+import AboutOverlay from "@/components/AboutOverlay";
+import ContactOverlay from "@/components/ContactOverlay";
 
-const archivo = Archivo({
+/* ── Fonts ── */
+
+// TODO: Replace DM Sans with Neue Montreal (PPNeueMontreal) via next/font/local
+// once WOFF2 files are placed in public/fonts/
+const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-archivo",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-satoshi",
+  variable: "--font-dm-sans",
 });
 
 const newsreader = Newsreader({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-editorial-new",
+  variable: "--font-newsreader",
   style: ["normal", "italic"],
+  weight: ["400", "500"],
 });
 
 const spaceMono = Space_Mono({
@@ -32,8 +33,6 @@ const spaceMono = Space_Mono({
   display: "swap",
   variable: "--font-space-mono",
 });
-
-import StudioPreloader from "@/components/StudioPreloader";
 
 /* ── Metadata ── */
 
@@ -47,7 +46,8 @@ export const metadata: Metadata = {
     "Design engineering at the intersection of high-fidelity craft and deep systems thinking. Specializing in React Native, Next.js, and design systems.",
   openGraph: {
     title: "HKJ Studio — Ryan Jun",
-    description: "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    description:
+      "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
     url: "https://hkjstudio.com",
     siteName: "HKJ Studio",
     locale: "en_US",
@@ -56,7 +56,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "HKJ Studio — Ryan Jun",
-    description: "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    description:
+      "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
     creator: "@hyeonjunjun",
   },
 };
@@ -71,24 +72,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${spaceMono.variable} ${inter.variable} ${newsreader.variable} ${archivo.variable} antialiased`}
-        style={{
-          backgroundColor: "var(--color-bg)",
-          color: "var(--color-text)",
-        }}
+        className={`${dmSans.variable} ${newsreader.variable} ${spaceMono.variable} antialiased`}
       >
         <StudioPreloader />
-        <GlobalMarks />
         <Cursor />
         <GlobalNav />
+        <TransitionOverlay />
+        <AboutOverlay />
+        <ContactOverlay />
 
-        {/* Paper Noise Texture */}
-        <div className="paper-noise" />
+        {/* Black body frame */}
+        <div
+          className="fixed inset-0 pointer-events-none z-[50]"
+          style={{
+            boxShadow: `inset 0 0 0 var(--body-frame) var(--color-bg-body)`,
+          }}
+        />
 
-        <SmoothScroll>
-          <ScrollColorController />
-          {children}
-        </SmoothScroll>
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );
