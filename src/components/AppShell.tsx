@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { useStudioStore } from "@/lib/store";
 import ProjectIndex from "@/components/ProjectIndex";
 import ProjectSelects from "@/components/ProjectSelects";
@@ -15,6 +17,17 @@ export default function AppShell() {
   const isPanelOpen = useStudioStore((s) => s.isPanelOpen);
   const setIsPanelOpen = useStudioStore((s) => s.setIsPanelOpen);
   const playerVisible = useStudioStore((s) => s.playerVisible);
+  const lenis = useLenis();
+  const prevPanelOpen = useRef(isPanelOpen);
+
+  // Resize Lenis after panel transitions
+  useEffect(() => {
+    if (prevPanelOpen.current !== isPanelOpen) {
+      prevPanelOpen.current = isPanelOpen;
+      const timer = setTimeout(() => lenis?.resize(), 550);
+      return () => clearTimeout(timer);
+    }
+  }, [isPanelOpen, lenis]);
 
   return (
     <>

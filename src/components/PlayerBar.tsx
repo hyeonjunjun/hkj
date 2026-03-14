@@ -1,10 +1,12 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { useStudioStore } from "@/lib/store";
 import { PROJECTS } from "@/constants/projects";
 
 export default function PlayerBar() {
+  const lenis = useLenis();
   const playerVisible = useStudioStore((s) => s.playerVisible);
   const activeProject = useStudioStore((s) => s.activeProject);
   const setActiveProject = useStudioStore((s) => s.setActiveProject);
@@ -25,7 +27,7 @@ export default function PlayerBar() {
     // Scroll row into view
     const row = document.querySelector(`[data-project-row="${PROJECTS[next].id}"]`);
     if (row) {
-      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      lenis?.scrollTo(row as HTMLElement, { offset: -100, duration: 1.2 });
     }
   };
 
