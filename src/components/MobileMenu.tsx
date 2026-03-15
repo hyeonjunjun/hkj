@@ -1,26 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useLenis } from "lenis/react";
-import { useStudioStore } from "@/lib/store";
-import { MENU_LINKS, type NavLink } from "@/constants/navigation";
+import { gsap } from "@/lib/gsap";
+import { MENU_LINKS } from "@/constants/navigation";
 import { CONTACT_EMAIL } from "@/constants/contact";
-import { PROJECTS } from "@/constants/projects";
 
 /**
- * MobileMenu — Two-Column Overlay with Image Previews
+ * MobileMenu — GSAP-only, clipPath entrance
  *
- * Design DNA: Felix Nieto's full-screen overlay with section image previews
- *
- * Structure:
- *   Left (60%): Numbered serif italic links — 01 works, 02 about, 03 contact, 04 lab
- *   Right (40%): Project image preview that changes on link hover
- *   Top bar: "hkj" wordmark + "close" button
- *   Footer: email + availability status
- *
- * Animation: Framer Motion clipPath entrance + staggered links + image crossfade
+ * Replaces Framer Motion AnimatePresence with GSAP timeline.
+ * clipPath: inset(0 0 100% 0) → inset(0 0 0% 0)
+ * Staggered menu items with GSAP .fromTo()
  */
 
 interface MobileMenuProps {
@@ -28,240 +20,209 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-// Preview images for each menu item
-const MENU_IMAGES = [
-  PROJECTS[0]?.image || "/placeholder.jpg", // works → first project
-  PROJECTS[1]?.mood || "/placeholder.jpg",  // about → mood image
-  PROJECTS[2]?.image || "/placeholder.jpg", // contact → project image
-  PROJECTS[3]?.mood || "/placeholder.jpg",  // lab → mood image
-];
-
-const panelEase = [0.76, 0, 0.24, 1] as [number, number, number, number];
-const contentEase = [0.16, 1, 0.3, 1] as [number, number, number, number];
-
-const overlayVariants = {
-  hidden: { clipPath: "inset(0 0 100% 0)" },
-  visible: {
-    clipPath: "inset(0 0 0% 0)",
-    transition: { duration: 0.55, ease: panelEase },
-  },
-  exit: {
-    clipPath: "inset(0 0 100% 0)",
-    transition: { duration: 0.4, ease: panelEase },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: 0.15 + i * 0.08,
-      duration: 0.65,
-      ease: contentEase,
-    },
-  }),
-  exit: {
-    opacity: 0,
-    y: -10,
-    transition: { duration: 0.12 },
-  },
-};
-
-const footerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { delay: 0.5, duration: 0.5 } },
-  exit: { opacity: 0, transition: { duration: 0.12 } },
-};
-
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
-  const [hoveredIndex, setHoveredIndex] = useState(0);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const router = useRouter();
   const lenis = useLenis();
-  const setActiveOverlay = useStudioStore((s) => s.setActiveOverlay);
-  const setActiveView = useStudioStore((s) => s.setActiveView);
 
   const handleNavigate = useCallback(
-    (link: NavLink) => {
-      if (link.view) {
-        onClose();
-        setTimeout(() => setActiveView(link.view!), 300);
-        return;
-      }
-      if (link.overlay) {
-        onClose();
-        setTimeout(() => setActiveOverlay(link.overlay!), 300);
-        return;
-      }
-      if (link.href) {
-        onClose();
-        if (link.href === "/" && window.location.pathname === "/") {
-          lenis?.scrollTo(0, { duration: 1.2 });
+    (href: string) => {
+      onClose();
+      setTimeout(() => {
+        if (href.startsWith("#")) {
+          const target = document.querySelector(href) as HTMLElement | null;
+          if (target && lenis) {
+            lenis.scrollTo(target, { duration: 1.2 });
+          }
         } else {
-          router.push(link.href);
+          router.push(href);
         }
-      }
+      }, 400);
     },
-    [onClose, setActiveOverlay, setActiveView, router, lenis]
+    [onClose, router, lenis]
   );
 
+  // Animate open/close
+  useEffect(() => {
+    const el = overlayRef.current;
+    if (!el) return;
+
+    if (isOpen) {
+      // Show overlay
+      el.style.display = "flex";
+
+      const tl = gsap.timeline();
+      timelineRef.current = tl;
+
+      tl.fromTo(
+        el,
+        { clipPath: "inset(0 0 100% 0)" },
+        { clipPath: "inset(0 0 0% 0)", duration: 0.5, ease: "power4.inOut" }
+      );
+
+      const items = el.querySelectorAll("[data-menu-item]");
+      tl.fromTo(
+        items,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.06,
+          ease: "power3.out",
+        },
+        "-=0.2"
+      );
+
+      const footer = el.querySelector("[data-menu-footer]");
+      if (footer) {
+        tl.fromTo(
+          footer,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.4, ease: "power3.out" },
+          "-=0.2"
+        );
+      }
+    } else {
+      // Hide overlay
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
+
+      gsap.to(el, {
+        clipPath: "inset(0 0 100% 0)",
+        duration: 0.35,
+        ease: "power4.inOut",
+        onComplete: () => {
+          el.style.display = "none";
+        },
+      });
+    }
+  }, [isOpen]);
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          key="mobile-menu"
-          variants={overlayVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="fixed inset-0 z-[60] flex flex-col overflow-hidden"
-          style={{ backgroundColor: "var(--color-bg)" }}
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-[60] flex-col"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        display: "none",
+        clipPath: "inset(0 0 100% 0)",
+      }}
+    >
+      {/* Top bar */}
+      <div
+        className="flex items-center justify-between"
+        style={{ padding: "clamp(1rem, 2.5vh, 1.75rem) var(--page-px)" }}
+        data-menu-item
+      >
+        <span
+          className="font-display"
+          style={{
+            fontSize: "clamp(11px, 1vw, 13px)",
+            color: "var(--color-text-dim)",
+            letterSpacing: "0.05em",
+          }}
         >
-          {/* Top bar */}
-          <div
-            className="relative z-10 flex items-center justify-between"
-            style={{ padding: "clamp(1rem, 2.5vh, 1.75rem) var(--page-px)" }}
+          HKJ
+        </span>
+        <button
+          onClick={onClose}
+          className="font-mono"
+          style={{
+            fontSize: "var(--text-micro)",
+            color: "var(--color-text-dim)",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+          }}
+          aria-label="Close menu"
+        >
+          Close
+        </button>
+      </div>
+
+      {/* Links */}
+      <nav
+        className="flex-1 flex flex-col justify-center"
+        style={{ padding: "0 var(--page-px)" }}
+      >
+        {MENU_LINKS.map((link, i) => (
+          <button
+            key={link.label}
+            onClick={() => handleNavigate(link.href)}
+            data-menu-item
+            className="text-left py-4 group"
+            style={{
+              borderBottom: i < MENU_LINKS.length - 1
+                ? "1px solid var(--color-border)"
+                : "none",
+            }}
           >
-            <span
-              className="font-sans font-medium"
-              style={{
-                fontSize: "var(--text-sm)",
-                color: "var(--color-text)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              hkj
-            </span>
-            <button
-              onClick={onClose}
-              data-cursor="close"
-              className="font-sans"
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-secondary)",
-                letterSpacing: "0.02em",
-              }}
-              aria-label="Close menu"
-            >
-              close
-            </button>
-          </div>
-
-          {/* Two-column content */}
-          <div
-            className="relative z-10 flex-1 flex"
-            style={{ padding: "0 var(--page-px)" }}
-          >
-            {/* Left: Navigation links */}
-            <nav className="flex-1 flex flex-col justify-center gap-0">
-              {MENU_LINKS.map((link, i) => (
-                <motion.button
-                  key={link.label}
-                  custom={i}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  onClick={() => handleNavigate(link)}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  className="text-left py-4 sm:py-5 border-b group flex items-baseline gap-4"
-                  style={{ borderColor: "var(--color-border)" }}
-                >
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: "var(--text-micro)",
-                      color: "var(--color-text-ghost)",
-                      letterSpacing: "0.1em",
-                    }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    className="font-serif italic group-hover:text-[var(--color-accent)] transition-colors duration-300"
-                    style={{
-                      fontSize: "clamp(2rem, 8vw, 3.5rem)",
-                      color: "var(--color-text)",
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    {link.label}
-                  </span>
-                </motion.button>
-              ))}
-            </nav>
-
-            {/* Right: Image preview (hidden on small mobile) */}
-            <div className="hidden sm:flex w-[40%] items-center justify-center pl-8">
-              <div
-                className="relative w-full overflow-hidden"
-                style={{
-                  aspectRatio: "3 / 4",
-                  maxHeight: "60vh",
-                }}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={hoveredIndex}
-                    src={MENU_IMAGES[hoveredIndex]}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    style={{ filter: "grayscale(30%)" }}
-                  />
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <motion.div
-            variants={footerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="relative z-10 flex items-center justify-between"
-            style={{ padding: "1.5rem var(--page-px)" }}
-          >
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="font-mono hover:text-[var(--color-accent)] transition-colors duration-300"
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              {CONTACT_EMAIL}
-            </a>
-
-            <div className="flex items-center gap-2">
-              <span
-                className="rounded-full"
-                style={{
-                  width: 5,
-                  height: 5,
-                  backgroundColor: "var(--color-accent)",
-                  flexShrink: 0,
-                }}
-              />
+            <div className="flex items-baseline gap-4">
               <span
                 className="font-mono"
                 style={{
                   fontSize: "var(--text-micro)",
-                  letterSpacing: "0.1em",
                   color: "var(--color-text-ghost)",
+                  letterSpacing: "0.1em",
                 }}
               >
-                available
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span
+                className="font-sans group-hover:text-[var(--color-accent)] transition-colors duration-300"
+                style={{
+                  fontSize: "clamp(1.5rem, 6vw, 2.5rem)",
+                  color: "var(--color-text)",
+                  lineHeight: 1.2,
+                }}
+              >
+                {link.label}
               </span>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </button>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <div
+        className="flex items-center justify-between"
+        style={{ padding: "1.5rem var(--page-px)" }}
+        data-menu-footer
+      >
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="font-mono hover:text-[var(--color-accent)] transition-colors duration-300"
+          style={{
+            fontSize: "var(--text-micro)",
+            color: "var(--color-text-dim)",
+            letterSpacing: "0.08em",
+          }}
+        >
+          {CONTACT_EMAIL}
+        </a>
+        <div className="flex items-center gap-2">
+          <span
+            className="rounded-full"
+            style={{
+              width: 5,
+              height: 5,
+              backgroundColor: "var(--color-accent)",
+            }}
+          />
+          <span
+            className="font-mono"
+            style={{
+              fontSize: "var(--text-micro)",
+              letterSpacing: "0.1em",
+              color: "var(--color-text-ghost)",
+            }}
+          >
+            available
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }

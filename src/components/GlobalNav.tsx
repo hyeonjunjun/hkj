@@ -1,80 +1,97 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { gsap } from "@/lib/gsap";
+import { useEffect, useRef, useCallback } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useLenis } from "lenis/react";
 import { useStudioStore } from "@/lib/store";
-import { NAV_LINKS, type NavLink } from "@/constants/navigation";
+import { NAV_LINKS } from "@/constants/navigation";
 import MobileMenu from "@/components/MobileMenu";
 
 /**
- * GlobalNav — Lowercase Voice Navigation
+ * GlobalNav — GSAP-only, scroll show/hide
  *
- * Design DNA: Felix Nieto lowercase confidence + Prototype Studio contextual color
- *
- * Structure:
- *   Left: "hkj" wordmark (font-sans, medium)
- *   Right (desktop): works / about / contact
- *   Right (mobile): "menu" text button
- *
- * - mix-blend-difference for universal readability
- * - Framer Motion spring underline on link hover
- * - GSAP stagger entrance after preloader
- * - Shared NAV_LINKS constant (no duplication)
+ * Not visible in hero. Appears after scrolling past hero section.
+ * Fixed bar: studio mark (left), text links (right)
+ * Hides on scroll-down, shows on scroll-up
+ * Background: --color-bg at 0.92 opacity + backdrop-filter blur
  */
-
-const underlineTransition = {
-  type: "spring" as const,
-  stiffness: 500,
-  damping: 30,
-};
-
 export default function GlobalNav() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const mobileMenuOpen = useStudioStore((s) => s.mobileMenuOpen);
+  const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
   const isLoaded = useStudioStore((s) => s.isLoaded);
-  const setActiveOverlay = useStudioStore((s) => s.setActiveOverlay);
-  const activeView = useStudioStore((s) => s.activeView);
-  const setActiveView = useStudioStore((s) => s.setActiveView);
-  const router = useRouter();
   const navRef = useRef<HTMLElement>(null);
+  const lenis = useLenis();
 
   const handleClick = useCallback(
-    (e: React.MouseEvent, link: NavLink) => {
+    (e: React.MouseEvent, href: string) => {
       e.preventDefault();
-      if (link.view) {
-        setActiveView(link.view);
-      } else if (link.overlay) {
-        setActiveOverlay(link.overlay);
-      } else if (link.href) {
-        router.push(link.href);
+      if (href.startsWith("#")) {
+        const target = document.querySelector(href) as HTMLElement | null;
+        if (target && lenis) {
+          lenis.scrollTo(target, { duration: 1.2 });
+        }
+      } else {
+        window.location.href = href;
       }
     },
-    [setActiveOverlay, setActiveView, router]
+    [lenis]
   );
 
-  // GSAP stagger entrance after preloader
+  // Show/hide based on scroll direction + hero threshold
+  useEffect(() => {
+    if (!navRef.current) return;
+
+    const nav = navRef.current;
+    let lastScrollY = 0;
+
+    // Initially hidden
+    gsap.set(nav, { y: -100, opacity: 0 });
+
+    const hero = document.getElementById("hero");
+    if (!hero) return;
+
+    // Show nav after scrolling past hero
+    ScrollTrigger.create({
+      trigger: hero,
+      start: "bottom top",
+      onEnter: () => {
+        gsap.to(nav, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" });
+      },
+      onLeaveBack: () => {
+        gsap.to(nav, { y: -100, opacity: 0, duration: 0.3, ease: "power2.in" });
+      },
+    });
+
+    // Hide on scroll-down, show on scroll-up
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      const heroBottom = hero.offsetTop + hero.offsetHeight;
+
+      if (currentY <= heroBottom) return;
+
+      if (currentY > lastScrollY + 5) {
+        // Scrolling down — hide
+        gsap.to(nav, { y: -100, duration: 0.3, ease: "power2.in" });
+      } else if (currentY < lastScrollY - 5) {
+        // Scrolling up — show
+        gsap.to(nav, { y: 0, duration: 0.3, ease: "power3.out" });
+      }
+      lastScrollY = currentY;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Stagger entrance after preloader
   useEffect(() => {
     if (!isLoaded || !navRef.current) return;
 
-    const wordmark = navRef.current.querySelector("[data-wordmark]");
     const links = navRef.current.querySelectorAll("[data-nav-link]");
-    const menuBtn = navRef.current.querySelector("[data-menu-btn]");
-
-    const targets = [wordmark, ...Array.from(links), menuBtn].filter(Boolean);
-
     gsap.fromTo(
-      targets,
-      { opacity: 0, y: 8 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.06,
-        delay: 0.15,
-      }
+      links,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6, stagger: 0.06, ease: "power3.out" }
     );
   }, [isLoaded]);
 
@@ -82,23 +99,25 @@ export default function GlobalNav() {
     <>
       <nav
         ref={navRef}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between mix-blend-difference"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between"
         style={{
-          padding: "clamp(1rem, 2.5vh, 1.75rem) var(--page-px)",
+          padding: "clamp(0.75rem, 2vh, 1.25rem) var(--page-px)",
+          backgroundColor: "rgba(17, 17, 16, 0.92)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
         }}
       >
-        {/* Wordmark */}
-        <a href="/" data-wordmark style={{ opacity: 0 }}>
+        {/* Studio mark */}
+        <a href="/" data-nav-link>
           <span
-            className="font-sans font-medium"
+            className="font-display"
             style={{
-              fontSize: "var(--text-sm)",
-              color: "#ffffff",
-              lineHeight: 1,
-              letterSpacing: "-0.01em",
+              fontSize: "clamp(11px, 1vw, 13px)",
+              color: "var(--color-text-dim)",
+              letterSpacing: "0.05em",
             }}
           >
-            hkj
+            HKJ
           </span>
         </a>
 
@@ -107,36 +126,25 @@ export default function GlobalNav() {
           {NAV_LINKS.map((link) => (
             <a
               key={link.label}
-              href={link.href || "#"}
-              onClick={(e) => handleClick(e, link)}
+              href={link.href}
+              onClick={(e) => handleClick(e, link.href)}
               data-nav-link
-              className="relative cursor-pointer"
+              className="relative font-mono group"
               style={{
-                opacity: 0,
-                fontSize: "var(--text-xs)",
-                letterSpacing: "0.02em",
-                color: "#ffffff",
-                fontFamily: "var(--font-sans)",
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.12em",
+                color: "var(--color-text-dim)",
+                textTransform: "uppercase",
               }}
-              onMouseEnter={() => setHoveredLink(link.label)}
-              onMouseLeave={() => setHoveredLink(null)}
             >
-              <motion.span
-                className="inline-block"
-                animate={{ y: hoveredLink === link.label ? -2 : 0 }}
-                transition={underlineTransition}
-              >
+              <span className="group-hover:text-[var(--color-text)] transition-colors duration-300">
                 {link.label}
-              </motion.span>
-
-              {/* Underline */}
-              <motion.span
-                className="absolute -bottom-[2px] left-0 right-0 h-[1px] bg-white origin-left"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: link.view === activeView || hoveredLink === link.label ? 1 : 0 }}
-                transition={{
-                  duration: 0.4,
-                  ease: [0.16, 1, 0.3, 1],
+              </span>
+              <span
+                className="absolute -bottom-[2px] left-0 right-0 h-[1px] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
+                style={{
+                  backgroundColor: "var(--color-text-dim)",
+                  transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               />
             </a>
@@ -146,17 +154,16 @@ export default function GlobalNav() {
         {/* Mobile menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(true)}
-          data-menu-btn
-          className="md:hidden font-sans font-medium"
+          className="md:hidden font-mono"
           style={{
-            opacity: 0,
-            fontSize: "var(--text-xs)",
-            letterSpacing: "0.02em",
-            color: "#ffffff",
+            fontSize: "var(--text-micro)",
+            letterSpacing: "0.12em",
+            color: "var(--color-text-dim)",
+            textTransform: "uppercase",
           }}
           aria-label="Open menu"
         >
-          menu
+          Menu
         </button>
       </nav>
 

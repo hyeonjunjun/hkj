@@ -7,14 +7,14 @@ export default function NotFound() {
       style={{ backgroundColor: "var(--color-bg)", color: "var(--color-text)" }}
     >
       <h1
-        className="font-serif italic leading-none mb-4 select-none"
-        style={{ fontSize: "12vw", opacity: 0.1 }}
+        className="font-display italic leading-none mb-4 select-none"
+        style={{ fontSize: "12vw", opacity: 0.08 }}
       >
         404
       </h1>
       <h2
-        className="font-serif italic mb-6"
-        style={{ fontSize: "var(--text-2xl)" }}
+        className="font-display italic mb-6"
+        style={{ fontSize: "var(--text-h2)" }}
       >
         Nothing here.
       </h2>
@@ -22,7 +22,7 @@ export default function NotFound() {
         className="font-sans max-w-md mb-12"
         style={{
           color: "var(--color-text-dim)",
-          fontSize: "var(--text-sm)",
+          fontSize: "var(--text-body)",
         }}
       >
         The page you&apos;re looking for doesn&apos;t exist, or it moved
@@ -30,18 +30,15 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full transition-colors duration-300 hover:bg-[var(--color-text)] hover:text-[var(--color-bg)]"
+        className="font-mono transition-colors duration-300 hover:text-[var(--color-accent)]"
         style={{
-          border: "1px solid var(--color-border)",
+          fontSize: "var(--text-micro)",
           color: "var(--color-text-dim)",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
         }}
       >
-        <span
-          className="font-sans tracking-[0.02em]"
-          style={{ fontSize: "var(--text-xs)" }}
-        >
-          back home
-        </span>
+        ← Back home
       </Link>
     </div>
   );

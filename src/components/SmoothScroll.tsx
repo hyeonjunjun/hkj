@@ -55,7 +55,7 @@ export default function SmoothScroll({ children }: SmoothScrollProps) {
       ref={lenisRef}
       root
       options={{
-        lerp: 0.07,
+        lerp: 0.08,
         duration: 1.2,
         smoothWheel: true,
         autoRaf: false, // GSAP ticker drives the RAF loop

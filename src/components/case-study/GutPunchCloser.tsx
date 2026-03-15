@@ -42,7 +42,7 @@ export default function GutPunchCloser({ text }: { text?: string }) {
       style={{ borderTop: "1px solid var(--color-border)" }}
     >
       <h2
-        className="editorial-display text-center max-w-4xl"
+        className="font-display italic text-center max-w-4xl"
         style={{
           fontSize: "clamp(2rem, 5vw, 4rem)",
           color: "var(--color-text)",

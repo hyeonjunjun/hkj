@@ -1,21 +1,17 @@
-import type { OverlayType, ActiveView } from "@/lib/store";
-
 export interface NavLink {
   label: string;
-  href?: string;
-  overlay?: OverlayType;
-  view?: ActiveView;
+  href: string;
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { label: "index", view: "index" },
-  { label: "selects", view: "selects" },
-  { label: "info", view: "info" },
+  { label: "Work", href: "#viewfinder" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export const MENU_LINKS: NavLink[] = [
-  { label: "index", view: "index" },
-  { label: "selects", view: "selects" },
-  { label: "info", view: "info" },
-  { label: "lab", href: "/lab" },
+  { label: "Work", href: "#viewfinder" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
+  { label: "Lab", href: "/lab" },
 ];

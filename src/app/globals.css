@@ -1,50 +1,44 @@
 @import "tailwindcss";
 
 /**
- * HKJ Studio — Warm Typographic Gallery
+ * HKJ — Dark Warm Editorial
  *
- * Type: Neue Montreal (sans) + Newsreader (serif accent) + Space Mono (metadata)
- * Palette: Warm off-white base, warm near-black text, muted terracotta accent
- * Motion: Long decelerating curves, clip-path reveals, subtractive dimming
+ * Type: GT Alpina (display) + Söhne (body) + JetBrains Mono (metadata)
+ * Palette: Dark warm base, muted text, burnished gold accent
+ * Motion: GSAP-only, power3.out reveals, opacity from 0.15
  */
 
 :root {
   /* ── Typography ── */
-  --font-sans: var(--font-neue-montreal, var(--font-dm-sans)), system-ui, sans-serif;
-  --font-serif: var(--font-newsreader), "Georgia", serif;
-  --font-mono: var(--font-space-mono), monospace;
+  --font-display: var(--font-display), "Georgia", serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), monospace;
 
-  /* ── Type Scale ── */
-  --text-micro: 0.5625rem;
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.9375rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.5rem;
-  --text-2xl: clamp(1.75rem, 1.2rem + 1.5vw, 2.5rem);
-  --text-3xl: clamp(2.25rem, 1.5rem + 2.5vw, 3.5rem);
-  --text-display: clamp(3rem, 2rem + 4vw, 6rem);
+  /* ── Type Scale (restrained) ── */
+  --text-display: clamp(1.8rem, 3vw, 2.8rem);
+  --text-h2: clamp(1.3rem, 2vw, 1.8rem);
+  --text-h3: clamp(1.05rem, 1.4vw, 1.25rem);
+  --text-body: clamp(0.92rem, 1.05vw, 1.02rem);
+  --text-small: clamp(0.72rem, 0.82vw, 0.8rem);
+  --text-micro: clamp(0.6rem, 0.68vw, 0.68rem);
 
-  /* ── HKJ Studio Palette ── */
-  --color-bg: #F5F1ED;
-  --color-bg-body: #1A1714;
-  --color-surface: #EDE8E2;
-  --color-surface-elevated: #F9F6F2;
-  --color-text: #1A1714;
-  --color-text-secondary: #8A837A;
-  --color-text-dim: var(--color-text-secondary);
-  --color-text-ghost: #B8B2A8;
-  --color-accent: #C4593E;
-  --color-accent-hover: #A8472F;
-  --color-accent-warm: #C4593E;
-  --color-border: rgba(26, 23, 20, 0.08);
-  --color-border-strong: rgba(26, 23, 20, 0.15);
-  --color-gold: #C4593E;
+  /* ── Dark Warm Palette ── */
+  --color-bg: #111110;
+  --color-surface: #1A1917;
+  --color-border: #2D2B28;
+  --color-border-strong: #3D3833;
+  --color-text: #D4CFC7;
+  --color-text-secondary: #8C8579;
+  --color-text-dim: #8C8579;
+  --color-text-ghost: #5A5550;
+  --color-accent: #B8956A;
+  --color-accent-2: #7D6B5D;
+  --color-ink: #3D3833;
 
   /* ── Spacing ── */
   --page-px: clamp(1.5rem, 5vw, 5rem);
-  --section-py: clamp(6rem, 12vh, 10rem);
-  --body-frame: 0px;
+  --section-py: clamp(8rem, 16vh, 14rem);
+  --row-py: clamp(2.5rem, 5.5vh, 5rem);
 }
 
 /* ── Base ── */
@@ -53,9 +47,13 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ── Utility Classes ── */
@@ -66,10 +64,9 @@ body {
     padding-right: var(--page-px);
   }
 
-  .font-serif { font-family: var(--font-serif); }
+  .font-display { font-family: var(--font-display); }
   .font-mono { font-family: var(--font-mono); }
   .font-sans { font-family: var(--font-sans); }
-  .font-grotesk { font-family: var(--font-sans); }
 
   .micro {
     font-family: var(--font-mono);
@@ -81,10 +78,10 @@ body {
 
   .label {
     font-family: var(--font-mono);
-    font-size: var(--text-xs);
+    font-size: var(--text-small);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--color-text-secondary);
+    color: var(--color-text-dim);
   }
 
   .hairline {
@@ -92,22 +89,6 @@ body {
     background-color: var(--color-border);
     width: 100%;
   }
-
-  .editorial-display {
-    font-family: var(--font-serif);
-    font-style: italic;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-  }
-}
-
-/* Mixed-font headline pattern (sans uppercase + serif italic) */
-.headline-mixed em,
-.headline-mixed i {
-  font-family: var(--font-serif);
-  font-style: italic;
-  text-transform: lowercase;
-  font-weight: 400;
 }
 
 /* Subtractive hover — dim siblings, keep hovered at full */
@@ -121,35 +102,19 @@ body {
   opacity: 1;
 }
 
-/* ── Cursor Crosshair ── */
+/* ── Grain Overlay ── */
 
-.cursor-crosshair line {
-  stroke: currentColor;
-  stroke-width: 1px;
-}
-
-/* ── Project Grid Hover States ── */
-
-.project-card-img {
-  filter: grayscale(100%);
-  transform: scale(1.05);
-  transition: filter 0.6s ease, transform 0.6s ease;
-}
-
-.project-card:hover .project-card-img {
-  filter: grayscale(0%);
-  transform: scale(1.0);
-}
-
-/* Full-bleed list card variant — larger scale for parallax headroom */
-.project-card-img-list {
-  filter: grayscale(80%);
-  transform: scale(1.15);
-  transition: filter 0.7s ease-out, transform 0.7s ease-out;
-}
-.project-card:hover .project-card-img-list {
-  filter: grayscale(0%);
-  transform: scale(1.05);
+.noise-grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/assets/grain-200x200.png');
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
 }
 
 /* ── Keyframes ── */
@@ -163,6 +128,11 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
 }
 
 /* ── Selection ── */
@@ -183,9 +153,4 @@ body {
 
 ::-webkit-scrollbar {
   display: none;
-}
-
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

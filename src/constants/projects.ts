@@ -73,13 +73,15 @@ export interface Project {
     has3dInspector?: boolean;
     /** B-roll video clips for case study showcase */
     videos?: VideoClip[];
+    /** Optional short video for project card preview */
+    cardVideo?: string;
 }
 
 export const PROJECTS: Project[] = [
     {
         id: "sift",
         title: "Sift: Digital Sanctuary",
-        client: "HKJ Studio",
+        client: "HKJ",
         role: "Design & Engineering",
         sector: "Mobile · AI",
         year: "2025",
@@ -259,19 +261,19 @@ export const PROJECTS: Project[] = [
     {
         id: "gyeol",
         title: "GYEOL: 결",
-        client: "HKJ Studio",
+        client: "HKJ",
         role: "Design & Engineering",
         sector: "Material Science",
         year: "2026",
         tags: ["Material", "Texture", "WebGL"],
-        image: "/images/sift-v2.jpg",
+        image: "/images/gyeol-hero.jpg",
         mood: "#A0A0A0",
         pitch: "A study in digital materiality and perceived textures. Exploring the boundary between screen-rendered surfaces and physical material memory.",
         editorial: {
             headline: "Digital Grain.",
             subhead: "Where Pixels Meet Patina",
             copy: "결 (gyeol) is the Korean word for grain — the invisible pattern that gives wood its character, stone its identity, fabric its hand-feel. GYEOL explores the uncanny valley between digital rendering and physical material. By mapping real-world texture data onto WebGL surfaces, we create interfaces that feel tangibly present — like touching brushed aluminum or woven fabric through glass. The project began as a personal obsession: why does every screen feel the same?",
-            images: ["/images/sift-v2.jpg"],
+            images: ["/images/gyeol-hero.jpg"],
         },
         process: {
             title: "Material Research",
@@ -326,11 +328,12 @@ export const PROJECTS: Project[] = [
             { title: "Feel Testing", copy: "Blind tests with designers and non-designers: can they identify the material just by watching it on screen? Success rate drove shader refinement." },
         ],
         has3dInspector: true,
+        cardVideo: "/assets/gyeol-broll3.mp4",
         videos: [
-            { src: "/videos/gyeol/material-study-01.mp4", caption: "oak grain displacement", aspect: "16/9" },
-            { src: "/videos/gyeol/material-study-02.mp4", caption: "marble subsurface scattering", aspect: "1/1" },
-            { src: "/videos/gyeol/material-study-03.mp4", caption: "brushed aluminum anisotropy", aspect: "1/1" },
-            { src: "/videos/gyeol/material-study-04.mp4", caption: "woven linen displacement", aspect: "16/9" },
+            { src: "/videos/gyeol/material-study-01.mp4", poster: "/images/gyeol-hero.jpg", caption: "oak grain displacement", aspect: "16/9" },
+            { src: "/videos/gyeol/material-study-02.mp4", poster: "/images/gyeol-hero.jpg", caption: "marble subsurface scattering", aspect: "1/1" },
+            { src: "/videos/gyeol/material-study-03.mp4", poster: "/images/gyeol-hero.jpg", caption: "brushed aluminum anisotropy", aspect: "1/1" },
+            { src: "/videos/gyeol/material-study-04.mp4", poster: "/images/gyeol-hero.jpg", caption: "woven linen displacement", aspect: "16/9" },
         ],
     },
 ];

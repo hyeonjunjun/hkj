@@ -1,23 +1,20 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { gsap } from "@/lib/gsap";
 
 /**
- * VideoShowcase — B-Roll Video Grid
+ * VideoShowcase — B-Roll Video Grid (GSAP-only)
  *
- * Cinematic inline video playback for case study pages.
- * - Muted autoplay, loop, scroll-triggered play/pause
- * - IntersectionObserver drives playback (play when visible, pause when not)
- * - Staggered grid layout with optional captions
- * - Matches warm typographic gallery aesthetic
+ * Muted autoplay, loop, IntersectionObserver play/pause.
+ * GSAP scroll reveals instead of Framer Motion.
  */
 
 export interface VideoClip {
   src: string;
   poster?: string;
   caption?: string;
-  aspect?: string; // e.g., "16/9", "9/16", "1/1", "4/3"
+  aspect?: string;
 }
 
 interface VideoShowcaseProps {
@@ -26,8 +23,9 @@ interface VideoShowcaseProps {
 
 function VideoCard({ clip, index }: { clip: VideoClip; index: number }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Scroll-triggered play/pause via IntersectionObserver
+  // Scroll-triggered play/pause
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -47,16 +45,33 @@ function VideoCard({ clip, index }: { clip: VideoClip; index: number }) {
     return () => observer.disconnect();
   }, []);
 
+  // GSAP reveal
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    gsap.fromTo(
+      cardRef.current,
+      { opacity: 0.15 },
+      {
+        opacity: 1,
+        duration: 0.8,
+        delay: index * 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: "top 85%",
+        },
+      }
+    );
+  }, [index]);
+
   const aspect = clip.aspect || "16/9";
 
   return (
-    <motion.div
+    <div
+      ref={cardRef}
       className="relative overflow-hidden group"
       style={{ aspectRatio: aspect }}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
     >
       <video
         ref={videoRef}
@@ -67,9 +82,9 @@ function VideoCard({ clip, index }: { clip: VideoClip; index: number }) {
         playsInline
         preload="metadata"
         className="w-full h-full object-cover"
+        style={{ backgroundColor: clip.poster ? undefined : "var(--color-surface)" }}
       />
 
-      {/* Caption overlay */}
       {clip.caption && (
         <div
           className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -89,23 +104,17 @@ function VideoCard({ clip, index }: { clip: VideoClip; index: number }) {
           </span>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
 export default function VideoShowcase({ videos }: VideoShowcaseProps) {
   if (!videos || videos.length === 0) return null;
 
-  // Single video: full width
   if (videos.length === 1) {
-    return (
-      <div className="space-y-3">
-        <VideoCard clip={videos[0]} index={0} />
-      </div>
-    );
+    return <VideoCard clip={videos[0]} index={0} />;
   }
 
-  // Two videos: side by side
   if (videos.length === 2) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -116,7 +125,6 @@ export default function VideoShowcase({ videos }: VideoShowcaseProps) {
     );
   }
 
-  // 3+ videos: first full-width, rest in 2-col grid
   return (
     <div className="space-y-4">
       <VideoCard clip={videos[0]} index={0} />
