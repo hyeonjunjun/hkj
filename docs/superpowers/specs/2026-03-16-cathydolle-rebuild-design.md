@@ -10,7 +10,7 @@ Cathydolle's exact design system is adopted: vw-based column grid, 11px uppercas
 
 1. **Whitespace is content.** Every gap is intentional. With few projects, rows breathe more.
 2. **One font size for UI.** All navigational and list text is 11px JetBrains Mono uppercase.
-3. **Two-tier easing.** `cubic-bezier(0.86, 0, 0.07, 1)` for cinematic moments (page transitions, preloader). `cubic-bezier(0.4, 0, 0.2, 1)` at `200ms` for micro-interactions (hover, toggle). `[0.16, 1, 0.3, 1]` (expo-out) for content entrance reveals. No other curves.
+3. **Three-tier easing.** `cubic-bezier(0.86, 0, 0.07, 1)` for cinematic moments (page transitions, preloader). `cubic-bezier(0.4, 0, 0.2, 1)` at `200ms` for micro-interactions (hover, toggle). `[0.16, 1, 0.3, 1]` (expo-out) for content entrance reveals. No other curves.
 4. **No decorative elements.** No shadows, no rounded corners, no icons, no borders on content.
 5. **Scalability.** The list must look good with 3 projects or 20.
 
