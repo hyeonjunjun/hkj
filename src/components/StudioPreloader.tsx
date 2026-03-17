@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
 import { useStudioStore } from "@/lib/store";
@@ -17,18 +17,12 @@ export default function StudioPreloader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [shouldRender, setShouldRender] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !sessionStorage.getItem(SESSION_KEY);
-    }
-    return true;
-  });
 
   const activeProjects = PROJECTS.filter((p) => !p.wip);
 
   useEffect(() => {
     // Skip if already visited or prefers-reduced-motion
-    if (!shouldRender || prefersReduced) {
+    if (sessionStorage.getItem(SESSION_KEY) || prefersReduced) {
       setLoaded(true);
       return;
     }
@@ -47,7 +41,6 @@ export default function StudioPreloader() {
           onComplete: () => {
             sessionStorage.setItem(SESSION_KEY, "1");
             setLoaded(true);
-            setShouldRender(false);
           },
         });
       },
@@ -107,7 +100,7 @@ export default function StudioPreloader() {
     });
   }, [setLoaded, prefersReduced]);
 
-  if (!shouldRender || isLoaded) return null;
+  if (isLoaded) return null;
 
   return (
     <div
