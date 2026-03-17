@@ -420,20 +420,20 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 
 ## 8. Navigation Changes
 
-### 7.1 GlobalNav
+### 8.1 GlobalNav
 
 - Visible on all pages EXCEPT homepage (homepage has its own header)
 - On non-homepage pages: fixed position, contains "HKJ" logo + "Work" (links to `/`) + "About" links
 - Scroll-direction show/hide behavior preserved
 - Backdrop blur preserved
 
-### 7.2 MobileMenu
+### 8.2 MobileMenu
 
 - Adapted for new structure
 - Homepage mobile: header collapses toggle into a simpler layout
 - Non-homepage: existing behavior
 
-### 7.3 Contact & About Accessibility
+### 8.3 Contact & About Accessibility
 
 - Contact: accessible via About page and email in homepage footer
 - About: accessible via "About" link in header on homepage and GlobalNav on other pages
@@ -441,7 +441,7 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 
 ---
 
-## 8. Files to Delete
+## 9. Files to Delete
 
 | File | Reason |
 |---|---|
@@ -452,7 +452,7 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 | `src/components/sections/Works.tsx` | Old works section, unused |
 | `src/app/work/page.tsx` | `/work` index route — redundant, homepage IS the project list |
 
-## 9. Files to Rewrite
+## 10. Files to Rewrite
 
 | File | Change |
 |---|---|
@@ -464,8 +464,9 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 | `src/app/globals.css` | Add vw-based column grid utilities |
 | `src/constants/navigation.ts` | Update: `Work` -> `{ label: "Work", href: "/" }`, remove `Contact` anchor (use `mailto:` or remove), keep `About` |
 | `src/lib/store.ts` | Remove `hoveredProject` / `setHoveredProject` (orphaned after R3F deletion). Remove `activeProject` / `setActiveProject` if unused. Keep `isLoaded`, `navVisible`, `mobileMenuOpen`, `isTransitioning`. |
+| `src/app/work/[slug]/page.tsx` | Full rewrite: cathydolle-faithful case study layout (see Section 7) |
 
-## 10. Files Unchanged
+## 11. Files Unchanged
 
 | File | Reason |
 |---|---|
@@ -474,14 +475,13 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 | `src/components/MobileMenu.tsx` | Minor adaptation |
 | `src/components/sections/Contact.tsx` | Stays, used on About page |
 | `src/components/sections/Colophon.tsx` | Stays, used on About page |
-| `src/app/work/[slug]/page.tsx` | Case study pages unchanged |
 | `src/app/about/page.tsx` | Add Contact + Colophon sections to bottom |
 | `src/app/lab/page.tsx` | Unchanged, kept as-is |
 | `src/constants/projects.ts` | Data unchanged |
 | `src/constants/contact.ts` | Unchanged. Footer reads `CONTACT_EMAIL` from here. |
 | `src/lib/gsap.ts` | Unchanged |
 
-## 11. Dependency Cleanup
+## 12. Dependency Cleanup
 
 Remove unused npm packages after R3F and other deletions:
 
