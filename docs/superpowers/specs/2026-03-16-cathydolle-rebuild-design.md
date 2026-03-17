@@ -10,7 +10,7 @@ Cathydolle's exact design system is adopted: vw-based column grid, 11px uppercas
 
 1. **Whitespace is content.** Every gap is intentional. With few projects, rows breathe more.
 2. **One font size for UI.** All navigational and list text is 11px JetBrains Mono uppercase.
-3. **One easing curve.** `cubic-bezier(0.86, 0, 0.07, 1)` for page transitions and preloader. `duration-200 ease-in-out` for UI interactions (hover, toggle).
+3. **Two-tier easing.** `cubic-bezier(0.86, 0, 0.07, 1)` for cinematic moments (page transitions, preloader). `cubic-bezier(0.4, 0, 0.2, 1)` at `200ms` for micro-interactions (hover, toggle). `[0.16, 1, 0.3, 1]` (expo-out) for content entrance reveals. No other curves.
 4. **No decorative elements.** No shadows, no rounded corners, no icons, no borders on content.
 5. **Scalability.** The list must look good with 3 projects or 20.
 
@@ -26,17 +26,24 @@ Cathydolle's exact design system is adopted: vw-based column grid, 11px uppercas
 
 | Token | Value |
 |---|---|
-| `--color-bg` | `#F5F2ED` |
+| `--color-bg` | `#F5F2ED` (warm off-white) |
 | `--color-surface` | `#EDE9E3` |
-| `--color-text` | `#1A1917` |
+| `--color-border` | `#D5D0C8` |
+| `--color-border-strong` | `#C2BBB0` |
+| `--color-text` | `#1A1917` (near-black) |
+| `--color-text-secondary` | `#4A4540` |
 | `--color-text-dim` | `#7A756D` |
 | `--color-text-ghost` | `#A8A29E` |
-| `--color-accent` | `#B8956A` |
+| `--color-accent` | `#B8956A` (burnished gold) |
+| `--color-accent-2` | `#7D6B5D` |
+| `--color-ink` | `#E5E0D8` |
 | `--font-display` | GT Alpina (300, 400, 400i, 500) |
 | `--font-sans` | Sohne (300, 400, 500) |
 | `--font-mono` | JetBrains Mono |
 
 GT Alpina appears only on case study pages and the contact email display. All homepage UI text is JetBrains Mono 11px uppercase.
+
+**Note:** MEMORY.md references an older dark palette (#111110 bg). The light palette above is the current, approved palette in `globals.css`. MEMORY.md will be updated to match.
 
 ## Grain Overlay
 
@@ -80,9 +87,9 @@ Footer  — fixed height, single line
 - Height: natural, with `padding-bottom: clamp(1rem, 2vh, 1.5rem)`
 - Horizontal padding: vw-based `padding-x-1`
 - Contents:
-  - **Right-aligned:** contact email — JetBrains Mono, 11px, uppercase, `letter-spacing: 0.08em`, `color: var(--color-text-ghost)`
+  - **Right-aligned:** `CONTACT_EMAIL` from `src/constants/contact.ts` ("hello@hkjstudio.com") — JetBrains Mono, 11px, uppercase, `letter-spacing: 0.08em`, `color: var(--color-text-ghost)`
   - Hover: `color: var(--color-text-dim)`, `transition: color 0.3s ease`
-  - Click: `mailto:` link
+  - Click: `mailto:${CONTACT_EMAIL}` link
 
 ---
 
@@ -202,10 +209,10 @@ Total duration: ~2.5s. Easing: `cubic-bezier(0.86, 0, 0.07, 1)` throughout.
 
 **Phase 3 — Split & Distribute (1.0s - 1.8s):**
 - The box "splits" — each project thumbnail separates
-- If in list mode: thumbnails shrink and translate to their row positions (becoming invisible, revealing the text list)
-- If in slider mode: thumbnails translate horizontally to their card positions in the slider
+- The preloader always uses the same animation regardless of view mode (list is the default). Thumbnails shrink and fade out while translating upward, revealing the text list underneath.
 - Duration: `0.8s`
 - Stagger: `0.1s` between each project image
+- The preloader does NOT need to know the current view mode — it always resolves to list view.
 
 **Phase 4 — Chrome Reveal (1.8s - 2.2s):**
 - Header fades in: `opacity: 0` -> `opacity: 1`, `y: -8` -> `y: 0`
@@ -297,6 +304,8 @@ Margin classes:
 | `.span-ml-1` | `7.73vw` | `7.20vw` | `14.18vw` |
 | `.span-ml-2` | `16.57vw` | `16.49vw` | `32.62vw` |
 
+Spans 6, 9, 10, 11 are omitted because the homepage only uses spans 1-5, 7-8, and 12. If needed for case study pages, derive with: `span-w-N = (N * column_width) + ((N - 1) * gutter)` where column_width = `(100vw - 13 * gutter) / 12`.
+
 These are defined as Tailwind `@layer utilities` in `globals.css`.
 
 ---
@@ -333,6 +342,7 @@ These are defined as Tailwind `@layer utilities` in `globals.css`.
 | `src/components/WorksGallery.tsx` | R3F gallery, unused |
 | `src/components/ProjectCover.tsx` | R3F cover, unused |
 | `src/components/sections/Works.tsx` | Old works section, unused |
+| `src/app/work/page.tsx` | `/work` index route — redundant, homepage IS the project list |
 
 ## 9. Files to Rewrite
 
@@ -344,21 +354,41 @@ These are defined as Tailwind `@layer utilities` in `globals.css`.
 | `src/app/page.tsx` | Homepage = Hero only (remove Contact, Colophon) |
 | `src/app/layout.tsx` | Remove Cursor, ScrollProgress imports |
 | `src/app/globals.css` | Add vw-based column grid utilities |
+| `src/constants/navigation.ts` | Update: `Work` -> `{ label: "Work", href: "/" }`, remove `Contact` anchor (use `mailto:` or remove), keep `About` |
+| `src/lib/store.ts` | Remove `hoveredProject` / `setHoveredProject` (orphaned after R3F deletion). Remove `activeProject` / `setActiveProject` if unused. Keep `isLoaded`, `navVisible`, `mobileMenuOpen`, `isTransitioning`. |
 
 ## 10. Files Unchanged
 
 | File | Reason |
 |---|---|
-| `src/components/SmoothScroll.tsx` | Lenis config unchanged |
-| `src/components/GlobalNav.tsx` | Minor: hide on homepage |
+| `src/components/SmoothScroll.tsx` | Lenis config unchanged. Note: on homepage (no-scroll), Lenis is safe because `overflow: hidden` prevents scroll events. No conditional disabling needed. |
+| `src/components/GlobalNav.tsx` | Minor: hide on homepage via pathname check |
 | `src/components/MobileMenu.tsx` | Minor adaptation |
 | `src/components/sections/Contact.tsx` | Stays, used on About page |
 | `src/components/sections/Colophon.tsx` | Stays, used on About page |
 | `src/app/work/[slug]/page.tsx` | Case study pages unchanged |
-| `src/app/about/page.tsx` | Mostly unchanged, may add Contact + Colophon |
+| `src/app/about/page.tsx` | Add Contact + Colophon sections to bottom |
+| `src/app/lab/page.tsx` | Unchanged, kept as-is |
 | `src/constants/projects.ts` | Data unchanged |
-| `src/lib/store.ts` | Unchanged |
+| `src/constants/contact.ts` | Unchanged. Footer reads `CONTACT_EMAIL` from here. |
 | `src/lib/gsap.ts` | Unchanged |
+
+## 11. Dependency Cleanup
+
+Remove unused npm packages after R3F and other deletions:
+
+| Package | Reason |
+|---|---|
+| `@react-three/fiber` | R3F components deleted |
+| `@react-three/drei` | R3F components deleted |
+| `@react-three/postprocessing` | R3F components deleted |
+| `three` | R3F components deleted |
+| `@types/three` | R3F components deleted |
+| `simplex-noise` | Only used in R3F components |
+| `leva` | R3F debug UI, unused |
+| `use-sound` | No audio in the project |
+| `lucide-react` | Verify usage; remove if no icons remain |
+| `react-intersection-observer` | Verify usage; may be replaced by ScrollTrigger |
 
 ---
 
