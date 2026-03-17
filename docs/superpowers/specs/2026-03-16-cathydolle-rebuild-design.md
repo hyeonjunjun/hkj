@@ -22,6 +22,8 @@ Cathydolle's exact design system is adopted: vw-based column grid, 11px uppercas
 - Lenis smooth scroll
 - Zustand (minimal state)
 
+**Note:** MEMORY.md claims "Framer Motion fully removed" — this is outdated. Framer Motion v12.36.0 is installed and actively used. MEMORY.md will be corrected.
+
 ## Color & Typography (Unchanged)
 
 | Token | Value |
@@ -316,7 +318,7 @@ Rewrite `src/app/work/[slug]/page.tsx` to match cathydolle's case study pattern:
 
 ### 7.1 Layout
 
-- Content width: `span-w-7` (~57vw desktop) with left margin `span-ml-2-wide` (~17vw)
+- Content width: `span-w-7` (~57vw desktop) with left margin `span-ml-2` (~16.5vw)
 - Mobile: full width, no left margin, `padding-x-1`
 - Vertical padding: `py-[10vh]`
 - Background: `var(--color-bg)` (matching homepage)
@@ -324,8 +326,8 @@ Rewrite `src/app/work/[slug]/page.tsx` to match cathydolle's case study pattern:
 ### 7.2 Page Structure (Top to Bottom)
 
 ```
-Fixed Header (GlobalNav — always visible on case study pages)
-└─ Content column (span-w-7, offset span-ml-2-wide)
+Fixed Header (GlobalNav — visible with scroll-direction show/hide)
+└─ Content column (span-w-7, offset span-ml-2)
    ├─ Project Metadata
    │   ├─ Title — JetBrains Mono, 11px, uppercase
    │   ├─ Description — JetBrains Mono, 11px, `leading-[110%]`
@@ -346,13 +348,20 @@ Scroll Navigation Overlay (fixed position)
    └─ "Scroll Down to Next Project" (bottom boundary)
 ```
 
-### 7.3 Typography on Case Study
+### 7.3 Typography & Data Mapping
 
 **Same 11px baseline as homepage.** All text stays JetBrains Mono, 11px, uppercase. No larger display type on case study pages — the restraint is the point. The project title is the same size as everything else.
 
+**Field mapping** (existing `Project` interface → case study display):
+- Title → `project.title`
+- Description → `project.pitch`
+- Role → `project.role` (displayed as-is, single string)
+- Year → `project.year`
+- External URL → not currently in interface; omit for now, add as `url?: string` when needed
+
 ### 7.4 Media Gallery — Scroll Reveal Animations (GSAP)
 
-Each media block reveals on scroll entry:
+Each media block reveals on scroll entry. **Easing note:** These scroll reveals use GSAP's `power3.out` (≈ `cubic-bezier(0.33, 1, 0.68, 1)`) rather than the three-tier system's expo-out. This is cathydolle's exact value, preserved for fidelity. GSAP ScrollTrigger animations use GSAP's named easings; the three-tier rule applies to Framer Motion / CSS transitions.
 
 | Animation | Properties | Duration | Easing | Trigger |
 |---|---|---|---|---|
@@ -386,6 +395,8 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 
 **On 100% threshold — navigate:**
 
+This is an **in-page content swap**, not a full route transition. The current case study content fades/slides out, the next project's content fades/slides in — all within the same `/work/[slug]` route using `router.replace()`. Section 5's clip-path page transition fires only for cross-route navigation (e.g., homepage → case study, case study → about).
+
 | Direction | Transition | Duration | Easing | Delay |
 |---|---|---|---|---|
 | Next (scroll down) | `opacity: 0→1`, `y: 50%→0%`, `blur: 2px→0` | `0.6s` | `power2.out` | `0.1s` |
@@ -397,7 +408,7 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 
 ### 7.7 Scroll Progress Indicator
 
-- Calculation: `window.pageYOffset / (scrollHeight - clientHeight) * 100`
+- Calculation: `window.scrollY / (scrollHeight - clientHeight) * 100`
 - Display: percentage text `"0 %"` — JetBrains Mono, 11px
 - Position: fixed footer area, right-aligned
 - Color: `var(--color-text-ghost)`
@@ -450,6 +461,11 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 | `src/components/WorksGallery.tsx` | R3F gallery, unused |
 | `src/components/ProjectCover.tsx` | R3F cover, unused |
 | `src/components/sections/Works.tsx` | Old works section, unused |
+| `src/components/sections/About.tsx` | Not imported anywhere; about content lives in `src/app/about/page.tsx` |
+| `src/components/sections/Capabilities.tsx` | Not imported anywhere; removed from homepage |
+| `src/components/case-study/VideoShowcase.tsx` | Case study rewrite replaces this (Section 7) |
+| `src/components/case-study/GutPunchCloser.tsx` | Case study rewrite replaces this (Section 7) |
+| `src/components/ui/SequentialVideo.tsx` | Only imported by `work/page.tsx` which is also deleted |
 | `src/app/work/page.tsx` | `/work` index route — redundant, homepage IS the project list |
 
 ## 10. Files to Rewrite
@@ -475,11 +491,15 @@ The key interaction: scrolling past page boundaries navigates to adjacent projec
 | `src/components/MobileMenu.tsx` | Minor adaptation |
 | `src/components/sections/Contact.tsx` | Stays, used on About page |
 | `src/components/sections/Colophon.tsx` | Stays, used on About page |
-| `src/app/about/page.tsx` | Add Contact + Colophon sections to bottom |
-| `src/app/lab/page.tsx` | Unchanged, kept as-is |
-| `src/constants/projects.ts` | Data unchanged |
+| `src/constants/projects.ts` | Data unchanged; existing fields (`pitch`, `role`, `year`) map to case study metadata |
 | `src/constants/contact.ts` | Unchanged. Footer reads `CONTACT_EMAIL` from here. |
 | `src/lib/gsap.ts` | Unchanged |
+| `src/lib/utils.ts` | Unchanged |
+| `src/hooks/useReducedMotion.ts` | Unchanged; used by preloader skip logic |
+| `src/app/template.tsx` | Unchanged; PageTransition wrapping stays |
+| `src/app/not-found.tsx` | Unchanged |
+| `src/app/opengraph-image.tsx` | Unchanged |
+| `src/app/about/page.tsx` | Minor: add Contact + Colophon sections to bottom |
 
 ## 12. Dependency Cleanup
 
