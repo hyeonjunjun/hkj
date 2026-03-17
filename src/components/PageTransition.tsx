@@ -2,18 +2,23 @@
 
 import { useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { motion, animate, useMotionValue } from "framer-motion";
+import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 
 /**
- * PageTransition — Smooth grain overlay on route change
+ * PageTransition — Cathydolle-faithful clip-path + scale transition
  *
- * Uses Framer Motion's imperative animate for precise
- * opacity control: fade in → hold → fade out.
+ * Enter: clip-path inset(100% 0 0 0) → inset(0 0 0 0), 1.75s
+ * Exit:  scale 1 → 0.9, opacity 1 → 0.25, 1.75s
+ * Easing: cubic-bezier(0.86, 0, 0.07, 1)
  */
+const CINEMATIC = [0.86, 0, 0.07, 1] as const;
+const DURATION = 1.75;
+
 export default function PageTransition() {
   const pathname = usePathname();
   const isFirstRender = useRef(true);
-  const opacity = useMotionValue(0);
+  const clipProgress = useMotionValue(100); // inset top %
+  const overlayOpacity = useMotionValue(0);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -21,31 +26,31 @@ export default function PageTransition() {
       return;
     }
 
-    // Sequence: fade in → brief hold → fade out
     const sequence = async () => {
-      await animate(opacity, 1, {
-        duration: 0.3,
-        ease: [0.4, 0, 1, 1],
+      // Enter: clip-path reveals from bottom to top
+      clipProgress.set(100);
+      overlayOpacity.set(1);
+
+      await animate(clipProgress, 0, {
+        duration: DURATION,
+        ease: CINEMATIC,
       });
-      await animate(opacity, 0, {
-        duration: 0.4,
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.05,
-      });
+
+      // After reveal completes, hide overlay
+      overlayOpacity.set(0);
+      clipProgress.set(100);
     };
 
     sequence();
-  }, [pathname, opacity]);
+  }, [pathname, clipProgress, overlayOpacity]);
 
   return (
     <motion.div
       className="fixed inset-0 z-[999] pointer-events-none"
       style={{
-        opacity,
+        opacity: overlayOpacity,
+        clipPath: useTransform(clipProgress, (v) => `inset(${v}% 0 0 0)`),
         backgroundColor: "var(--color-bg)",
-        backgroundImage: "url('/assets/grain-200x200.png')",
-        backgroundRepeat: "repeat",
-        backgroundSize: "200px 200px",
       }}
     />
   );
