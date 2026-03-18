@@ -18,7 +18,6 @@ import PixelArt from "@/components/PixelArt";
 export default function GlobalNav() {
   const mobileMenuOpen = useStudioStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
-  const isLoaded = useStudioStore((s) => s.isLoaded);
   const navRef = useRef<HTMLElement>(null);
   const symbolRef = useRef<HTMLButtonElement>(null);
   const lenis = useLenis();
@@ -65,16 +64,16 @@ export default function GlobalNav() {
     };
   }, [isHome]);
 
-  // Entrance after preloader
+  // Entrance on mount
   useEffect(() => {
-    if (!isLoaded || !navRef.current) return;
+    if (!navRef.current) return;
 
     gsap.fromTo(
       navRef.current.querySelectorAll("[data-nav-el]"),
       { opacity: 0 },
       { opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }
     );
-  }, [isLoaded]);
+  }, []);
 
   // On homepage, render a minimal transparent nav (no bg, no backdrop)
   // On inner pages, render the standard sticky nav with blur bg

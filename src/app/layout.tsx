@@ -4,8 +4,6 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalNav from "@/components/GlobalNav";
-import StudioPreloader from "@/components/StudioPreloader";
-import PageTransition from "@/components/PageTransition";
 import TimeProvider from "@/components/TimeProvider";
 
 /* ── Fonts ── */
@@ -79,16 +77,12 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <TimeProvider />
-        <StudioPreloader />
         <GlobalNav />
 
         {/* Grain overlay */}
         <div className="noise-grain" />
 
-        <PageTransition />
-        <div id="page-content">
-          <SmoothScroll>{children}</SmoothScroll>
-        </div>
+        <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>
   );

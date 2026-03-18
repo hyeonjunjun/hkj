@@ -1,22 +1,21 @@
 "use client";
 
 import { useCallback } from "react";
-import { usePathname } from "next/navigation";
-import { useStudioStore } from "@/lib/store";
+import { useRouter, usePathname } from "next/navigation";
 
 /**
- * Hook for programmatic navigation with page transitions.
- * Use this instead of router.push() when you want the cinematic transition.
+ * Hook for programmatic navigation.
  */
 export function useTransitionNavigate() {
+  const router = useRouter();
   const pathname = usePathname();
-  const setTransitionHref = useStudioStore((s) => s.setTransitionHref);
 
   return useCallback(
     (href: string) => {
-      if (href === pathname || href.startsWith("#") || href.startsWith("http")) return;
-      setTransitionHref(href);
+      if (href === pathname || href.startsWith("#") || href.startsWith("http"))
+        return;
+      router.push(href);
     },
-    [pathname, setTransitionHref]
+    [pathname, router]
   );
 }

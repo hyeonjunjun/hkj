@@ -4,15 +4,13 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
-import { useStudioStore } from "@/lib/store";
 import { EXPLORATIONS } from "@/constants/explorations";
 
 export default function CoddiwomplePage() {
-  const isLoaded = useStudioStore((s) => s.isLoaded);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isLoaded || !gridRef.current) return;
+    if (!gridRef.current) return;
 
     const items = gridRef.current.querySelectorAll("[data-explore-item]");
     gsap.fromTo(
@@ -26,7 +24,7 @@ export default function CoddiwomplePage() {
         stagger: 0.08,
       }
     );
-  }, [isLoaded]);
+  }, []);
 
   return (
     <main

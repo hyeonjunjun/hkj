@@ -145,67 +145,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Capabilities — folded into about page */}
-      <section
-        className="section-padding"
-        style={{
-          paddingTop: "clamp(4rem, 8vh, 6rem)",
-          paddingBottom: "clamp(6rem, 10vh, 8rem)",
-          borderTop: "1px solid var(--color-border)",
-        }}
-      >
-        <div className="max-w-[900px] mx-auto">
-          <div className="mb-10" data-reveal>
-            <span
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-micro)",
-                letterSpacing: "0.15em",
-                color: "var(--color-text-ghost)",
-              }}
-            >
-              Capabilities
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8">
-            {[
-              { title: "Design Systems", tools: "Figma, Storybook, Tokens" },
-              { title: "React / Next.js", tools: "App Router, RSC, Turbopack" },
-              { title: "React Native", tools: "Expo, Reanimated, NativeWind" },
-              { title: "Motion Design", tools: "GSAP, Lenis, ScrollTrigger" },
-              { title: "Prototyping", tools: "Framer, Principle, Code" },
-              { title: "Visual Design", tools: "Typography, Layout, Color" },
-              { title: "WebGL / 3D", tools: "Three.js, R3F, GLSL" },
-              { title: "AI Integration", tools: "LLMs, Embeddings, RAG" },
-            ].map((cap) => (
-              <div key={cap.title} data-reveal>
-                <span
-                  className="font-sans block"
-                  style={{
-                    fontSize: "var(--text-small)",
-                    color: "var(--color-text)",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  {cap.title}
-                </span>
-                <span
-                  className="font-mono block mt-1"
-                  style={{
-                    fontSize: "var(--text-micro)",
-                    color: "var(--color-text-dim)",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {cap.tools}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <Colophon />
     </div>
   );
