@@ -1,57 +1,83 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { motion, animate, useMotionValue, useTransform } from "framer-motion";
+import { useEffect, useRef, useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { gsap } from "@/lib/gsap";
+import { useStudioStore } from "@/lib/store";
 
 /**
- * PageTransition — Cathydolle-faithful clip-path + scale transition
+ * PageTransition — Content-based cinematic transition
  *
- * Enter: clip-path inset(100% 0 0 0) → inset(0 0 0 0), 1.75s
- * Exit:  scale 1 → 0.9, opacity 1 → 0.25, 1.75s
- * Easing: cubic-bezier(0.86, 0, 0.07, 1)
+ * Instead of an overlay, animates the actual page content:
+ * Exit:  Current page scales down, blurs, fades out
+ * Enter: New page scales from slightly large, unblurs, fades in
+ *
+ * Targets #page-content wrapper in layout.tsx
  */
-const CINEMATIC = [0.86, 0, 0.07, 1] as const;
-const DURATION = 1.75;
 
 export default function PageTransition() {
   const pathname = usePathname();
+  const router = useRouter();
+  const prevPathname = useRef(pathname);
   const isFirstRender = useRef(true);
-  const clipProgress = useMotionValue(100); // inset top %
-  const overlayOpacity = useMotionValue(0);
+
+  const transitionHref = useStudioStore((s) => s.transitionHref);
+  const setTransitionHref = useStudioStore((s) => s.setTransitionHref);
+
+  // Phase 1: EXIT — scale down, blur, fade the current page
+  useEffect(() => {
+    if (!transitionHref) return;
+
+    const content = document.getElementById("page-content");
+    if (!content) return;
+
+    const href = transitionHref;
+
+    gsap.to(content, {
+      scale: 0.97,
+      opacity: 0,
+      filter: "blur(8px)",
+      duration: 0.5,
+      ease: "power2.in",
+      onComplete: () => {
+        setTransitionHref(null);
+        router.push(href);
+      },
+    });
+  }, [transitionHref, router, setTransitionHref]);
+
+  // Phase 2: ENTER — scale up from slightly large, unblur, fade in
+  const playEnter = useCallback(() => {
+    const content = document.getElementById("page-content");
+    if (!content) return;
+
+    gsap.fromTo(
+      content,
+      { scale: 1.02, opacity: 0, filter: "blur(6px)" },
+      {
+        scale: 1,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.6,
+        ease: "power3.out",
+        delay: 0.05,
+      }
+    );
+  }, []);
 
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      prevPathname.current = pathname;
       return;
     }
 
-    const sequence = async () => {
-      // Enter: clip-path reveals from bottom to top
-      clipProgress.set(100);
-      overlayOpacity.set(1);
+    if (pathname !== prevPathname.current) {
+      prevPathname.current = pathname;
+      playEnter();
+    }
+  }, [pathname, playEnter]);
 
-      await animate(clipProgress, 0, {
-        duration: DURATION,
-        ease: CINEMATIC,
-      });
-
-      // After reveal completes, hide overlay
-      overlayOpacity.set(0);
-      clipProgress.set(100);
-    };
-
-    sequence();
-  }, [pathname, clipProgress, overlayOpacity]);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[999] pointer-events-none"
-      style={{
-        opacity: overlayOpacity,
-        clipPath: useTransform(clipProgress, (v) => `inset(${v}% 0 0 0)`),
-        backgroundColor: "var(--color-bg)",
-      }}
-    />
-  );
+  // No DOM element needed — we target #page-content directly
+  return null;
 }

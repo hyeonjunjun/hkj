@@ -2,11 +2,11 @@
 
 import { use, useRef, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
 import { EXPLORATIONS } from "@/constants/explorations";
 
-export default function ExplorePiecePage({
+export default function CoddiwomplePiecePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -85,7 +85,6 @@ export default function ExplorePiecePage({
           />
         )}
 
-        {/* Subtle gradient for readability */}
         <div
           style={{
             position: "absolute",
@@ -96,8 +95,8 @@ export default function ExplorePiecePage({
         />
 
         {/* Back link */}
-        <Link
-          href="/explore"
+        <TransitionLink
+          href="/coddiwomple"
           className="font-mono uppercase"
           style={{
             position: "absolute",
@@ -116,8 +115,8 @@ export default function ExplorePiecePage({
             ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.7)")
           }
         >
-          &larr; Explore
-        </Link>
+          &larr; Coddiwomple
+        </TransitionLink>
 
         {/* Title overlay */}
         <div
@@ -235,8 +234,8 @@ export default function ExplorePiecePage({
       </div>
 
       {/* Next piece */}
-      <Link
-        href={`/explore/${nextPiece.id}`}
+      <TransitionLink
+        href={`/coddiwomple/${nextPiece.id}`}
         style={{
           display: "block",
           position: "relative",
@@ -256,7 +255,13 @@ export default function ExplorePiecePage({
             style={{ opacity: 0.7 }}
           />
         ) : (
-          <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+            }}
+          >
             <Image
               src={nextPiece.hero}
               alt={nextPiece.title}
@@ -300,7 +305,7 @@ export default function ExplorePiecePage({
             {nextPiece.title}
           </span>
         </div>
-      </Link>
+      </TransitionLink>
     </main>
   );
 }

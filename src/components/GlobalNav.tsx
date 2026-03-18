@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStudioStore } from "@/lib/store";
+import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
 import { NAV_LINKS } from "@/constants/navigation";
+import TransitionLink from "@/components/TransitionLink";
 import MobileMenu from "@/components/MobileMenu";
+import PixelArt from "@/components/PixelArt";
 
 /**
- * GlobalNav — Minimal cinematic nav
- *
- * HKJ mark (left) + ※ menu trigger (right).
- * No visible text links — everything goes through the overlay menu.
- * Hidden in hero, appears after scrolling past.
- * Scroll-direction show/hide.
+ * GlobalNav — Minimal cinematic nav with time-aware pixel art.
+ * Visible on all pages. Scroll-direction show/hide on inner pages.
  */
 export default function GlobalNav() {
   const mobileMenuOpen = useStudioStore((s) => s.mobileMenuOpen);
@@ -24,8 +22,9 @@ export default function GlobalNav() {
   const navRef = useRef<HTMLElement>(null);
   const symbolRef = useRef<HTMLButtonElement>(null);
   const lenis = useLenis();
-  const router = useRouter();
+  const navigate = useTransitionNavigate();
   const pathname = usePathname();
+  const isHome = pathname === "/";
 
   const handleNavClick = useCallback(
     (href: string) => {
@@ -35,21 +34,19 @@ export default function GlobalNav() {
           lenis.scrollTo(target, { duration: 1.2 });
         }
       } else {
-        router.push(href);
+        navigate(href);
       }
     },
-    [lenis, router]
+    [lenis, navigate]
   );
 
+  // Scroll-direction show/hide (non-homepage only)
   useEffect(() => {
-    if (!navRef.current) return;
+    if (!navRef.current || isHome) return;
 
     const nav = navRef.current;
-
-    // Start visible on non-homepage pages
     gsap.set(nav, { y: 0, opacity: 1 });
 
-    // Direction-based show/hide
     const directionTrigger = ScrollTrigger.create({
       trigger: document.body,
       start: "top top",
@@ -66,7 +63,7 @@ export default function GlobalNav() {
     return () => {
       directionTrigger.kill();
     };
-  }, []);
+  }, [isHome]);
 
   // Entrance after preloader
   useEffect(() => {
@@ -79,9 +76,8 @@ export default function GlobalNav() {
     );
   }, [isLoaded]);
 
-  // Don't render on homepage — homepage has its own header
-  if (pathname === "/") return null;
-
+  // On homepage, render a minimal transparent nav (no bg, no backdrop)
+  // On inner pages, render the standard sticky nav with blur bg
   return (
     <>
       <nav
@@ -89,13 +85,14 @@ export default function GlobalNav() {
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between"
         style={{
           padding: "clamp(0.75rem, 2vh, 1.25rem) var(--page-px)",
-          backgroundColor: "rgba(var(--color-bg-rgb), 0.92)",
-          backdropFilter: "blur(8px)",
-          WebkitBackdropFilter: "blur(8px)",
+          backgroundColor: isHome ? "transparent" : "rgba(var(--color-bg-rgb), 0.92)",
+          backdropFilter: isHome ? "none" : "blur(8px)",
+          WebkitBackdropFilter: isHome ? "none" : "blur(8px)",
         }}
       >
-        {/* Studio mark */}
-        <Link href="/" data-nav-el>
+        {/* Pixel art + studio mark */}
+        <TransitionLink href="/" className="flex items-center gap-2" data-nav-el>
+          <PixelArt />
           <span
             className="font-display"
             style={{
@@ -106,7 +103,7 @@ export default function GlobalNav() {
           >
             HKJ
           </span>
-        </Link>
+        </TransitionLink>
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-6" data-nav-el>
@@ -136,7 +133,7 @@ export default function GlobalNav() {
           ))}
         </div>
 
-        {/* ※ Menu trigger — all screen sizes */}
+        {/* ※ Menu trigger */}
         <button
           ref={symbolRef}
           onClick={() => setMobileMenuOpen(true)}
@@ -151,20 +148,12 @@ export default function GlobalNav() {
           aria-label="Open menu"
           onMouseEnter={() => {
             if (symbolRef.current) {
-              gsap.to(symbolRef.current, {
-                rotation: 90,
-                duration: 0.4,
-                ease: "power3.out",
-              });
+              gsap.to(symbolRef.current, { rotation: 90, duration: 0.4, ease: "power3.out" });
             }
           }}
           onMouseLeave={() => {
             if (symbolRef.current) {
-              gsap.to(symbolRef.current, {
-                rotation: 0,
-                duration: 0.4,
-                ease: "power3.out",
-              });
+              gsap.to(symbolRef.current, { rotation: 0, duration: 0.4, ease: "power3.out" });
             }
           }}
         >

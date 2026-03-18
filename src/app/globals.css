@@ -53,6 +53,63 @@
   :root { --grid-gutter: 2.13vw; }
 }
 
+/* ── Time-Aware Palettes ── */
+
+html[data-time-period="dawn"] {
+  --color-bg: #F0E8E0;
+  --color-bg-rgb: 240, 232, 224;
+  --color-surface: #E8DED4;
+  --color-border: #D4C8BC;
+  --color-border-strong: #C2B6A8;
+  --color-text: #2A2420;
+  --color-text-rgb: 42, 36, 32;
+  --color-text-secondary: #5A4F48;
+  --color-text-dim: #887D74;
+  --color-text-ghost: #B0A59A;
+  --color-accent: #C4917A;
+  --color-accent-2: #8B6E60;
+  --color-ink: #E2D8CE;
+}
+
+html[data-time-period="dusk"] {
+  --color-bg: #EDE5D8;
+  --color-bg-rgb: 237, 229, 216;
+  --color-surface: #E4DBCC;
+  --color-border: #CFC4B2;
+  --color-border-strong: #BEB2A0;
+  --color-text: #1E1A15;
+  --color-text-rgb: 30, 26, 21;
+  --color-text-secondary: #4E4538;
+  --color-text-dim: #7E7264;
+  --color-text-ghost: #A89A8A;
+  --color-accent: #C88A4A;
+  --color-accent-2: #8A6A42;
+  --color-ink: #DDD4C4;
+}
+
+html[data-time-period="night"] {
+  --color-bg: #1A1917;
+  --color-bg-rgb: 26, 25, 23;
+  --color-surface: #242220;
+  --color-border: #3A3632;
+  --color-border-strong: #4A4540;
+  --color-text: #E8E4DE;
+  --color-text-rgb: 232, 228, 222;
+  --color-text-secondary: #B8B0A5;
+  --color-text-dim: #8A8278;
+  --color-text-ghost: #5A5550;
+  --color-accent: #C4A87A;
+  --color-accent-2: #8A7A64;
+  --color-ink: #2E2C28;
+}
+
+html[data-time-period="night"] .noise-grain::before {
+  opacity: 0.03;
+  mix-blend-mode: screen;
+}
+html[data-time-period="dawn"] .noise-grain::before { opacity: 0.04; }
+html[data-time-period="dusk"] .noise-grain::before { opacity: 0.05; }
+
 /* ── Base ── */
 
 body {
@@ -66,6 +123,7 @@ body {
   overflow-x: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  transition: background-color 2s ease, color 1.5s ease;
 }
 
 /* ── Utility Classes ── */

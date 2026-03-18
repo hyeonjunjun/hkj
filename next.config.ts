@@ -16,9 +16,14 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/works",
-        destination: "/",
-        permanent: false,
+        source: "/explore",
+        destination: "/coddiwomple",
+        permanent: true,
+      },
+      {
+        source: "/explore/:slug",
+        destination: "/coddiwomple/:slug",
+        permanent: true,
       },
     ];
   },

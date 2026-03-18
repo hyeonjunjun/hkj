@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { useLenis } from "lenis/react";
+import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
 import { gsap } from "@/lib/gsap";
 import { MENU_LINKS } from "@/constants/navigation";
 import { CONTACT_EMAIL } from "@/constants/contact";
@@ -22,7 +22,7 @@ interface MobileMenuProps {
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const router = useRouter();
+  const navigate = useTransitionNavigate();
   const lenis = useLenis();
 
   const handleNavigate = useCallback(
@@ -35,11 +35,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             lenis.scrollTo(target, { duration: 1.2 });
           }
         } else {
-          router.push(href);
+          navigate(href);
         }
       }, 400);
     },
-    [onClose, router, lenis]
+    [onClose, navigate, lenis]
   );
 
   useEffect(() => {

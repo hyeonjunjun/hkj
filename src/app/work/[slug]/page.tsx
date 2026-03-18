@@ -1,16 +1,17 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
 import { useScrollNavigate } from "@/hooks/useScrollNavigate";
+import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
+import TransitionLink from "@/components/TransitionLink";
 
 export default function CaseStudy() {
   const { slug } = useParams();
-  const router = useRouter();
+  const navigate = useTransitionNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollPercent, setScrollPercent] = useState(0);
 
@@ -85,7 +86,7 @@ export default function CaseStudy() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        router.push("/");
+        navigate("/");
         return;
       }
 
@@ -135,7 +136,7 @@ export default function CaseStudy() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [router]);
+  }, [navigate]);
 
   if (!project) {
     return (
@@ -390,7 +391,7 @@ export default function CaseStudy() {
         className="md:hidden padding-x-1 pb-8 flex justify-between"
       >
         {prevProject && (
-          <Link
+          <TransitionLink
             href={`/work/${prevProject.id}`}
             className="font-mono uppercase"
             style={{
@@ -400,10 +401,10 @@ export default function CaseStudy() {
             }}
           >
             ← {prevProject.title}
-          </Link>
+          </TransitionLink>
         )}
         {nextProject && (
-          <Link
+          <TransitionLink
             href={`/work/${nextProject.id}`}
             className="font-mono uppercase ml-auto"
             style={{
@@ -413,7 +414,7 @@ export default function CaseStudy() {
             }}
           >
             {nextProject.title} →
-          </Link>
+          </TransitionLink>
         )}
       </div>
     </div>

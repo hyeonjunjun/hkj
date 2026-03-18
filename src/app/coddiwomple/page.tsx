@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
 import { useStudioStore } from "@/lib/store";
 import { EXPLORATIONS } from "@/constants/explorations";
 
-export default function ExplorePage() {
+export default function CoddiwomplePage() {
   const isLoaded = useStudioStore((s) => s.isLoaded);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -42,45 +42,26 @@ export default function ExplorePage() {
         className="section-padding"
         style={{ marginBottom: "clamp(3rem, 6vh, 5rem)" }}
       >
-        <Link
-          href="/"
-          className="font-mono uppercase"
-          style={{
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            color: "var(--color-text-ghost)",
-            transition: "color 0.3s ease",
-          }}
-          onMouseEnter={(e) =>
-            ((e.target as HTMLElement).style.color = "var(--color-text)")
-          }
-          onMouseLeave={(e) =>
-            ((e.target as HTMLElement).style.color = "var(--color-text-ghost)")
-          }
-        >
-          &larr; Back
-        </Link>
-
         <h1
           className="font-display italic"
           style={{
             fontSize: "var(--text-display)",
             color: "var(--color-text)",
-            marginTop: "clamp(1.5rem, 3vh, 2.5rem)",
             lineHeight: 1.1,
           }}
         >
-          Explore
+          Coddiwomple
         </h1>
         <p
           style={{
             fontSize: "var(--text-body)",
             color: "var(--color-text-dim)",
             marginTop: "0.75rem",
-            maxWidth: "36ch",
+            maxWidth: "40ch",
           }}
         >
-          Visual studies, material research, and things that caught the light.
+          Traveling purposefully toward an unknown destination. Visual studies,
+          material research, and things that caught the light.
         </p>
       </div>
 
@@ -96,15 +77,14 @@ export default function ExplorePage() {
         }}
       >
         {EXPLORATIONS.map((piece, i) => {
-          // Alternate between wide and narrow placements
           const isWide = i % 3 === 0;
           const colSpan = isWide ? "span 7" : "span 5";
           const colStart = !isWide && i % 3 === 2 ? "8" : undefined;
 
           return (
-            <Link
+            <TransitionLink
               key={piece.id}
-              href={`/explore/${piece.id}`}
+              href={`/coddiwomple/${piece.id}`}
               data-explore-item
               style={{
                 gridColumn: colStart ? `${colStart} / span 5` : colSpan,
@@ -112,7 +92,6 @@ export default function ExplorePage() {
                 display: "block",
               }}
             >
-              {/* Media */}
               <div
                 className="overflow-hidden"
                 style={{
@@ -129,10 +108,12 @@ export default function ExplorePage() {
                     playsInline
                     className="w-full h-full object-cover"
                     style={{
-                      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                      transition:
+                        "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) =>
-                      ((e.target as HTMLElement).style.transform = "scale(1.03)")
+                      ((e.target as HTMLElement).style.transform =
+                        "scale(1.03)")
                     }
                     onMouseLeave={(e) =>
                       ((e.target as HTMLElement).style.transform = "scale(1)")
@@ -144,7 +125,8 @@ export default function ExplorePage() {
                       position: "relative",
                       width: "100%",
                       height: "100%",
-                      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                      transition:
+                        "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) =>
                       ((e.currentTarget as HTMLElement).style.transform =
@@ -167,7 +149,6 @@ export default function ExplorePage() {
                 )}
               </div>
 
-              {/* Caption */}
               <div style={{ marginTop: "0.75rem" }}>
                 <span
                   className="font-display italic"
@@ -190,7 +171,7 @@ export default function ExplorePage() {
                   {piece.medium}
                 </span>
               </div>
-            </Link>
+            </TransitionLink>
           );
         })}
       </div>

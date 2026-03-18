@@ -8,36 +8,37 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { PROJECTS } from "@/constants/projects";
 
 const SESSION_KEY = "hkj-visited";
-const CINEMATIC = "cubic-bezier(0.86, 0, 0.07, 1)";
 
 export default function StudioPreloader() {
   const setLoaded = useStudioStore((s) => s.setLoaded);
   const isLoaded = useStudioStore((s) => s.isLoaded);
   const prefersReduced = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
+  const markRef = useRef<HTMLSpanElement>(null);
+  const imageBoxRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const activeProjects = PROJECTS.filter((p) => !p.wip);
 
   useEffect(() => {
-    // Skip if already visited or prefers-reduced-motion
     if (sessionStorage.getItem(SESSION_KEY) || prefersReduced) {
       setLoaded(true);
       return;
     }
 
     const el = containerRef.current;
-    const box = boxRef.current;
-    if (!el || !box) return;
+    const mark = markRef.current;
+    const imageBox = imageBoxRef.current;
+    if (!el || !mark || !imageBox) return;
 
     const tl = gsap.timeline({
-      defaults: { ease: CINEMATIC },
       onComplete: () => {
+        // Final reveal — scale up the whole preloader and fade out
         gsap.to(el, {
+          clipPath: "inset(50% 50% 50% 50%)",
           opacity: 0,
-          duration: 0.4,
-          ease: "power2.in",
+          duration: 0.8,
+          ease: "power3.inOut",
           onComplete: () => {
             sessionStorage.setItem(SESSION_KEY, "1");
             setLoaded(true);
@@ -46,57 +47,64 @@ export default function StudioPreloader() {
       },
     });
 
-    // Wait for fonts + images
     const fontsReady = document.fonts.ready;
     const timeout = new Promise((r) => setTimeout(r, 3000));
 
     Promise.race([fontsReady, timeout]).then(() => {
-      // Phase 1 — Box appear (0.4s)
+      // Phase 1 — HKJ mark fades in (0.8s)
       tl.fromTo(
-        box,
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.4 }
+        mark,
+        { opacity: 0, y: 8, filter: "blur(4px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.8,
+          ease: "power3.out",
+        }
       );
 
-      // Phase 2 — Box expand (0.6s)
-      tl.to(box, {
-        width: "32.59vw",
-        height: "auto",
-        duration: 0.6,
+      // Hold for a moment (0.6s)
+      tl.to({}, { duration: 0.6 });
+
+      // Phase 2 — Mark shifts up, image box appears (0.7s)
+      tl.to(mark, {
+        y: -40,
+        opacity: 0.4,
+        duration: 0.7,
+        ease: "power3.inOut",
       });
 
-      // Show first thumbnail inside box
-      if (thumbRefs.current[0]) {
-        tl.fromTo(
-          thumbRefs.current[0],
-          { clipPath: "inset(100% 0 0 0)" },
-          { clipPath: "inset(0% 0 0 0)", duration: 0.6 },
-          "<"
-        );
-      }
+      tl.fromTo(
+        imageBox,
+        { opacity: 0, scale: 0.85, clipPath: "inset(10% 10% 10% 10%)" },
+        {
+          opacity: 1,
+          scale: 1,
+          clipPath: "inset(0% 0% 0% 0%)",
+          duration: 0.8,
+          ease: "power3.out",
+        },
+        "<0.1"
+      );
 
-      // Phase 3 — Split & distribute (0.8s)
+      // Phase 3 — Cycle through project thumbnails (0.5s each)
       thumbRefs.current.forEach((thumb, i) => {
-        if (!thumb) return;
-        tl.to(
+        if (!thumb || i === 0) return;
+        tl.fromTo(
           thumb,
+          { clipPath: "inset(100% 0 0 0)" },
           {
-            opacity: 0,
-            scale: 0.6,
-            y: -40,
+            clipPath: "inset(0% 0 0 0)",
             duration: 0.5,
+            ease: "power2.inOut",
           },
-          `split+=${i * 0.1}`
+          `+=0.3`
         );
       });
 
-      tl.to(box, { opacity: 0, duration: 0.3 }, "split+=0.3");
-
-      // Phase 4 — Chrome reveal (0.4s)
-      // Signal Hero that preloader is done so Hero's header/footer
-      // fade in via isLoaded-gated entrance animations.
-      // The preloader's onComplete callback sets isLoaded=true,
-      // which triggers Hero's fadeUp variants on header and footer.
+      // Hold on last image (0.5s)
+      tl.to({}, { duration: 0.5 });
     });
   }, [setLoaded, prefersReduced]);
 
@@ -105,26 +113,47 @@ export default function StudioPreloader() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[1000] flex items-center justify-center"
-      style={{ backgroundColor: "var(--color-bg)" }}
+      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center"
+      style={{
+        backgroundColor: "var(--color-bg)",
+        clipPath: "inset(0% 0% 0% 0%)",
+      }}
     >
-      {/* Central box with project thumbnails */}
-      <div
-        ref={boxRef}
-        className="relative overflow-hidden flex items-center justify-center"
+      {/* HKJ Mark */}
+      <span
+        ref={markRef}
+        className="font-display"
         style={{
-          width: 60,
-          height: 80,
-          backgroundColor: "var(--color-border)",
+          fontSize: "clamp(14px, 1.5vw, 18px)",
+          color: "var(--color-text)",
+          letterSpacing: "0.15em",
+          opacity: 0,
+        }}
+      >
+        HKJ
+      </span>
+
+      {/* Image box */}
+      <div
+        ref={imageBoxRef}
+        className="relative overflow-hidden"
+        style={{
+          width: "clamp(260px, 28vw, 380px)",
+          aspectRatio: "4/3",
+          opacity: 0,
+          marginTop: "1.5rem",
         }}
       >
         {activeProjects.map((project, i) => (
           <div
             key={project.id}
-            ref={(el) => { thumbRefs.current[i] = el; }}
+            ref={(el) => {
+              thumbRefs.current[i] = el;
+            }}
             className="absolute inset-0"
             style={{
               clipPath: i === 0 ? undefined : "inset(100% 0 0 0)",
+              zIndex: i,
             }}
           >
             <Image
@@ -132,7 +161,7 @@ export default function StudioPreloader() {
               alt={project.title}
               fill
               className="object-cover"
-              sizes="33vw"
+              sizes="28vw"
               priority={i === 0}
             />
           </div>

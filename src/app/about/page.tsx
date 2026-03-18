@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import Link from "next/link";
+import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
 import Colophon from "@/components/sections/Colophon";
 
@@ -48,7 +48,7 @@ export default function AboutPage() {
       >
         <div className="max-w-[900px] mx-auto">
           {/* Back link */}
-          <Link
+          <TransitionLink
             href="/"
             className="font-mono transition-colors duration-300 hover:text-[var(--color-accent)] inline-block mb-16"
             style={{
@@ -60,7 +60,7 @@ export default function AboutPage() {
             data-reveal
           >
             &larr; Back
-          </Link>
+          </TransitionLink>
 
           {/* Section label */}
           <div className="mb-12" data-reveal>

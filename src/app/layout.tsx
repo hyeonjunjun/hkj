@@ -6,6 +6,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import GlobalNav from "@/components/GlobalNav";
 import StudioPreloader from "@/components/StudioPreloader";
 import PageTransition from "@/components/PageTransition";
+import TimeProvider from "@/components/TimeProvider";
 
 /* ── Fonts ── */
 
@@ -77,6 +78,7 @@ export default function RootLayout({
         className={`${gtAlpina.variable} ${sohne.variable} ${jetbrainsMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <TimeProvider />
         <StudioPreloader />
         <GlobalNav />
 
@@ -84,7 +86,9 @@ export default function RootLayout({
         <div className="noise-grain" />
 
         <PageTransition />
-        <SmoothScroll>{children}</SmoothScroll>
+        <div id="page-content">
+          <SmoothScroll>{children}</SmoothScroll>
+        </div>
       </body>
     </html>
   );
