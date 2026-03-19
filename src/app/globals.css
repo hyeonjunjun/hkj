@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 /**
- * HKJ — Light Warm Editorial
+ * HKJ — Cool Atmospheric Dark
  *
  * Type: GT Alpina (display) + Söhne (body) + JetBrains Mono (metadata)
- * Palette: Warm off-white base, near-black text, burnished gold accent
- * Motion: GSAP (ScrollTrigger) + Framer Motion (AnimatePresence, layoutId)
+ * Palette: Cool dark base, warm off-white text, steel-blue accent
+ * Motion: GSAP (ScrollTrigger) + Framer Motion (AnimatePresence, layoutId, drag)
  */
 
 :root {
@@ -23,7 +23,7 @@
   --text-micro: 10px;
 
   /* ── Ink Opacity Scale ── */
-  --ink: 35, 32, 28;
+  --ink: 212, 208, 202;
   --ink-primary: rgba(var(--ink), 0.85);
   --ink-secondary: rgba(var(--ink), 0.55);
   --ink-muted: rgba(var(--ink), 0.38);
@@ -31,20 +31,20 @@
   --ink-ghost: rgba(var(--ink), 0.12);
   --ink-whisper: rgba(var(--ink), 0.06);
 
-  /* ── Light Warm Palette ── */
-  --color-bg: #F5F2ED;
-  --color-bg-rgb: 245, 242, 237;
-  --color-surface: #EDE9E3;
+  /* ── Cool Atmospheric Palette ── */
+  --color-bg: #0C0D10;
+  --color-bg-rgb: 12, 13, 16;
+  --color-surface: #141619;
+  --color-elevated: #1A1E26;
   --color-border: rgba(var(--color-text-rgb), 0.06);
   --color-border-strong: rgba(var(--color-text-rgb), 0.12);
-  --color-text: #1A1917;
-  --color-text-rgb: 26, 25, 23;
-  --color-text-secondary: #4A4540;
-  --color-text-dim: #7A756D;
-  --color-text-ghost: #A8A29E;
-  --color-accent: #B8956A;
-  --color-accent-2: #7D6B5D;
-  --color-ink: #E5E0D8;
+  --color-text: #D4D0CA;
+  --color-text-rgb: 212, 208, 202;
+  --color-text-secondary: #8A8580;
+  --color-text-dim: #555250;
+  --color-text-ghost: #333130;
+  --color-accent: #8BA4B8;
+  --color-warm: #B89A78;
 
   /* ── Spacing ── */
   --page-px: clamp(1.5rem, 5vw, 5rem);
@@ -62,60 +62,6 @@
   :root { --grid-gutter: 2.13vw; }
 }
 
-/* ── Time-Aware Palettes ── */
-
-html[data-time-period="dawn"] {
-  --ink: 42, 36, 32;
-  --color-bg: #F0E8E0;
-  --color-bg-rgb: 240, 232, 224;
-  --color-surface: #E8DED4;
-  --color-text: #2A2420;
-  --color-text-rgb: 42, 36, 32;
-  --color-text-secondary: #5A4F48;
-  --color-text-dim: #887D74;
-  --color-text-ghost: #B0A59A;
-  --color-accent: #C4917A;
-  --color-accent-2: #8B6E60;
-  --color-ink: #E2D8CE;
-}
-
-html[data-time-period="dusk"] {
-  --ink: 30, 26, 21;
-  --color-bg: #EDE5D8;
-  --color-bg-rgb: 237, 229, 216;
-  --color-surface: #E4DBCC;
-  --color-text: #1E1A15;
-  --color-text-rgb: 30, 26, 21;
-  --color-text-secondary: #4E4538;
-  --color-text-dim: #7E7264;
-  --color-text-ghost: #A89A8A;
-  --color-accent: #C88A4A;
-  --color-accent-2: #8A6A42;
-  --color-ink: #DDD4C4;
-}
-
-html[data-time-period="night"] {
-  --ink: 232, 228, 222;
-  --color-bg: #1A1917;
-  --color-bg-rgb: 26, 25, 23;
-  --color-surface: #242220;
-  --color-text: #E8E4DE;
-  --color-text-rgb: 232, 228, 222;
-  --color-text-secondary: #B8B0A5;
-  --color-text-dim: #8A8278;
-  --color-text-ghost: #5A5550;
-  --color-accent: #C4A87A;
-  --color-accent-2: #8A7A64;
-  --color-ink: #2E2C28;
-}
-
-html[data-time-period="night"] .noise-grain::before {
-  opacity: 0.03;
-  mix-blend-mode: screen;
-}
-html[data-time-period="dawn"] .noise-grain::before { opacity: 0.04; }
-html[data-time-period="dusk"] .noise-grain::before { opacity: 0.05; }
-
 /* ── Base ── */
 
 body {
@@ -129,7 +75,6 @@ body {
   overflow-x: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
-  transition: background-color 2s ease, color 1.5s ease;
 }
 
 /* ── Utility Classes ── */
@@ -198,10 +143,10 @@ body {
   background-image: url('/assets/grain-200x200.png');
   background-repeat: repeat;
   background-size: 200px 200px;
-  opacity: 0.06;
+  opacity: 0.03;
   pointer-events: none;
-  z-index: 1;
-  mix-blend-mode: multiply;
+  z-index: 100;
+  mix-blend-mode: screen;
 }
 
 /* ── Cover Grain ── */
@@ -213,14 +158,9 @@ body {
   background-image: url('/assets/grain-200x200.png');
   background-repeat: repeat;
   background-size: 200px 200px;
-  opacity: 0.1;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-}
-
-html[data-time-period="night"] .cover-grain::after {
-  mix-blend-mode: screen;
   opacity: 0.06;
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 /* ── Keyframes ── */
