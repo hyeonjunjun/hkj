@@ -91,7 +91,8 @@ export default function ProjectCover({
           style={{
             fontSize: "var(--text-h3)",
             lineHeight: 1.2,
-            color: isHovered ? "var(--color-accent)" : project.cover.text,
+            color: project.cover.text,
+            opacity: isHovered ? 0.7 : 1,
             transition: "color 0.3s ease",
           }}
         >

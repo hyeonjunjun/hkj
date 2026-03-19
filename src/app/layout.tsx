@@ -4,6 +4,7 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import GlobalNav from "@/components/GlobalNav";
+import PageTransition from "@/components/PageTransition";
 import TimeProvider from "@/components/TimeProvider";
 
 /* ── Fonts ── */
@@ -78,6 +79,7 @@ export default function RootLayout({
       >
         <TimeProvider />
         <GlobalNav />
+        <PageTransition />
 
         {/* Grain overlay */}
         <div className="noise-grain" />

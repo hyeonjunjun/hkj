@@ -13,6 +13,12 @@ interface StudioState {
   /** Manual time override (click-to-cycle pixel art) — null = use clock */
   timeOverride: TimePeriod | null;
   setTimeOverride: (v: TimePeriod | null) => void;
+
+  /** Page transition state */
+  isTransitioning: boolean;
+  pendingRoute: string | null;
+  startTransition: (route: string) => void;
+  endTransition: () => void;
 }
 
 export const useStudioStore = create<StudioState>((set) => ({
@@ -24,4 +30,11 @@ export const useStudioStore = create<StudioState>((set) => ({
 
   timeOverride: null,
   setTimeOverride: (v) => set({ timeOverride: v }),
+
+  isTransitioning: false,
+  pendingRoute: null,
+  startTransition: (route) =>
+    set({ isTransitioning: true, pendingRoute: route }),
+  endTransition: () =>
+    set({ isTransitioning: false, pendingRoute: null }),
 }));

@@ -7,13 +7,6 @@ import { gsap } from "@/lib/gsap";
 import { MENU_LINKS } from "@/constants/navigation";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
-/**
- * MobileMenu — Editorial overlay with GSAP clipPath entrance
- *
- * Display serif link names with mono numbering. Accent line detail.
- * Refined spacing and typography to match the dark editorial aesthetic.
- */
-
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -107,35 +100,46 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         clipPath: "inset(0 0 100% 0)",
       }}
     >
-      {/* Top bar */}
+      {/* Top bar — matches GlobalNav: studio mark left, close right */}
       <div
         className="flex items-center justify-between"
-        style={{ padding: "clamp(1rem, 2.5vh, 1.75rem) var(--page-px)" }}
+        style={{
+          height: 48,
+          padding: "0 var(--page-px)",
+        }}
         data-menu-item
       >
         <span
-          className="font-display"
+          className="font-mono"
           style={{
-            fontSize: "clamp(11px, 1vw, 13px)",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
             color: "var(--color-text-dim)",
-            letterSpacing: "0.05em",
           }}
         >
-          HKJ
+          HKJ Studio
         </span>
         <button
           onClick={onClose}
-          className="group"
+          className="font-mono"
           style={{
-            fontSize: "clamp(16px, 1.4vw, 20px)",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
             color: "var(--color-text-dim)",
             lineHeight: 1,
+            transition: "color 0.3s ease",
           }}
           aria-label="Close menu"
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--color-text)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--color-text-dim)")
+          }
         >
-          <span className="group-hover:text-[var(--color-text)] transition-colors duration-300">
-            ✕
-          </span>
+          Close
         </button>
       </div>
 
@@ -156,7 +160,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               paddingBottom: "clamp(1.25rem, 3vh, 2rem)",
               borderBottom:
                 i < MENU_LINKS.length - 1
-                  ? "1px solid var(--color-border)"
+                  ? "1px solid rgba(var(--color-text-rgb), 0.06)"
                   : "none",
             }}
           >
@@ -164,7 +168,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <span
                 className="font-mono"
                 style={{
-                  fontSize: "var(--text-micro)",
+                  fontSize: 10,
                   color: "var(--color-text-ghost)",
                   letterSpacing: "0.1em",
                   minWidth: "2ch",
@@ -173,10 +177,10 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span
-                className="font-display group-hover:text-[var(--color-accent)] transition-colors duration-300"
+                className="font-display group-hover:text-[var(--color-text)] transition-colors duration-300"
                 style={{
                   fontSize: "clamp(1.6rem, 5vw, 2.4rem)",
-                  color: "var(--color-text)",
+                  color: "var(--color-text-secondary)",
                   lineHeight: 1.15,
                   fontWeight: 300,
                   letterSpacing: "-0.01em",
@@ -189,53 +193,55 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         ))}
       </nav>
 
-      {/* Accent line */}
+      {/* Divider */}
       <div
         style={{
           margin: "0 var(--page-px)",
-          height: "1px",
-          backgroundColor: "var(--color-accent)",
-          opacity: 0.2,
+          height: 1,
+          backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
         }}
       />
 
       {/* Footer */}
       <div
         className="flex items-center justify-between"
-        style={{ padding: "clamp(1.25rem, 2.5vh, 1.75rem) var(--page-px)" }}
+        style={{
+          height: 48,
+          padding: "0 var(--page-px)",
+        }}
         data-menu-footer
       >
         <a
           href={`mailto:${CONTACT_EMAIL}`}
-          className="font-mono hover:text-[var(--color-accent)] transition-colors duration-300"
+          className="font-mono"
           style={{
-            fontSize: "var(--text-micro)",
-            color: "var(--color-text-dim)",
-            letterSpacing: "0.08em",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "var(--color-text-ghost)",
+            textDecoration: "none",
+            transition: "color 0.3s ease",
           }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--color-text-dim)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--color-text-ghost)")
+          }
         >
           {CONTACT_EMAIL}
         </a>
-        <div className="flex items-center gap-2">
-          <span
-            className="rounded-full"
-            style={{
-              width: 5,
-              height: 5,
-              backgroundColor: "var(--color-accent)",
-            }}
-          />
-          <span
-            className="font-mono"
-            style={{
-              fontSize: "var(--text-micro)",
-              letterSpacing: "0.1em",
-              color: "var(--color-text-ghost)",
-            }}
-          >
-            available
-          </span>
-        </div>
+        <span
+          className="font-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "var(--color-text-ghost)",
+          }}
+        >
+          Available
+        </span>
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ export default function CoddiwomplePiecePage({
             position: "absolute",
             top: "clamp(1.5rem, 3vh, 2.5rem)",
             left: "var(--page-px)",
-            fontSize: "11px",
+            fontSize: 10,
             letterSpacing: "0.1em",
             color: "rgba(255,255,255,0.7)",
             zIndex: 10,
@@ -115,7 +115,7 @@ export default function CoddiwomplePiecePage({
             ((e.target as HTMLElement).style.color = "rgba(255,255,255,0.7)")
           }
         >
-          &larr; Coddiwomple
+          Coddiwomple
         </TransitionLink>
 
         {/* Title overlay */}

@@ -97,7 +97,7 @@ export default function CaseStudy() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        navigate("/");
+        navigate("/works");
         return;
       }
 
@@ -151,8 +151,8 @@ export default function CaseStudy() {
       <div
         className="w-full h-screen flex items-center justify-center font-mono uppercase"
         style={{
-          fontSize: "11px",
-          letterSpacing: "0.2em",
+          fontSize: 10,
+          letterSpacing: "0.1em",
           color: "var(--color-text-dim)",
         }}
       >
@@ -177,8 +177,8 @@ export default function CaseStudy() {
           <h1
             className="font-mono uppercase"
             style={{
-              fontSize: "11px",
-              letterSpacing: "0.08em",
+              fontSize: 10,
+              letterSpacing: "0.1em",
               color: "var(--color-text)",
             }}
             data-text-reveal
@@ -189,7 +189,7 @@ export default function CaseStudy() {
           <p
             className="font-mono uppercase mt-4"
             style={{
-              fontSize: "11px",
+              fontSize: 10,
               lineHeight: "110%",
               color: "var(--color-text-dim)",
             }}
@@ -203,7 +203,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase block"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-ghost)",
                   marginBottom: "4px",
                 }}
@@ -213,7 +213,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-dim)",
                 }}
               >
@@ -225,7 +225,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase block"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-ghost)",
                   marginBottom: "4px",
                 }}
@@ -235,7 +235,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-dim)",
                 }}
               >
@@ -247,7 +247,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase block"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-ghost)",
                   marginBottom: "4px",
                 }}
@@ -257,7 +257,7 @@ export default function CaseStudy() {
               <span
                 className="font-mono uppercase"
                 style={{
-                  fontSize: "11px",
+                  fontSize: 10,
                   color: "var(--color-text-dim)",
                 }}
               >
@@ -387,7 +387,7 @@ export default function CaseStudy() {
                     <span
                       className="font-mono"
                       style={{
-                        fontSize: "11px",
+                        fontSize: 10,
                         color: "var(--color-text-ghost)",
                         marginRight: "0.75rem",
                       }}
@@ -489,7 +489,7 @@ export default function CaseStudy() {
                         color: "var(--color-text-dim)",
                         maxWidth: "58ch",
                         paddingLeft: "1rem",
-                        borderLeft: "2px solid var(--color-border)",
+                        borderLeft: "1px solid rgba(var(--color-text-rgb), 0.06)",
                       }}
                     >
                       {hl.challenge}
@@ -545,11 +545,11 @@ export default function CaseStudy() {
                     key={signal}
                     className="font-mono uppercase"
                     style={{
-                      fontSize: "9px",
-                      letterSpacing: "0.08em",
+                      fontSize: 10,
+                      letterSpacing: "0.1em",
                       color: "var(--color-text-dim)",
                       padding: "3px 8px",
-                      border: "1px solid var(--color-border)",
+                      border: "1px solid rgba(var(--color-text-rgb), 0.06)",
                     }}
                   >
                     {signal}
@@ -583,7 +583,7 @@ export default function CaseStudy() {
                   <p
                     className="font-mono mt-2"
                     style={{
-                      fontSize: "9px",
+                      fontSize: 10,
                       letterSpacing: "0.05em",
                       color: "var(--color-text-ghost)",
                     }}
@@ -605,7 +605,7 @@ export default function CaseStudy() {
                   <span
                     className="font-mono uppercase block"
                     style={{
-                      fontSize: "9px",
+                      fontSize: 10,
                       letterSpacing: "0.1em",
                       color: "var(--color-text-ghost)",
                       marginBottom: "4px",
@@ -727,7 +727,8 @@ export default function CaseStudy() {
         <span
           className="font-mono"
           style={{
-            fontSize: "11px",
+            fontSize: 10,
+            letterSpacing: "0.1em",
             color: "var(--color-text-ghost)",
           }}
         >
@@ -748,7 +749,7 @@ export default function CaseStudy() {
               style={{
                 width: 120,
                 height: 2,
-                backgroundColor: "var(--color-border)",
+                backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
                 position: "relative",
                 overflow: "hidden",
               }}
@@ -765,7 +766,7 @@ export default function CaseStudy() {
             <span
               className="font-mono uppercase"
               style={{
-                fontSize: "11px",
+                fontSize: 10,
                 color: "var(--color-text-ghost)",
               }}
             >
@@ -786,9 +787,9 @@ export default function CaseStudy() {
             href={`/work/${prevProject.id}`}
             className="font-mono uppercase"
             style={{
-              fontSize: "11px",
+              fontSize: 10,
               color: "var(--color-text-dim)",
-              letterSpacing: "0.08em",
+              letterSpacing: "0.1em",
             }}
           >
             ← {prevProject.title}
@@ -799,9 +800,9 @@ export default function CaseStudy() {
             href={`/work/${nextProject.id}`}
             className="font-mono uppercase ml-auto"
             style={{
-              fontSize: "11px",
+              fontSize: 10,
               color: "var(--color-text-dim)",
-              letterSpacing: "0.08em",
+              letterSpacing: "0.1em",
             }}
           >
             {nextProject.title} →

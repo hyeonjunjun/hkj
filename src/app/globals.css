@@ -14,13 +14,13 @@
   --font-sans: var(--font-sans), system-ui, sans-serif;
   --font-mono: var(--font-mono), monospace;
 
-  /* ── Type Scale (restrained) ── */
+  /* ── Type Scale ── */
   --text-display: clamp(1.6rem, 2.4vw, 2.2rem);
   --text-h2: clamp(1.2rem, 1.6vw, 1.5rem);
   --text-h3: clamp(0.95rem, 1.2vw, 1.1rem);
-  --text-body: clamp(0.88rem, 0.95vw, 0.95rem);
+  --text-body: 15px;
   --text-small: clamp(0.72rem, 0.8vw, 0.78rem);
-  --text-micro: clamp(0.6rem, 0.65vw, 0.66rem);
+  --text-micro: 10px;
 
   /* ── Ink Opacity Scale ── */
   --ink: 35, 32, 28;
@@ -35,8 +35,8 @@
   --color-bg: #F5F2ED;
   --color-bg-rgb: 245, 242, 237;
   --color-surface: #EDE9E3;
-  --color-border: #D5D0C8;
-  --color-border-strong: #C2BBB0;
+  --color-border: rgba(var(--color-text-rgb), 0.06);
+  --color-border-strong: rgba(var(--color-text-rgb), 0.12);
   --color-text: #1A1917;
   --color-text-rgb: 26, 25, 23;
   --color-text-secondary: #4A4540;
@@ -69,8 +69,6 @@ html[data-time-period="dawn"] {
   --color-bg: #F0E8E0;
   --color-bg-rgb: 240, 232, 224;
   --color-surface: #E8DED4;
-  --color-border: #D4C8BC;
-  --color-border-strong: #C2B6A8;
   --color-text: #2A2420;
   --color-text-rgb: 42, 36, 32;
   --color-text-secondary: #5A4F48;
@@ -86,8 +84,6 @@ html[data-time-period="dusk"] {
   --color-bg: #EDE5D8;
   --color-bg-rgb: 237, 229, 216;
   --color-surface: #E4DBCC;
-  --color-border: #CFC4B2;
-  --color-border-strong: #BEB2A0;
   --color-text: #1E1A15;
   --color-text-rgb: 30, 26, 21;
   --color-text-secondary: #4E4538;
@@ -103,8 +99,6 @@ html[data-time-period="night"] {
   --color-bg: #1A1917;
   --color-bg-rgb: 26, 25, 23;
   --color-surface: #242220;
-  --color-border: #3A3632;
-  --color-border-strong: #4A4540;
   --color-text: #E8E4DE;
   --color-text-rgb: 232, 228, 222;
   --color-text-secondary: #B8B0A5;
@@ -149,28 +143,6 @@ body {
   .font-display { font-family: var(--font-display); }
   .font-mono { font-family: var(--font-mono); }
   .font-sans { font-family: var(--font-sans); }
-
-  .micro {
-    font-family: var(--font-mono);
-    font-size: var(--text-micro);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--color-text-ghost);
-  }
-
-  .label {
-    font-family: var(--font-mono);
-    font-size: var(--text-small);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-text-dim);
-  }
-
-  .hairline {
-    height: 1px;
-    background-color: var(--color-border);
-    width: 100%;
-  }
 
   /* ── Column grid spans ── */
   .gutter-gap { gap: var(--grid-gutter); }
@@ -217,17 +189,6 @@ body {
   .span-ml-2 { margin-left: 32.62vw; }
 }
 
-/* Subtractive hover — dim siblings, keep hovered at full */
-.subtractive-group > * {
-  transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-}
-.subtractive-group:hover > * {
-  opacity: 0.2;
-}
-.subtractive-group:hover > *:hover {
-  opacity: 1;
-}
-
 /* ── Grain Overlay ── */
 
 .noise-grain::before {
@@ -264,26 +225,9 @@ html[data-time-period="night"] .cover-grain::after {
 
 /* ── Keyframes ── */
 
-@keyframes scrollLine {
-  0% { transform: translateY(-100%); }
-  50% { transform: translateY(0%); }
-  100% { transform: translateY(100%); }
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes pulse-opacity {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
-}
-
-@keyframes scrollLineHorizontal {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(0%); }
-  100% { transform: translateX(100%); }
 }
 
 /* ── Selection ── */
@@ -298,41 +242,6 @@ html[data-time-period="night"] .cover-grain::after {
 :focus-visible {
   outline: 1px solid var(--color-accent);
   outline-offset: 2px;
-}
-
-/* ── Tableau Grid (Homepage) ── */
-
-.tableau-grid {
-  --grid-cols: repeat(12, 1fr);
-  --grid-rows: 1fr 0.68fr;
-  display: grid;
-  grid-template-columns: var(--grid-cols);
-  grid-template-rows: var(--grid-rows);
-  column-gap: clamp(8px, 0.8vw, 14px);
-  row-gap: clamp(16px, 2.5vh, 32px);
-}
-
-.tableau-cell {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-@media (max-width: 767px) {
-  .tableau-grid {
-    --grid-cols: 1fr 1fr;
-    --grid-rows: auto;
-    row-gap: clamp(10px, 1.5vh, 16px);
-    overflow-y: auto;
-  }
-  .tableau-cell {
-    grid-column: span 1;
-    min-height: 28vw;
-  }
-  .tableau-cell:first-child {
-    grid-column: 1 / -1;
-    min-height: 40vw;
-  }
 }
 
 /* ── Scrollbar ── */

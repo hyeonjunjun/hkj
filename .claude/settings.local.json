@@ -56,7 +56,19 @@
       "Bash(pip install:*)",
       "WebFetch(domain:paco.me)",
       "WebFetch(domain:shud.in)",
-      "WebFetch(domain:www.framer.com)"
+      "WebFetch(domain:www.framer.com)",
+      "WebFetch(domain:www.floguo.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:news.ycombinator.com)",
+      "Bash(curl:*)",
+      "Bash(\"c:/Users/Ryan Jun/.gemini/antigravity/scratch/hkjstudio/screenshots/take_screenshots.py\" << 'PYEOF'\n\"\"\"\nTake screenshots of the HKJ Studio portfolio site using Playwright.\n- Homepage: http://localhost:3001\n- Works page: http://localhost:3001/works\n\"\"\"\n\nfrom playwright.sync_api import sync_playwright\n\nVIEWPORT = {\"width\": 1440, \"height\": 900}\nBASE_URL = \"http://localhost:3001\"\nOUTPUT_DIR = r\"C:\\\\Users\\\\Ryan Jun\\\\.gemini\\\\antigravity\\\\scratch\\\\hkjstudio\\\\screenshots\"\n\nPAGES = [\n    {\"url\": f\"{BASE_URL}\", \"filename\": \"homepage-dict.png\"},\n    {\"url\": f\"{BASE_URL}/works\", \"filename\": \"works-index.png\"},\n]\n\n\ndef main\\(\\):\n    with sync_playwright\\(\\) as p:\n        browser = p.chromium.launch\\(headless=True\\)\n        context = browser.new_context\\(viewport=VIEWPORT\\)\n        page = context.new_page\\(\\)\n\n        for entry in PAGES:\n            url = entry[\"url\"]\n            filepath = f\"{OUTPUT_DIR}\\\\\\\\{entry['filename']}\"\n            print\\(f\"Navigating to {url} ...\"\\)\n            page.goto\\(url, wait_until=\"networkidle\", timeout=30000\\)\n            # Extra settle time for animations / hydration\n            page.wait_for_timeout\\(2000\\)\n            page.screenshot\\(path=filepath, full_page=False\\)\n            print\\(f\"Screenshot saved: {filepath}\"\\)\n\n        browser.close\\(\\)\n        print\\(\"Done.\"\\)\n\n\nif __name__ == \"__main__\":\n    main\\(\\)\nPYEOF)",
+      "Bash(\"C:\\\\Users\\\\Ryan Jun\\\\.gemini\\\\antigravity\\\\scratch\\\\hkjstudio\\\\audit_screenshots.py\" << 'EOF'\nfrom playwright.sync_api import sync_playwright\n\npages_config = [\n    \\(\"/\", \"audit-home.png\", False\\),\n    \\(\"/works\", \"audit-works.png\", False\\),\n    \\(\"/about\", \"audit-about.png\", True\\),\n    \\(\"/coddiwomple\", \"audit-coddiwomple.png\", True\\),\n    \\(\"/work/gyeol\", \"audit-casestudy.png\", True\\),\n    \\(\"/lab\", \"audit-lab.png\", True\\),\n]\n\nwith sync_playwright\\(\\) as p:\n    browser = p.chromium.launch\\(headless=True\\)\n    page = browser.new_page\\(viewport={\"width\": 1440, \"height\": 900}\\)\n    \n    for path, filename, full in pages_config:\n        url = f\"http://localhost:3001{path}\"\n        try:\n            resp = page.goto\\(url, wait_until=\"networkidle\"\\)\n            status = resp.status if resp else \"no response\"\n            page.wait_for_timeout\\(2000\\)\n            out = rf\"C:\\\\Users\\\\Ryan Jun\\\\.gemini\\\\antigravity\\\\scratch\\\\hkjstudio\\\\screenshots\\\\{filename}\"\n            page.screenshot\\(path=out, full_page=full\\)\n            print\\(f\"{path} -> {status} -> {filename}\"\\)\n        except Exception as e:\n            print\\(f\"{path} -> ERROR: {e}\"\\)\n    \n    browser.close\\(\\)\n    print\\(\"Done\"\\)\nEOF)",
+      "Bash(/tmp/screenshot_pages.py:*)",
+      "Bash(npx next build --no-lint)",
+      "Bash(npx playwright:*)",
+      "Bash(npm init:*)",
+      "Bash(node:*)",
+      "Bash(bash:*)"
     ]
   }
 }

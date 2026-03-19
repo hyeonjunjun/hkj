@@ -160,10 +160,10 @@ export default function CoddiwomplePage() {
                 <span
                   className="font-mono uppercase"
                   style={{
-                    fontSize: "11px",
+                    fontSize: 10,
                     color: "var(--color-text-ghost)",
                     marginLeft: "0.75rem",
-                    letterSpacing: "0.08em",
+                    letterSpacing: "0.1em",
                   }}
                 >
                   {piece.medium}

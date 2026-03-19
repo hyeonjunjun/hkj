@@ -16,7 +16,7 @@ export default function NotFound() {
       </h1>
       <h2
         className="font-display italic mb-6"
-        style={{ fontSize: "var(--text-h2)" }}
+        style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)" }}
       >
         Nothing here.
       </h2>
@@ -24,7 +24,9 @@ export default function NotFound() {
         className="font-sans max-w-md mb-12"
         style={{
           color: "var(--color-text-dim)",
-          fontSize: "var(--text-body)",
+          fontSize: 15,
+          lineHeight: 1.6,
+          letterSpacing: "-0.005em",
         }}
       >
         The page you&apos;re looking for doesn&apos;t exist, or it moved
@@ -32,15 +34,15 @@ export default function NotFound() {
       </p>
       <TransitionLink
         href="/"
-        className="font-mono transition-colors duration-300 hover:text-[var(--color-accent)]"
+        className="font-mono transition-colors duration-300 hover:text-[var(--color-text)]"
         style={{
-          fontSize: "var(--text-micro)",
+          fontSize: 10,
           color: "var(--color-text-dim)",
           letterSpacing: "0.1em",
           textTransform: "uppercase",
         }}
       >
-        ← Back home
+        Back home
       </TransitionLink>
     </div>
   );

@@ -1,35 +1,42 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
 import TransitionLink from "@/components/TransitionLink";
-import { PROJECTS } from "@/constants/projects";
-import { CONTACT_EMAIL } from "@/constants/contact";
+import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
+/**
+ * Hero — Dictionary-style identity statement.
+ *
+ * Inspired by floguo.com — headword, phonetic, part of speech,
+ * numbered definitions, "See also" links.
+ *
+ * Typography:
+ *   Headword: GT Alpina italic, --text-display
+ *   Chrome: 10px JetBrains Mono, uppercase, tracked 0.1em
+ *   Body: 15px Sohne, weight 400
+ *
+ * Grid: 4px baseline, vertically centered in viewport.
+ */
 export default function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
-  const yearMin = Math.min(...PROJECTS.map((p) => parseInt(p.year)));
-  const yearMax = Math.max(...PROJECTS.map((p) => parseInt(p.year)));
-
-  /* ── Entrance ── */
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    const rows = sectionRef.current.querySelectorAll("[data-row]");
-    const footer = sectionRef.current.querySelector("[data-footer]");
-
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.fromTo(
-      rows,
+    const els = sectionRef.current.querySelectorAll("[data-entry]");
+    gsap.fromTo(
+      els,
       { opacity: 0, y: 6 },
-      { opacity: 1, y: 0, duration: 0.6, stagger: 0.04 },
-      0.3,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.06,
+        ease: "power3.out",
+        delay: 0.15,
+      },
     );
-    if (footer) {
-      tl.fromTo(footer, { opacity: 0 }, { opacity: 1, duration: 0.4 }, "-=0.2");
-    }
   }, []);
 
   return (
@@ -42,135 +49,198 @@ export default function Hero() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        padding: "0 var(--page-px)",
+        paddingLeft: "var(--page-px)",
+        paddingRight: "var(--page-px)",
       }}
     >
-      {/* ── Project Index ── */}
-      <nav style={{ width: "100%" }}>
-        {PROJECTS.map((project, i) => {
-          const isWip = !!project.wip;
-          const isActive = activeId === project.id;
+      <div style={{ maxWidth: 560 }}>
+        {/* Headword */}
+        <h1
+          data-entry
+          className="font-display italic"
+          style={{
+            fontSize: "clamp(2.4rem, 4.5vw, 3.6rem)",
+            fontWeight: 400,
+            lineHeight: 1.05,
+            color: "var(--color-text)",
+            letterSpacing: "-0.02em",
+            margin: 0,
+          }}
+        >
+          hkj
+        </h1>
 
-          return (
-            <div
-              key={project.id}
-              data-row
-              onMouseEnter={() => setActiveId(project.id)}
-              onMouseLeave={() => setActiveId(null)}
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                justifyContent: "space-between",
-                padding: "clamp(0.6rem, 1.1vh, 0.85rem) 0",
-                borderBottom: "1px solid var(--color-border)",
-                cursor: isWip ? "default" : "pointer",
-                transition: "opacity 0.35s cubic-bezier(0.23, 1, 0.32, 1)",
-                opacity: activeId && !isActive ? 0.12 : 1,
-              }}
-            >
-              {/* Left: number + title */}
-              <div
+        {/* Phonetic */}
+        <span
+          data-entry
+          className="font-sans"
+          style={{
+            display: "block",
+            fontSize: 15,
+            fontWeight: 300,
+            color: "var(--color-text-dim)",
+            marginTop: 8,
+            letterSpacing: "0.01em",
+          }}
+        >
+          /eɪtʃ-keɪ-dʒeɪ/
+        </span>
+
+        {/* Part of speech */}
+        <span
+          data-entry
+          className="font-mono"
+          style={{
+            display: "block",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "var(--color-text-ghost)",
+            marginTop: 24,
+          }}
+        >
+          noun.
+        </span>
+
+        {/* Divider */}
+        <div
+          data-entry
+          style={{
+            height: 1,
+            backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
+            marginTop: 16,
+            marginBottom: 24,
+          }}
+        />
+
+        {/* Definition 1 — personal */}
+        <div data-entry style={{ marginBottom: 20 }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              color: "var(--color-text-ghost)",
+              marginRight: 12,
+            }}
+          >
+            1.
+          </span>
+          <span
+            className="font-sans"
+            style={{
+              fontSize: 15,
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: "var(--color-text-secondary)",
+              letterSpacing: "-0.005em",
+            }}
+          >
+            a quiet observer drawn to the space between craft and feeling;
+            someone who builds things that breathe.
+          </span>
+        </div>
+
+        {/* Definition 2 — professional */}
+        <div data-entry style={{ marginBottom: 20 }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              color: "var(--color-text-ghost)",
+              marginRight: 12,
+            }}
+          >
+            2.
+          </span>
+          <span
+            className="font-sans"
+            style={{
+              fontSize: 15,
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: "var(--color-text-secondary)",
+              letterSpacing: "-0.005em",
+            }}
+          >
+            a design engineer building at the intersection of visual systems
+            and interactive media.
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div
+          data-entry
+          style={{
+            height: 1,
+            backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
+            marginTop: 8,
+            marginBottom: 20,
+          }}
+        />
+
+        {/* See also */}
+        <div data-entry>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase" as const,
+              color: "var(--color-text-ghost)",
+              marginRight: 16,
+            }}
+          >
+            See also:
+          </span>
+          {SOCIALS.map((link, i) => (
+            <span key={link.label}>
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono"
                 style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: "clamp(0.5rem, 0.8vw, 0.8rem)",
+                  fontSize: 10,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase" as const,
+                  color: "var(--color-text-dim)",
+                  textDecoration: "none",
+                  transition: "color 0.3s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "var(--color-text)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "var(--color-text-dim)")
+                }
               >
+                {link.label}
+              </a>
+              {i < SOCIALS.length - 1 && (
                 <span
                   className="font-mono"
                   style={{
-                    fontSize: "9px",
-                    letterSpacing: "0.06em",
-                    color: isActive
-                      ? "var(--color-accent)"
-                      : "var(--color-text-ghost)",
-                    transition: "color 0.25s ease",
-                    minWidth: "1.8ch",
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {isWip ? (
-                  <span
-                    className="font-sans"
-                    style={{
-                      fontSize: "var(--text-body)",
-                      fontWeight: 300,
-                      letterSpacing: "-0.01em",
-                      color: "var(--color-text-ghost)",
-                    }}
-                  >
-                    {project.title}
-                  </span>
-                ) : (
-                  <TransitionLink
-                    href={`/work/${project.id}`}
-                    className="font-sans"
-                    style={{
-                      fontSize: "var(--text-body)",
-                      fontWeight: isActive ? 400 : 300,
-                      letterSpacing: "-0.01em",
-                      color: isActive
-                        ? "var(--color-text)"
-                        : "var(--color-text-secondary)",
-                      transition:
-                        "color 0.25s ease, font-weight 0.25s ease",
-                      textDecoration: "none",
-                    }}
-                  >
-                    {project.title}
-                  </TransitionLink>
-                )}
-              </div>
-
-              {/* Right: sector + year */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: "clamp(1.5rem, 3vw, 3rem)",
-                }}
-              >
-                <span
-                  className="font-mono uppercase"
-                  style={{
-                    fontSize: "8px",
-                    letterSpacing: "0.1em",
+                    fontSize: 10,
                     color: "var(--color-text-ghost)",
-                    whiteSpace: "nowrap",
-                    display: "none",
-                  }}
-                  // Hidden on mobile via inline style; shown via media query below
-                  data-sector
-                >
-                  {project.sector}
-                </span>
-                <span
-                  className="font-mono uppercase"
-                  style={{
-                    fontSize: "8px",
-                    letterSpacing: "0.1em",
-                    color: isWip
-                      ? "var(--color-text-ghost)"
-                      : "var(--color-text-ghost)",
-                    whiteSpace: "nowrap",
+                    margin: "0 8px",
                   }}
                 >
-                  {isWip ? "WIP" : project.year}
+                  ·
                 </span>
-              </div>
-            </div>
-          );
-        })}
-      </nav>
+              )}
+            </span>
+          ))}
+        </div>
+      </div>
 
-      {/* ── Footer ── */}
+      {/* Bottom bar — works link left, email right */}
       <footer
-        data-footer
+        data-entry
         style={{
           position: "absolute",
-          bottom: "clamp(1.5rem, 3vh, 2.5rem)",
+          bottom: 24,
           left: "var(--page-px)",
           right: "var(--page-px)",
           display: "flex",
@@ -178,23 +248,33 @@ export default function Hero() {
           alignItems: "center",
         }}
       >
-        <span
-          className="font-mono uppercase"
+        <TransitionLink
+          href="/works"
+          className="font-mono"
           style={{
-            fontSize: "8px",
-            letterSpacing: "0.12em",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
             color: "var(--color-text-ghost)",
+            textDecoration: "none",
+            transition: "color 0.3s ease",
           }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--color-text-dim)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--color-text-ghost)")
+          }
         >
-          {yearMin}–{yearMax}
-        </span>
-
+          Works &rarr;
+        </TransitionLink>
         <a
           href={`mailto:${CONTACT_EMAIL}`}
-          className="font-mono uppercase"
+          className="font-mono"
           style={{
-            fontSize: "8px",
+            fontSize: 10,
             letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
             color: "var(--color-text-ghost)",
             textDecoration: "none",
             transition: "color 0.3s ease",
@@ -209,13 +289,6 @@ export default function Hero() {
           {CONTACT_EMAIL}
         </a>
       </footer>
-
-      {/* Show sector on desktop */}
-      <style>{`
-        @media (min-width: 768px) {
-          [data-sector] { display: inline !important; }
-        }
-      `}</style>
     </div>
   );
 }

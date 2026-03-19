@@ -11,15 +11,10 @@ import TransitionLink from "@/components/TransitionLink";
 import MobileMenu from "@/components/MobileMenu";
 import PixelArt from "@/components/PixelArt";
 
-/**
- * GlobalNav — Minimal cinematic nav with time-aware pixel art.
- * Visible on all pages. Scroll-direction show/hide on inner pages.
- */
 export default function GlobalNav() {
   const mobileMenuOpen = useStudioStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
   const navRef = useRef<HTMLElement>(null);
-  const symbolRef = useRef<HTMLButtonElement>(null);
   const lenis = useLenis();
   const navigate = useTransitionNavigate();
   const pathname = usePathname();
@@ -81,21 +76,23 @@ export default function GlobalNav() {
         ref={navRef}
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between"
         style={{
-          padding: "clamp(0.75rem, 2vh, 1.25rem) var(--page-px)",
+          height: 48, /* matches Hero paddingTop — 4×12 baseline */
+          padding: "0 var(--page-px)",
           backgroundColor: isHome ? "transparent" : "rgba(var(--color-bg-rgb), 0.92)",
           backdropFilter: isHome ? "none" : "blur(8px)",
           WebkitBackdropFilter: isHome ? "none" : "blur(8px)",
         }}
       >
-        {/* Studio mark + pixel art (pixel art hidden on homepage) */}
+        {/* Studio mark */}
         <div className="flex items-center gap-2" data-nav-el>
-          {!isHome && <PixelArt />}
+          <PixelArt />
           <TransitionLink href="/">
             <span
-              className="font-mono uppercase"
+              className="font-mono"
               style={{
-                fontSize: "9px",
-                letterSpacing: "0.12em",
+                fontSize: 10,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
                 color: "var(--color-text-dim)",
               }}
             >
@@ -104,7 +101,7 @@ export default function GlobalNav() {
           </TransitionLink>
         </div>
 
-        {/* Desktop nav links */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6" data-nav-el>
           {NAV_LINKS.map((link) => (
             <button
@@ -112,9 +109,9 @@ export default function GlobalNav() {
               onClick={() => handleNavClick(link.href)}
               className="font-mono relative group/link"
               style={{
-                fontSize: "var(--text-micro)",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
+                fontSize: 10,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase" as const,
                 color: "var(--color-text-dim)",
               }}
             >
@@ -124,7 +121,7 @@ export default function GlobalNav() {
               <span
                 className="absolute -bottom-0.5 left-0 right-0 h-[1px] origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-500"
                 style={{
-                  backgroundColor: "var(--color-accent)",
+                  backgroundColor: "var(--color-text-dim)",
                   transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               />
@@ -132,32 +129,24 @@ export default function GlobalNav() {
           ))}
         </div>
 
-        {/* ※ Menu trigger */}
+        {/* Menu trigger — mobile only on homepage, always on inner pages */}
         <button
-          ref={symbolRef}
           onClick={() => setMobileMenuOpen(true)}
           data-nav-el
-          className="group relative"
+          className=""
           style={{
-            fontSize: "clamp(16px, 1.4vw, 20px)",
+            fontSize: 10,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
             color: "var(--color-text-dim)",
             lineHeight: 1,
             transition: "color 0.3s ease",
+            fontFamily: "var(--font-mono)",
           }}
           aria-label="Open menu"
-          onMouseEnter={() => {
-            if (symbolRef.current) {
-              gsap.to(symbolRef.current, { rotation: 90, duration: 0.4, ease: "power3.out" });
-            }
-          }}
-          onMouseLeave={() => {
-            if (symbolRef.current) {
-              gsap.to(symbolRef.current, { rotation: 0, duration: 0.4, ease: "power3.out" });
-            }
-          }}
         >
-          <span className="group-hover:text-[var(--color-text)] transition-colors duration-300">
-            ※
+          <span className="hover:text-[var(--color-text)] transition-colors duration-300">
+            Menu
           </span>
         </button>
       </nav>
