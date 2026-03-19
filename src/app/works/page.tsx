@@ -1,9 +1,5 @@
-import WorkIndex from "@/components/sections/WorkIndex";
+import { redirect } from "next/navigation";
 
 export default function WorksPage() {
-  return (
-    <main>
-      <WorkIndex />
-    </main>
-  );
+  redirect("/");
 }
