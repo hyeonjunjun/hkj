@@ -19,6 +19,16 @@ export default function GlobalNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  // Homepage has its own chrome (HomepageChrome) — only render MobileMenu here
+  if (isHome) {
+    return (
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+    );
+  }
+
   const handleNavClick = useCallback(
     (href: string) => {
       if (href.startsWith("#")) {
