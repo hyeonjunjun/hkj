@@ -16,7 +16,7 @@ export default function ProjectCover({
   isHovered,
   isWip,
 }: ProjectCoverProps) {
-  const hasMedia = !!(project.cardVideo || project.image);
+  const hasMedia = !!(project.cardVideo || (project.image && project.image !== ""));
 
   return (
     <div

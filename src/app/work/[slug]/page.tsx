@@ -33,13 +33,14 @@ export default function CaseStudy() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // GSAP scroll reveals for media (spec Section 7.4)
+  // GSAP scroll reveals
   const hasAnimated = useRef(false);
   useEffect(() => {
     if (!containerRef.current || hasAnimated.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     hasAnimated.current = true;
 
-    // Image reveals: opacity + y
+    // Image reveals
     const imageEls = containerRef.current.querySelectorAll("[data-media-reveal='image']");
     imageEls.forEach((el, i) => {
       gsap.fromTo(el,
@@ -49,17 +50,17 @@ export default function CaseStudy() {
       );
     });
 
-    // Video reveals: opacity + y + scale (spec: scale 2→1)
+    // Video reveals (toned down from scale 2)
     const videoEls = containerRef.current.querySelectorAll("[data-media-reveal='video']");
     videoEls.forEach((el, i) => {
       gsap.fromTo(el,
-        { opacity: 0, y: 75, scale: 2 },
+        { opacity: 0, y: 75, scale: 1.02 },
         { opacity: 1, y: 0, scale: 1, duration: 1.5, delay: i * 0.1, ease: "power3.out",
           scrollTrigger: { trigger: el, start: "top 75%", once: true } }
       );
     });
 
-    // Text reveals (spec Section 7.5)
+    // Text reveals
     const textEls = containerRef.current.querySelectorAll("[data-text-reveal]");
     textEls.forEach((el, i) => {
       gsap.fromTo(el,
@@ -68,7 +69,7 @@ export default function CaseStudy() {
       );
     });
 
-    // Role text has different stagger (0.2s per spec)
+    // Role text stagger
     const roleEls = containerRef.current.querySelectorAll("[data-role-reveal]");
     roleEls.forEach((el, i) => {
       gsap.fromTo(el,
@@ -77,12 +78,22 @@ export default function CaseStudy() {
       );
     });
 
+    // Section reveals
+    const sectionEls = containerRef.current.querySelectorAll("[data-section-reveal]");
+    sectionEls.forEach((el) => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 80%", once: true } }
+      );
+    });
+
     return () => {
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [slug]);
 
-  // Keyboard navigation (spec Section 7.9)
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -90,7 +101,6 @@ export default function CaseStudy() {
         return;
       }
 
-      // Arrow Up/Down: scroll to adjacent media block
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
         const blocks = Array.from(
@@ -99,7 +109,6 @@ export default function CaseStudy() {
         if (!blocks.length) return;
 
         const viewportCenter = window.scrollY + window.innerHeight / 2;
-        // Find the block closest to viewport center
         let closestIdx = 0;
         let closestDist = Infinity;
         blocks.forEach((el, idx) => {
@@ -121,7 +130,6 @@ export default function CaseStudy() {
         return;
       }
 
-      // Spacebar: toggle video play/pause
       if (e.key === " ") {
         e.preventDefault();
         const videos = document.querySelectorAll("video");
@@ -153,35 +161,8 @@ export default function CaseStudy() {
     );
   }
 
-  // Collect all media from the project
-  const mediaItems: Array<{
-    type: "image" | "video";
-    src: string;
-    poster?: string;
-    aspect?: string;
-  }> = [];
-
-  // Editorial images
-  project.editorial.images?.forEach((img) => {
-    mediaItems.push({ type: "image", src: img });
-  });
-
-  // Process step images
-  project.processSteps?.forEach((step) => {
-    if (step.image) {
-      mediaItems.push({ type: "image", src: step.image, aspect: "4/3" });
-    }
-  });
-
-  // Videos
-  project.videos?.forEach((video) => {
-    mediaItems.push({
-      type: "video",
-      src: video.src,
-      poster: video.poster,
-      aspect: video.aspect,
-    });
-  });
+  // Helper: check if a string has real content
+  const has = (s?: string) => s && s.trim().length > 0;
 
   return (
     <div
@@ -190,9 +171,7 @@ export default function CaseStudy() {
       style={{ backgroundColor: "var(--color-bg)" }}
     >
       {/* ── Content column ── */}
-      <div
-        className="span-w-7 span-ml-2 py-[10vh]"
-      >
+      <div className="span-w-7 span-ml-2 py-[10vh]">
         {/* ── Project Metadata ── */}
         <div className="mb-16">
           <h1
@@ -263,56 +242,336 @@ export default function CaseStudy() {
                 {project.year}
               </span>
             </div>
+
+            <div data-role-reveal>
+              <span
+                className="font-mono uppercase block"
+                style={{
+                  fontSize: "11px",
+                  color: "var(--color-text-ghost)",
+                  marginBottom: "4px",
+                }}
+              >
+                Sector
+              </span>
+              <span
+                className="font-mono uppercase"
+                style={{
+                  fontSize: "11px",
+                  color: "var(--color-text-dim)",
+                }}
+              >
+                {project.sector}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* ── Media Gallery ── */}
-        <div className="flex flex-col gap-8">
-          {mediaItems.map((item, i) => (
-            <div key={i} data-media-reveal={item.type}>
-              {item.type === "image" ? (
-                <div
-                  className="relative w-full overflow-hidden"
-                  style={{
-                    aspectRatio: item.aspect || "16/10",
-                  }}
-                >
-                  {item.src.startsWith("/placeholder") ? (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{
-                        backgroundColor: "var(--color-surface)",
-                      }}
-                    >
-                      <span
-                        className="font-mono uppercase"
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--color-text-ghost)",
-                        }}
-                      >
-                        Media Pending
-                      </span>
-                    </div>
-                  ) : (
+        {/* ── Narrative Lede ── */}
+        {(has(project.paradox) || has(project.stakes)) && (
+          <div className="mb-16" data-section-reveal>
+            {has(project.paradox) && (
+              <p
+                className="font-display italic"
+                style={{
+                  fontSize: "var(--text-h2)",
+                  lineHeight: 1.4,
+                  color: "var(--color-text)",
+                  maxWidth: "58ch",
+                  marginBottom: has(project.stakes) ? "1.5rem" : 0,
+                }}
+              >
+                {project.paradox}
+              </p>
+            )}
+            {has(project.stakes) && (
+              <p
+                className="font-sans"
+                style={{
+                  fontSize: "var(--text-body)",
+                  lineHeight: 1.7,
+                  color: "var(--color-text-secondary)",
+                  maxWidth: "58ch",
+                }}
+              >
+                {project.stakes}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ── Editorial Section ── */}
+        {has(project.editorial.copy) && (
+          <div className="mb-16" data-section-reveal>
+            {has(project.editorial.headline) && (
+              <h2
+                className="font-display"
+                style={{
+                  fontSize: "var(--text-h2)",
+                  fontWeight: 400,
+                  color: "var(--color-text)",
+                  marginBottom: "1rem",
+                }}
+              >
+                {project.editorial.headline}
+              </h2>
+            )}
+            {has(project.editorial.subhead) && (
+              <p
+                className="font-mono uppercase"
+                style={{
+                  fontSize: "var(--text-micro)",
+                  letterSpacing: "0.1em",
+                  color: "var(--color-text-ghost)",
+                  marginBottom: "1rem",
+                }}
+              >
+                {project.editorial.subhead}
+              </p>
+            )}
+            <p
+              className="font-sans"
+              style={{
+                fontSize: "var(--text-body)",
+                lineHeight: 1.7,
+                color: "var(--color-text-secondary)",
+                maxWidth: "58ch",
+              }}
+            >
+              {project.editorial.copy}
+            </p>
+
+            {/* Editorial images */}
+            {project.editorial.images.length > 0 && (
+              <div className="flex flex-col gap-8 mt-8">
+                {project.editorial.images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative w-full overflow-hidden"
+                    style={{ aspectRatio: "16/10" }}
+                    data-media-reveal="image"
+                  >
                     <Image
-                      src={item.src}
-                      alt={`${project.title} — media ${i + 1}`}
+                      src={img}
+                      alt={`${project.title} — editorial ${i + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 95vw, 57vw"
                       quality={90}
                     />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Process Steps ── */}
+        {project.processSteps && project.processSteps.length > 0 && (
+          <div className="mb-16" data-section-reveal>
+            <h2
+              className="font-mono uppercase"
+              style={{
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.1em",
+                color: "var(--color-text-ghost)",
+                marginBottom: "2rem",
+              }}
+            >
+              Process
+            </h2>
+            <div className="flex flex-col gap-10">
+              {project.processSteps.map((step, i) => (
+                <div key={i} className="flex flex-col gap-4">
+                  <div>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--color-text-ghost)",
+                        marginRight: "0.75rem",
+                      }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className="font-sans"
+                      style={{
+                        fontSize: "var(--text-body)",
+                        fontWeight: 500,
+                        color: "var(--color-text)",
+                      }}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
+                  {has(step.copy) && (
+                    <p
+                      className="font-sans"
+                      style={{
+                        fontSize: "var(--text-small)",
+                        lineHeight: 1.7,
+                        color: "var(--color-text-secondary)",
+                        maxWidth: "58ch",
+                        paddingLeft: "2.5rem",
+                      }}
+                    >
+                      {step.copy}
+                    </p>
+                  )}
+                  {step.image && (
+                    <div
+                      className="relative w-full overflow-hidden"
+                      style={{ aspectRatio: "4/3" }}
+                      data-media-reveal="image"
+                    >
+                      <Image
+                        src={step.image}
+                        alt={`${project.title} — ${step.title}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 95vw, 57vw"
+                        quality={90}
+                      />
+                    </div>
                   )}
                 </div>
-              ) : (
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Highlights ── */}
+        {project.highlights.length > 0 && (
+          <div className="mb-16" data-section-reveal>
+            <h2
+              className="font-mono uppercase"
+              style={{
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.1em",
+                color: "var(--color-text-ghost)",
+                marginBottom: "2rem",
+              }}
+            >
+              Key Details
+            </h2>
+            <div className="flex flex-col gap-12">
+              {project.highlights.map((hl) => (
+                <div key={hl.id}>
+                  <h3
+                    className="font-sans"
+                    style={{
+                      fontSize: "var(--text-body)",
+                      fontWeight: 500,
+                      color: "var(--color-text)",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {hl.title}
+                  </h3>
+                  <p
+                    className="font-sans"
+                    style={{
+                      fontSize: "var(--text-small)",
+                      lineHeight: 1.7,
+                      color: "var(--color-text-secondary)",
+                      maxWidth: "58ch",
+                    }}
+                  >
+                    {hl.description}
+                  </p>
+                  {has(hl.challenge) && (
+                    <p
+                      className="font-display italic mt-4"
+                      style={{
+                        fontSize: "var(--text-small)",
+                        lineHeight: 1.5,
+                        color: "var(--color-text-dim)",
+                        maxWidth: "58ch",
+                        paddingLeft: "1rem",
+                        borderLeft: "2px solid var(--color-border)",
+                      }}
+                    >
+                      {hl.challenge}
+                    </p>
+                  )}
+                  {has(hl.recipe) && (
+                    <p
+                      className="font-mono mt-3"
+                      style={{
+                        fontSize: "10px",
+                        letterSpacing: "0.05em",
+                        color: "var(--color-text-ghost)",
+                      }}
+                    >
+                      {hl.recipe}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Engineering ── */}
+        {has(project.engineering.copy) && (
+          <div className="mb-16" data-section-reveal>
+            <h2
+              className="font-mono uppercase"
+              style={{
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.1em",
+                color: "var(--color-text-ghost)",
+                marginBottom: "1rem",
+              }}
+            >
+              Engineering
+            </h2>
+            <p
+              className="font-sans"
+              style={{
+                fontSize: "var(--text-small)",
+                lineHeight: 1.7,
+                color: "var(--color-text-secondary)",
+                maxWidth: "58ch",
+              }}
+            >
+              {project.engineering.copy}
+            </p>
+            {project.engineering.signals.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {project.engineering.signals.map((signal) => (
+                  <span
+                    key={signal}
+                    className="font-mono uppercase"
+                    style={{
+                      fontSize: "9px",
+                      letterSpacing: "0.08em",
+                      color: "var(--color-text-dim)",
+                      padding: "3px 8px",
+                      border: "1px solid var(--color-border)",
+                    }}
+                  >
+                    {signal}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Videos ── */}
+        {project.videos && project.videos.length > 0 && (
+          <div className="flex flex-col gap-8 mb-16">
+            {project.videos.map((video, i) => (
+              <div key={i} data-media-reveal="video">
                 <div
                   className="relative w-full overflow-hidden"
-                  style={{ aspectRatio: item.aspect || "16/9" }}
+                  style={{ aspectRatio: video.aspect || "16/9" }}
                 >
                   <video
-                    src={item.src}
-                    poster={item.poster}
+                    src={video.src}
+                    poster={video.poster}
                     autoPlay
                     muted
                     loop
@@ -320,10 +579,142 @@ export default function CaseStudy() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-              )}
+                {has(video.caption) && (
+                  <p
+                    className="font-mono mt-2"
+                    style={{
+                      fontSize: "9px",
+                      letterSpacing: "0.05em",
+                      color: "var(--color-text-ghost)",
+                    }}
+                  >
+                    {video.caption}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Statistics ── */}
+        {project.statistics.length > 0 && (
+          <div className="mb-16" data-section-reveal>
+            <div className="flex gap-8 flex-wrap">
+              {project.statistics.map((stat) => (
+                <div key={stat.label}>
+                  <span
+                    className="font-mono uppercase block"
+                    style={{
+                      fontSize: "9px",
+                      letterSpacing: "0.1em",
+                      color: "var(--color-text-ghost)",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {stat.label}
+                  </span>
+                  <span
+                    className="font-mono"
+                    style={{
+                      fontSize: "var(--text-body)",
+                      color: "var(--color-text)",
+                    }}
+                  >
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {/* ── Gut Punch (closing statement) ── */}
+        {has(project.gutPunch) && (
+          <div className="mb-16" data-section-reveal>
+            <p
+              className="font-display italic"
+              style={{
+                fontSize: "var(--text-h2)",
+                lineHeight: 1.4,
+                color: "var(--color-text)",
+                maxWidth: "48ch",
+              }}
+            >
+              {project.gutPunch}
+            </p>
+          </div>
+        )}
+
+        {/* ── Schematic / Technical Colophon ── */}
+        {project.schematic && project.schematic.stack.length > 0 && (
+          <div className="mb-16" data-section-reveal>
+            <h2
+              className="font-mono uppercase"
+              style={{
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.1em",
+                color: "var(--color-text-ghost)",
+                marginBottom: "1rem",
+              }}
+            >
+              Stack
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {project.schematic.stack.map((item) => (
+                <span
+                  key={item}
+                  className="font-mono"
+                  style={{
+                    fontSize: "10px",
+                    color: "var(--color-text-dim)",
+                  }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            {has(project.schematic.typography) && (
+              <p
+                className="font-mono mt-3"
+                style={{
+                  fontSize: "10px",
+                  color: "var(--color-text-ghost)",
+                }}
+              >
+                Type: {project.schematic.typography}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* ── Contributors ── */}
+        {project.contributors.length > 0 && (
+          <div className="mb-16" data-section-reveal>
+            <h2
+              className="font-mono uppercase"
+              style={{
+                fontSize: "var(--text-micro)",
+                letterSpacing: "0.1em",
+                color: "var(--color-text-ghost)",
+                marginBottom: "0.75rem",
+              }}
+            >
+              Credits
+            </h2>
+            {project.contributors.map((c) => (
+              <p
+                key={c.name}
+                className="font-mono"
+                style={{
+                  fontSize: "10px",
+                  color: "var(--color-text-dim)",
+                }}
+              >
+                {c.name} — {c.role}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Scroll progress ── */}

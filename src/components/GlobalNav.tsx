@@ -89,20 +89,22 @@ export default function GlobalNav() {
           WebkitBackdropFilter: isHome ? "none" : "blur(8px)",
         }}
       >
-        {/* Pixel art + studio mark */}
-        <TransitionLink href="/" className="flex items-center gap-2" data-nav-el>
+        {/* Pixel art (click cycles time) + studio mark (navigates home) */}
+        <div className="flex items-center gap-2" data-nav-el>
           <PixelArt />
-          <span
-            className="font-display"
-            style={{
-              fontSize: "clamp(11px, 1vw, 13px)",
-              color: "var(--color-text-dim)",
-              letterSpacing: "0.05em",
-            }}
-          >
-            HKJ
-          </span>
-        </TransitionLink>
+          <TransitionLink href="/">
+            <span
+              className="font-display"
+              style={{
+                fontSize: "clamp(11px, 1vw, 13px)",
+                color: "var(--color-text-dim)",
+                letterSpacing: "0.05em",
+              }}
+            >
+              HKJ
+            </span>
+          </TransitionLink>
+        </div>
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-6" data-nav-el>

@@ -14,13 +14,29 @@ export default function TimeProvider() {
   useEffect(() => {
     function update() {
       const period = getTimePeriod();
-      document.documentElement.setAttribute("data-time-period", period);
+      const override = useStudioStore.getState().timeOverride;
+      // If there's a manual override (pixel art click), respect it
+      document.documentElement.setAttribute("data-time-period", override ?? period);
       setTimePeriod(period);
     }
 
     update();
     const interval = setInterval(update, 60_000);
-    return () => clearInterval(interval);
+
+    // Listen for override changes to update the attribute immediately
+    let prevOverride = useStudioStore.getState().timeOverride;
+    const unsub = useStudioStore.subscribe((state) => {
+      if (state.timeOverride !== prevOverride) {
+        prevOverride = state.timeOverride;
+        const period = state.timeOverride ?? state.timePeriod;
+        document.documentElement.setAttribute("data-time-period", period);
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsub();
+    };
   }, [setTimePeriod]);
 
   return null;

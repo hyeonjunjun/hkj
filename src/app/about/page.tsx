@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
 import Colophon from "@/components/sections/Colophon";
+import Contact from "@/components/sections/Contact";
 
 /**
  * About Page — Standalone editorial page
@@ -141,10 +142,100 @@ export default function AboutPage() {
               light to photograph, reading about material science, or making
               pour-overs that take too long.
             </p>
+
+            {/* Capabilities */}
+            <div className="mt-16" data-reveal>
+              <span
+                className="font-mono uppercase block mb-6"
+                style={{
+                  fontSize: "var(--text-micro)",
+                  letterSpacing: "0.15em",
+                  color: "var(--color-text-ghost)",
+                }}
+              >
+                Capabilities
+              </span>
+              <div className="flex flex-col gap-3">
+                {[
+                  { category: "Design", tools: "Figma, Type Systems, Motion Design, Editorial Layout" },
+                  { category: "Engineering", tools: "React, React Native, Next.js, Three.js, GSAP" },
+                  { category: "Infrastructure", tools: "Supabase, Vercel, Local-First, BLE" },
+                ].map((cap) => (
+                  <div key={cap.category} className="flex gap-6">
+                    <span
+                      className="font-mono uppercase"
+                      style={{
+                        fontSize: "var(--text-micro)",
+                        letterSpacing: "0.1em",
+                        color: "var(--color-text-dim)",
+                        minWidth: "8ch",
+                      }}
+                    >
+                      {cap.category}
+                    </span>
+                    <span
+                      className="font-sans"
+                      style={{
+                        fontSize: "var(--text-small)",
+                        color: "var(--color-text-secondary)",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {cap.tools}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Experience */}
+            <div className="mt-12" data-reveal>
+              <span
+                className="font-mono uppercase block mb-6"
+                style={{
+                  fontSize: "var(--text-micro)",
+                  letterSpacing: "0.15em",
+                  color: "var(--color-text-ghost)",
+                }}
+              >
+                Experience
+              </span>
+              <div className="flex flex-col gap-3">
+                {[
+                  { period: "2024–", role: "HKJ Studio", desc: "Independent design engineering" },
+                  { period: "2023–24", role: "Product", desc: "Mobile & AI products" },
+                  { period: "2022–23", role: "Design Systems", desc: "Component architecture & tokens" },
+                ].map((exp) => (
+                  <div key={exp.period} className="flex gap-6">
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: "var(--text-micro)",
+                        color: "var(--color-text-ghost)",
+                        minWidth: "8ch",
+                      }}
+                    >
+                      {exp.period}
+                    </span>
+                    <span
+                      className="font-sans"
+                      style={{
+                        fontSize: "var(--text-small)",
+                        color: "var(--color-text-secondary)",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      <span style={{ color: "var(--color-text-dim)" }}>{exp.role}</span> &mdash; {exp.desc}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      <Contact />
       <Colophon />
     </div>
   );

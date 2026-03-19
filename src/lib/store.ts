@@ -9,6 +9,10 @@ interface StudioState {
   /** Current time period for dynamic theming */
   timePeriod: TimePeriod;
   setTimePeriod: (v: TimePeriod) => void;
+
+  /** Manual time override (click-to-cycle pixel art) — null = use clock */
+  timeOverride: TimePeriod | null;
+  setTimeOverride: (v: TimePeriod | null) => void;
 }
 
 export const useStudioStore = create<StudioState>((set) => ({
@@ -17,4 +21,7 @@ export const useStudioStore = create<StudioState>((set) => ({
 
   timePeriod: "day",
   setTimePeriod: (v) => set({ timePeriod: v }),
+
+  timeOverride: null,
+  setTimeOverride: (v) => set({ timeOverride: v }),
 }));

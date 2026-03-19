@@ -303,9 +303,11 @@ html[data-time-period="night"] .cover-grain::after {
 /* ── Tableau Grid (Homepage) ── */
 
 .tableau-grid {
+  --grid-cols: repeat(12, 1fr);
+  --grid-rows: 1fr 0.68fr;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: 1fr 0.72fr;
+  grid-template-columns: var(--grid-cols);
+  grid-template-rows: var(--grid-rows);
   column-gap: clamp(8px, 0.8vw, 14px);
   row-gap: clamp(16px, 2.5vh, 32px);
 }
@@ -318,17 +320,17 @@ html[data-time-period="night"] .cover-grain::after {
 
 @media (max-width: 767px) {
   .tableau-grid {
-    grid-template-columns: 1fr 1fr !important;
-    grid-template-rows: auto !important;
-    row-gap: clamp(10px, 1.5vh, 16px) !important;
+    --grid-cols: 1fr 1fr;
+    --grid-rows: auto;
+    row-gap: clamp(10px, 1.5vh, 16px);
     overflow-y: auto;
   }
   .tableau-cell {
-    grid-column: span 1 !important;
+    grid-column: span 1;
     min-height: 28vw;
   }
   .tableau-cell:first-child {
-    grid-column: 1 / -1 !important;
+    grid-column: 1 / -1;
     min-height: 40vw;
   }
 }

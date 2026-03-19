@@ -156,7 +156,7 @@ export default function Hero() {
             color: "var(--color-text-ghost)",
           }}
         >
-          7 Works · 2024–2026
+          {PROJECTS.length} Works · {Math.min(...PROJECTS.map(p => parseInt(p.year)))}–{Math.max(...PROJECTS.map(p => parseInt(p.year)))}
         </span>
 
         <div className="flex items-center gap-4">
