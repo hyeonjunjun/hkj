@@ -1,0 +1,19 @@
+{
+  "fiberKey": "__reactFiber$60kq1rhsgi5",
+  "propsKey": "__reactProps$60kq1rhsgi5",
+  "allKeys": [
+    "__reactFiber$60kq1rhsgi5",
+    "__reactProps$60kq1rhsgi5"
+  ],
+  "propsKeys": [
+    "id",
+    "data-slug",
+    "data-id",
+    "className",
+    "children"
+  ],
+  "hasOnMouseEnter": false,
+  "hasOnMouseLeave": false,
+  "hasOnClick": false,
+  "hasOnMouseMove": false
+}

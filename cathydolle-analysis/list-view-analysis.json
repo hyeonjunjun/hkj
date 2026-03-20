@@ -1,0 +1,222 @@
+{
+  "projectLinks": [
+    {
+      "href": "/",
+      "text": "Cathy Dolle",
+      "className": "cursor-pointer max-md:h-full",
+      "tagName": "A",
+      "parentClassName": "w-full text-black flex justify-between items-center text-[11px] max-md:text-[11px] font-medium uppercase",
+      "parentTagName": "DIV",
+      "rect": {
+        "x": 8,
+        "y": 8,
+        "width": 230.65625,
+        "height": 16.5,
+        "top": 8,
+        "right": 238.65625,
+        "bottom": 24.5,
+        "left": 8
+      }
+    },
+    {
+      "href": "/shop",
+      "text": "Shop",
+      "className": "cursor-pointer max-md:h-full",
+      "tagName": "A",
+      "parentClassName": "flex gutter-gap-1 md:span-w-4",
+      "parentTagName": "UL",
+      "rect": {
+        "x": 1082,
+        "y": 8,
+        "width": 111.328125,
+        "height": 16.5,
+        "top": 8,
+        "right": 1193.328125,
+        "bottom": 24.5,
+        "left": 1082
+      }
+    },
+    {
+      "href": "/playground",
+      "text": "Playground",
+      "className": "cursor-pointer max-md:h-full",
+      "tagName": "A",
+      "parentClassName": "span-ml-1 span-w-1 text-end max-md:span-w-2 max-md:ml-0",
+      "parentTagName": "LI",
+      "rect": {
+        "x": 1351.921875,
+        "y": 9,
+        "width": 72.0625,
+        "height": 13,
+        "top": 9,
+        "right": 1423.984375,
+        "bottom": 22,
+        "left": 1351.921875
+      }
+    },
+    {
+      "href": "https://www.instagram.com/martin.ctny/",
+      "text": "Developed by Martin Cantony",
+      "className": " opacity-50 ",
+      "tagName": "A",
+      "parentClassName": "span-ml-3 max-md:span-ml-1 span-w-4 max-md:span-w-4 gap-[40px] flex flex-col  text-[11px]  leading-[110%] text-black uppercase",
+      "parentTagName": "DIV",
+      "rect": {
+        "x": 366,
+        "y": 468.140625,
+        "width": 469.328125,
+        "height": 12.09375,
+        "top": 468.140625,
+        "right": 835.328125,
+        "bottom": 480.234375,
+        "left": 366
+      }
+    },
+    {
+      "href": "mailto:cathy.dolle@live.fr",
+      "text": "cathy.dolle@live.fr",
+      "className": "span-w-2",
+      "tagName": "A",
+      "parentClassName": "mt-[40px] flex gutter-gap-1 opacity-50",
+      "parentTagName": "DIV",
+      "rect": {
+        "x": 366,
+        "y": 560.234375,
+        "width": 230.65625,
+        "height": 12.09375,
+        "top": 560.234375,
+        "right": 596.65625,
+        "bottom": 572.328125,
+        "left": 366
+      }
+    },
+    {
+      "href": "https://www.instagram.com/katy_v4/",
+      "text": "Instagram",
+      "className": "span-w-1",
+      "tagName": "A",
+      "parentClassName": "mt-[40px] flex gutter-gap-1 opacity-50",
+      "parentTagName": "DIV",
+      "rect": {
+        "x": 604.65625,
+        "y": 560.234375,
+        "width": 111.328125,
+        "height": 12.09375,
+        "top": 560.234375,
+        "right": 715.984375,
+        "bottom": 572.328125,
+        "left": 604.65625
+      }
+    },
+    {
+      "href": "https://www.twitch.tv/katy_v4",
+      "text": "Twitch",
+      "className": "span-w-1",
+      "tagName": "A",
+      "parentClassName": "mt-[40px] flex gutter-gap-1 opacity-50",
+      "parentTagName": "DIV",
+      "rect": {
+        "x": 723.984375,
+        "y": 560.234375,
+        "width": 111.328125,
+        "height": 12.09375,
+        "top": 560.234375,
+        "right": 835.3125,
+        "bottom": 572.328125,
+        "left": 723.984375
+      }
+    },
+    {
+      "href": "mailto:cathy.dolle@live.fr",
+      "text": "Contact",
+      "className": "text-black text-[11px] max-md:text-[11px] leading-[11px] font-medium hover:underline uppercase",
+      "tagName": "A",
+      "parentClassName": "fixed bottom-0 left-0 w-screen flex  padding-1 z-50 items-center\n      justify-end\n    ",
+      "parentTagName": "FOOTER",
+      "rect": {
+        "x": 1381.375,
+        "y": 881,
+        "width": 50.625,
+        "height": 11,
+        "top": 881,
+        "right": 1432,
+        "bottom": 892,
+        "left": 1381.375
+      }
+    }
+  ],
+  "toggleButtons": [],
+  "sections": [
+    {
+      "tagName": "SECTION",
+      "className": "max-h-screen overflow-hidden span-w-screen span-ml-2 justify-center bg-white ",
+      "id": "",
+      "childCount": 2,
+      "display": "block",
+      "overflow": "hidden",
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "position": "static",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 900,
+        "top": 0,
+        "right": 1440,
+        "bottom": 900,
+        "left": 0
+      }
+    }
+  ],
+  "scrollableElements": [
+    {
+      "tagName": "SECTION",
+      "className": "max-h-screen overflow-hidden span-w-screen span-ml-2 justify-center bg-white ",
+      "id": "",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 908,
+      "clientHeight": 900,
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "childCount": 2
+    },
+    {
+      "tagName": "DIV",
+      "className": "relative w-fit h-fit",
+      "id": "pixelCrosshair",
+      "scrollWidth": 97,
+      "clientWidth": 0,
+      "scrollHeight": 8,
+      "clientHeight": 0,
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "childCount": 3
+    },
+    {
+      "tagName": "P",
+      "className": "text-white pl-4 w-fit text-nowrap text-[11px] font-medium uppercase overflow-hidden absolute top-1/2 left-0 transform -translate-y-1/2",
+      "id": "pixelText",
+      "scrollWidth": 97,
+      "clientWidth": 97,
+      "scrollHeight": 33,
+      "clientHeight": 17,
+      "overflowX": "hidden",
+      "overflowY": "hidden",
+      "childCount": 1
+    },
+    {
+      "tagName": "A",
+      "className": "text-black text-[11px] max-md:text-[11px] leading-[11px] font-medium hover:underline uppercase",
+      "id": "",
+      "scrollWidth": 51,
+      "clientWidth": 51,
+      "scrollHeight": 12,
+      "clientHeight": 11,
+      "overflowX": "visible",
+      "overflowY": "visible",
+      "childCount": 0
+    }
+  ]
+}

@@ -71,7 +71,12 @@
       "Bash(bash:*)",
       "WebFetch(domain:tomoya-okada.com)",
       "WebFetch(domain:tomoyaokada.com)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(where:*)",
+      "Bash(dir:*)",
+      "Bash(timeout /t 30 /nobreak:*)",
+      "Bash(ping:*)"
     ]
   }
 }

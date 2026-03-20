@@ -1,0 +1,3 @@
+{
+  "list": "g[r?\"unshift\":\"push\"](n),ec(),n},remove:function(t,e){~(e=g.indexOf(t))&&g.splice(e,1)&&s>=e&&s--},_listeners:g}}(),ec=function(){return!p&&el.wake()},ed={},ep=/^[\\d.\\-M][\\d.\\-,\\s]/,em=/[\"']/g,ev=function(t){for(var e,r,i,n={},s=t.substr(1,t.length-3).split(\":\"),a=s[0],o=1,u=s.length;o<u;o++)r=s[o],"
+}

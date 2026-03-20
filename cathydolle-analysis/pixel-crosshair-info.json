@@ -1,0 +1,61 @@
+{
+  "className": "relative w-fit h-fit",
+  "opacity": "0",
+  "display": "block",
+  "position": "relative",
+  "transform": "none",
+  "children": [
+    {
+      "tag": "DIV",
+      "className": "h-[8px] w-[8px] border pointer-events-auto z-[100] cursor-pointer fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+      "id": "",
+      "text": "",
+      "display": "block",
+      "position": "fixed",
+      "opacity": "1",
+      "rect": {
+        "x": 716,
+        "y": 446,
+        "w": 8,
+        "h": 8
+      }
+    },
+    {
+      "tag": "DIV",
+      "className": "h-[10px] w-[10px] pointer-events-auto z-[100] cursor-pointer fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2",
+      "id": "",
+      "text": "",
+      "display": "block",
+      "position": "fixed",
+      "opacity": "1",
+      "rect": {
+        "x": 715,
+        "y": 445,
+        "w": 10,
+        "h": 10
+      }
+    },
+    {
+      "tag": "P",
+      "className": "text-white pl-4 w-fit text-nowrap text-[11px] font-medium uppercase overflow-hidden absolute top-1/2 left-0 transform -translate-y-1/2",
+      "id": "pixelText",
+      "text": "OPEN PROJECT",
+      "display": "block",
+      "position": "absolute",
+      "opacity": "1",
+      "rect": {
+        "x": 720,
+        "y": 442,
+        "w": 97,
+        "h": 17
+      }
+    }
+  ],
+  "parentClassName": "fixed top-0 left-0 w-screen h-screen pointer-events-none z-50 flex justify-center items-center mix-blend-difference ",
+  "parentStyle": {
+    "mixBlendMode": "difference",
+    "pointerEvents": "none",
+    "position": "fixed",
+    "zIndex": "50"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "imgSources": [
+    {
+      "src": "https://cdn.sanity.io/images/7npwh62g/production/a9db1c11a6276c9b0f5e1a4cf9402a96cbba93d9-359x237.svg",
+      "className": "",
+      "width": 16,
+      "height": 11,
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1"
+    }
+  ],
+  "preloads": [],
+  "nextImgData": null
+}

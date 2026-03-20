@@ -19,16 +19,6 @@ export default function GlobalNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  // Homepage has its own chrome (HomepageChrome) — only render MobileMenu here
-  if (isHome) {
-    return (
-      <MobileMenu
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-      />
-    );
-  }
-
   const handleNavClick = useCallback(
     (href: string) => {
       if (href.startsWith("#")) {
@@ -70,14 +60,24 @@ export default function GlobalNav() {
 
   // Entrance on mount
   useEffect(() => {
-    if (!navRef.current) return;
+    if (!navRef.current || isHome) return;
 
     gsap.fromTo(
       navRef.current.querySelectorAll("[data-nav-el]"),
       { opacity: 0 },
       { opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }
     );
-  }, []);
+  }, [isHome]);
+
+  // Homepage has its own chrome (HomepageChrome) — only render MobileMenu here
+  if (isHome) {
+    return (
+      <MobileMenu
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+    );
+  }
 
   return (
     <>

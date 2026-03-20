@@ -10,7 +10,6 @@ import { PROJECTS } from "@/constants/projects";
 const activeProjects = PROJECTS.filter((p) => !p.wip);
 
 export default function HomepageChrome() {
-  const viewMode = useStudioStore((s) => s.viewMode);
   const activeProjectIndex = useStudioStore((s) => s.activeProjectIndex);
 
   return (
@@ -81,28 +80,16 @@ export default function HomepageChrome() {
 
           {/* Right: counter or location + toggle */}
           <div className="flex items-end gap-8">
-            {viewMode === "slider" ? (
-              <span
-                className="font-mono uppercase tracking-[0.1em]"
-                style={{
-                  fontSize: "var(--text-micro)",
-                  color: "var(--color-text-ghost)",
-                }}
-              >
-                {String(activeProjectIndex + 1).padStart(2, "0")} /{" "}
-                {String(activeProjects.length).padStart(2, "0")}
-              </span>
-            ) : (
-              <span
-                className="font-mono uppercase tracking-[0.1em]"
-                style={{
-                  fontSize: "var(--text-micro)",
-                  color: "var(--color-text-ghost)",
-                }}
-              >
-                NYC
-              </span>
-            )}
+            <span
+              className="font-mono uppercase tracking-[0.1em]"
+              style={{
+                fontSize: "var(--text-micro)",
+                color: "var(--color-text-ghost)",
+              }}
+            >
+              {String(activeProjectIndex + 1).padStart(2, "0")} /{" "}
+              {String(activeProjects.length).padStart(2, "0")}
+            </span>
             <ViewToggle />
           </div>
         </div>
@@ -120,28 +107,16 @@ export default function HomepageChrome() {
             {CONTACT_EMAIL}
           </a>
           <div className="flex justify-between items-end">
-            {viewMode === "slider" ? (
-              <span
-                className="font-mono uppercase tracking-[0.1em]"
-                style={{
-                  fontSize: "var(--text-micro)",
-                  color: "var(--color-text-ghost)",
-                }}
-              >
-                {String(activeProjectIndex + 1).padStart(2, "0")} /{" "}
-                {String(activeProjects.length).padStart(2, "0")}
-              </span>
-            ) : (
-              <span
-                className="font-mono uppercase tracking-[0.1em]"
-                style={{
-                  fontSize: "var(--text-micro)",
-                  color: "var(--color-text-ghost)",
-                }}
-              >
-                NYC
-              </span>
-            )}
+            <span
+              className="font-mono uppercase tracking-[0.1em]"
+              style={{
+                fontSize: "var(--text-micro)",
+                color: "var(--color-text-ghost)",
+              }}
+            >
+              {String(activeProjectIndex + 1).padStart(2, "0")} /{" "}
+              {String(activeProjects.length).padStart(2, "0")}
+            </span>
             <ViewToggle />
           </div>
         </div>

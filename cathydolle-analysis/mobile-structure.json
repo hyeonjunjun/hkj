@@ -1,0 +1,33 @@
+{
+  "verticalLayout": {
+    "display": "flex",
+    "opacity": "1",
+    "pointerEvents": "all",
+    "height": "812px",
+    "rect": {
+      "x": 53,
+      "y": 8,
+      "w": 269,
+      "h": 812
+    }
+  },
+  "scrollContainer": {
+    "height": 0,
+    "display": "block"
+  },
+  "listToggleVisible": false,
+  "ulCount": 1,
+  "allUlInfo": [
+    {
+      "className": "flex flex-col justify-start items-between gutter-gap-1 max-h-screen flex-wrap text-black py-[10vh] w-full max-md:hidden",
+      "display": "none",
+      "visibility": "visible",
+      "childCount": 12,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    }
+  ],
+  "bodyHTML": "<ul class=\"flex flex-col justify-start items-between gutter-gap-1 max-h-screen flex-wrap text-black py-[10vh] w-full max-md:hidden\"><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out items-center flex-row text-start\"><li id=\"ard\" data-slug=\"ard\" data-id=\"project-0\" class=\"w-fit h-fit flex gutter-gap-1 items-center cursor-pointer opacity-0 \" style=\"opacity: 0.9276; translate: none; rotate: none; scale: none; filter: blur(0.3618px); transform: translate3d(0px, 0.3618px, 0px);\"><span class=\"span-w-1  h-fit \">0<!-- -->1<!-- -->/</span><span class=\"span-w-2  h-fit\">ARD</span></li></div><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out items-center flex-row text-start\"><li id=\"pierre-cathala\" data-slug=\"pierre-cathala\" data-id=\"project-1\" class=\"w-fit h-fit flex gutter-gap-1 items-center cursor-pointer opacity-0 \" style=\"opacity: 0.2729; translate: none; rotate: none; scale: none; filter: blur(0.4509px); transform: translate3d(0px, 0.4509px, 0px);\"><span class=\"span-w-1  h-fit \">0<!-- -->2<!-- -->/</span><span class=\"span-w-2  h-fit\">Pierre Cathala</span></li></div><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out items-center flex-row text-start\"><li id=\"jean-khamkwan\" data-slug=\"jean-khamkwan\" data-id=\"project-2\" class=\"w-fit h-fit flex gutter-gap-1 items-center cursor-pointer opacity-0 \" style=\"opacity: 0.2668; translate: none; rotate: none; scale: none; filter: blur(0.5536px); transform: translate3d(0px, 0.5536px, 0px);\"><span class=\"span-w-1  h-fit \">0<!-- -->3<!-- -->/</span><span class=\"span-w-2  h-fit\">Jean khamkwan</span></li></div><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out items-center flex-row text-start\"><li id=\"yeng\" data-slug=\"yeng\" data-id=\"project-3\" class=\"w-fit h-fit flex gutter-gap-1 items-center cursor-pointer opacity-0 \" style=\"opacity: 0.2597; translate: none; rotate: none; scale: none; filter: blur(0.6708px); transform: translate3d(0px, 0.6708px, 0px);\"><span class=\"span-w-1  h-fit \">0<!-- -->4<!-- -->/</span><span class=\"span-w-2  h-fit\">Yeng</span></li></div><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out items-center flex-row text-start\"><li id=\"prada-beauty\" data-slug=\"prada-beauty\" data-id=\"project-4\" class=\"w-fit h-fit flex gutter-gap-1 items-center cursor-pointer opacity-0 \" style=\"opacity: 0.2518; translate: none; rotate: none; scale: none; filter: blur(0.8035px); transform: translate3d(0px, 0.8035px, 0px);\"><span class=\"span-w-1  h-fit \">0<!-- -->5<!-- -->/</span><span class=\"span-w-2  h-fit\">Prada Beauty</span></li></div><div class=\"text-[11px] uppercase font-medium h-[11vh] flex gutter-gap-1 padding-x-1 duration-200 transition-all ease-in-out "
+}

@@ -3,106 +3,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, animate, type MotionValue } from "framer-motion";
 import { useStudioStore } from "@/lib/store";
-import { PROJECTS, type Project } from "@/constants/projects";
+import { PROJECTS } from "@/constants/projects";
 import TransitionLink from "@/components/TransitionLink";
 import VideoCard from "@/components/homepage/VideoCard";
+import {
+  getCardDimensions,
+  buildCardWidths,
+  buildCardHeights,
+  buildCardPositions,
+  buildCardLeftEdges,
+  snapToNearest,
+  findNearestIndex,
+} from "@/lib/carousel-layout";
 
 const activeProjects = PROJECTS.filter((p) => !p.wip);
-
-/* ── Card dimensions by breakpoint ── */
-
-function getCardDimensions(vw: number, vh: number) {
-  if (vw < 768) {
-    // Mobile: uniform full-width
-    return {
-      portrait: { width: vw, height: vh * 0.7 },
-      landscape: { width: vw, height: vh * 0.7 },
-    };
-  }
-  if (vw < 1024) {
-    // Tablet
-    const pw = vw * 0.38;
-    const lw = vw * 0.55;
-    return {
-      portrait: { width: pw, height: pw * 1.5 },
-      landscape: { width: lw, height: lw / 1.75 },
-    };
-  }
-  // Desktop
-  const pw = vw * 0.32;
-  const lw = vw * 0.49;
-  return {
-    portrait: { width: pw, height: pw * 1.5 },
-    landscape: { width: lw, height: lw / 1.75 },
-  };
-}
-
-function getFormat(project: Project, index: number): "portrait" | "landscape" {
-  return project.cardFormat ?? (index % 2 === 0 ? "portrait" : "landscape");
-}
-
-/* ── Position helpers ── */
-
-function buildCardWidths(
-  projects: Project[],
-  dims: ReturnType<typeof getCardDimensions>
-): number[] {
-  return projects.map((p, i) => dims[getFormat(p, i)].width);
-}
-
-function buildCardHeights(
-  projects: Project[],
-  dims: ReturnType<typeof getCardDimensions>
-): number[] {
-  return projects.map((p, i) => dims[getFormat(p, i)].height);
-}
-
-/** Returns the x value that centers card i in the viewport */
-function buildCardPositions(widths: number[], viewportWidth: number): number[] {
-  const positions: number[] = [];
-  let cursor = 0;
-  for (const w of widths) {
-    positions.push(-(cursor + w / 2 - viewportWidth / 2));
-    cursor += w;
-  }
-  return positions;
-}
-
-function buildCardLeftEdges(widths: number[]): number[] {
-  const edges: number[] = [];
-  let cursor = 0;
-  for (const w of widths) {
-    edges.push(cursor);
-    cursor += w;
-  }
-  return edges;
-}
-
-function snapToNearest(target: number, positions: number[]): number {
-  let closest = positions[0];
-  let minDist = Math.abs(target - positions[0]);
-  for (let i = 1; i < positions.length; i++) {
-    const dist = Math.abs(target - positions[i]);
-    if (dist < minDist) {
-      minDist = dist;
-      closest = positions[i];
-    }
-  }
-  return closest;
-}
-
-function findNearestIndex(currentX: number, positions: number[]): number {
-  let idx = 0;
-  let minDist = Infinity;
-  for (let i = 0; i < positions.length; i++) {
-    const dist = Math.abs(currentX - positions[i]);
-    if (dist < minDist) {
-      minDist = dist;
-      idx = i;
-    }
-  }
-  return idx;
-}
 
 /* ── Component ── */
 
