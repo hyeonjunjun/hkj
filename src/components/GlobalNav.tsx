@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { useLenis } from "lenis/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStudioStore } from "@/lib/store";
@@ -13,6 +14,7 @@ export default function GlobalNav() {
   const mobileMenuOpen = useStudioStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
   const navRef = useRef<HTMLElement>(null);
+  const pathname = usePathname();
   const lenis = useLenis();
   const navigate = useTransitionNavigate();
   const handleNavClick = useCallback(
@@ -82,14 +84,12 @@ export default function GlobalNav() {
       >
         {/* Studio mark */}
         <div className="flex items-center gap-2" data-nav-el>
-          <TransitionLink href="/">
+          <TransitionLink href="/" className="link-dim">
             <span
-              className="font-mono"
+              className="font-mono uppercase"
               style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
-                color: "var(--color-text-dim)",
+                fontSize: "var(--text-micro)",
+                letterSpacing: "var(--tracking-wider)",
               }}
             >
               hkj
@@ -99,45 +99,46 @@ export default function GlobalNav() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6" data-nav-el>
-          {NAV_LINKS.map((link) => (
-            <button
-              key={link.label}
-              onClick={() => handleNavClick(link.href)}
-              className="font-mono relative group/link"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
-                color: "var(--color-text-dim)",
-              }}
-            >
-              <span className="transition-colors duration-300 group-hover/link:text-[var(--color-text)]">
-                {link.label}
-              </span>
-              <span
-                className="absolute -bottom-0.5 left-0 right-0 h-[1px] origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-500"
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+            return (
+              <button
+                key={link.label}
+                onClick={() => handleNavClick(link.href)}
+                className="font-mono uppercase relative group/link"
                 style={{
-                  backgroundColor: "var(--color-text-dim)",
-                  transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+                  fontSize: "var(--text-micro)",
+                  letterSpacing: "var(--tracking-wider)",
+                  color: isActive ? "var(--color-text)" : "var(--color-text-dim)",
+                  transition: "color var(--duration-micro) var(--ease-micro)",
                 }}
-              />
-            </button>
-          ))}
+              >
+                <span className="transition-colors duration-300 group-hover/link:text-[var(--color-text)]">
+                  {link.label}
+                </span>
+                <span
+                  className={`absolute -bottom-0.5 left-0 right-0 h-[1px] origin-left transition-transform duration-500 ${isActive ? "scale-x-100" : "scale-x-0 group-hover/link:scale-x-100"}`}
+                  style={{
+                    backgroundColor: isActive ? "var(--color-text)" : "var(--color-text-dim)",
+                    transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                />
+              </button>
+            );
+          })}
         </div>
 
-        {/* Menu trigger — mobile only on homepage, always on inner pages */}
+        {/* Menu trigger */}
         <button
           onClick={() => setMobileMenuOpen(true)}
           data-nav-el
-          className=""
+          className="font-mono uppercase"
           style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase" as const,
+            fontSize: "var(--text-micro)",
+            letterSpacing: "var(--tracking-wider)",
             color: "var(--color-text-dim)",
             lineHeight: 1,
-            transition: "color 0.3s ease",
-            fontFamily: "var(--font-mono)",
+            transition: "color var(--duration-micro) var(--ease-micro)",
           }}
           aria-label="Open menu"
         >

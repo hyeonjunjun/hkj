@@ -1,4 +1,0 @@
-{
-  "mousemove": "fromElement:e.relatedTarget},movementX:function(e){return\"movementX\"in e?e.movementX:(e!==n6&&(n6&&\"mousemove\"===e.type?(n8=e.screenX-n6.screenX,n5=e.screenY-n6.screenY):n5=n8=0,n6=e),n8)},movementY:function(e){return\"movementY\"in e?e.movementY:n5}}),tr=n2(tt),tl=n2(E({},tt,{dataTransfer:0})),ta=n2(",
-  "list": "ext\"),O=Symbol.for(\"react.forward_ref\"),D=Symbol.for(\"react.suspense\"),F=Symbol.for(\"react.suspense_list\"),I=Symbol.for(\"react.memo\"),M=Symbol.for(\"react.lazy\");Symbol.for(\"react.scope\");var A=Symbol.for(\"react.activity\"),R=Symbol.for(\"react.legacy_hidden\");Symbol.for(\"react.tracing_marker\");var U=S"
-}

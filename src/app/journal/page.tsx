@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import TransitionLink from "@/components/TransitionLink";
 import {
   JOURNAL_ENTRIES,
@@ -21,19 +22,10 @@ export default function JournalPage() {
 
   useEffect(() => {
     if (!listRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const items = listRef.current.querySelectorAll("[data-journal-item]");
-    gsap.fromTo(
-      items,
-      { autoAlpha: 0, y: 24 },
-      {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.06,
-      }
-    );
+    gsap.fromTo(items, REVEAL_CONTENT.from, { ...REVEAL_CONTENT.to, delay: 0 });
   }, [activeTag]);
 
   return (
@@ -41,7 +33,7 @@ export default function JournalPage() {
       style={{
         minHeight: "100vh",
         backgroundColor: "var(--color-bg)",
-        paddingTop: "clamp(6rem, 12vh, 10rem)",
+        paddingTop: "var(--page-pt)",
         paddingBottom: "var(--section-py)",
       }}
     >
@@ -87,8 +79,8 @@ export default function JournalPage() {
             onClick={() => setActiveTag(tag)}
             className="font-mono uppercase"
             style={{
-              fontSize: "10px",
-              letterSpacing: "0.1em",
+              fontSize: "var(--text-micro)",
+              letterSpacing: "var(--tracking-wider)",
               color:
                 activeTag === tag
                   ? "var(--color-text)"
@@ -97,7 +89,7 @@ export default function JournalPage() {
               border: "none",
               cursor: "pointer",
               padding: 0,
-              transition: "color 200ms cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "color var(--duration-micro) var(--ease-micro)",
             }}
           >
             {tag === "all" ? "All" : tag.charAt(0).toUpperCase() + tag.slice(1)}
@@ -106,7 +98,7 @@ export default function JournalPage() {
       </div>
 
       {/* Entry list */}
-      <div ref={listRef} className="section-padding" style={{ maxWidth: "640px" }}>
+      <div ref={listRef} className="section-padding" style={{ maxWidth: "var(--content-max)" }}>
         {filtered.map((entry, i) => {
           const isLong = !!entry.body;
 
@@ -201,15 +193,12 @@ export default function JournalPage() {
               {isLong && (
                 <TransitionLink
                   href={`/journal/${entry.id}`}
-                  className="font-mono uppercase"
+                  className="font-mono uppercase link-dim"
                   style={{
-                    fontSize: "10px",
-                    letterSpacing: "0.1em",
-                    color: "var(--color-text-dim)",
+                    fontSize: "var(--text-micro)",
+                    letterSpacing: "var(--tracking-wider)",
                     marginTop: "0.75rem",
                     display: "inline-block",
-                    transition:
-                      "color 200ms cubic-bezier(0.4, 0, 0.2, 1)",
                   }}
                 >
                   Read

@@ -4,75 +4,150 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_MEDIA } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
-
-// TODO: Replace "hkj" wordmark with a proper logotype/monogram asset
-// TODO: Add a hero tagline beneath the wordmark (e.g. "Design Engineering")
 
 const visibleProjects = PROJECTS.filter((p) => !p.wip);
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!gridRef.current) return;
-    const cards = gridRef.current.querySelectorAll("[data-project-card]");
-    gsap.fromTo(
-      cards,
-      { autoAlpha: 0, y: 32 },
-      {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.07,
-        delay: 0.1,
-      }
-    );
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    if (heroRef.current) {
+      const els = heroRef.current.querySelectorAll("[data-hero-el]");
+      gsap.fromTo(
+        els,
+        { opacity: 0, y: 12 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.06,
+          ease: "expo.out",
+          delay: 0.15,
+        }
+      );
+    }
+
+    if (gridRef.current) {
+      const cards = gridRef.current.querySelectorAll("[data-project-card]");
+      gsap.fromTo(cards, REVEAL_MEDIA.from, { ...REVEAL_MEDIA.to });
+    }
   }, []);
 
   return (
     <main
       style={{
         minHeight: "100vh",
-        paddingTop: "clamp(5rem, 10vh, 8rem)",
-        paddingBottom: "var(--section-py)",
+        paddingTop: "var(--page-pt-home)",
+        paddingBottom: "var(--row-py)",
       }}
     >
-      {/* ── Hero header ── */}
-      {/* TODO: Add a tagline or brief studio descriptor here */}
+      {/* ── Hero ── */}
       <header
+        ref={heroRef}
         className="section-padding"
-        style={{ marginBottom: "clamp(3rem, 7vh, 6rem)" }}
+        style={{ marginBottom: "clamp(4rem, 8vh, 7rem)" }}
       >
         <h1
+          data-hero-el
           className="font-display italic"
           style={{
-            fontSize: "var(--text-display)",
+            fontSize: "clamp(2.2rem, 4vw, 3.6rem)",
+            fontWeight: 400,
             color: "var(--color-text)",
-            lineHeight: 1.1,
+            lineHeight: "var(--leading-tight)",
+            letterSpacing: "var(--tracking-tight)",
+            maxWidth: "18ch",
           }}
         >
-          Selected Work
+          Design engineering practice
         </h1>
         <p
+          data-hero-el
+          className="font-sans"
           style={{
             fontSize: "var(--text-body)",
             color: "var(--color-text-secondary)",
-            marginTop: "0.5rem",
+            marginTop: "clamp(1rem, 2vh, 1.5rem)",
+            letterSpacing: "var(--tracking-snug)",
+            lineHeight: "var(--leading-relaxed)",
+            maxWidth: "38ch",
           }}
         >
-          Design engineering — craft at every layer.
+          Building products that feel considered — from system
+          design to pixel-level detail.
         </p>
+
+        <div
+          data-hero-el
+          style={{
+            display: "flex",
+            gap: "1.5rem",
+            alignItems: "center",
+            marginTop: "clamp(1.5rem, 3vh, 2.5rem)",
+          }}
+        >
+          <span
+            className="font-mono uppercase"
+            style={{
+              fontSize: "var(--text-micro)",
+              letterSpacing: "var(--tracking-wider)",
+              color: "var(--color-text-dim)",
+            }}
+          >
+            New York / Seoul
+          </span>
+          <span
+            style={{
+              width: 3,
+              height: 3,
+              borderRadius: "50%",
+              backgroundColor: "var(--color-warm)",
+              flexShrink: 0,
+            }}
+          />
+          <span
+            className="font-mono uppercase"
+            style={{
+              fontSize: "var(--text-micro)",
+              letterSpacing: "var(--tracking-wider)",
+              color: "var(--color-text-dim)",
+            }}
+          >
+            Available for select projects
+          </span>
+        </div>
       </header>
 
-      {/* ── Project grid ── */}
+      {/* ── Selected Work label ── */}
+      <div
+        className="section-padding"
+        style={{ marginBottom: "clamp(1.5rem, 3vh, 2.5rem)" }}
+      >
+        <span
+          data-hero-el
+          className="font-mono uppercase"
+          style={{
+            fontSize: "var(--text-micro)",
+            letterSpacing: "var(--tracking-wider)",
+            color: "var(--color-text-ghost)",
+          }}
+        >
+          Selected Work
+        </span>
+      </div>
+
+      {/* ── Project Grid ── */}
       <div
         ref={gridRef}
         className="section-padding"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))",
+          gridTemplateColumns: "repeat(2, 1fr)",
           gap: "clamp(1.5rem, 3vw, 2.5rem)",
         }}
       >
@@ -88,21 +163,17 @@ export default function Home() {
                 backgroundColor: "var(--color-surface)",
                 borderRadius: "4px",
                 overflow: "hidden",
-                transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.transform = "translateY(-4px)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.transform = "translateY(0)")
-              }
             >
-              {/* Cover image or color fill */}
+              {/* Cover image */}
               <div
+                className="card-image"
                 style={{
-                  aspectRatio: project.cardFormat === "portrait" ? "3/4" : "16/10",
+                  aspectRatio:
+                    project.cardFormat === "portrait" ? "3/4" : "16/10",
                   position: "relative",
-                  backgroundColor: project.cover?.bg ?? "var(--color-elevated)",
+                  backgroundColor:
+                    project.cover?.bg ?? "var(--color-elevated)",
                   overflow: "hidden",
                 }}
               >
@@ -112,7 +183,7 @@ export default function Home() {
                     alt={project.title}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 767px) 100vw, 50vw"
                     quality={85}
                   />
                 ) : null}
@@ -128,8 +199,8 @@ export default function Home() {
                     className="font-mono uppercase"
                     style={{
                       fontSize: "var(--text-micro)",
-                      letterSpacing: "0.1em",
-                      color: "var(--color-text-ghost)",
+                      letterSpacing: "var(--tracking-wider)",
+                      color: "var(--color-text-dim)",
                     }}
                   >
                     {project.sector}
@@ -138,7 +209,7 @@ export default function Home() {
                     className="font-mono"
                     style={{
                       fontSize: "var(--text-micro)",
-                      color: "var(--color-text-ghost)",
+                      color: "var(--color-text-dim)",
                     }}
                   >
                     {project.year}
@@ -149,7 +220,7 @@ export default function Home() {
                   style={{
                     fontSize: "var(--text-h3)",
                     color: "var(--color-text)",
-                    lineHeight: 1.25,
+                    lineHeight: "var(--leading-snug)",
                   }}
                 >
                   {project.title}
@@ -174,7 +245,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ── Coddiwomple section ── */}
+      {/* ── Coddiwomple Teaser ── */}
       <section
         className="section-padding"
         style={{
@@ -190,7 +261,7 @@ export default function Home() {
               style={{
                 fontSize: "var(--text-h2)",
                 color: "var(--color-text)",
-                lineHeight: 1.1,
+                lineHeight: "var(--leading-tight)",
               }}
             >
               Coddiwomple
@@ -203,35 +274,24 @@ export default function Home() {
                 maxWidth: "38ch",
               }}
             >
-              Visual studies, material research, and things that caught the light.
+              Visual studies, material research, and things that caught the
+              light.
             </p>
           </div>
           <TransitionLink
             href="/coddiwomple"
-            className="font-mono uppercase"
+            className="font-mono uppercase link-dim"
             style={{
               fontSize: "var(--text-micro)",
-              letterSpacing: "0.1em",
-              color: "var(--color-text-dim)",
-              transition: "color 0.2s ease",
+              letterSpacing: "var(--tracking-wider)",
               flexShrink: 0,
               marginLeft: "2rem",
             }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "var(--color-text)")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = "var(--color-text-dim)")
-            }
           >
-            View all →
+            View all &rarr;
           </TransitionLink>
         </div>
       </section>
-
-      {/* TODO: Add footer signature / contact line here */}
-      {/* TODO: Consider a custom cursor for the grid hover states */}
-      {/* TODO: favicon — update /app/favicon.ico with a custom mark */}
     </main>
   );
 }

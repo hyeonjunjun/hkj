@@ -6,6 +6,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import GlobalNav from "@/components/GlobalNav";
 import PageTransition from "@/components/PageTransition";
 import Preloader from "@/components/Preloader";
+import Footer from "@/components/Footer";
 
 /* ── Fonts ── */
 
@@ -84,7 +85,10 @@ export default function RootLayout({
         {/* Grain overlay */}
         <div className="noise-grain" />
 
-        <SmoothScroll>{children}</SmoothScroll>
+        <SmoothScroll>
+          {children}
+          <Footer />
+        </SmoothScroll>
       </body>
     </html>
   );

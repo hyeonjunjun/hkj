@@ -1,3 +1,0 @@
-{
-  "list": "shake/syn\",D=\"comlink/handshake/syn-ack\",M=\"comlink/handshake/ack\",N=()=>(0,c.mj)({types:{},actors:{listen:(0,u.OX)(({input:t})=>{let e,s=t.signal?(0,f.R)(t.signal,\"abort\").pipe((e=`Request ${t.requestId} aborted`,t=>t.pipe((0,w.s)(1),(0,y.T)(()=>{throw Error(e)})))):k.w;return(0,f.R)(window,\"messag"
-}

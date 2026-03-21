@@ -2,31 +2,18 @@
 
 import { useRef, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
-/**
- * About Page — Atomic system (10px mono chrome / 15px sans body)
- * No ← Back, no Contact/Colophon components — all inline, consistent.
- */
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const reveals = containerRef.current.querySelectorAll("[data-reveal]");
-    gsap.fromTo(
-      reveals,
-      { opacity: 0, y: 6 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.06,
-        ease: "power3.out",
-        delay: 0.15,
-      }
-    );
+    gsap.fromTo(reveals, REVEAL_CONTENT.from, { ...REVEAL_CONTENT.to });
   }, []);
 
   return (
@@ -36,21 +23,15 @@ export default function AboutPage() {
       style={{ backgroundColor: "var(--color-bg)" }}
     >
       <section
-        style={{
-          paddingTop: 96,
-          paddingBottom: 48,
-          paddingLeft: "var(--page-px)",
-          paddingRight: "var(--page-px)",
-        }}
+        className="section-padding"
+        style={{ paddingTop: "var(--page-pt)" }}
       >
         <div style={{ maxWidth: 560 }}>
-          {/* Section label */}
           <span
-            className="font-mono"
+            className="font-mono uppercase"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase" as const,
+              fontSize: "var(--text-micro)",
+              letterSpacing: "var(--tracking-wider)",
               color: "var(--color-text-ghost)",
               display: "block",
               marginBottom: 32,
@@ -60,66 +41,46 @@ export default function AboutPage() {
             About
           </span>
 
-          {/* Body */}
           <p
             className="font-sans"
             style={{
-              fontSize: 15,
-              lineHeight: 1.7,
+              fontSize: "var(--text-body)",
+              lineHeight: "var(--leading-relaxed)",
               color: "var(--color-text)",
               marginBottom: 20,
               maxWidth: "58ch",
-              letterSpacing: "-0.005em",
+              letterSpacing: "var(--tracking-snug)",
             }}
             data-reveal
           >
             HKJ is a one-person design engineering practice based between
-            New York and Seoul. I build products that feel considered &mdash; from
-            system design to pixel-level detail.
+            New York and Seoul. I care about type, motion, and the invisible
+            details that make software feel intentional.
           </p>
 
           <p
             className="font-sans"
             style={{
-              fontSize: 15,
-              lineHeight: 1.7,
+              fontSize: "var(--text-body)",
+              lineHeight: "var(--leading-relaxed)",
               color: "var(--color-text-secondary)",
-              marginBottom: 20,
               maxWidth: "58ch",
-              letterSpacing: "-0.005em",
+              letterSpacing: "var(--tracking-snug)",
             }}
             data-reveal
           >
-            My work sits at the intersection of design craft and deep technical
-            execution. I care about type, motion, and the invisible details that
-            make software feel intentional. Every project is a chance to close
-            the gap between what designers envision and what engineers ship.
+            Previously, I worked on products across mobile, AI, and design
+            systems. I believe the best digital work borrows from the rigor
+            of print and the warmth of physical objects.
           </p>
 
-          <p
-            className="font-sans"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--color-text-secondary)",
-              maxWidth: "58ch",
-              letterSpacing: "-0.005em",
-            }}
-            data-reveal
-          >
-            Previously, I worked on products across mobile, AI, and design systems.
-            I believe the best digital work borrows from the rigor of print and the
-            warmth of physical objects.
-          </p>
-
-          {/* Personal aside */}
           <p
             className="font-mono"
             style={{
-              fontSize: 10,
-              lineHeight: 1.7,
+              fontSize: "var(--text-micro)",
+              lineHeight: "var(--leading-relaxed)",
               color: "var(--color-text-ghost)",
-              letterSpacing: "0.04em",
+              letterSpacing: "var(--tracking-wide)",
               maxWidth: "48ch",
               marginTop: 32,
             }}
@@ -130,74 +91,22 @@ export default function AboutPage() {
             pour-overs that take too long.
           </p>
 
-          {/* Divider */}
           <div
             data-reveal
             style={{
               height: 1,
-              backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
+              backgroundColor: "var(--color-border)",
               marginTop: 40,
               marginBottom: 32,
             }}
           />
 
-          {/* Capabilities */}
           <div data-reveal>
             <span
-              className="font-mono"
+              className="font-mono uppercase"
               style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
-                color: "var(--color-text-ghost)",
-                display: "block",
-                marginBottom: 16,
-              }}
-            >
-              Capabilities
-            </span>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                { category: "Design", tools: "Figma, Type Systems, Motion Design, Editorial Layout" },
-                { category: "Engineering", tools: "React, React Native, Next.js, Three.js, GSAP" },
-                { category: "Infrastructure", tools: "Supabase, Vercel, Local-First, BLE" },
-              ].map((cap) => (
-                <div key={cap.category} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase" as const,
-                      color: "var(--color-text-dim)",
-                    }}
-                  >
-                    {cap.category}
-                  </span>
-                  <span
-                    className="font-sans"
-                    style={{
-                      fontSize: 15,
-                      color: "var(--color-text-secondary)",
-                      lineHeight: 1.6,
-                      letterSpacing: "-0.005em",
-                    }}
-                  >
-                    {cap.tools}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Experience */}
-          <div data-reveal style={{ marginTop: 32 }}>
-            <span
-              className="font-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
+                fontSize: "var(--text-micro)",
+                letterSpacing: "var(--tracking-wider)",
                 color: "var(--color-text-ghost)",
                 display: "block",
                 marginBottom: 16,
@@ -215,7 +124,7 @@ export default function AboutPage() {
                   <span
                     className="font-mono"
                     style={{
-                      fontSize: 10,
+                      fontSize: "var(--text-micro)",
                       color: "var(--color-text-ghost)",
                     }}
                   >
@@ -224,10 +133,10 @@ export default function AboutPage() {
                   <span
                     className="font-sans"
                     style={{
-                      fontSize: 15,
+                      fontSize: "var(--text-body)",
                       color: "var(--color-text-secondary)",
-                      lineHeight: 1.6,
-                      letterSpacing: "-0.005em",
+                      lineHeight: "var(--leading-normal)",
+                      letterSpacing: "var(--tracking-snug)",
                     }}
                   >
                     <span style={{ color: "var(--color-text-dim)" }}>{exp.role}</span> &mdash; {exp.desc}
@@ -237,25 +146,22 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Divider */}
           <div
             data-reveal
             style={{
               height: 1,
-              backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
+              backgroundColor: "var(--color-border)",
               marginTop: 40,
               marginBottom: 32,
             }}
           />
 
-          {/* Contact */}
           <div data-reveal>
             <span
-              className="font-mono"
+              className="font-mono uppercase"
               style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
+                fontSize: "var(--text-micro)",
+                letterSpacing: "var(--tracking-wider)",
                 color: "var(--color-text-ghost)",
                 display: "block",
                 marginBottom: 16,
@@ -265,29 +171,20 @@ export default function AboutPage() {
             </span>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="font-sans"
+              className="font-sans link-dim"
               style={{
-                fontSize: 15,
-                color: "var(--color-text-dim)",
-                textDecoration: "none",
-                transition: "color 0.3s ease",
-                letterSpacing: "-0.005em",
+                fontSize: "var(--text-body)",
+                letterSpacing: "var(--tracking-snug)",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--color-text)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--color-text-dim)")
-              }
             >
               {CONTACT_EMAIL}
             </a>
             <p
               className="font-mono"
               style={{
-                fontSize: 10,
+                fontSize: "var(--text-micro)",
                 color: "var(--color-text-ghost)",
-                letterSpacing: "0.04em",
+                letterSpacing: "var(--tracking-wide)",
                 marginTop: 8,
               }}
             >
@@ -295,14 +192,12 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* See also */}
           <div data-reveal style={{ marginTop: 24 }}>
             <span
-              className="font-mono"
+              className="font-mono uppercase"
               style={{
-                fontSize: 10,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase" as const,
+                fontSize: "var(--text-micro)",
+                letterSpacing: "var(--tracking-wider)",
                 color: "var(--color-text-ghost)",
                 marginRight: 16,
               }}
@@ -315,21 +210,11 @@ export default function AboutPage() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono"
+                  className="font-mono uppercase link-dim"
                   style={{
-                    fontSize: 10,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase" as const,
-                    color: "var(--color-text-dim)",
-                    textDecoration: "none",
-                    transition: "color 0.3s ease",
+                    fontSize: "var(--text-micro)",
+                    letterSpacing: "var(--tracking-wider)",
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "var(--color-text)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "var(--color-text-dim)")
-                  }
                 >
                   {link.label}
                 </a>
@@ -337,7 +222,7 @@ export default function AboutPage() {
                   <span
                     className="font-mono"
                     style={{
-                      fontSize: 10,
+                      fontSize: "var(--text-micro)",
                       color: "var(--color-text-ghost)",
                       margin: "0 8px",
                     }}
@@ -347,27 +232,6 @@ export default function AboutPage() {
                 )}
               </span>
             ))}
-          </div>
-
-          {/* Colophon */}
-          <div
-            data-reveal
-            style={{
-              marginTop: 64,
-              paddingTop: 24,
-              borderTop: "1px solid rgba(var(--color-text-rgb), 0.06)",
-            }}
-          >
-            <span
-              className="font-mono"
-              style={{
-                fontSize: 10,
-                color: "var(--color-text-ghost)",
-                letterSpacing: "0.04em",
-              }}
-            >
-              Designed & built by HKJ · Set in GT Alpina & Söhne · © 2026
-            </span>
           </div>
         </div>
       </section>

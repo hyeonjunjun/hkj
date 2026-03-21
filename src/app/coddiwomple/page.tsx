@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import Image from "next/image";
 import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_MEDIA } from "@/lib/animations";
 import { EXPLORATIONS } from "@/constants/explorations";
 
 export default function CoddiwomplePage() {
@@ -11,19 +12,10 @@ export default function CoddiwomplePage() {
 
   useEffect(() => {
     if (!gridRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const items = gridRef.current.querySelectorAll("[data-explore-item]");
-    gsap.fromTo(
-      items,
-      { autoAlpha: 0, y: 40 },
-      {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.08,
-      }
-    );
+    gsap.fromTo(items, REVEAL_MEDIA.from, { ...REVEAL_MEDIA.to });
   }, []);
 
   return (
@@ -31,7 +23,7 @@ export default function CoddiwomplePage() {
       style={{
         minHeight: "100vh",
         backgroundColor: "var(--color-bg)",
-        paddingTop: "clamp(6rem, 12vh, 10rem)",
+        paddingTop: "var(--page-pt)",
         paddingBottom: "var(--section-py)",
       }}
     >

@@ -3,6 +3,7 @@
 import { use, useRef, useEffect } from "react";
 import TransitionLink from "@/components/TransitionLink";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { JOURNAL_ENTRIES } from "@/constants/journal";
 
 /** Only entries with a body can have detail pages */
@@ -25,19 +26,10 @@ export default function JournalEntryPage({
 
   useEffect(() => {
     if (!contentRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const items = contentRef.current.querySelectorAll("[data-reveal]");
-    gsap.fromTo(
-      items,
-      { opacity: 0, y: 16 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.06,
-      }
-    );
+    gsap.fromTo(items, REVEAL_CONTENT.from, { ...REVEAL_CONTENT.to });
   }, [slug]);
 
   if (!entry || !entry.body) {
@@ -58,14 +50,14 @@ export default function JournalEntryPage({
       style={{
         minHeight: "100vh",
         backgroundColor: "var(--color-bg)",
-        paddingTop: "clamp(6rem, 12vh, 10rem)",
+        paddingTop: "var(--page-pt)",
         paddingBottom: "var(--section-py)",
       }}
     >
       <div
         ref={contentRef}
         className="section-padding"
-        style={{ maxWidth: "640px" }}
+        style={{ maxWidth: "var(--content-max)" }}
       >
         {/* Back link */}
         <TransitionLink

@@ -42,14 +42,47 @@
   --color-text-rgb: 26, 25, 23;
   --color-text-secondary: #5C5A56;
   --color-text-dim: #8A8780;
-  --color-text-ghost: #B8B4AD;
+  --color-text-ghost: #9E9A93;
   --color-accent: #5E84A0;
   --color-warm: #B89A78;
+  --color-warm-muted: rgba(184, 154, 120, 0.15);
+
+  /* ── Easing ── */
+  --ease-cinematic: cubic-bezier(0.86, 0, 0.07, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-micro: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Duration ── */
+  --duration-micro: 200ms;
+  --duration-fast: 300ms;
+  --duration-normal: 600ms;
+  --duration-reveal: 700ms;
+
+  /* ── Letter Spacing ── */
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.005em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.1em;
+
+  /* ── Line Height ── */
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.7;
+
+  /* ── Shadow ── */
+  --shadow-sm: 0 1px 2px rgba(var(--ink), 0.04), 0 1px 3px rgba(var(--ink), 0.03);
+  --shadow-md: 0 2px 8px rgba(var(--ink), 0.05), 0 1px 3px rgba(var(--ink), 0.04);
+  --shadow-hover: 0 8px 24px rgba(var(--ink), 0.08), 0 2px 8px rgba(var(--ink), 0.04);
 
   /* ── Spacing ── */
   --page-px: clamp(1.5rem, 5vw, 5rem);
+  --page-pt: clamp(6rem, 12vh, 10rem);
+  --page-pt-home: clamp(5rem, 10vh, 8rem);
   --section-py: clamp(8rem, 16vh, 14rem);
   --row-py: clamp(2.5rem, 5.5vh, 5rem);
+  --content-max: 640px;
 
   /* ── vw Column Grid ── */
   --grid-gutter: 0.56vw;  /* Desktop default */
@@ -132,6 +165,40 @@ body {
   .span-w-12 { width: 95.73vw; }
   .span-ml-1 { margin-left: 14.18vw; }
   .span-ml-2 { margin-left: 32.62vw; }
+}
+
+/* ── Card Hover ── */
+
+[data-project-card] article {
+  transition:
+    transform var(--duration-fast) var(--ease-out-expo),
+    box-shadow var(--duration-fast) var(--ease-out-expo);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-project-card]:hover article {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+[data-project-card] .card-image {
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+[data-project-card]:hover .card-image {
+  transform: scale(1.03);
+}
+
+/* ── Link Utility ── */
+
+.link-dim {
+  color: var(--color-text-dim);
+  text-decoration: none;
+  transition: color var(--duration-micro) var(--ease-micro);
+}
+
+.link-dim:hover {
+  color: var(--color-text);
 }
 
 /* ── Grain Overlay ── */
