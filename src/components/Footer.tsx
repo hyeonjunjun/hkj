@@ -1,133 +1,60 @@
-"use client";
-
-import { useRef, useEffect } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
+import Link from "next/link";
+import { NAV_LINKS } from "@/constants/navigation";
 
 export default function Footer() {
-  const footerRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (!footerRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    ScrollTrigger.create({
-      trigger: footerRef.current,
-      start: "top 92%",
-      once: true,
-      onEnter: () => {
-        const els = footerRef.current!.querySelectorAll("[data-footer-el]");
-        gsap.fromTo(
-          els,
-          { opacity: 0, y: 8 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            stagger: 0.06,
-            ease: "expo.out",
-          }
-        );
-      },
-    });
-  }, []);
-
   return (
     <footer
-      ref={footerRef}
-      className="section-padding"
       style={{
-        borderTop: "1px solid var(--color-border)",
-        paddingTop: "clamp(2rem, 4vh, 3rem)",
-        paddingBottom: "clamp(2rem, 4vh, 3rem)",
-        marginTop: "var(--section-py)",
+        borderTop: "1px solid rgba(var(--ink-rgb), 0.08)",
+        maxWidth: "var(--max-text)",
+        margin: "0 auto",
+        paddingLeft: "var(--page-px)",
+        paddingRight: "var(--page-px)",
+        paddingTop: "var(--space-breath)",
+        paddingBottom: "var(--space-breath)",
       }}
     >
-      {/* Row 1: Contact + Social */}
-      <div
-        data-footer-el
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <div
-          style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
-        >
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="font-mono uppercase link-dim"
+      {/* Row 1: Nav links */}
+      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+        {NAV_LINKS.map((link) => (
+          <Link
+            key={link.label}
+            href={link.href}
+            className="font-mono hover-step"
             style={{
-              fontSize: "var(--text-micro)",
-              letterSpacing: "var(--tracking-wider)",
+              fontSize: "var(--text-meta)",
+              letterSpacing: "var(--tracking-label)",
+              textTransform: "uppercase",
+              color: "var(--ink-muted)",
+              textDecoration: "none",
             }}
           >
-            {CONTACT_EMAIL}
-          </a>
-          <span
-            style={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              backgroundColor: "var(--color-warm)",
-              flexShrink: 0,
-            }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: "1.5rem" }}>
-          {SOCIALS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono uppercase link-dim"
-              style={{
-                fontSize: "var(--text-micro)",
-                letterSpacing: "var(--tracking-wider)",
-              }}
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
+            {link.label}
+          </Link>
+        ))}
       </div>
 
-      {/* Row 2: Colophon */}
-      <div
-        data-footer-el
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: "1.5rem",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-        }}
-      >
+      {/* Row 2: Copyright + Version */}
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
         <span
           className="font-mono"
           style={{
-            fontSize: "var(--text-micro)",
-            color: "var(--color-text-ghost)",
-            letterSpacing: "var(--tracking-wide)",
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            color: "var(--ink-muted)",
           }}
         >
-          Designed &amp; built by HKJ
+          &copy; {new Date().getFullYear()} HKJ
         </span>
         <span
           className="font-mono"
           style={{
-            fontSize: "var(--text-micro)",
-            color: "var(--color-text-ghost)",
-            letterSpacing: "var(--tracking-wide)",
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            color: "var(--ink-muted)",
           }}
         >
-          Set in GT Alpina &amp; S&ouml;hne &middot; &copy;{" "}
-          {new Date().getFullYear()}
+          v0.1.0
         </span>
       </div>
     </footer>
