@@ -1,40 +1,35 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
 import GlobalNav from "@/components/GlobalNav";
-import PageTransition from "@/components/PageTransition";
-import Preloader from "@/components/Preloader";
 import Footer from "@/components/Footer";
+import SmoothScroll from "@/components/SmoothScroll";
+import RouteAnnouncer from "@/components/RouteAnnouncer";
 
 /* ── Fonts ── */
 
-const gtAlpina = localFont({
-  src: [
-    { path: "../fonts/gt-alpina/GT-Alpina-Standard-Light-Trial.otf", weight: "300", style: "normal" },
-    { path: "../fonts/gt-alpina/GT-Alpina-Standard-Regular-Trial.otf", weight: "400", style: "normal" },
-    { path: "../fonts/gt-alpina/GT-Alpina-Standard-Regular-Italic-Trial.otf", weight: "400", style: "italic" },
-    { path: "../fonts/gt-alpina/GT-Alpina-Standard-Medium-Trial.otf", weight: "500", style: "normal" },
-  ],
+const newsreader = localFont({
+  src: "../fonts/newsreader/Newsreader-Variable.woff2",
   variable: "--font-display",
+  weight: "300 800",
   display: "swap",
+  preload: true,
 });
 
-const sohne = localFont({
-  src: [
-    { path: "../fonts/sohne/TestSohne-Leicht-BF663d89cd4952e.otf", weight: "300", style: "normal" },
-    { path: "../fonts/sohne/TestSohne-Buch-BF663d89cd32e6a.otf", weight: "400", style: "normal" },
-    { path: "../fonts/sohne/TestSohne-Kraftig-BF663d89cd37e26.otf", weight: "500", style: "normal" },
-  ],
-  variable: "--font-sans",
+const satoshi = localFont({
+  src: "../fonts/satoshi/Satoshi-Variable.woff2",
+  variable: "--font-body",
+  weight: "300 700",
   display: "swap",
+  preload: true,
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const fragmentMono = localFont({
+  src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
   variable: "--font-mono",
+  weight: "400",
   display: "swap",
+  preload: true,
 });
 
 /* ── Metadata ── */
@@ -42,13 +37,13 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
   title: {
-    default: "HKJ — Ryan Jun",
-    template: "%s | HKJ",
+    default: "HKJ",
+    template: "%s — HKJ",
   },
   description:
-    "Design engineering at the intersection of high-fidelity craft and deep systems thinking. Specializing in React Native, Next.js, and design systems.",
+    "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
   openGraph: {
-    title: "HKJ — Ryan Jun",
+    title: "HKJ",
     description:
       "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
     url: "https://hkjstudio.com",
@@ -58,7 +53,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "HKJ — Ryan Jun",
+    title: "HKJ",
     description:
       "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
     creator: "@hyeonjunjun",
@@ -75,18 +70,44 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${gtAlpina.variable} ${sohne.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${newsreader.variable} ${satoshi.variable} ${fragmentMono.variable}`}
         suppressHydrationWarning
       >
-        <Preloader />
+        {/* SVG grain filter — referenced by .grain-overlay and [data-cover] */}
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+        >
+          <defs>
+            <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.65"
+                numOctaves={4}
+                stitchTiles="stitch"
+                result="noise"
+              />
+              <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
+              <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" />
+            </filter>
+          </defs>
+        </svg>
+
+        {/* Accessibility */}
+        <a href="#main" className="skip-to-content">
+          Skip to content
+        </a>
+        <RouteAnnouncer />
+
+        {/* Chrome */}
         <GlobalNav />
-        <PageTransition />
 
-        {/* Grain overlay */}
-        <div className="noise-grain" />
-
+        {/* Content */}
         <SmoothScroll>
-          {children}
+          <main id="main">
+            {children}
+          </main>
           <Footer />
         </SmoothScroll>
       </body>
