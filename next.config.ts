@@ -7,13 +7,15 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       // Legacy routes → home
-      { source: "/works",               destination: "/", permanent: true },
-      { source: "/explore",             destination: "/", permanent: true },
-      { source: "/explore/:slug",       destination: "/", permanent: true },
-      { source: "/coddiwomple",         destination: "/", permanent: true },
-      { source: "/coddiwomple/:slug",   destination: "/", permanent: true },
-      { source: "/journal",             destination: "/", permanent: true },
-      { source: "/journal/:slug",       destination: "/", permanent: true },
+      { source: "/works",               destination: "/",            permanent: true },
+      { source: "/explore",             destination: "/exploration", permanent: true },
+      { source: "/explore/:slug",       destination: "/exploration", permanent: true },
+      { source: "/coddiwomple",         destination: "/exploration", permanent: true },
+      { source: "/coddiwomple/:slug",   destination: "/exploration", permanent: true },
+      { source: "/experiments",         destination: "/exploration", permanent: true },
+      { source: "/experiments/:slug",   destination: "/exploration", permanent: true },
+      { source: "/journal",             destination: "/",            permanent: true },
+      { source: "/journal/:slug",       destination: "/",            permanent: true },
     ];
   },
 };

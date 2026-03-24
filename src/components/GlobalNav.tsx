@@ -39,13 +39,15 @@ export default function GlobalNav() {
         <Link
           href="/"
           style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "var(--text-nav)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            textTransform: "uppercase",
             color: "var(--ink-full)",
             textDecoration: "none",
           }}
         >
-          HKJ
+          hkj
         </Link>
 
         {/* Desktop nav */}
@@ -57,17 +59,19 @@ export default function GlobalNav() {
                 key={link.label}
                 href={link.href}
                 style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "var(--text-nav)",
-                  color: active ? "var(--ink-primary)" : "var(--ink-secondary)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--text-meta)",
+                  letterSpacing: "var(--tracking-label)",
+                  textTransform: "uppercase",
+                  color: active ? "var(--ink-full)" : "var(--ink-muted)",
                   textDecoration: "none",
                   transition: "color var(--duration-hover) var(--ease-hover)",
                 }}
                 onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.color = "var(--ink-primary)";
+                  if (!active) e.currentTarget.style.color = "var(--ink-secondary)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.color = "var(--ink-secondary)";
+                  if (!active) e.currentTarget.style.color = "var(--ink-muted)";
                 }}
               >
                 {link.label}
@@ -81,9 +85,11 @@ export default function GlobalNav() {
           className="mobile-menu-trigger"
           onClick={() => setMobileMenuOpen(true)}
           style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "var(--text-nav)",
-            color: "var(--ink-secondary)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            textTransform: "uppercase",
+            color: "var(--ink-muted)",
             background: "none",
             border: "none",
             cursor: "pointer",
