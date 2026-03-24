@@ -1,25 +1,26 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
 import { CASE_STUDIES } from "@/constants/case-studies";
-import { useScrollNavigate } from "@/hooks/useScrollNavigate";
-import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
 
 export default function CaseStudy() {
   const { slug } = useParams();
-  const navigate = useTransitionNavigate();
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollPercent, setScrollPercent] = useState(0);
 
   const project = PROJECTS.find((p) => p.id === slug || p.slug === slug);
   const caseStudy = CASE_STUDIES[slug as string];
-  const { progress, direction, nextProject, prevProject } =
-    useScrollNavigate({ currentSlug: slug as string });
+  const slugStr = slug as string;
+  const allSlugs = PROJECTS.map((p) => p.slug);
+  const currentIdx = allSlugs.indexOf(slugStr);
+  const prevProject = currentIdx > 0 ? PROJECTS[currentIdx - 1] : null;
+  const nextProject = currentIdx < PROJECTS.length - 1 ? PROJECTS[currentIdx + 1] : null;
 
   // Scroll progress indicator
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function CaseStudy() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        navigate("/");
+        router.push("/");
         return;
       }
 
@@ -146,7 +147,7 @@ export default function CaseStudy() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigate]);
+  }, [router]);
 
   if (!project) {
     return (
@@ -739,48 +740,6 @@ export default function CaseStudy() {
           {scrollPercent} %
         </span>
       </div>
-
-      {/* ── Scroll-to-navigate progress bar ── */}
-      {progress > 0 && direction && (
-        <div
-          className="fixed left-0 right-0 flex items-center justify-center"
-          style={{
-            [direction === "next" ? "bottom" : "top"]: "2rem",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              style={{
-                width: 120,
-                height: 2,
-                backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${progress}%`,
-                  height: "100%",
-                  backgroundColor: "var(--color-text-dim)",
-                  transition: "width 100ms linear",
-                }}
-              />
-            </div>
-            <span
-              className="font-mono uppercase"
-              style={{
-                fontSize: 10,
-                color: "var(--color-text-ghost)",
-              }}
-            >
-              {direction === "next"
-                ? nextProject?.title
-                : prevProject?.title}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* ── Mobile nav buttons (< 768px) ── */}
       <div
