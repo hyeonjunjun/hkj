@@ -1,323 +1,143 @@
-"use client";
-
-import { useRef, useEffect } from "react";
-import Link from "next/link";
-import { gsap } from "@/lib/gsap";
-import { REVEAL_MEDIA } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
-
-/* ── Only show shipped projects ── */
-const visibleProjects = PROJECTS.filter((p) => p.status === "shipped");
+import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
+import { Cover } from "@/components/Cover";
 
 export default function Home() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    /* ── Hero: word-by-word stagger with clip mask ── */
-    if (heroRef.current) {
-      const words = heroRef.current.querySelectorAll("[data-word]");
-      gsap.fromTo(
-        words,
-        { yPercent: 100, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.04,
-          ease: "expo.out",
-          delay: 0.2,
-        }
-      );
-
-      const rest = heroRef.current.querySelectorAll("[data-hero-el]");
-      gsap.fromTo(
-        rest,
-        { opacity: 0, y: 14 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: "expo.out",
-          delay: 0.5,
-        }
-      );
-    }
-
-    /* ── Grid: stagger reveal ── */
-    if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll("[data-project-card]");
-      gsap.fromTo(cards, REVEAL_MEDIA.from, { ...REVEAL_MEDIA.to });
-    }
-  }, []);
-
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        paddingTop: "var(--page-pt-home)",
-        paddingBottom: "var(--row-py)",
-      }}
-    >
-      {/* ── Hero ── */}
-      <header
-        ref={heroRef}
-        className="section-padding"
-        style={{
-          marginBottom: "clamp(4rem, 8vh, 7rem)",
-        }}
+    <div className="page-container">
+
+      {/* ── Identity ── */}
+      <section
+        className="section text-column"
+        style={{ marginTop: "var(--space-breath)" }}
       >
         <h1
-          className="font-display italic"
+          className="font-display ink-full"
           style={{
-            fontSize: "clamp(2.2rem, 4vw, 3.6rem)",
+            fontSize: "var(--text-name)",
+            lineHeight: "var(--leading-display)",
             fontWeight: 400,
-            color: "var(--color-text)",
-            lineHeight: "var(--leading-tight)",
-            letterSpacing: "var(--tracking-tight)",
-            maxWidth: "18ch",
+            marginBottom: "var(--space-compact)",
           }}
         >
-          {"Design engineering practice".split(" ").map((word, i) => (
-            <span
-              key={i}
-              style={{
-                display: "inline-block",
-                overflow: "hidden",
-                verticalAlign: "top",
-                paddingBottom: "0.05em",
-              }}
-            >
-              <span
-                data-word
-                style={{ display: "inline-block", opacity: 0 }}
-              >
-                {word}
-              </span>
-              {i < 2 && "\u00A0"}
-            </span>
-          ))}
+          Hyeon Jun
         </h1>
         <p
-          data-hero-el
-          className="font-sans"
+          className="font-body ink-secondary"
+          style={{
+            fontSize: "var(--text-nav)",
+            letterSpacing: "var(--tracking-label)",
+            textTransform: "uppercase",
+            marginBottom: "var(--space-comfortable)",
+          }}
+        >
+          Design Engineer
+        </p>
+        <p
+          className="ink-primary"
           style={{
             fontSize: "var(--text-body)",
-            color: "var(--color-text-secondary)",
-            marginTop: "clamp(1rem, 2vh, 1.5rem)",
-            letterSpacing: "var(--tracking-snug)",
-            lineHeight: "var(--leading-relaxed)",
-            maxWidth: "38ch",
-            opacity: 0,
+            lineHeight: "var(--leading-body)",
+            maxWidth: "var(--max-text)",
           }}
         >
-          Building products that feel considered — from system
-          design to pixel-level detail.
+          I design and build digital products where craft and systems thinking
+          meet — translating ideas from first sketch through shipped code. My
+          work lives at the intersection of interaction design, typography, and
+          engineering detail.
         </p>
+      </section>
 
-        <div
-          data-hero-el
-          style={{
-            display: "flex",
-            gap: "1.5rem",
-            alignItems: "center",
-            marginTop: "clamp(1.5rem, 3vh, 2.5rem)",
-            opacity: 0,
-          }}
-        >
-          <span
-            className="font-mono uppercase"
-            style={{
-              fontSize: "var(--text-micro)",
-              letterSpacing: "var(--tracking-wider)",
-              color: "var(--color-text-dim)",
-            }}
-          >
-            New York
-          </span>
-          <span
-            style={{
-              width: 3,
-              height: 3,
-              borderRadius: "50%",
-              backgroundColor: "var(--color-warm)",
-              flexShrink: 0,
-            }}
-          />
-          <span
-            className="font-mono uppercase"
-            style={{
-              fontSize: "var(--text-micro)",
-              letterSpacing: "var(--tracking-wider)",
-              color: "var(--color-text-dim)",
-            }}
-          >
-            Available for select projects
-          </span>
-        </div>
-      </header>
-
-      {/* ── Selected Work label ── */}
-      <div
-        id="work"
-        className="section-padding"
-        style={{ marginBottom: "clamp(1.5rem, 3vh, 2.5rem)" }}
-      >
-        <span
-          data-hero-el
-          className="font-mono uppercase"
-          style={{
-            fontSize: "var(--text-micro)",
-            letterSpacing: "var(--tracking-wider)",
-            color: "var(--color-text-ghost)",
-          }}
-        >
-          Selected Work
-        </span>
-      </div>
-
-      {/* ── Project Grid ── */}
-      <div
-        ref={gridRef}
-        className="section-padding"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
-          gap: "clamp(1.5rem, 3vw, 2.5rem)",
-        }}
-      >
-        {visibleProjects.map((project) => (
-          <Link
-            key={project.id}
-            href={`/work/${project.slug}`}
-            data-project-card
-            style={{ visibility: "hidden", display: "block", textDecoration: "none" }}
-          >
-            <article
-              style={{
-                backgroundColor: "var(--color-surface)",
-                borderRadius: "4px",
-                overflow: "hidden",
-              }}
-            >
-              {/* Cover swatch */}
-              <div
-                className="card-image"
-                style={{
-                  aspectRatio: "16/10",
-                  position: "relative",
-                  backgroundColor: project.cover.bg,
-                  overflow: "hidden",
-                }}
-              />
-
-              {/* Card meta */}
-              <div style={{ padding: "1rem 1.25rem 1.25rem" }}>
-                <div
-                  className="flex items-center justify-between"
-                  style={{ marginBottom: "0.25rem" }}
-                >
-                  <span
-                    className="font-mono uppercase"
-                    style={{
-                      fontSize: "var(--text-micro)",
-                      letterSpacing: "var(--tracking-wider)",
-                      color: "var(--color-text-dim)",
-                    }}
-                  >
-                    {project.sector}
-                  </span>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: "var(--text-micro)",
-                      color: "var(--color-text-dim)",
-                    }}
-                  >
-                    {project.year}
-                  </span>
-                </div>
-                <h2
-                  className="font-display"
-                  style={{
-                    fontSize: "var(--text-h3)",
-                    color: "var(--color-text)",
-                    lineHeight: "var(--leading-snug)",
-                  }}
-                >
-                  {project.title}
-                </h2>
-                <p
-                  style={{
-                    fontSize: "var(--text-small)",
-                    color: "var(--color-text-secondary)",
-                    marginTop: "0.35rem",
-                    lineHeight: 1.5,
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {project.description}
-                </p>
-              </div>
-            </article>
-          </Link>
-        ))}
-      </div>
-
-      {/* ── Coddiwomple Teaser ── */}
+      {/* ── Work ── */}
       <section
-        className="section-padding"
-        style={{
-          marginTop: "clamp(4rem, 10vh, 8rem)",
-          paddingTop: "2rem",
-          borderTop: "1px solid var(--color-border)",
-        }}
+        id="work"
+        className="section"
+        style={{ maxWidth: "var(--max-cover)" }}
       >
-        <div className="flex items-end justify-between" style={{ flexWrap: "wrap", gap: "0.5rem" }}>
-          <div>
-            <h2
-              className="font-display italic"
-              style={{
-                fontSize: "var(--text-h2)",
-                color: "var(--color-text)",
-                lineHeight: "var(--leading-tight)",
-              }}
-            >
-              Coddiwomple
-            </h2>
-            <p
-              style={{
-                fontSize: "var(--text-body)",
-                color: "var(--color-text-secondary)",
-                marginTop: "0.4rem",
-                maxWidth: "38ch",
-              }}
-            >
-              Visual studies, material research, and things that caught the
-              light.
-            </p>
-          </div>
-          <Link
-            href="/coddiwomple"
-            className="font-mono uppercase link-dim"
-            style={{
-              fontSize: "var(--text-micro)",
-              letterSpacing: "var(--tracking-wider)",
-              flexShrink: 0,
-              marginLeft: "2rem",
-              textDecoration: "none",
-            }}
-          >
-            View all &rarr;
-          </Link>
+        <p
+          className="section-label font-mono ink-muted"
+          style={{ marginBottom: "var(--space-comfortable)" }}
+        >
+          Work
+        </p>
+        <div className="cover-grid">
+          {PROJECTS.map((project, i) => (
+            <Cover key={project.id} project={project} index={i} />
+          ))}
         </div>
       </section>
-    </main>
+
+      {/* ── Now ── */}
+      <section className="section text-column">
+        <p
+          className="section-label font-mono ink-muted"
+          style={{ marginBottom: "var(--space-comfortable)" }}
+        >
+          Now
+        </p>
+        <p
+          className="ink-primary"
+          style={{
+            fontSize: "var(--text-body)",
+            lineHeight: "var(--leading-body)",
+          }}
+        >
+          Currently finishing up Conductor — a design system built to scale
+          across surfaces — while exploring new directions in material
+          typography. Based in New York, available for select projects starting
+          mid-2026.
+        </p>
+      </section>
+
+      {/* ── Contact ── */}
+      <section
+        className="section text-column"
+        style={{ marginBottom: "var(--space-breath)" }}
+      >
+        <p
+          className="section-label font-mono ink-muted"
+          style={{ marginBottom: "var(--space-comfortable)" }}
+        >
+          Contact
+        </p>
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="font-display ink-full hover-step"
+          style={{
+            fontSize: "var(--text-title)",
+            lineHeight: "var(--leading-display)",
+            display: "block",
+            marginBottom: "var(--space-comfortable)",
+          }}
+        >
+          {CONTACT_EMAIL}
+        </a>
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-comfortable)",
+            flexWrap: "wrap",
+          }}
+        >
+          {SOCIALS.map((social) => (
+            <a
+              key={social.label}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono hover-step"
+              style={{
+                fontSize: "var(--text-meta)",
+                letterSpacing: "var(--tracking-label)",
+                textTransform: "uppercase",
+              }}
+            >
+              {social.label}
+            </a>
+          ))}
+        </div>
+      </section>
+
+    </div>
   );
 }

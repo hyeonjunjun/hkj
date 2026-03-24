@@ -219,6 +219,19 @@ body::-webkit-scrollbar {
   mix-blend-mode: multiply;
 }
 
+.grain-overlay--dark {
+  background: #fff;
+  mix-blend-mode: screen;
+  opacity: 0.06;
+}
+
+/* ── Cover card grain overlay (positioned inside cover) ── */
+
+[data-cover] .grain-overlay {
+  position: absolute;
+  z-index: 2;
+}
+
 /* ── Layout Utilities ── */
 
 .page-container {
