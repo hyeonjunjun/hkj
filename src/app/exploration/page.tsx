@@ -58,7 +58,11 @@ export default function ExplorationPage() {
             maxWidth: "40ch",
           }}
         >
-          coddiwomple — to travel purposefully toward an unknown destination.
+          coddiwompling — travelling purposefully toward an unknown destination.
+          <br></br>
+          <br></br>
+
+          a collection of creative explorations.
         </p>
       </div>
 
@@ -112,8 +116,8 @@ export default function ExplorationPage() {
                         "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) =>
-                      ((e.target as HTMLElement).style.transform =
-                        "scale(1.03)")
+                    ((e.target as HTMLElement).style.transform =
+                      "scale(1.03)")
                     }
                     onMouseLeave={(e) =>
                       ((e.target as HTMLElement).style.transform = "scale(1)")
@@ -129,12 +133,12 @@ export default function ExplorationPage() {
                         "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(e) =>
-                      ((e.currentTarget as HTMLElement).style.transform =
-                        "scale(1.03)")
+                    ((e.currentTarget as HTMLElement).style.transform =
+                      "scale(1.03)")
                     }
                     onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLElement).style.transform =
-                        "scale(1)")
+                    ((e.currentTarget as HTMLElement).style.transform =
+                      "scale(1)")
                     }
                   >
                     <Image
