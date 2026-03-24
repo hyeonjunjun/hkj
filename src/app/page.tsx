@@ -208,9 +208,7 @@ export default function Home() {
         </p>
         <div ref={gridRef} className="cover-grid">
           {PROJECTS.map((project, i) => (
-            <div key={project.id} style={{ visibility: "hidden" }}>
-              <Cover project={project} index={i} />
-            </div>
+            <Cover key={project.id} project={project} index={i} />
           ))}
         </div>
       </section>

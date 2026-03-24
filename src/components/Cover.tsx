@@ -18,6 +18,7 @@ export function Cover({ project, index }: { project: Project; index: number }) {
         borderRadius: "6px",
         overflow: "hidden",
         position: "relative",
+        visibility: "hidden",
       }}
     >
       {/* Cover visual — image or color-field fallback */}
