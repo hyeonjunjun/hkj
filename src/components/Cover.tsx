@@ -37,7 +37,11 @@ export function Cover({ project, index }: { project: Project; index: number }) {
             alt={project.title}
             fill
             sizes="(max-width: 768px) 100vw, 900px"
-            style={{ objectFit: "cover" }}
+            style={{
+              objectFit: "cover",
+              transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+            className="cover-image"
             priority={index === 0}
           />
         ) : (

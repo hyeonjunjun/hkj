@@ -4,7 +4,6 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
-import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
 import { Cover } from "@/components/Cover";
 
 export default function Home() {
@@ -86,7 +85,7 @@ export default function Home() {
     }
   }, []);
 
-  const tagline = "Hyeon Jun";
+  const name = "Hyeon Jun";
 
   return (
     <div className="page-container">
@@ -100,6 +99,23 @@ export default function Home() {
           maxWidth: "var(--max-text)",
         }}
       >
+        {/* Role label */}
+        <p
+          data-hero-el
+          className="font-mono"
+          style={{
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            textTransform: "uppercase",
+            color: "var(--ink-muted)",
+            marginBottom: "var(--space-compact)",
+            opacity: 0,
+          }}
+        >
+          Design Engineer
+        </p>
+
+        {/* Name */}
         <h1
           className="font-display"
           style={{
@@ -109,10 +125,9 @@ export default function Home() {
             color: "var(--ink-full)",
             lineHeight: 1.15,
             letterSpacing: "-0.02em",
-            maxWidth: "16ch",
           }}
         >
-          {tagline.split(" ").map((word, i) => (
+          {name.split(" ").map((word, i) => (
             <span
               key={i}
               style={{
@@ -128,26 +143,12 @@ export default function Home() {
               >
                 {word}
               </span>
-              {i < tagline.split(" ").length - 1 && "\u00A0"}
+              {i < name.split(" ").length - 1 && "\u00A0"}
             </span>
           ))}
         </h1>
 
-        <p
-          data-hero-el
-          style={{
-            fontSize: "var(--text-body)",
-            color: "var(--ink-secondary)",
-            marginTop: "var(--space-standard)",
-            lineHeight: "var(--leading-body)",
-            maxWidth: "38ch",
-            opacity: 0,
-          }}
-        >
-          design engineer building interfaces, systems, and the
-          things between them.
-        </p>
-
+        {/* Location · Status */}
         <div
           data-hero-el
           style={{
@@ -222,7 +223,7 @@ export default function Home() {
           style={{
             maxWidth: "var(--max-cover)",
             paddingTop: "var(--space-breath)",
-            paddingBottom: "var(--space-section)",
+            paddingBottom: "var(--space-breath)",
             borderTop: "1px solid rgba(var(--ink-rgb), 0.08)",
             marginTop: "var(--space-breath)",
             opacity: 0,
@@ -302,92 +303,6 @@ export default function Home() {
                 }}
               />
             </div>
-          </div>
-        </section>
-
-        {/* ── Now ── */}
-        <section
-          data-reveal
-          style={{
-            maxWidth: "var(--max-text)",
-            paddingBottom: "var(--space-section)",
-            opacity: 0,
-          }}
-        >
-          <p
-            className="font-mono"
-            style={{
-              fontSize: "var(--text-meta)",
-              letterSpacing: "var(--tracking-label)",
-              textTransform: "uppercase",
-              color: "var(--ink-muted)",
-              marginBottom: "var(--space-standard)",
-            }}
-          >
-            Now
-          </p>
-          <p
-            style={{
-              fontSize: "var(--text-body)",
-              color: "var(--ink-primary)",
-              lineHeight: "var(--leading-body)",
-            }}
-          >
-            finishing conductor, a design system for product surfaces.
-            exploring material typography on the side. open to new work.
-          </p>
-        </section>
-
-        {/* ── Contact ── */}
-        <section
-          data-reveal
-          style={{
-            maxWidth: "var(--max-text)",
-            paddingBottom: "var(--space-breath)",
-            opacity: 0,
-          }}
-        >
-          <p
-            className="font-mono"
-            style={{
-              fontSize: "var(--text-meta)",
-              letterSpacing: "var(--tracking-label)",
-              textTransform: "uppercase",
-              color: "var(--ink-muted)",
-              marginBottom: "var(--space-standard)",
-            }}
-          >
-            Contact
-          </p>
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="font-display hover-step"
-            style={{
-              fontSize: "var(--text-title)",
-              lineHeight: "var(--leading-display)",
-              display: "block",
-              marginBottom: "var(--space-standard)",
-            }}
-          >
-            {CONTACT_EMAIL}
-          </a>
-          <div style={{ display: "flex", gap: "var(--space-comfortable)", flexWrap: "wrap" }}>
-            {SOCIALS.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono hover-step-muted"
-                style={{
-                  fontSize: "var(--text-meta)",
-                  letterSpacing: "var(--tracking-label)",
-                  textTransform: "uppercase",
-                }}
-              >
-                {social.label}
-              </a>
-            ))}
           </div>
         </section>
       </div>

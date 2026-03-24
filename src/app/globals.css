@@ -188,6 +188,10 @@ body::-webkit-scrollbar {
   transform: translateY(-3px);
 }
 
+[data-cover]:hover .cover-image {
+  transform: scale(1.03);
+}
+
 [data-cover]:active {
   transform: scale(0.98);
   transition-duration: var(--duration-press);
