@@ -1,32 +1,11 @@
 import { create } from "zustand";
 
-interface StudioState {
-  /** Whether the initial preloader has played */
-  isLoaded: boolean;
-  setIsLoaded: (v: boolean) => void;
-
-  /** Whether the mobile menu is open */
+interface StudioStore {
   mobileMenuOpen: boolean;
-  setMobileMenuOpen: (v: boolean) => void;
-
-  /** Page transition state */
-  isTransitioning: boolean;
-  pendingRoute: string | null;
-  startTransition: (route: string) => void;
-  endTransition: () => void;
+  setMobileMenuOpen: (open: boolean) => void;
 }
 
-export const useStudioStore = create<StudioState>((set) => ({
-  isLoaded: false,
-  setIsLoaded: (v) => set({ isLoaded: v }),
-
+export const useStudioStore = create<StudioStore>((set) => ({
   mobileMenuOpen: false,
-  setMobileMenuOpen: (v) => set({ mobileMenuOpen: v }),
-
-  isTransitioning: false,
-  pendingRoute: null,
-  startTransition: (route) =>
-    set({ isTransitioning: true, pendingRoute: route }),
-  endTransition: () =>
-    set({ isTransitioning: false, pendingRoute: null }),
+  setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
 }));

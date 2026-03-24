@@ -1,248 +1,216 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
-import { useLenis } from "lenis/react";
-import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
-import { gsap } from "@/lib/gsap";
-import { MENU_LINKS } from "@/constants/navigation";
-import { CONTACT_EMAIL } from "@/constants/contact";
+import { useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NAV_LINKS } from "@/constants/navigation";
+import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
+import { useStudioStore } from "@/lib/store";
 
-interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu() {
+  const isOpen = useStudioStore((s) => s.mobileMenuOpen);
+  const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
+  const pathname = usePathname();
   const overlayRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const navigate = useTransitionNavigate();
-  const lenis = useLenis();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleNavigate = useCallback(
-    (href: string) => {
-      onClose();
-      setTimeout(() => {
-        if (href.startsWith("#")) {
-          const target = document.querySelector(href) as HTMLElement | null;
-          if (target && lenis) {
-            lenis.scrollTo(target, { duration: 1.2 });
-          }
-        } else {
-          navigate(href);
-        }
-      }, 400);
-    },
-    [onClose, navigate, lenis]
-  );
+  const close = useCallback(() => setMobileMenuOpen(false), [setMobileMenuOpen]);
 
+  // Close on route change
   useEffect(() => {
-    const el = overlayRef.current;
-    if (!el) return;
+    close();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Body scroll lock + focus management
+  useEffect(() => {
     if (isOpen) {
-      el.style.display = "flex";
-
-      const tl = gsap.timeline();
-      timelineRef.current = tl;
-
-      tl.fromTo(
-        el,
-        { clipPath: "inset(0 0 100% 0)" },
-        { clipPath: "inset(0 0 0% 0)", duration: 0.5, ease: "power4.inOut" }
-      );
-
-      const items = el.querySelectorAll("[data-menu-item]");
-      tl.fromTo(
-        items,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.06,
-          ease: "power3.out",
-        },
-        "-=0.2"
-      );
-
-      const footer = el.querySelector("[data-menu-footer]");
-      if (footer) {
-        tl.fromTo(
-          footer,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.4, ease: "power3.out" },
-          "-=0.2"
+      document.body.style.overflow = "hidden";
+      // Focus first link after paint
+      const raf = requestAnimationFrame(() => {
+        const first = overlayRef.current?.querySelector<HTMLElement>(
+          'a[href], button:not([disabled])'
         );
-      }
-    } else {
-      if (timelineRef.current) {
-        timelineRef.current.kill();
-      }
-
-      gsap.to(el, {
-        clipPath: "inset(0 0 100% 0)",
-        duration: 0.35,
-        ease: "power4.inOut",
-        onComplete: () => {
-          el.style.display = "none";
-        },
+        first?.focus();
       });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      document.body.style.overflow = "";
     }
   }, [isOpen]);
+
+  // Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [isOpen, close]);
+
+  // Full focus trap (Tab / Shift+Tab)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Tab") return;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    const focusable = Array.from(
+      overlay.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.closest('[aria-hidden="true"]'));
+
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9500] flex-col"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation menu"
+      onKeyDown={handleKeyDown}
       style={{
-        backgroundColor: "var(--color-bg)",
-        display: "none",
-        clipPath: "inset(0 0 100% 0)",
+        position: "fixed",
+        inset: 0,
+        zIndex: 9500,
+        backgroundColor: "var(--paper)",
+        display: "flex",
+        flexDirection: "column",
+        opacity: isOpen ? 1 : 0,
+        pointerEvents: isOpen ? "auto" : "none",
+        transition: "opacity 320ms ease-out",
       }}
     >
-      {/* Top bar — matches GlobalNav: studio mark left, close right */}
+      {/* Top bar — close button */}
       <div
-        className="flex items-center justify-between"
         style={{
           height: 48,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
           padding: "0 var(--page-px)",
         }}
-        data-menu-item
       >
-        <span
-          className="font-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase" as const,
-            color: "var(--color-text-dim)",
-          }}
-        >
-          HKJ Studio
-        </span>
         <button
-          onClick={onClose}
-          className="font-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase" as const,
-            color: "var(--color-text-dim)",
-            lineHeight: 1,
-            transition: "color 0.3s ease",
-          }}
+          ref={closeButtonRef}
+          onClick={close}
           aria-label="Close menu"
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--color-text)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--color-text-dim)")
-          }
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-nav)",
+            color: "var(--ink-secondary)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+            height: 48,
+            display: "flex",
+            alignItems: "center",
+            transition: "color var(--duration-hover) var(--ease-hover)",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-primary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
         >
           Close
         </button>
       </div>
 
-      {/* Links */}
+      {/* Nav links */}
       <nav
-        className="flex-1 flex flex-col justify-center"
-        style={{ padding: "0 var(--page-px)" }}
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "0 var(--page-px)",
+          gap: 24,
+        }}
       >
-        {MENU_LINKS.map((link, i) => (
-          <button
-            key={link.label}
-            onClick={() => handleNavigate(link.href)}
-            data-menu-item
-            aria-label={`Navigate to ${link.label}`}
-            className="text-left group"
-            style={{
-              paddingTop: "clamp(1.25rem, 3vh, 2rem)",
-              paddingBottom: "clamp(1.25rem, 3vh, 2rem)",
-              borderBottom:
-                i < MENU_LINKS.length - 1
-                  ? "1px solid rgba(var(--color-text-rgb), 0.06)"
-                  : "none",
-            }}
-          >
-            <div className="flex items-baseline gap-5">
-              <span
-                className="font-mono"
-                style={{
-                  fontSize: 10,
-                  color: "var(--color-text-ghost)",
-                  letterSpacing: "0.1em",
-                  minWidth: "2ch",
-                }}
-              >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span
-                className="font-display group-hover:text-[var(--color-text)] transition-colors duration-300"
-                style={{
-                  fontSize: "clamp(1.6rem, 5vw, 2.4rem)",
-                  color: "var(--color-text-secondary)",
-                  lineHeight: 1.15,
-                  fontWeight: 300,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                {link.label}
-              </span>
-            </div>
-          </button>
-        ))}
+        {NAV_LINKS.map((link) => {
+          const active =
+            link.href === "/#work"
+              ? pathname === "/"
+              : pathname === link.href || pathname.startsWith(link.href + "/");
+          return (
+            <Link
+              key={link.label}
+              href={link.href}
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(22px, 5vw, 28px)",
+                color: active ? "var(--ink-full)" : "var(--ink-primary)",
+                textDecoration: "none",
+                lineHeight: "var(--leading-display)",
+              }}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Divider */}
+      {/* Bottom contact row */}
       <div
         style={{
-          margin: "0 var(--page-px)",
-          height: 1,
-          backgroundColor: "rgba(var(--color-text-rgb), 0.06)",
+          padding: "var(--space-standard) var(--page-px)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-comfortable)",
+          flexWrap: "wrap",
         }}
-      />
-
-      {/* Footer */}
-      <div
-        className="flex items-center justify-between"
-        style={{
-          height: 48,
-          padding: "0 var(--page-px)",
-        }}
-        data-menu-footer
       >
         <a
           href={`mailto:${CONTACT_EMAIL}`}
-          className="font-mono"
           style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase" as const,
-            color: "var(--color-text-ghost)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--text-meta)",
+            color: "var(--ink-muted)",
             textDecoration: "none",
-            transition: "color 0.3s ease",
+            transition: "color var(--duration-hover) var(--ease-hover)",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "var(--color-text-dim)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "var(--color-text-ghost)")
-          }
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-muted)")}
         >
           {CONTACT_EMAIL}
         </a>
-        <span
-          className="font-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase" as const,
-            color: "var(--color-text-ghost)",
-          }}
-        >
-          Available
-        </span>
+        {SOCIALS.map((s) => (
+          <a
+            key={s.label}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--text-meta)",
+              color: "var(--ink-muted)",
+              textDecoration: "none",
+              transition: "color var(--duration-hover) var(--ease-hover)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-muted)")}
+          >
+            {s.label}
+          </a>
+        ))}
       </div>
     </div>
   );
 }
+
+export default MobileMenu;

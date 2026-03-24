@@ -1,17 +1,13 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import Image from "next/image";
-import TransitionLink from "@/components/TransitionLink";
+import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { REVEAL_MEDIA } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
 
-/* ── Only show projects with real images and case study content ── */
-const READY_IDS = new Set(["gyeol", "sift"]);
-const visibleProjects = PROJECTS.filter(
-  (p) => !p.wip && READY_IDS.has(p.id)
-);
+/* ── Only show shipped projects ── */
+const visibleProjects = PROJECTS.filter((p) => p.status === "shipped");
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -166,6 +162,7 @@ export default function Home() {
 
       {/* ── Selected Work label ── */}
       <div
+        id="work"
         className="section-padding"
         style={{ marginBottom: "clamp(1.5rem, 3vh, 2.5rem)" }}
       >
@@ -193,11 +190,11 @@ export default function Home() {
         }}
       >
         {visibleProjects.map((project) => (
-          <TransitionLink
+          <Link
             key={project.id}
-            href={`/work/${project.id}`}
+            href={`/work/${project.slug}`}
             data-project-card
-            style={{ visibility: "hidden", display: "block" }}
+            style={{ visibility: "hidden", display: "block", textDecoration: "none" }}
           >
             <article
               style={{
@@ -206,29 +203,16 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              {/* Cover image */}
+              {/* Cover swatch */}
               <div
                 className="card-image"
                 style={{
-                  aspectRatio:
-                    project.cardFormat === "portrait" ? "3/4" : "16/10",
+                  aspectRatio: "16/10",
                   position: "relative",
-                  backgroundColor:
-                    project.cover?.bg ?? "var(--color-elevated)",
+                  backgroundColor: project.cover.bg,
                   overflow: "hidden",
                 }}
-              >
-                {project.image ? (
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 767px) 100vw, 50vw"
-                    quality={85}
-                  />
-                ) : null}
-              </div>
+              />
 
               {/* Card meta */}
               <div style={{ padding: "1rem 1.25rem 1.25rem" }}>
@@ -278,11 +262,11 @@ export default function Home() {
                     overflow: "hidden",
                   }}
                 >
-                  {project.pitch}
+                  {project.description}
                 </p>
               </div>
             </article>
-          </TransitionLink>
+          </Link>
         ))}
       </div>
 
@@ -319,7 +303,7 @@ export default function Home() {
               light.
             </p>
           </div>
-          <TransitionLink
+          <Link
             href="/coddiwomple"
             className="font-mono uppercase link-dim"
             style={{
@@ -327,10 +311,11 @@ export default function Home() {
               letterSpacing: "var(--tracking-wider)",
               flexShrink: 0,
               marginLeft: "2rem",
+              textDecoration: "none",
             }}
           >
             View all &rarr;
-          </TransitionLink>
+          </Link>
         </div>
       </section>
     </main>

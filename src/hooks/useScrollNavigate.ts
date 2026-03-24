@@ -17,7 +17,7 @@ export function useScrollNavigate({ currentSlug }: ScrollNavigateOptions) {
   const accumulatedDelta = useRef(0);
   const isNavigating = useRef(false);
 
-  const activeProjects = PROJECTS.filter((p) => !p.wip);
+  const activeProjects = PROJECTS.filter((p) => p.status === "shipped");
   const currentIndex = activeProjects.findIndex((p) => p.id === currentSlug);
 
   const nextProject =

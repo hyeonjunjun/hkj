@@ -3,11 +3,12 @@
 import { useParams } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
+import { CASE_STUDIES } from "@/constants/case-studies";
 import { useScrollNavigate } from "@/hooks/useScrollNavigate";
 import { useTransitionNavigate } from "@/hooks/useTransitionNavigate";
-import TransitionLink from "@/components/TransitionLink";
 
 export default function CaseStudy() {
   const { slug } = useParams();
@@ -15,7 +16,8 @@ export default function CaseStudy() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollPercent, setScrollPercent] = useState(0);
 
-  const project = PROJECTS.find((p) => p.id === slug);
+  const project = PROJECTS.find((p) => p.id === slug || p.slug === slug);
+  const caseStudy = CASE_STUDIES[slug as string];
   const { progress, direction, nextProject, prevProject } =
     useScrollNavigate({ currentSlug: slug as string });
 
@@ -50,7 +52,7 @@ export default function CaseStudy() {
       );
     });
 
-    // Video reveals (toned down from scale 2)
+    // Video reveals
     const videoEls = containerRef.current.querySelectorAll("[data-media-reveal='video']");
     videoEls.forEach((el, i) => {
       gsap.fromTo(el,
@@ -195,31 +197,33 @@ export default function CaseStudy() {
             }}
             data-text-reveal
           >
-            {project.pitch}
+            {project.description}
           </p>
 
           <div className="flex gap-8 mt-6">
-            <div data-role-reveal>
-              <span
-                className="font-mono uppercase block"
-                style={{
-                  fontSize: 10,
-                  color: "var(--color-text-ghost)",
-                  marginBottom: "4px",
-                }}
-              >
-                Role
-              </span>
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: 10,
-                  color: "var(--color-text-dim)",
-                }}
-              >
-                {project.role}
-              </span>
-            </div>
+            {caseStudy?.role && (
+              <div data-role-reveal>
+                <span
+                  className="font-mono uppercase block"
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-ghost)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Role
+                </span>
+                <span
+                  className="font-mono uppercase"
+                  style={{
+                    fontSize: 10,
+                    color: "var(--color-text-dim)",
+                  }}
+                >
+                  {caseStudy.role}
+                </span>
+              </div>
+            )}
 
             <div data-role-reveal>
               <span
@@ -268,9 +272,9 @@ export default function CaseStudy() {
         </div>
 
         {/* ── Narrative Lede ── */}
-        {(has(project.paradox) || has(project.stakes)) && (
+        {caseStudy && (has(caseStudy.paradox) || has(caseStudy.stakes)) && (
           <div className="mb-16" data-section-reveal>
-            {has(project.paradox) && (
+            {has(caseStudy.paradox) && (
               <p
                 className="font-display italic"
                 style={{
@@ -278,13 +282,13 @@ export default function CaseStudy() {
                   lineHeight: 1.4,
                   color: "var(--color-text)",
                   maxWidth: "58ch",
-                  marginBottom: has(project.stakes) ? "1.5rem" : 0,
+                  marginBottom: has(caseStudy.stakes) ? "1.5rem" : 0,
                 }}
               >
-                {project.paradox}
+                {caseStudy.paradox}
               </p>
             )}
-            {has(project.stakes) && (
+            {has(caseStudy.stakes) && (
               <p
                 className="font-sans"
                 style={{
@@ -294,16 +298,16 @@ export default function CaseStudy() {
                   maxWidth: "58ch",
                 }}
               >
-                {project.stakes}
+                {caseStudy.stakes}
               </p>
             )}
           </div>
         )}
 
         {/* ── Editorial Section ── */}
-        {has(project.editorial.copy) && (
+        {caseStudy && has(caseStudy.editorial.copy) && (
           <div className="mb-16" data-section-reveal>
-            {has(project.editorial.headline) && (
+            {has(caseStudy.editorial.heading) && (
               <h2
                 className="font-display"
                 style={{
@@ -313,10 +317,10 @@ export default function CaseStudy() {
                   marginBottom: "1rem",
                 }}
               >
-                {project.editorial.headline}
+                {caseStudy.editorial.heading}
               </h2>
             )}
-            {has(project.editorial.subhead) && (
+            {has(caseStudy.editorial.subhead) && (
               <p
                 className="font-mono uppercase"
                 style={{
@@ -326,7 +330,7 @@ export default function CaseStudy() {
                   marginBottom: "1rem",
                 }}
               >
-                {project.editorial.subhead}
+                {caseStudy.editorial.subhead}
               </p>
             )}
             <p
@@ -338,13 +342,13 @@ export default function CaseStudy() {
                 maxWidth: "58ch",
               }}
             >
-              {project.editorial.copy}
+              {caseStudy.editorial.copy}
             </p>
 
             {/* Editorial images */}
-            {project.editorial.images.length > 0 && (
+            {caseStudy.editorial.images && caseStudy.editorial.images.length > 0 && (
               <div className="flex flex-col gap-8 mt-8">
-                {project.editorial.images.map((img, i) => (
+                {caseStudy.editorial.images.map((img, i) => (
                   <div
                     key={i}
                     className="relative w-full overflow-hidden"
@@ -367,7 +371,7 @@ export default function CaseStudy() {
         )}
 
         {/* ── Process Steps ── */}
-        {project.processSteps && project.processSteps.length > 0 && (
+        {caseStudy?.processSteps && caseStudy.processSteps.length > 0 && (
           <div className="mb-16" data-section-reveal>
             <h2
               className="font-mono uppercase"
@@ -381,7 +385,7 @@ export default function CaseStudy() {
               Process
             </h2>
             <div className="flex flex-col gap-10">
-              {project.processSteps.map((step, i) => (
+              {caseStudy.processSteps.map((step, i) => (
                 <div key={i} className="flex flex-col gap-4">
                   <div>
                     <span
@@ -442,7 +446,7 @@ export default function CaseStudy() {
         )}
 
         {/* ── Highlights ── */}
-        {project.highlights.length > 0 && (
+        {caseStudy?.highlights && caseStudy.highlights.length > 0 && (
           <div className="mb-16" data-section-reveal>
             <h2
               className="font-mono uppercase"
@@ -456,7 +460,7 @@ export default function CaseStudy() {
               Key Details
             </h2>
             <div className="flex flex-col gap-12">
-              {project.highlights.map((hl) => (
+              {caseStudy.highlights.map((hl) => (
                 <div key={hl.id}>
                   <h3
                     className="font-sans"
@@ -514,7 +518,7 @@ export default function CaseStudy() {
         )}
 
         {/* ── Engineering ── */}
-        {has(project.engineering.copy) && (
+        {caseStudy?.engineering && has(caseStudy.engineering.copy) && (
           <div className="mb-16" data-section-reveal>
             <h2
               className="font-mono uppercase"
@@ -536,11 +540,11 @@ export default function CaseStudy() {
                 maxWidth: "58ch",
               }}
             >
-              {project.engineering.copy}
+              {caseStudy.engineering.copy}
             </p>
-            {project.engineering.signals.length > 0 && (
+            {caseStudy.engineering.signals.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
-                {project.engineering.signals.map((signal) => (
+                {caseStudy.engineering.signals.map((signal) => (
                   <span
                     key={signal}
                     className="font-mono uppercase"
@@ -561,9 +565,9 @@ export default function CaseStudy() {
         )}
 
         {/* ── Videos ── */}
-        {project.videos && project.videos.length > 0 && (
+        {caseStudy?.videos && caseStudy.videos.length > 0 && (
           <div className="flex flex-col gap-8 mb-16">
-            {project.videos.map((video, i) => (
+            {caseStudy.videos.map((video, i) => (
               <div key={i} data-media-reveal="video">
                 <div
                   className="relative w-full overflow-hidden"
@@ -597,10 +601,10 @@ export default function CaseStudy() {
         )}
 
         {/* ── Statistics ── */}
-        {project.statistics.length > 0 && (
+        {caseStudy?.statistics && caseStudy.statistics.length > 0 && (
           <div className="mb-16" data-section-reveal>
             <div className="flex gap-8 flex-wrap">
-              {project.statistics.map((stat) => (
+              {caseStudy.statistics.map((stat) => (
                 <div key={stat.label}>
                   <span
                     className="font-mono uppercase block"
@@ -629,7 +633,7 @@ export default function CaseStudy() {
         )}
 
         {/* ── Gut Punch (closing statement) ── */}
-        {has(project.gutPunch) && (
+        {caseStudy && has(caseStudy.gutPunch) && (
           <div className="mb-16" data-section-reveal>
             <p
               className="font-display italic"
@@ -640,13 +644,13 @@ export default function CaseStudy() {
                 maxWidth: "48ch",
               }}
             >
-              {project.gutPunch}
+              {caseStudy.gutPunch}
             </p>
           </div>
         )}
 
         {/* ── Schematic / Technical Colophon ── */}
-        {project.schematic && project.schematic.stack.length > 0 && (
+        {caseStudy?.schematic && caseStudy.schematic.stack.length > 0 && (
           <div className="mb-16" data-section-reveal>
             <h2
               className="font-mono uppercase"
@@ -660,7 +664,7 @@ export default function CaseStudy() {
               Stack
             </h2>
             <div className="flex flex-wrap gap-2">
-              {project.schematic.stack.map((item) => (
+              {caseStudy.schematic.stack.map((item) => (
                 <span
                   key={item}
                   className="font-mono"
@@ -673,7 +677,7 @@ export default function CaseStudy() {
                 </span>
               ))}
             </div>
-            {has(project.schematic.typography) && (
+            {has(caseStudy.schematic.typography) && (
               <p
                 className="font-mono mt-3"
                 style={{
@@ -681,14 +685,14 @@ export default function CaseStudy() {
                   color: "var(--color-text-ghost)",
                 }}
               >
-                Type: {project.schematic.typography}
+                Type: {caseStudy.schematic.typography}
               </p>
             )}
           </div>
         )}
 
         {/* ── Contributors ── */}
-        {project.contributors.length > 0 && (
+        {caseStudy?.contributors && caseStudy.contributors.length > 0 && (
           <div className="mb-16" data-section-reveal>
             <h2
               className="font-mono uppercase"
@@ -701,7 +705,7 @@ export default function CaseStudy() {
             >
               Credits
             </h2>
-            {project.contributors.map((c) => (
+            {caseStudy.contributors.map((c) => (
               <p
                 key={c.name}
                 className="font-mono"
@@ -783,30 +787,32 @@ export default function CaseStudy() {
         className="md:hidden padding-x-1 pb-8 flex justify-between"
       >
         {prevProject && (
-          <TransitionLink
-            href={`/work/${prevProject.id}`}
+          <Link
+            href={`/work/${prevProject.slug}`}
             className="font-mono uppercase"
             style={{
               fontSize: 10,
               color: "var(--color-text-dim)",
               letterSpacing: "0.1em",
+              textDecoration: "none",
             }}
           >
             ← {prevProject.title}
-          </TransitionLink>
+          </Link>
         )}
         {nextProject && (
-          <TransitionLink
-            href={`/work/${nextProject.id}`}
+          <Link
+            href={`/work/${nextProject.slug}`}
             className="font-mono uppercase ml-auto"
             style={{
               fontSize: 10,
               color: "var(--color-text-dim)",
               letterSpacing: "0.1em",
+              textDecoration: "none",
             }}
           >
             {nextProject.title} →
-          </TransitionLink>
+          </Link>
         )}
       </div>
     </div>
