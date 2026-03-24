@@ -1,10 +1,15 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
 import { Cover } from "@/components/Cover";
+
+const CloudCanvas = dynamic(() => import("@/components/CloudCanvas"), {
+  ssr: false,
+});
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -15,20 +20,6 @@ export default function Home() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     if (heroRef.current) {
-      const words = heroRef.current.querySelectorAll("[data-word]");
-      gsap.fromTo(
-        words,
-        { yPercent: 100, opacity: 0 },
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.04,
-          ease: "expo.out",
-          delay: 0.15,
-        }
-      );
-
       const els = heroRef.current.querySelectorAll("[data-hero-el]");
       gsap.fromTo(
         els,
@@ -39,9 +30,24 @@ export default function Home() {
           duration: 0.7,
           stagger: 0.08,
           ease: "expo.out",
-          delay: 0.4,
+          delay: 0.15,
         }
       );
+
+      const canvas = heroRef.current.querySelector("[data-hero-canvas]");
+      if (canvas) {
+        gsap.fromTo(
+          canvas,
+          { opacity: 0, scale: 0.98 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 1.2,
+            ease: "expo.out",
+            delay: 0.4,
+          }
+        );
+      }
     }
 
     if (gridRef.current) {
@@ -82,7 +88,6 @@ export default function Home() {
     }
   }, []);
 
-  const name = "Hyeon Jun";
   const imageProjects = PROJECTS.filter((p) => p.coverImage);
   const wipProjects = PROJECTS.filter((p) => !p.coverImage);
 
@@ -93,102 +98,107 @@ export default function Home() {
       <header
         ref={heroRef}
         style={{
-          paddingTop: "var(--space-breath)",
+          paddingTop: "var(--space-break)",
           marginBottom: "clamp(3rem, 8vh, 5rem)",
           maxWidth: "var(--max-cover)",
         }}
       >
-        {/* Role label */}
-        <p
-          data-hero-el
-          className="font-mono"
-          style={{
-            fontSize: "var(--text-meta)",
-            letterSpacing: "var(--tracking-label)",
-            textTransform: "uppercase",
-            color: "var(--ink-muted)",
-            marginBottom: "var(--space-compact)",
-            opacity: 0,
-          }}
-        >
-          Design Engineer
-        </p>
-
-        {/* Name */}
-        <h1
-          className="font-display"
-          style={{
-            fontSize: "clamp(2.8rem, 5.5vw, 4.2rem)",
-            fontWeight: 400,
-            fontStyle: "italic",
-            color: "var(--ink-full)",
-            lineHeight: 1.1,
-            letterSpacing: "-0.025em",
-          }}
-        >
-          {name.split(" ").map((word, i) => (
-            <span
-              key={i}
-              style={{
-                display: "inline-block",
-                overflow: "hidden",
-                verticalAlign: "top",
-                paddingBottom: "0.05em",
-              }}
-            >
-              <span
-                data-word
-                style={{ display: "inline-block", opacity: 0 }}
-              >
-                {word}
-              </span>
-              {i < name.split(" ").length - 1 && "\u00A0"}
-            </span>
-          ))}
-        </h1>
-
-        {/* Location · Status */}
+        {/* Identity row */}
         <div
           data-hero-el
           style={{
             display: "flex",
-            gap: "var(--space-standard)",
-            alignItems: "center",
-            marginTop: "var(--space-comfortable)",
+            alignItems: "baseline",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "var(--space-small)",
+            marginBottom: "var(--space-comfortable)",
             opacity: 0,
           }}
         >
-          <span
-            className="font-mono"
+          <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-standard)" }}>
+            <h1
+              className="font-display"
+              style={{
+                fontSize: "var(--text-title)",
+                fontWeight: 400,
+                fontStyle: "italic",
+                color: "var(--ink-full)",
+                lineHeight: "var(--leading-display)",
+              }}
+            >
+              Hyeon Jun
+            </h1>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: "var(--text-meta)",
+                letterSpacing: "var(--tracking-label)",
+                textTransform: "uppercase",
+                color: "var(--ink-muted)",
+              }}
+            >
+              Design Engineer
+            </span>
+          </div>
+          <div
             style={{
-              fontSize: "var(--text-meta)",
-              letterSpacing: "var(--tracking-label)",
-              textTransform: "uppercase",
-              color: "var(--ink-muted)",
+              display: "flex",
+              gap: "var(--space-standard)",
+              alignItems: "center",
             }}
           >
-            New York
-          </span>
-          <span
+            <span
+              className="font-mono"
+              style={{
+                fontSize: "var(--text-meta)",
+                letterSpacing: "var(--tracking-label)",
+                textTransform: "uppercase",
+                color: "var(--ink-muted)",
+              }}
+            >
+              New York
+            </span>
+            <span
+              style={{
+                width: 3,
+                height: 3,
+                borderRadius: "50%",
+                backgroundColor: "var(--ink-muted)",
+                flexShrink: 0,
+              }}
+            />
+            <span
+              className="font-mono"
+              style={{
+                fontSize: "var(--text-meta)",
+                letterSpacing: "var(--tracking-label)",
+                textTransform: "uppercase",
+                color: "var(--ink-muted)",
+              }}
+            >
+              Open to work
+            </span>
+          </div>
+        </div>
+
+        {/* Interactive canvas — procedural clouds */}
+        <div
+          data-hero-canvas
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+            borderRadius: "8px",
+            overflow: "hidden",
+            opacity: 0,
+          }}
+        >
+          <CloudCanvas
             style={{
-              width: 3,
-              height: 3,
-              borderRadius: "50%",
-              backgroundColor: "var(--ink-muted)",
-              flexShrink: 0,
+              width: "100%",
+              height: "100%",
             }}
           />
-          <span
-            className="font-mono"
-            style={{
-              fontSize: "var(--text-meta)",
-              letterSpacing: "var(--tracking-label)",
-              textTransform: "uppercase",
-              color: "var(--ink-muted)",
-            }}
-          >
-            Open to work
-          </span>
         </div>
       </header>
 
@@ -261,8 +271,6 @@ export default function Home() {
 
       {/* ── Below-fold content ── */}
       <div ref={sectionsRef}>
-
-        {/* ── Exploration ── */}
         <section
           data-reveal
           style={{
