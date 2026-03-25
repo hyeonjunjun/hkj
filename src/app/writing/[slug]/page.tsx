@@ -43,7 +43,6 @@ export default function WritingEntryPage({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "var(--paper)",
         }}
       >
         <p style={{ color: "var(--ink-secondary)" }}>Entry not found.</p>
@@ -57,7 +56,6 @@ export default function WritingEntryPage({
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
         paddingTop: "var(--space-breath)",
         paddingBottom: "var(--space-breath)",
       }}

@@ -32,7 +32,6 @@ export default function WritingPage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "var(--paper)",
         paddingTop: "var(--space-breath)",
         paddingBottom: "var(--space-breath)",
       }}
