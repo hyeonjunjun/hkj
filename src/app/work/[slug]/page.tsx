@@ -291,7 +291,7 @@ export default function CaseStudy() {
             )}
             {has(caseStudy.stakes) && (
               <p
-                className=""
+               
                 style={{
                   fontSize: "var(--text-body)",
                   lineHeight: 1.7,
@@ -335,7 +335,7 @@ export default function CaseStudy() {
               </p>
             )}
             <p
-              className=""
+             
               style={{
                 fontSize: "var(--text-body)",
                 lineHeight: 1.7,
@@ -400,7 +400,7 @@ export default function CaseStudy() {
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span
-                      className=""
+                     
                       style={{
                         fontSize: "var(--text-body)",
                         fontWeight: 500,
@@ -412,7 +412,7 @@ export default function CaseStudy() {
                   </div>
                   {has(step.copy) && (
                     <p
-                      className=""
+                     
                       style={{
                         fontSize: "14px",
                         lineHeight: 1.7,
@@ -464,7 +464,7 @@ export default function CaseStudy() {
               {caseStudy.highlights.map((hl) => (
                 <div key={hl.id}>
                   <h3
-                    className=""
+                   
                     style={{
                       fontSize: "var(--text-body)",
                       fontWeight: 500,
@@ -475,7 +475,7 @@ export default function CaseStudy() {
                     {hl.title}
                   </h3>
                   <p
-                    className=""
+                   
                     style={{
                       fontSize: "14px",
                       lineHeight: 1.7,
@@ -533,7 +533,7 @@ export default function CaseStudy() {
               Engineering
             </h2>
             <p
-              className=""
+             
               style={{
                 fontSize: "14px",
                 lineHeight: 1.7,

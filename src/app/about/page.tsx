@@ -44,7 +44,7 @@ export default function AboutPage() {
           </span>
 
           <p
-            className=""
+           
             style={{
               fontSize: "var(--text-body)",
               lineHeight: "var(--leading-body)",
@@ -61,7 +61,7 @@ export default function AboutPage() {
           </p>
 
           <p
-            className=""
+           
             style={{
               fontSize: "var(--text-body)",
               lineHeight: "var(--leading-body)",
@@ -133,7 +133,7 @@ export default function AboutPage() {
                     {exp.period}
                   </span>
                   <span
-                    className=""
+                   
                     style={{
                       fontSize: "var(--text-body)",
                       color: "var(--ink-secondary)",
