@@ -22,6 +22,8 @@ uniform vec3  u_lightColor;
 uniform float u_lightAngle;
 uniform float u_lightIntensity;
 uniform vec3  u_shadowTone;
+uniform vec3  u_bgColor;
+uniform float u_lightAmt;
 
 /* ── Noise ── */
 
@@ -59,8 +61,8 @@ void main() {
   float aspect = u_resolution.x / u_resolution.y;
   vec2 p = vec2(uv.x * aspect, uv.y);
 
-  /* Paper base */
-  vec3 paper = vec3(0.969, 0.965, 0.953);
+  /* Paper base — driven by time-of-day uniform */
+  vec3 paper = u_bgColor;
 
   /* ── Light shafts ── */
 
@@ -88,34 +90,50 @@ void main() {
   /* Apply intensity from time of day */
   light *= u_lightIntensity;
 
-  /* Vertical gradient — light falls from above */
-  float vertGrad = smoothstep(0.0, 0.9, uv.y) * 0.3 + 0.7;
-  light *= vertGrad;
+  /* Vertical gradient — sky at top, wall at bottom */
+  /* skyAmount: 1.0 at top of viewport, fading to 0.0 at ~40% down */
+  float skyAmount = smoothstep(0.35, 0.85, uv.y);
+  /* wallAmount: subtle everywhere, slightly stronger in lower half */
+  float wallAmount = smoothstep(0.9, 0.2, uv.y) * 0.3;
+
+  light *= (wallAmount + 0.7);
 
   /* ── Color mixing ── */
 
   vec3 color = paper;
 
-  /* Shadow tone in dark areas — very subtle */
-  float shadowAmount = (1.0 - light) * 0.04;
-  color = mix(color, u_shadowTone, shadowAmount);
+  /* SKY LAYER — strong at top, fades to nothing below roofline */
+  /* Sky base color — blend of light color and a blue-shifted version */
+  vec3 skyBase = mix(u_lightColor, vec3(0.82, 0.86, 0.92), 0.3);
+  /* Add cloud-like variation to sky */
+  float skyNoise = fbm(p * 1.5 + u_time * 0.001);
+  float skyPattern = smoothstep(0.35, 0.65, skyNoise);
+  /* Sky gets lighter where clouds are */
+  vec3 skyColor = mix(skyBase, paper, skyPattern * 0.3);
+  /* Mix sky strongly at top */
+  color = mix(color, skyColor, skyAmount * 0.35 * u_lightIntensity);
 
-  /* Light color in bright areas */
-  float lightAmount = light * 0.08;
-  color = mix(color, u_lightColor, lightAmount);
+  /* WALL LAYER — subtle light on the building surface below */
+  /* Shadow tone in dark areas */
+  float shadowAmt = (1.0 - light) * 0.06;
+  color = mix(color, u_shadowTone, shadowAmt * (1.0 - skyAmount));
 
-  /* Slight warmth boost in the brightest spots */
+  /* Light color in bright areas of the wall */
+  float lightAmt = light * u_lightAmt;
+  color = mix(color, u_lightColor, lightAmt * (1.0 - skyAmount * 0.7));
+
+  /* Warmth boost in brightest wall spots */
   float peak = smoothstep(0.6, 0.9, light);
-  color = mix(color, u_lightColor * 1.05, peak * 0.04);
+  color = mix(color, u_lightColor * 1.05, peak * 0.08 * (1.0 - skyAmount));
 
   /* ── Paper grain ── */
   float grain = noise(p * 18.0) * 0.012;
   color += grain;
 
-  /* ── Vignette ── */
-  vec2 vc = uv - 0.5;
-  float vig = dot(vc, vc);
-  color = mix(color, paper * 0.97, smoothstep(0.15, 0.55, vig) * 0.25);
+  /* ── Vignette — only on sides, not top ── */
+  float vigX = abs(uv.x - 0.5) * 2.0;
+  float vig = vigX * vigX;
+  color = mix(color, paper * 0.97, smoothstep(0.5, 1.0, vig) * 0.15);
 
   gl_FragColor = vec4(color, 1.0);
 }
@@ -165,6 +183,8 @@ interface LightState {
   angle: number;
   intensity: number;
   shadow: [number, number, number];
+  bgColor: [number, number, number];
+  lightAmt: number;
 }
 
 function getLightState(hour: number, minute: number): LightState {
@@ -179,6 +199,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.5,
         intensity: 0.15,
         shadow: [0.42, 0.40, 0.48],
+        bgColor: [0.102, 0.094, 0.082],
+        lightAmt: 0.20,
       },
     },
     {
@@ -188,6 +210,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.15,
         intensity: 0.45,
         shadow: [0.45, 0.45, 0.52],
+        bgColor: [0.969, 0.965, 0.953],
+        lightAmt: 0.15,
       },
     },
     {
@@ -197,6 +221,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.28,
         intensity: 0.75,
         shadow: [0.48, 0.45, 0.44],
+        bgColor: [0.969, 0.965, 0.953],
+        lightAmt: 0.15,
       },
     },
     {
@@ -206,6 +232,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.38,
         intensity: 0.85,
         shadow: [0.5, 0.47, 0.45],
+        bgColor: [0.969, 0.965, 0.953],
+        lightAmt: 0.15,
       },
     },
     {
@@ -215,15 +243,30 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.62,
         intensity: 0.8,
         shadow: [0.5, 0.44, 0.42],
+        bgColor: [0.969, 0.965, 0.953],
+        lightAmt: 0.15,
       },
     },
     {
-      time: 18,
+      time: 16,
+      state: {
+        color: [0.85, 0.65, 0.45],
+        angle: Math.PI * 0.68,
+        intensity: 0.7,
+        shadow: [0.51, 0.43, 0.43],
+        bgColor: [0.969, 0.965, 0.953],
+        lightAmt: 0.15,
+      },
+    },
+    {
+      time: 19,
       state: {
         color: [0.78, 0.55, 0.40],
         angle: Math.PI * 0.78,
         intensity: 0.5,
         shadow: [0.52, 0.42, 0.44],
+        bgColor: [0.102, 0.094, 0.082],
+        lightAmt: 0.20,
       },
     },
     {
@@ -233,6 +276,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.5,
         intensity: 0.2,
         shadow: [0.44, 0.42, 0.5],
+        bgColor: [0.102, 0.094, 0.082],
+        lightAmt: 0.20,
       },
     },
     {
@@ -242,6 +287,8 @@ function getLightState(hour: number, minute: number): LightState {
         angle: Math.PI * 0.5,
         intensity: 0.15,
         shadow: [0.42, 0.40, 0.48],
+        bgColor: [0.102, 0.094, 0.082],
+        lightAmt: 0.20,
       },
     },
   ];
@@ -278,6 +325,12 @@ function getLightState(hour: number, minute: number): LightState {
       lerp(lower.state.shadow[1], upper.state.shadow[1]),
       lerp(lower.state.shadow[2], upper.state.shadow[2]),
     ],
+    bgColor: [
+      lerp(lower.state.bgColor[0], upper.state.bgColor[0]),
+      lerp(lower.state.bgColor[1], upper.state.bgColor[1]),
+      lerp(lower.state.bgColor[2], upper.state.bgColor[2]),
+    ],
+    lightAmt: lerp(lower.state.lightAmt, upper.state.lightAmt),
   };
 }
 
@@ -340,6 +393,8 @@ export default function WallLight() {
     const uLightAngle = gl.getUniformLocation(prog, "u_lightAngle");
     const uLightIntensity = gl.getUniformLocation(prog, "u_lightIntensity");
     const uShadowTone = gl.getUniformLocation(prog, "u_shadowTone");
+    const uBgColor = gl.getUniformLocation(prog, "u_bgColor");
+    const uLightAmt = gl.getUniformLocation(prog, "u_lightAmt");
 
     startRef.current = performance.now() / 1000;
 
@@ -378,6 +433,8 @@ export default function WallLight() {
       gl.uniform1f(uLightAngle, light.angle);
       gl.uniform1f(uLightIntensity, light.intensity);
       gl.uniform3f(uShadowTone, light.shadow[0], light.shadow[1], light.shadow[2]);
+      gl.uniform3f(uBgColor, light.bgColor[0], light.bgColor[1], light.bgColor[2]);
+      gl.uniform1f(uLightAmt, light.lightAmt);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -411,7 +468,7 @@ export default function WallLight() {
         inset: 0,
         width: "100vw",
         height: "100vh",
-        zIndex: -1,
+        zIndex: 0,
         pointerEvents: "none",
       }}
       aria-hidden="true"

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { NAV_LINKS } from "@/constants/navigation";
 import { useStudioStore } from "@/lib/store";
 import { MobileMenu } from "@/components/MobileMenu";
+import NYCClock from "@/components/NYCClock";
 
 export default function GlobalNav() {
   const pathname = usePathname();
@@ -61,6 +62,7 @@ export default function GlobalNav() {
           >
             Design Engineer
           </span>
+          <NYCClock />
         </div>
 
         {/* Desktop nav */}
@@ -71,6 +73,7 @@ export default function GlobalNav() {
               <Link
                 key={link.label}
                 href={link.href}
+                data-link
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: "var(--text-meta)",

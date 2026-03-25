@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_HERO, REVEAL_CARD, REVEAL_CONTENT } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
 import { Cover } from "@/components/Cover";
 
@@ -16,71 +17,35 @@ export default function Home() {
 
     if (heroRef.current) {
       const els = heroRef.current.querySelectorAll("[data-hero-el]");
-      gsap.fromTo(
-        els,
-        { opacity: 0, y: 14 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.08,
-          ease: "expo.out",
-          delay: 0.15,
-        }
-      );
-
+      gsap.fromTo(els, REVEAL_HERO.from, { ...REVEAL_HERO.to, delay: 0.15 });
     }
 
     if (gridRef.current) {
       const cards = gridRef.current.querySelectorAll("[data-cover]");
-      gsap.fromTo(
-        cards,
-        { autoAlpha: 0, y: 32 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: "expo.out",
-          delay: 0.6,
-        }
-      );
+      gsap.fromTo(cards, REVEAL_CARD.from, { ...REVEAL_CARD.to, delay: 0.3 });
     }
 
     if (sectionsRef.current) {
       const sections = sectionsRef.current.querySelectorAll("[data-reveal]");
       sections.forEach((section) => {
-        gsap.fromTo(
-          section,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            ease: "expo.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 88%",
-              once: true,
-            },
-          }
-        );
+        gsap.fromTo(section, REVEAL_CONTENT.from, {
+          ...REVEAL_CONTENT.to,
+          scrollTrigger: { trigger: section, start: "top 85%", once: true },
+        });
       });
     }
   }, []);
 
-  const imageProjects = PROJECTS.filter((p) => p.coverImage);
-  const wipProjects = PROJECTS.filter((p) => !p.coverImage);
+  const allProjects = PROJECTS;
 
   return (
-    <div className="page-container">
-
+    <div className="page-container" style={{ position: "relative" }}>
       {/* ── Hero ── */}
       <header
         ref={heroRef}
         style={{
-          paddingTop: "var(--space-breath)",
-          paddingBottom: "var(--space-section)",
+          paddingTop: "clamp(100px, 18vh, 180px)",
+          paddingBottom: "clamp(60px, 10vh, 120px)",
           maxWidth: "var(--max-cover)",
         }}
       >
@@ -95,7 +60,7 @@ export default function Home() {
             opacity: 0,
           }}
         >
-          design engineer building interfaces, systems, and the quiet details between them.
+          design engineer building, conceptualizing, designing products and the stories behind them.
         </p>
         <div
           data-hero-el
@@ -133,69 +98,40 @@ export default function Home() {
         >
           Selected work
         </span>
-        <div ref={gridRef} className="cover-grid">
-          {imageProjects.map((project, i) => (
+        <div ref={gridRef} style={{ display: "flex", flexDirection: "column", gap: "var(--space-section)" }}>
+          {allProjects.map((project, i) => (
             <Cover key={project.id} project={project} index={i} />
           ))}
-        </div>
 
-        {/* WIP projects — text-only below the image covers */}
-        {wipProjects.length > 0 && (
-          <div
-            style={{
-              marginTop: 80,
-              borderTop: "1px solid rgba(var(--ink-rgb), 0.08)",
-              paddingTop: "var(--space-comfortable)",
-            }}
-          >
-            {wipProjects.map((project) => (
-              <div
-                key={project.id}
+          {/* Empty window slots for future projects */}
+          {[1, 2].map((n) => (
+            <div
+              key={`empty-${n}`}
+              data-cover
+              style={{
+                aspectRatio: "16 / 9",
+                borderRadius: "6px",
+                border: "1px dashed rgba(var(--ink-rgb), 0.08)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                visibility: "hidden",
+              }}
+            >
+              <span
+                className="font-mono"
                 style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: "var(--space-small)",
-                  paddingTop: "var(--space-compact)",
-                  paddingBottom: "var(--space-compact)",
+                  fontSize: "var(--text-meta)",
+                  letterSpacing: "var(--tracking-label)",
+                  textTransform: "uppercase",
+                  color: "var(--ink-faint)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-standard)" }}>
-                  <span
-                    className="font-display"
-                    style={{
-                      fontSize: "var(--text-body)",
-                      color: "var(--ink-primary)",
-                    }}
-                  >
-                    {project.title}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "var(--text-body)",
-                      color: "var(--ink-secondary)",
-                    }}
-                  >
-                    {project.description}
-                  </span>
-                </div>
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: "var(--text-meta)",
-                    letterSpacing: "var(--tracking-label)",
-                    textTransform: "uppercase",
-                    color: "var(--ink-muted)",
-                    flexShrink: 0,
-                  }}
-                >
-                  In progress
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+                Coming soon
+              </span>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ── Below-fold content ── */}

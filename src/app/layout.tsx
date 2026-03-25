@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import WallLightWrapper from "@/components/WallLightWrapper";
+import TimeModeProvider from "@/components/TimeModeProvider";
 
 /* ── Fonts ── */
 
@@ -74,6 +75,7 @@ export default function RootLayout({
         className={`${newsreader.variable} ${satoshi.variable} ${fragmentMono.variable}`}
         suppressHydrationWarning
       >
+        <TimeModeProvider>
         {/* SVG grain filter — referenced by .grain-overlay and [data-cover] */}
         <svg
           aria-hidden="true"
@@ -109,11 +111,12 @@ export default function RootLayout({
 
         {/* Content */}
         <SmoothScroll>
-          <main id="main">
+          <main id="main" style={{ position: "relative", zIndex: 1 }}>
             {children}
           </main>
           <Footer />
         </SmoothScroll>
+        </TimeModeProvider>
       </body>
     </html>
   );
