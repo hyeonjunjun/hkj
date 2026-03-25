@@ -1,0 +1,5 @@
+# metric_direction: higher_is_better
+iteration	commit	metric	delta	guard	status	description
+0	cd930fe	1	0.0	pass	baseline	initial state — build passes, portfolio rough
+1	4ec4c5e	1	0.0	-	keep	remove empty className attrs from about + case study
+2	79d26be	1	0.0	-	keep	flatten exploration gallery — delete detail routes, items non-clickable
