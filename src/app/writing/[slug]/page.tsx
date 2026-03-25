@@ -3,6 +3,7 @@
 import { use, useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { JOURNAL_ENTRIES } from "@/constants/journal";
 
 /** Only entries with a body can have detail pages */
@@ -30,8 +31,8 @@ export default function WritingEntryPage({
     const items = contentRef.current.querySelectorAll("[data-reveal]");
     gsap.fromTo(
       items,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, ease: "expo.out" }
+      REVEAL_CONTENT.from,
+      { ...REVEAL_CONTENT.to }
     );
   }, [slug]);
 

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { JOURNAL_ENTRIES, type JournalTag } from "@/constants/journal";
 
 const ALL_TAGS: (JournalTag | "all")[] = ["all", "design", "code", "life"];
@@ -23,8 +24,8 @@ export default function WritingPage() {
     const items = listRef.current.querySelectorAll("[data-journal-item]");
     gsap.fromTo(
       items,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, ease: "expo.out" }
+      REVEAL_CONTENT.from,
+      { ...REVEAL_CONTENT.to }
     );
   }, [activeTag]);
 

@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CARD } from "@/lib/animations";
 import { EXPLORATIONS } from "@/constants/explorations";
 
 export default function ExplorationPage() {
@@ -13,11 +14,7 @@ export default function ExplorationPage() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const items = gridRef.current.querySelectorAll("[data-explore-item]");
-    gsap.fromTo(
-      items,
-      { autoAlpha: 0, y: 32 },
-      { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "expo.out" }
-    );
+    gsap.fromTo(items, REVEAL_CARD.from, { ...REVEAL_CARD.to });
   }, []);
 
   return (

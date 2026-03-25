@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
 export default function AboutPage() {
@@ -12,11 +13,7 @@ export default function AboutPage() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const reveals = containerRef.current.querySelectorAll("[data-reveal]");
-    gsap.fromTo(
-      reveals,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, ease: "expo.out" }
-    );
+    gsap.fromTo(reveals, REVEAL_CONTENT.from, { ...REVEAL_CONTENT.to });
   }, []);
 
   return (
