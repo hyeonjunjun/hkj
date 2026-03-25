@@ -20,12 +20,11 @@ export default function AboutPage() {
     <div
       ref={containerRef}
       className="min-h-screen"
-      style={{ backgroundColor: "transparent" }}
     >
       <section
-        style={{ paddingLeft: "var(--page-px)", paddingRight: "var(--page-px)", paddingTop: "var(--space-breath)" }}
+        style={{ paddingLeft: "var(--page-px)", paddingRight: "var(--page-px)", paddingTop: "clamp(80px, 12vh, 140px)" }}
       >
-        <div style={{ maxWidth: 560 }}>
+        <div style={{ maxWidth: "var(--max-text)" }}>
           <span
             className="font-mono uppercase"
             style={{
@@ -94,7 +93,7 @@ export default function AboutPage() {
             data-reveal
             style={{
               height: 1,
-              backgroundColor: "rgba(var(--ink-rgb), 0.08)",
+              backgroundColor: "rgba(var(--ink-rgb), 0.06)",
               marginTop: 40,
               marginBottom: 32,
             }}
@@ -149,7 +148,7 @@ export default function AboutPage() {
             data-reveal
             style={{
               height: 1,
-              backgroundColor: "rgba(var(--ink-rgb), 0.08)",
+              backgroundColor: "rgba(var(--ink-rgb), 0.06)",
               marginTop: 40,
               marginBottom: 32,
             }}
@@ -170,6 +169,7 @@ export default function AboutPage() {
             </span>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
+              data-link
               className=" hover-step-muted"
               style={{
                 fontSize: "var(--text-body)",
@@ -209,6 +209,7 @@ export default function AboutPage() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-link
                   className="font-mono uppercase hover-step-muted"
                   style={{
                     fontSize: "var(--text-meta)",
