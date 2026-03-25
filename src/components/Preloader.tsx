@@ -15,45 +15,27 @@ export default function Preloader() {
       return;
     }
 
-    // Check if already loaded this session
+    // Repeat visit — skip entirely, content visible immediately
     const alreadyVisited = sessionStorage.getItem("hkj-visited");
 
     if (alreadyVisited) {
-      // Repeat visit — quick fade
-      if (overlayRef.current) {
-        gsap.to(overlayRef.current, {
-          opacity: 0,
-          duration: 0.6,
-          ease: "power2.out",
-          onComplete: () => {
-            setLoaded();
-            if (overlayRef.current) overlayRef.current.style.display = "none";
-          },
-        });
-      }
+      setLoaded();
+      if (overlayRef.current) overlayRef.current.style.display = "none";
       return;
     }
 
-    // First visit — full sequence
+    // First visit — paper overlay fades out gently
     sessionStorage.setItem("hkj-visited", "1");
 
-    const tl = gsap.timeline({
+    gsap.to(overlayRef.current, {
+      opacity: 0,
+      duration: 1.5,
+      ease: "power3.out",
+      delay: 0.1,
       onComplete: () => {
         setLoaded();
         if (overlayRef.current) overlayRef.current.style.display = "none";
       },
-    });
-
-    // Phase 1: Hold dark for a moment (0-0.5s)
-    tl.to(overlayRef.current, { opacity: 1, duration: 0 });
-
-    // Phase 2: Slowly fade the dark overlay (0.5-2.0s)
-    // This reveals the WallLight shader underneath + page content
-    tl.to(overlayRef.current, {
-      opacity: 0,
-      duration: 2.5,
-      ease: "power3.out",
-      delay: 0.3,
     });
   }, [setLoaded]);
 
@@ -64,7 +46,7 @@ export default function Preloader() {
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: "#0a0908",
+        backgroundColor: "#f7f6f3", /* --paper */
         opacity: 1,
         pointerEvents: "none",
       }}
