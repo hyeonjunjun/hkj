@@ -189,7 +189,6 @@ export default function DissolveImage({ revealDuration = 1.2, style, ...imagePro
         {...imageProps}
         onLoad={() => setImageLoaded(true)}
         style={{
-          ...((imageProps.style as React.CSSProperties) || {}),
           opacity: imageLoaded ? 1 : 0,
           transition: "opacity 0.3s ease",
         }}
