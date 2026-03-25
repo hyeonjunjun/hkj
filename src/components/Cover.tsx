@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Project } from "@/constants/projects";
@@ -6,6 +9,39 @@ import { GrainTexture } from "@/components/GrainTexture";
 export function Cover({ project, index }: { project: Project; index: number }) {
   const isDark = isDarkColor(project.cover.bg);
   const number = String(index + 1).padStart(2, "0");
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [videoIdx, setVideoIdx] = useState(0);
+  const videos = project.coverVideos || [];
+
+  const handleMouseEnter = useCallback(() => {
+    if (videos.length === 0) return;
+    setIsHovered(true);
+    setVideoIdx(0);
+  }, [videos.length]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    setVideoIdx(0);
+  }, []);
+
+  /* Cycle to next video when current one ends */
+  const handleVideoEnded = useCallback(() => {
+    if (videos.length <= 1) {
+      /* Single video: just loop */
+      videoRef.current?.play();
+      return;
+    }
+    setVideoIdx((prev) => (prev + 1) % videos.length);
+  }, [videos.length]);
+
+  /* Play video when hovered or when index changes */
+  useEffect(() => {
+    if (!isHovered || !videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(() => {});
+  }, [isHovered, videoIdx]);
 
   return (
     <Link
@@ -20,8 +56,10 @@ export function Cover({ project, index }: { project: Project; index: number }) {
         position: "relative",
         visibility: "hidden",
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Cover visual — image or color-field fallback */}
+      {/* Cover visual */}
       <div
         style={{
           backgroundColor: project.cover.bg,
@@ -32,23 +70,61 @@ export function Cover({ project, index }: { project: Project; index: number }) {
         }}
       >
         {project.coverImage ? (
-          <Image
-            src={project.coverImage}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 900px"
-            style={{
-              objectFit: "cover",
-              transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
-            className="cover-image"
-            priority={index === 0}
-          />
+          <>
+            {/* Static cover image — height: 108% crops bottom to match video framing */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "108%",
+                transition: "opacity 0.4s ease-out",
+                opacity: isHovered && videos.length > 0 ? 0 : 1,
+              }}
+            >
+              <Image
+                src={project.coverImage}
+                alt={project.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 900px"
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center top",
+                }}
+                className="cover-image"
+                priority={index === 0}
+              />
+            </div>
+
+            {/* Video on hover — crops bottom 8% to hide watermark */}
+            {videos.length > 0 && (
+              <video
+                ref={videoRef}
+                key={videos[videoIdx]}
+                src={videos[videoIdx]}
+                muted
+                playsInline
+                onEnded={handleVideoEnded}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "108%",
+                  objectFit: "cover",
+                  objectPosition: "center top",
+                  opacity: isHovered ? 1 : 0,
+                  transition: "opacity 0.4s ease-out",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </>
         ) : (
-          /* Color-field fallback with grain — for WIP / image-less projects */
+          /* Color-field fallback with grain */
           <>
             <GrainTexture dark={isDark} />
-            {/* Number — top-left, only on color-field covers */}
             <span
               className="font-mono"
               style={{
@@ -68,14 +144,13 @@ export function Cover({ project, index }: { project: Project; index: number }) {
         )}
       </div>
 
-      {/* Meta — below the cover image */}
+      {/* Meta */}
       <div
         style={{
           paddingTop: "var(--space-standard)",
           paddingBottom: "var(--space-micro)",
         }}
       >
-        {/* Title row */}
         <p
           className="font-display"
           style={{
@@ -88,7 +163,6 @@ export function Cover({ project, index }: { project: Project; index: number }) {
           {project.title}
         </p>
 
-        {/* Description */}
         <p
           style={{
             fontSize: "var(--text-body)",
@@ -101,7 +175,6 @@ export function Cover({ project, index }: { project: Project; index: number }) {
           {project.description}
         </p>
 
-        {/* Sector · Year · WIP badge */}
         <div
           style={{
             display: "flex",

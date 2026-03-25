@@ -4,4 +4,4 @@ export const SOCIALS = [
   { label: "Twitter", href: "https://twitter.com/hyeonjunjun" },
 ];
 
-export const CONTACT_EMAIL = "hello@hkjstudio.com";
+export const CONTACT_EMAIL = "hyeonjunjun07@gmail.com";

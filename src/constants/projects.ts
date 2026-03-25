@@ -9,6 +9,7 @@ export interface Project {
     year: string;
     sector: string;
     coverImage?: string;
+    coverVideos?: string[];
     cover: {
         bg: string;
         text: string;
@@ -26,7 +27,8 @@ export const PROJECTS: Project[] = [
         description: "material typography system exploring Korean craft and texture.",
         year: "2026",
         sector: "Material Science",
-        coverImage: "/images/gyeol-spring.webp",
+        coverImage: "/images/gyeol-display-hanji.webp",
+        coverVideos: ["/assets/gyeol-broll4.mp4", "/assets/gyeol-broll1.mp4", "/assets/gyeol-broll2.mp4", "/assets/gyeol-broll3.mp4"],
         cover: {
             bg: "#2a241c",
             text: "rgba(255, 252, 245, 0.85)",
