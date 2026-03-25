@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getNYCTime } from "@/lib/timemode";
+
+function getNYCFormattedTime(): string {
+  const now = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  };
+  return new Intl.DateTimeFormat("en-US", options).format(now);
+}
 
 export default function NYCClock() {
   const [time, setTime] = useState<string>("");
@@ -9,7 +20,7 @@ export default function NYCClock() {
 
   useEffect(() => {
     setMounted(true);
-    const update = () => setTime(getNYCTime().formatted);
+    const update = () => setTime(getNYCFormattedTime());
     update();
     const interval = setInterval(update, 60000);
     return () => clearInterval(interval);

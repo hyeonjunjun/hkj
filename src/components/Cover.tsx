@@ -10,11 +10,7 @@ import { GrainTexture } from "@/components/GrainTexture";
 // ease-swift cubic-bezier — matches the FLIP morph timing
 const EASE_SWIFT = "cubic-bezier(0.4, 0, 0.2, 1)";
 
-function getNightModeGlow(): string {
-  if (typeof document === "undefined") return "rgba(180, 140, 80, 0.08)";
-  const isNight = document.documentElement.getAttribute("data-timemode") === "night";
-  return isNight ? "rgba(200, 160, 80, 0.12)" : "rgba(180, 140, 80, 0.08)";
-}
+const GLOW_COLOR = "rgba(180, 140, 80, 0.08)";
 
 export function Cover({ project, index, dimmed = false }: { project: Project; index: number; dimmed?: boolean }) {
   const isDark = isDarkColor(project.cover.bg);
@@ -24,12 +20,10 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
   const [isHovered, setIsHovered] = useState(false);
   const [isSelfHovered, setIsSelfHovered] = useState(false);
   const [videoIdx, setVideoIdx] = useState(0);
-  const [glowColor, setGlowColor] = useState("rgba(180, 140, 80, 0.08)");
   const videos = project.coverVideos || [];
 
   const handleMouseEnter = useCallback(() => {
     setIsSelfHovered(true);
-    setGlowColor(getNightModeGlow());
     if (videos.length === 0) return;
     setIsHovered(true);
     setVideoIdx(0);
@@ -80,7 +74,7 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
         opacity: 1,
         filter: "none",
         transform: isSelfHovered ? "scale(1.005)" : "scale(1)",
-        boxShadow: isSelfHovered ? `0 12px 40px ${glowColor}` : "none",
+        boxShadow: isSelfHovered ? `0 12px 40px ${GLOW_COLOR}` : "none",
         transition: `opacity 400ms ${EASE_SWIFT}, filter 400ms ${EASE_SWIFT}, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out`,
       };
 
