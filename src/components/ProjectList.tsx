@@ -158,6 +158,7 @@ function ProjectRow({
       {/* Cover image — reveals on hover (desktop) / always visible (mobile via CSS) */}
       {project.coverImage && (
         <div
+          data-project-cover
           style={{
             maxHeight: isHovered ? "500px" : "0",
             opacity: isHovered ? 1 : 0,

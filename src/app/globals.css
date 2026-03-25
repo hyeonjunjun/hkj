@@ -271,12 +271,31 @@ body::-webkit-scrollbar {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --page-px: 16px;
+  }
+
   .mobile-menu-trigger {
     display: block !important;
   }
 
   [data-desktop-nav] {
     display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --page-px: 12px;
+  }
+}
+
+/* ── Touch: always-visible project covers ── */
+@media (hover: none) {
+  [data-project-cover] {
+    max-height: 500px !important;
+    opacity: 1 !important;
+    margin-top: var(--space-comfortable) !important;
   }
 }
 
