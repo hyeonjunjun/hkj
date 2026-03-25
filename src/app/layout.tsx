@@ -5,6 +5,7 @@ import GlobalNav from "@/components/GlobalNav";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
+import WallLightWrapper from "@/components/WallLightWrapper";
 
 /* ── Fonts ── */
 
@@ -93,6 +94,9 @@ export default function RootLayout({
             </filter>
           </defs>
         </svg>
+
+        {/* Time-aware ambient light */}
+        <WallLightWrapper />
 
         {/* Accessibility */}
         <a href="#main" className="skip-to-content">

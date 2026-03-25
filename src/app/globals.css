@@ -72,10 +72,11 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  background-color: var(--paper);
 }
 
 body {
-  background-color: var(--paper);
+  background-color: transparent;
   color: var(--ink-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);

@@ -1,16 +1,10 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { PROJECTS } from "@/constants/projects";
 import { Cover } from "@/components/Cover";
-
-const LivingInk = dynamic(
-  () => import("@/components/LivingInk"),
-  { ssr: false }
-);
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -35,20 +29,6 @@ export default function Home() {
         }
       );
 
-      const canvas = heroRef.current.querySelector("[data-hero-canvas]");
-      if (canvas) {
-        gsap.fromTo(
-          canvas,
-          { opacity: 0, scale: 0.98 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: "expo.out",
-            delay: 0.4,
-          }
-        );
-      }
     }
 
     if (gridRef.current) {
@@ -105,28 +85,23 @@ export default function Home() {
         }}
       >
 
-        {/* Interactive canvas — reactive meadow */}
-        <div
-          data-hero-canvas
-          style={{
-            width: "100%",
-            aspectRatio: "16 / 9",
-            borderRadius: "8px",
-            overflow: "hidden",
-            opacity: 0,
-          }}
-        >
-          <LivingInk
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
-          />
-        </div>
       </header>
 
       {/* ── Work ── */}
       <section id="work" style={{ maxWidth: "var(--max-cover)" }}>
+        <span
+          className="font-mono"
+          style={{
+            fontSize: "var(--text-meta)",
+            letterSpacing: "var(--tracking-label)",
+            textTransform: "uppercase",
+            color: "var(--ink-muted)",
+            display: "block",
+            marginBottom: "var(--space-comfortable)",
+          }}
+        >
+          Selected work
+        </span>
         <div ref={gridRef} className="cover-grid">
           {imageProjects.map((project, i) => (
             <Cover key={project.id} project={project} index={i} />
