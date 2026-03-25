@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { EXPLORATIONS } from "@/constants/explorations";
 
@@ -79,9 +78,8 @@ export default function ExplorationPage() {
           const colStart = !isWide && i % 3 === 2 ? "8" : undefined;
 
           return (
-            <Link
+            <div
               key={piece.id}
-              href={`/exploration/${piece.id}`}
               data-explore-item
               style={{
                 gridColumn: colStart ? `${colStart} / span 5` : colSpan,
@@ -172,7 +170,7 @@ export default function ExplorationPage() {
                   {piece.medium}
                 </span>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
