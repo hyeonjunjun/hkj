@@ -9,6 +9,7 @@ export interface Project {
     year: string;
     sector: string;
     coverImage?: string;
+    coverBlur?: string;
     coverVideos?: string[];
     cover: {
         bg: string;
@@ -28,6 +29,7 @@ export const PROJECTS: Project[] = [
         year: "2026",
         sector: "Material Science",
         coverImage: "/images/gyeol-display-hanji.webp",
+        coverBlur: "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACwAQCdASoIAAgABUB8JYgCdACkHCGAAPvK+2OSZrljwuJp7MSZzsNF6n+VQAAA",
         coverVideos: ["/assets/gyeol-broll4.mp4", "/assets/gyeol-broll1.mp4", "/assets/gyeol-broll2.mp4", "/assets/gyeol-broll3.mp4"],
         cover: {
             bg: "#2a241c",
@@ -45,6 +47,7 @@ export const PROJECTS: Project[] = [
         year: "2025",
         sector: "Mobile / AI",
         coverImage: "/images/sift-v2.webp",
+        coverBlur: "data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADQAQCdASoIAAgABUB8JbAC7ADdSgBAQAD2n1jIQGi7bxrzIrGXy4r6PIMvhFNjFhOc0IAA",
         cover: {
             bg: "#e8e2d8",
             text: "rgba(35, 32, 28, 0.82)",

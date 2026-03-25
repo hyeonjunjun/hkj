@@ -130,6 +130,8 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
                 }}
                 className="cover-image"
                 priority={index === 0}
+                placeholder={project.coverBlur ? "blur" : undefined}
+                blurDataURL={project.coverBlur}
               />
             </div>
 
