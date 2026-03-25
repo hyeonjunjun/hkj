@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useStudioStore } from "@/lib/store";
 
 /* ── Shader sources ── */
 
@@ -342,6 +343,13 @@ export default function WallLight() {
   const startRef = useRef(0);
   const lightRef = useRef<LightState>(getLightState(new Date().getHours(), new Date().getMinutes()));
   const prefersReduced = useReducedMotion();
+  const scrollProgress = useStudioStore((s) => s.scrollProgress);
+  // Keep a ref so the render loop always reads the latest value without
+  // needing to restart the effect on every scroll event
+  const scrollProgressRef = useRef(scrollProgress);
+  useEffect(() => {
+    scrollProgressRef.current = scrollProgress;
+  }, [scrollProgress]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -426,11 +434,14 @@ export default function WallLight() {
       const date = new Date();
       const dayPhase = (date.getHours() + date.getMinutes() / 60) / 24;
 
+      // Atmospheric parallax: light angle shifts ~3° (0.05 rad) over full scroll
+      const angleOffset = scrollProgressRef.current * 0.05;
+
       gl.uniform1f(uTime, t);
       gl.uniform2f(uRes, canvas.width, canvas.height);
       gl.uniform1f(uDayPhase, dayPhase);
       gl.uniform3f(uLightColor, light.color[0], light.color[1], light.color[2]);
-      gl.uniform1f(uLightAngle, light.angle);
+      gl.uniform1f(uLightAngle, light.angle + angleOffset);
       gl.uniform1f(uLightIntensity, light.intensity);
       gl.uniform3f(uShadowTone, light.shadow[0], light.shadow[1], light.shadow[2]);
       gl.uniform3f(uBgColor, light.bgColor[0], light.bgColor[1], light.bgColor[2]);

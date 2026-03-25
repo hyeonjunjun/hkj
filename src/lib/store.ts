@@ -9,6 +9,9 @@ interface StudioStore {
   // Page transition
   transitioning: boolean;
   setTransitioning: (v: boolean) => void;
+  // Scroll progress (0–1) for atmospheric parallax
+  scrollProgress: number;
+  setScrollProgress: (v: number) => void;
 }
 
 export const useStudioStore = create<StudioStore>((set) => ({
@@ -18,4 +21,6 @@ export const useStudioStore = create<StudioStore>((set) => ({
   setLoaded: () => set({ loaded: true }),
   transitioning: false,
   setTransitioning: (v) => set({ transitioning: v }),
+  scrollProgress: 0,
+  setScrollProgress: (v) => set({ scrollProgress: v }),
 }));

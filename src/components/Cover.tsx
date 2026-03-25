@@ -1,11 +1,20 @@
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import DissolveImage from "@/components/DissolveImage";
+import TransitionLink from "@/components/TransitionLink";
 import type { Project } from "@/constants/projects";
 import { GrainTexture } from "@/components/GrainTexture";
+
+// ease-swift cubic-bezier — matches the FLIP morph timing
+const EASE_SWIFT = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+function getNightModeGlow(): string {
+  if (typeof document === "undefined") return "rgba(180, 140, 80, 0.08)";
+  const isNight = document.documentElement.getAttribute("data-timemode") === "night";
+  return isNight ? "rgba(200, 160, 80, 0.12)" : "rgba(180, 140, 80, 0.08)";
+}
 
 export function Cover({ project, index, dimmed = false }: { project: Project; index: number; dimmed?: boolean }) {
   const isDark = isDarkColor(project.cover.bg);
@@ -15,10 +24,12 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
   const [isHovered, setIsHovered] = useState(false);
   const [isSelfHovered, setIsSelfHovered] = useState(false);
   const [videoIdx, setVideoIdx] = useState(0);
+  const [glowColor, setGlowColor] = useState("rgba(180, 140, 80, 0.08)");
   const videos = project.coverVideos || [];
 
   const handleMouseEnter = useCallback(() => {
     setIsSelfHovered(true);
+    setGlowColor(getNightModeGlow());
     if (videos.length === 0) return;
     setIsHovered(true);
     setVideoIdx(0);
@@ -55,9 +66,9 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
         overflow: "hidden",
         position: "relative",
         visibility: "hidden",
-        opacity: 0.4,
-        filter: "blur(1px)",
-        transition: "opacity 0.4s ease-out, filter 0.4s ease-out, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out",
+        opacity: 0.35,
+        filter: "blur(1.5px)",
+        transition: `opacity 400ms ${EASE_SWIFT}, filter 400ms ${EASE_SWIFT}, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out`,
       }
     : {
         display: "block",
@@ -69,13 +80,14 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
         opacity: 1,
         filter: "none",
         transform: isSelfHovered ? "scale(1.005)" : "scale(1)",
-        boxShadow: isSelfHovered ? "0 12px 40px rgba(180, 140, 80, 0.08)" : "none",
-        transition: "opacity 0.3s ease-out, filter 0.3s ease-out, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out",
+        boxShadow: isSelfHovered ? `0 12px 40px ${glowColor}` : "none",
+        transition: `opacity 400ms ${EASE_SWIFT}, filter 400ms ${EASE_SWIFT}, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out`,
       };
 
   return (
-    <Link
+    <TransitionLink
       href={`/work/${project.slug}`}
+      flipId={`project-${project.id}`}
       data-cover
       aria-label={`View ${project.title} case study`}
       style={linkStyle}
@@ -84,6 +96,7 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
     >
       {/* Cover visual */}
       <div
+        data-cover-image
         style={{
           backgroundColor: project.cover.bg,
           aspectRatio: "16 / 9",
@@ -262,7 +275,7 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
           )}
         </div>
       </div>
-    </Link>
+    </TransitionLink>
   );
 }
 
