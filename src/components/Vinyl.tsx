@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { NOW_PLAYING } from "@/constants/now-playing";
 
-const VINYL_SIZE = 320; // canvas logical size
+const VINYL_SIZE = 420; // canvas logical size
 const CAT_SIZE = 28;
 const GROOVE_COUNT = 35;
 const LABEL_RADIUS = 0.22; // proportion of vinyl radius
@@ -275,8 +275,8 @@ export default function Vinyl() {
     <canvas
       ref={canvasRef}
       style={{
-        width: VINYL_SIZE,
-        height: VINYL_SIZE,
+        width: "clamp(260px, 30vw, 420px)",
+        height: "clamp(260px, 30vw, 420px)",
         cursor: "grab",
         touchAction: "none",
       }}

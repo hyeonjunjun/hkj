@@ -62,7 +62,21 @@ export default function Home() {
           gap: "var(--space-break)",
         }}
       >
-        <div data-hero-el style={{ opacity: 0 }}>
+        <div
+          data-hero-el
+          style={{
+            opacity: 0,
+            position: "relative",
+          }}
+        >
+          {/* Warm halo behind the vinyl */}
+          <div style={{
+            position: "absolute",
+            inset: "-40%",
+            background: "radial-gradient(circle, rgba(200, 160, 80, 0.06) 0%, transparent 70%)",
+            pointerEvents: "none",
+            zIndex: -1,
+          }} />
           <Vinyl />
         </div>
         <div data-hero-el style={{ textAlign: "center", opacity: 0 }}>
@@ -114,7 +128,7 @@ export default function Home() {
       >
         <div
           ref={gridRef}
-          style={{ display: "flex", flexDirection: "column", gap: "var(--space-section)" }}
+          style={{ display: "flex", flexDirection: "column", gap: "clamp(48px, 6vh, 72px)" }}
         >
           {allProjects.map((project, i) => (
             <div
@@ -137,7 +151,7 @@ export default function Home() {
               style={{
                 aspectRatio: "16 / 9",
                 borderRadius: "6px",
-                border: "1px dashed rgba(var(--ink-rgb), 0.08)",
+                border: "1px dashed rgba(var(--ink-rgb), 0.15)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -150,7 +164,7 @@ export default function Home() {
                   fontSize: "var(--text-meta)",
                   letterSpacing: "var(--tracking-label)",
                   textTransform: "uppercase",
-                  color: "var(--ink-faint)",
+                  color: "var(--ink-muted)",
                 }}
               >
                 Coming soon
@@ -167,8 +181,8 @@ export default function Home() {
           data-reveal
           style={{
             maxWidth: "var(--max-cover)",
-            paddingTop: "var(--space-breath)",
-            paddingBottom: "var(--space-breath)",
+            paddingTop: "var(--space-section)",
+            paddingBottom: "var(--space-section)",
             borderTop: "1px solid rgba(var(--ink-rgb), 0.08)",
             marginTop: "var(--space-breath)",
             opacity: 0,
@@ -223,7 +237,7 @@ export default function Home() {
           data-reveal
           style={{
             maxWidth: "var(--max-cover)",
-            paddingTop: "var(--space-breath)",
+            paddingTop: "var(--space-section)",
             opacity: 0,
           }}
         >

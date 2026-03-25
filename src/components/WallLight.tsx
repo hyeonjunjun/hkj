@@ -112,7 +112,7 @@ void main() {
   /* Sky gets lighter where clouds are */
   vec3 skyColor = mix(skyBase, paper, skyPattern * 0.3);
   /* Mix sky strongly at top */
-  color = mix(color, skyColor, skyAmount * 0.35 * u_lightIntensity);
+  color = mix(color, skyColor, skyAmount * 0.35 * max(u_lightIntensity, 0.4));
 
   /* WALL LAYER — subtle light on the building surface below */
   /* Shadow tone in dark areas */
@@ -120,12 +120,17 @@ void main() {
   color = mix(color, u_shadowTone, shadowAmt * (1.0 - skyAmount));
 
   /* Light color in bright areas of the wall */
-  float lightAmt = light * u_lightAmt;
+  float lightAmt = light * u_lightAmt * 1.5;
   color = mix(color, u_lightColor, lightAmt * (1.0 - skyAmount * 0.7));
 
   /* Warmth boost in brightest wall spots */
   float peak = smoothstep(0.6, 0.9, light);
   color = mix(color, u_lightColor * 1.05, peak * 0.08 * (1.0 - skyAmount));
+
+  /* Ambient lamp glow — warm spot in upper-right area */
+  float lampDist = length(uv - vec2(0.7, 0.65));
+  float lamp = exp(-lampDist * lampDist * 4.0) * u_lightAmt * 0.6;
+  color = mix(color, u_lightColor * 1.2, lamp);
 
   /* ── Paper grain ── */
   float grain = noise(p * 18.0) * 0.012;
@@ -201,7 +206,7 @@ function getLightState(hour: number, minute: number): LightState {
         intensity: 0.15,
         shadow: [0.42, 0.40, 0.48],
         bgColor: [0.102, 0.094, 0.082],
-        lightAmt: 0.20,
+        lightAmt: 0.30,
       },
     },
     {
@@ -267,7 +272,7 @@ function getLightState(hour: number, minute: number): LightState {
         intensity: 0.5,
         shadow: [0.52, 0.42, 0.44],
         bgColor: [0.102, 0.094, 0.082],
-        lightAmt: 0.20,
+        lightAmt: 0.30,
       },
     },
     {
@@ -278,7 +283,7 @@ function getLightState(hour: number, minute: number): LightState {
         intensity: 0.2,
         shadow: [0.44, 0.42, 0.5],
         bgColor: [0.102, 0.094, 0.082],
-        lightAmt: 0.20,
+        lightAmt: 0.30,
       },
     },
     {
@@ -289,7 +294,7 @@ function getLightState(hour: number, minute: number): LightState {
         intensity: 0.15,
         shadow: [0.42, 0.40, 0.48],
         bgColor: [0.102, 0.094, 0.082],
-        lightAmt: 0.20,
+        lightAmt: 0.30,
       },
     },
   ];
