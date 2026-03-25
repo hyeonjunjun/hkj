@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       { source: "/explore",             destination: "/exploration", permanent: true },
       { source: "/explore/:slug",       destination: "/exploration", permanent: true },
       { source: "/coddiwomple",         destination: "/exploration", permanent: true },
-      { source: "/coddiwomple/:slug",   destination: "/exploration", permanent: true },
+      { source: "/coddiwomple/:slug",   destination: "/exploration/:slug", permanent: true },
       { source: "/experiments",         destination: "/exploration", permanent: true },
       { source: "/experiments/:slug",   destination: "/exploration", permanent: true },
       { source: "/journal",             destination: "/writing",      permanent: true },
