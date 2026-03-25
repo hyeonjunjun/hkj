@@ -9,8 +9,6 @@
 :root {
   /* ── Ground & Ink ── */
   --paper: #f7f6f3;
-  --bg: #f7f6f3;
-  --bg-rgb: 247, 246, 243;
   --ink-full:      rgba(35, 32, 28, 1.00);
   --ink-primary:   rgba(35, 32, 28, 0.82);
   --ink-secondary: rgba(35, 32, 28, 0.52);
@@ -65,40 +63,6 @@
   --ease-dropdown: cubic-bezier(.16, 1, .3, 1);
 }
 
-/* ── Time Mode: Day (default) ── */
-:root, :root[data-timemode="day"] {
-  --bg: #f7f6f3;
-  --bg-rgb: 247, 246, 243;
-}
-
-/* ── Time Mode: Dusk ── */
-:root[data-timemode="dusk"] {
-  --bg: #2e2a25;
-  --bg-rgb: 46, 42, 37;
-  --ink-full: rgba(240, 235, 227, 1);
-  --ink-primary: rgba(240, 235, 227, 0.92);
-  --ink-secondary: rgba(240, 235, 227, 0.65);
-  --ink-muted: rgba(240, 235, 227, 0.45);
-  --ink-faint: rgba(240, 235, 227, 0.22);
-  --ink-ghost: rgba(240, 235, 227, 0.12);
-  --ink-whisper: rgba(240, 235, 227, 0.06);
-  --ink-rgb: 240, 235, 227;
-}
-
-/* ── Time Mode: Night ── */
-:root[data-timemode="night"] {
-  --bg: #1a1815;
-  --bg-rgb: 26, 24, 21;
-  --ink-full: rgba(240, 235, 227, 1);
-  --ink-primary: rgba(240, 235, 227, 0.92);
-  --ink-secondary: rgba(240, 235, 227, 0.65);
-  --ink-muted: rgba(240, 235, 227, 0.45);
-  --ink-faint: rgba(240, 235, 227, 0.22);
-  --ink-ghost: rgba(240, 235, 227, 0.12);
-  --ink-whisper: rgba(240, 235, 227, 0.06);
-  --ink-rgb: 240, 235, 227;
-}
-
 /* ── Base ── */
 
 *,
@@ -114,7 +78,7 @@ html {
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--paper);
   color: var(--ink-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);
@@ -125,7 +89,6 @@ body {
   padding-top: 48px; /* fixed nav offset */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  transition: background-color 2s ease, color 2s ease;
 }
 
 body::-webkit-scrollbar {
@@ -362,39 +325,11 @@ body::-webkit-scrollbar {
   box-shadow: 0 8px 32px rgba(180, 140, 80, 0.06);
 }
 
-:root[data-timemode="night"] [data-cover]:hover,
-:root[data-timemode="dusk"] [data-cover]:hover {
-  box-shadow: 0 8px 32px rgba(200, 160, 80, 0.10);
-}
-
 /* ── Press state ── */
 [data-link]:active,
 [data-cover]:active {
   transform: scale(0.98);
   transition: transform 0.1s ease-out;
-}
-
-/* ── NYC Clock night glow ── */
-:root[data-timemode="night"] .nyc-clock {
-  text-shadow: 0 0 12px rgba(200, 160, 80, 0.15);
-}
-
-/* ── Time mode slow transitions (only on structural elements) ── */
-body,
-.page-container,
-[data-cover],
-.font-mono,
-.font-display {
-  transition: color 2s ease, background-color 2s ease;
-}
-
-/* Re-apply specific fast transitions for interactive elements */
-[data-link] {
-  transition: color var(--duration-hover) var(--ease-hover);
-}
-
-[data-cover] {
-  transition: transform var(--duration-hover) var(--ease-out), color 2s ease, background-color 2s ease;
 }
 
 /* ── Equalizer bars animation ── */
@@ -405,60 +340,6 @@ body,
 
 .eq-bar {
   animation: eq-bounce 0.8s ease-in-out infinite;
-}
-
-/* ── Custom cursor ── */
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--ink-muted);
-  pointer-events: none;
-  z-index: 10000;
-  mix-blend-mode: difference;
-  transition: width 0.15s var(--ease-swift), height 0.15s var(--ease-swift), opacity 0.15s var(--ease-swift);
-  will-change: transform;
-}
-
-.cursor-dot[data-state="magnetic"] {
-  width: 24px;
-  height: 24px;
-}
-
-.cursor-dot[data-state="label"] {
-  width: auto;
-  height: auto;
-  border-radius: 100px;
-  padding: 6px 12px;
-  background: var(--ink-ghost);
-  backdrop-filter: blur(8px);
-  mix-blend-mode: normal;
-}
-
-.cursor-dot[data-state="hidden"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* Hide custom cursor on touch devices */
-@media (hover: none) {
-  .cursor-dot { display: none !important; }
-}
-
-/* Hide default cursor when custom cursor is active */
-html[data-cursor-active] {
-  cursor: none !important;
-}
-
-html[data-cursor-active] a,
-html[data-cursor-active] button,
-html[data-cursor-active] [data-cover],
-html[data-cursor-active] [data-link] {
-  cursor: none !important;
 }
 
 /* ── Text mask reveal wrapper ── */
@@ -470,14 +351,4 @@ html[data-cursor-active] [data-link] {
 .mask-line > span {
   display: inline-block;
   will-change: transform;
-}
-
-/* ── Equalizer bars animation ── */
-@keyframes eq-bounce {
-  0%, 100% { height: 3px; }
-  50% { height: 10px; }
-}
-
-.eq-bar {
-  animation: eq-bounce 0.8s ease-in-out infinite;
 }
