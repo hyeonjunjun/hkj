@@ -3,10 +3,11 @@
 import { useParams, useRouter } from "next/navigation";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { REVEAL_CONTENT } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
 import { CASE_STUDIES } from "@/constants/case-studies";
+import TransitionLink from "@/components/TransitionLink";
 
 export default function CaseStudy() {
   const { slug } = useParams();
@@ -85,8 +86,8 @@ export default function CaseStudy() {
     const sectionEls = containerRef.current.querySelectorAll("[data-section-reveal]");
     sectionEls.forEach((el) => {
       gsap.fromTo(el,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
+        REVEAL_CONTENT.from,
+        { ...REVEAL_CONTENT.to, stagger: undefined,
           scrollTrigger: { trigger: el, start: "top 80%", once: true } }
       );
     });
@@ -171,10 +172,9 @@ export default function CaseStudy() {
     <div
       ref={containerRef}
       className="min-h-screen"
-      style={{ backgroundColor: "transparent" }}
     >
       {/* ── Content column ── */}
-      <div style={{ maxWidth: "var(--max-cover)", margin: "0 auto", padding: "10vh var(--page-px)" }}>
+      <div style={{ maxWidth: "var(--max-cover)", margin: "0 auto", padding: "clamp(80px, 12vh, 140px) var(--page-px)" }}>
         {/* ── Project Metadata ── */}
         <div className="mb-16">
           <h1
@@ -746,7 +746,7 @@ export default function CaseStudy() {
         className="md:hidden padding-x-1 pb-8 flex justify-between"
       >
         {prevProject && (
-          <Link
+          <TransitionLink
             href={`/work/${prevProject.slug}`}
             className="font-mono uppercase"
             style={{
@@ -757,10 +757,10 @@ export default function CaseStudy() {
             }}
           >
             ← {prevProject.title}
-          </Link>
+          </TransitionLink>
         )}
         {nextProject && (
-          <Link
+          <TransitionLink
             href={`/work/${nextProject.slug}`}
             className="font-mono uppercase ml-auto"
             style={{
@@ -771,7 +771,7 @@ export default function CaseStudy() {
             }}
           >
             {nextProject.title} →
-          </Link>
+          </TransitionLink>
         )}
       </div>
     </div>
