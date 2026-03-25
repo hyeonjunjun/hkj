@@ -7,10 +7,6 @@ import TransitionLink from "@/components/TransitionLink";
 import type { Project } from "@/constants/projects";
 import { GrainTexture } from "@/components/GrainTexture";
 
-// ease-swift cubic-bezier — matches the FLIP morph timing
-const EASE_SWIFT = "cubic-bezier(0.4, 0, 0.2, 1)";
-
-const GLOW_COLOR = "rgba(180, 140, 80, 0.08)";
 
 export function Cover({ project, index, dimmed = false }: { project: Project; index: number; dimmed?: boolean }) {
   const isDark = isDarkColor(project.cover.bg);
@@ -18,19 +14,16 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const [isSelfHovered, setIsSelfHovered] = useState(false);
   const [videoIdx, setVideoIdx] = useState(0);
   const videos = project.coverVideos || [];
 
   const handleMouseEnter = useCallback(() => {
-    setIsSelfHovered(true);
     if (videos.length === 0) return;
     setIsHovered(true);
     setVideoIdx(0);
   }, [videos.length]);
 
   const handleMouseLeave = useCallback(() => {
-    setIsSelfHovered(false);
     setIsHovered(false);
     setVideoIdx(0);
   }, []);
@@ -52,31 +45,16 @@ export function Cover({ project, index, dimmed = false }: { project: Project; in
     videoRef.current.play().catch(() => {});
   }, [isHovered, videoIdx]);
 
-  const linkStyle: React.CSSProperties = dimmed
-    ? {
-        display: "block",
-        textDecoration: "none",
-        borderRadius: "6px",
-        overflow: "hidden",
-        position: "relative",
-        visibility: "hidden",
-        opacity: 0.35,
-        filter: "blur(1.5px)",
-        transition: `opacity 400ms ${EASE_SWIFT}, filter 400ms ${EASE_SWIFT}, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out`,
-      }
-    : {
-        display: "block",
-        textDecoration: "none",
-        borderRadius: "6px",
-        overflow: "hidden",
-        position: "relative",
-        visibility: "hidden",
-        opacity: 1,
-        filter: "none",
-        transform: isSelfHovered ? "scale(1.005)" : "scale(1)",
-        boxShadow: isSelfHovered ? `0 12px 40px ${GLOW_COLOR}` : "none",
-        transition: `opacity 400ms ${EASE_SWIFT}, filter 400ms ${EASE_SWIFT}, transform var(--duration-hover) var(--ease-out), box-shadow 0.3s ease-out`,
-      };
+  const linkStyle: React.CSSProperties = {
+    display: "block",
+    textDecoration: "none",
+    borderRadius: "6px",
+    overflow: "hidden",
+    position: "relative",
+    opacity: dimmed ? 0.35 : 1,
+    filter: dimmed ? "blur(1.5px)" : "none",
+    transition: "opacity 300ms var(--ease-swift), filter 300ms var(--ease-swift)",
+  };
 
   return (
     <TransitionLink

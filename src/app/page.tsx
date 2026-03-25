@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { gsap } from "@/lib/gsap";
-import { REVEAL_HERO, REVEAL_CARD, REVEAL_CONTENT } from "@/lib/animations";
+import { REVEAL_HERO, REVEAL_CONTENT } from "@/lib/animations";
 import { PROJECTS } from "@/constants/projects";
 import { NOW_TEXT } from "@/constants/now";
 import { useStudioStore } from "@/lib/store";
@@ -11,7 +11,6 @@ import { Cover } from "@/components/Cover";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
   const loaded = useStudioStore((s) => s.loaded);
 
@@ -22,11 +21,6 @@ export default function Home() {
     if (heroRef.current) {
       const els = heroRef.current.querySelectorAll("[data-hero-el]");
       gsap.fromTo(els, REVEAL_HERO.from, { ...REVEAL_HERO.to, delay: 0.2 });
-    }
-
-    if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll("[data-cover]");
-      gsap.fromTo(cards, REVEAL_CARD.from, { ...REVEAL_CARD.to, delay: 0.4 });
     }
 
     if (sectionsRef.current) {
@@ -89,7 +83,6 @@ export default function Home() {
       {/* Work */}
       <section id="work" style={{ maxWidth: "var(--max-cover)" }}>
         <div
-          ref={gridRef}
           style={{ display: "flex", flexDirection: "column", gap: "clamp(48px, 6vh, 72px)" }}
         >
           {PROJECTS.map((project, i) => (
