@@ -7,11 +7,12 @@ import type { SheetItemData } from "@/constants/sheet-items";
 
 interface GridItemProps {
   item: SheetItemData;
+  aspectRatio?: string;
   style?: React.CSSProperties;
   className?: string;
 }
 
-export function GridItem({ item, style, className }: GridItemProps) {
+export function GridItem({ item, aspectRatio = "1", style, className }: GridItemProps) {
   return (
     <motion.div
       data-flip-id={item.id}
@@ -27,7 +28,7 @@ export function GridItem({ item, style, className }: GridItemProps) {
         borderRadius: 6,
         overflow: "hidden",
         cursor: "pointer",
-        aspectRatio: "1",
+        aspectRatio,
         ...style,
       }}
     >
