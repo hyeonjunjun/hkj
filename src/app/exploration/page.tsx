@@ -1,93 +1,69 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { gsap } from "@/lib/gsap";
-import { REVEAL_CARD } from "@/lib/animations";
+import { motion } from "framer-motion";
 import { EXPLORATIONS } from "@/constants/explorations";
 
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.5, ease: [0.23, 0.88, 0.26, 0.92] },
+};
+
 export default function ExplorationPage() {
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!gridRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const items = gridRef.current.querySelectorAll("[data-explore-item]");
-    gsap.fromTo(items, REVEAL_CARD.from, { ...REVEAL_CARD.to });
-  }, []);
-
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        paddingTop: "clamp(80px, 12vh, 140px)",
-        paddingBottom: "var(--space-breath)",
-      }}
-    >
-      {/* Header */}
+    <div data-page-scrollable>
       <div
         style={{
-          paddingLeft: "var(--page-px)",
-          paddingRight: "var(--page-px)",
-          marginBottom: "clamp(3rem, 6vh, 5rem)",
+          padding: "clamp(80px, 12vh, 140px) 24px clamp(48px, 8vh, 80px)",
         }}
       >
-        <h1
-          className="font-display"
+        {/* Header */}
+        <motion.div {...fadeUp} style={{ marginBottom: "clamp(3rem, 6vh, 5rem)" }}>
+          <h1
+            className="font-display"
+            style={{
+              fontSize: "clamp(22px, 3vw, 32px)",
+              color: "var(--ink-full)",
+              lineHeight: 1.1,
+              fontStyle: "italic",
+              margin: "0 0 12px",
+            }}
+          >
+            Coddiwompling
+          </h1>
+          <p
+            style={{
+              fontSize: "var(--text-body)",
+              color: "var(--ink-secondary)",
+              fontStyle: "italic",
+              maxWidth: "40ch",
+              margin: 0,
+            }}
+          >
+            traveling purposefully toward an unknown destination. visual studies, material research, and things that caught the light.
+          </p>
+        </motion.div>
+
+        {/* Gallery — 3-col grid */}
+        <div
           style={{
-            fontSize: "clamp(22px, 3vw, 32px)",
-            color: "var(--ink-full)",
-            lineHeight: 1.1,
-            fontStyle: "italic",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 16,
           }}
         >
-          Coddiwompling
-        </h1>
-        <p
-          style={{
-            fontSize: "var(--text-body)",
-            color: "var(--ink-secondary)",
-            fontStyle: "italic",
-            marginTop: "0.75rem",
-            maxWidth: "40ch",
-          }}
-        >
-          traveling purposefully toward an unknown destination. visual studies, material research, and things that caught the light.
-        </p>
-      </div>
-
-      {/* Gallery — asymmetric masonry */}
-      <div
-        ref={gridRef}
-        style={{
-          paddingLeft: "var(--page-px)",
-          paddingRight: "var(--page-px)",
-          display: "grid",
-          gridTemplateColumns: "repeat(12, 1fr)",
-          gap: "16px",
-          rowGap: "clamp(2rem, 5vh, 4rem)",
-        }}
-      >
-        {EXPLORATIONS.map((piece, i) => {
-          const isWide = i % 3 === 0;
-          const colSpan = isWide ? "span 7" : "span 5";
-          const colStart = !isWide && i % 3 === 2 ? "8" : undefined;
-
-          return (
-            <div
+          {EXPLORATIONS.map((piece, i) => (
+            <motion.div
               key={piece.id}
-              data-explore-item
-              style={{
-                gridColumn: colStart ? `${colStart} / span 5` : colSpan,
-                visibility: "hidden",
-                display: "block",
-              }}
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: i * 0.05 }}
             >
               <div
                 style={{
                   overflow: "hidden",
-                  aspectRatio: isWide ? "16/10" : "3/4",
+                  aspectRatio: "3/4",
                   position: "relative",
                 }}
               >
@@ -98,52 +74,21 @@ export default function ExplorationPage() {
                     muted
                     loop
                     playsInline
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      transition:
-                        "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                    onMouseEnter={(e) =>
-                    ((e.target as HTMLElement).style.transform =
-                      "scale(1.03)")
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.target as HTMLElement).style.transform = "scale(1)")
-                    }
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 ) : (
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                      transition:
-                        "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                    }}
-                    onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.transform =
-                      "scale(1.03)")
-                    }
-                    onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.transform =
-                      "scale(1)")
-                    }
-                  >
-                    <Image
-                      src={piece.hero}
-                      alt={piece.title}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      sizes={isWide ? "58vw" : "42vw"}
-                      quality={90}
-                    />
-                  </div>
+                  <Image
+                    src={piece.hero}
+                    alt={piece.title}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="33vw"
+                    quality={90}
+                  />
                 )}
               </div>
 
-              <div style={{ marginTop: "0.75rem" }}>
+              <div style={{ marginTop: 12 }}>
                 <span
                   className="font-display"
                   style={{
@@ -159,18 +104,28 @@ export default function ExplorationPage() {
                   style={{
                     fontSize: 10,
                     color: "var(--ink-muted)",
-                    marginLeft: "0.75rem",
+                    marginLeft: 12,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
                   }}
                 >
                   {piece.medium}
                 </span>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "var(--ink-secondary)",
+                    margin: "4px 0 0",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {piece.description}
+                </p>
               </div>
-            </div>
-          );
-        })}
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
