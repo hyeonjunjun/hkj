@@ -7,7 +7,7 @@ const fadeUp = {
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.5, ease: [0.23, 0.88, 0.26, 0.92] },
+  transition: { duration: 0.5, ease: [0.23, 0.88, 0.26, 0.92] as const },
 };
 
 export default function AboutPage() {
