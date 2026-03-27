@@ -58,27 +58,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-(function(){
-  var t = localStorage.getItem("hkj-theme");
-  if (!t) {
-    var h = new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"})).getHours();
-    t = h >= 6 && h < 18 ? "light" : "dark";
-  }
-  document.documentElement.setAttribute("data-theme", t);
-})();
-            `,
-          }}
-        />
-      </head>
-      <body
-        className={`${generalSans.variable} ${fragmentMono.variable}`}
-        suppressHydrationWarning
-      >
+    <html lang="en">
+      <body className={`${generalSans.variable} ${fragmentMono.variable}`}>
+        {/* SVG grain filter — referenced by Cover component */}
+        <svg
+          aria-hidden="true"
+          focusable="false"
+          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+        >
+          <defs>
+            <filter id="grain" x="0%" y="0%" width="100%" height="100%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency={0.65}
+                numOctaves={4}
+                stitchTiles="stitch"
+                result="noise"
+              />
+              <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
+              <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" />
+            </filter>
+          </defs>
+        </svg>
+
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
