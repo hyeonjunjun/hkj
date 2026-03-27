@@ -4,19 +4,19 @@ import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { useStudioStore } from "@/lib/store";
+import { useStudioStore, type ViewMode } from "@/lib/store";
 import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
 
-const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Exploration", href: "/exploration" },
-  { label: "Writing", href: "/writing" },
-  { label: "About", href: "/about" },
+const VIEW_LINKS: { label: string; value: ViewMode }[] = [
+  { label: "Index", value: "index" },
+  { label: "Drift", value: "drift" },
+  { label: "Archive", value: "archive" },
 ];
 
 export function MobileMenu() {
   const isOpen = useStudioStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
+  const setActiveView = useStudioStore((s) => s.setActiveView);
   const pathname = usePathname();
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +31,9 @@ export function MobileMenu() {
   useEffect(() => {
     if (isOpen) {
       const raf = requestAnimationFrame(() => {
-        const first = overlayRef.current?.querySelector<HTMLElement>("a[href], button:not([disabled])");
+        const first = overlayRef.current?.querySelector<HTMLElement>(
+          "a[href], button:not([disabled])"
+        );
         first?.focus();
       });
       return () => cancelAnimationFrame(raf);
@@ -48,34 +50,37 @@ export function MobileMenu() {
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, close]);
 
-  // Focus trap (Tab / Shift+Tab)
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== "Tab") return;
-    const overlay = overlayRef.current;
-    if (!overlay) return;
+  // Focus trap
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== "Tab") return;
+      const overlay = overlayRef.current;
+      if (!overlay) return;
 
-    const focusable = Array.from(
-      overlay.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((el) => !el.closest('[aria-hidden="true"]'));
+      const focusable = Array.from(
+        overlay.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.closest('[aria-hidden="true"]'));
 
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
 
-    if (e.shiftKey) {
-      if (document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
-    } else {
-      if (document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }, []);
+    },
+    []
+  );
 
   return (
     <AnimatePresence>
@@ -103,7 +108,7 @@ export function MobileMenu() {
           {/* Close button */}
           <div
             style={{
-              height: 48,
+              height: 56,
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
@@ -129,7 +134,7 @@ export function MobileMenu() {
             </button>
           </div>
 
-          {/* Nav links */}
+          {/* View links */}
           <nav
             style={{
               flex: 1,
@@ -140,23 +145,44 @@ export function MobileMenu() {
               gap: 24,
             }}
           >
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={close}
+            {VIEW_LINKS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => {
+                  setActiveView(value);
+                  close();
+                }}
                 style={{
                   fontFamily: "var(--font-display)",
                   fontStyle: "italic",
                   fontSize: "clamp(22px, 5vw, 28px)",
                   color: "var(--ink-primary)",
-                  textDecoration: "none",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  textAlign: "left",
                   lineHeight: 1.2,
                 }}
               >
-                {link.label}
-              </Link>
+                {label}
+              </button>
             ))}
+
+            <Link
+              href="/about"
+              onClick={close}
+              style={{
+                fontFamily: "var(--font-display)",
+                fontStyle: "italic",
+                fontSize: "clamp(22px, 5vw, 28px)",
+                color: "var(--ink-primary)",
+                textDecoration: "none",
+                lineHeight: 1.2,
+              }}
+            >
+              About
+            </Link>
           </nav>
 
           {/* Bottom contact */}
