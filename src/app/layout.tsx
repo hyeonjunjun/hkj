@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import GlobalNav from "@/components/GlobalNav";
-import Footer from "@/components/Footer";
-import SmoothScroll from "@/components/SmoothScroll";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import PreloaderWrapper from "@/components/PreloaderWrapper";
-import TransitionManagerWrapper from "@/components/TransitionManagerWrapper";
 
 /* ── Fonts ── */
 
@@ -75,46 +71,12 @@ export default function RootLayout({
         className={`${newsreader.variable} ${satoshi.variable} ${fragmentMono.variable}`}
         suppressHydrationWarning
       >
-        {/* SVG grain filter — referenced by .grain-overlay and [data-cover] */}
-        <svg
-          aria-hidden="true"
-          focusable="false"
-          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-        >
-          <defs>
-            <filter id="grain" x="0%" y="0%" width="100%" height="100%">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.65"
-                numOctaves={4}
-                stitchTiles="stitch"
-                result="noise"
-              />
-              <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
-              <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" />
-            </filter>
-          </defs>
-        </svg>
-
-        <PreloaderWrapper />
-        <TransitionManagerWrapper />
-
-        {/* Accessibility */}
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
         <RouteAnnouncer />
-
-        {/* Chrome */}
         <GlobalNav />
-
-        {/* Content */}
-        <SmoothScroll>
-          <main id="main" style={{ position: "relative" }}>
-            {children}
-          </main>
-          <Footer />
-        </SmoothScroll>
+        <main id="main">{children}</main>
       </body>
     </html>
   );
