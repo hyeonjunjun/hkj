@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import TransitionLink from "@/components/TransitionLink";
-import { NAV_LINKS } from "@/constants/navigation";
-import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
+import { motion, AnimatePresence } from "framer-motion";
 import { useStudioStore } from "@/lib/store";
+import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
+
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Exploration", href: "/exploration" },
+  { label: "Writing", href: "/writing" },
+  { label: "About", href: "/about" },
+];
 
 export function MobileMenu() {
   const isOpen = useStudioStore((s) => s.mobileMenuOpen);
   const setMobileMenuOpen = useStudioStore((s) => s.setMobileMenuOpen);
   const pathname = usePathname();
   const overlayRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const close = useCallback(() => setMobileMenuOpen(false), [setMobileMenuOpen]);
 
@@ -21,20 +27,14 @@ export function MobileMenu() {
     close();
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Body scroll lock + focus management
+  // Focus first link on open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
-      // Focus first link after paint
       const raf = requestAnimationFrame(() => {
-        const first = overlayRef.current?.querySelector<HTMLElement>(
-          'a[href], button:not([disabled])'
-        );
+        const first = overlayRef.current?.querySelector<HTMLElement>("a[href], button:not([disabled])");
         first?.focus();
       });
       return () => cancelAnimationFrame(raf);
-    } else {
-      document.body.style.overflow = "";
     }
   }, [isOpen]);
 
@@ -48,7 +48,7 @@ export function MobileMenu() {
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, close]);
 
-  // Full focus trap (Tab / Shift+Tab)
+  // Focus trap (Tab / Shift+Tab)
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== "Tab") return;
     const overlay = overlayRef.current;
@@ -61,7 +61,6 @@ export function MobileMenu() {
     ).filter((el) => !el.closest('[aria-hidden="true"]'));
 
     if (focusable.length === 0) return;
-
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
@@ -79,138 +78,128 @@ export function MobileMenu() {
   }, []);
 
   return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Navigation menu"
-      onKeyDown={handleKeyDown}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9500,
-        backgroundColor: "var(--paper)",
-        display: "flex",
-        flexDirection: "column",
-        opacity: isOpen ? 1 : 0,
-        pointerEvents: isOpen ? "auto" : "none",
-        transition: "opacity 320ms ease-out",
-      }}
-    >
-      {/* Top bar — close button */}
-      <div
-        style={{
-          height: 48,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          padding: "0 var(--page-px)",
-        }}
-      >
-        <button
-          ref={closeButtonRef}
-          onClick={close}
-          aria-label="Close menu"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={overlayRef}
+          key="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          onKeyDown={handleKeyDown}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           style={{
-            fontFamily: "var(--font-body)",
-            fontSize: "var(--text-nav)",
-            color: "var(--ink-secondary)",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: 0,
-            height: 48,
+            position: "fixed",
+            inset: 0,
+            zIndex: 9500,
+            backgroundColor: "var(--paper)",
             display: "flex",
-            alignItems: "center",
-            transition: "color var(--duration-hover) var(--ease-hover)",
+            flexDirection: "column",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-primary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
         >
-          Close
-        </button>
-      </div>
-
-      {/* Nav links */}
-      <nav
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "0 var(--page-px)",
-          gap: 24,
-        }}
-      >
-        {NAV_LINKS.map((link) => {
-          const active =
-            link.href === "/#work"
-              ? pathname === "/"
-              : pathname === link.href || pathname.startsWith(link.href + "/");
-          return (
-            <TransitionLink
-              key={link.label}
-              href={link.href}
+          {/* Close button */}
+          <div
+            style={{
+              height: 48,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              padding: "0 24px",
+            }}
+          >
+            <button
               onClick={close}
+              aria-label="Close menu"
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(22px, 5vw, 28px)",
-                color: active ? "var(--ink-full)" : "var(--ink-primary)",
-                textDecoration: "none",
-                lineHeight: "var(--leading-display)",
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--ink-secondary)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
               }}
             >
-              {link.label}
-            </TransitionLink>
-          );
-        })}
-      </nav>
+              Close
+            </button>
+          </div>
 
-      {/* Bottom contact row */}
-      <div
-        style={{
-          padding: "var(--space-standard) var(--page-px)",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-comfortable)",
-          flexWrap: "wrap",
-        }}
-      >
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "var(--text-meta)",
-            color: "var(--ink-muted)",
-            textDecoration: "none",
-            transition: "color var(--duration-hover) var(--ease-hover)",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-muted)")}
-        >
-          {CONTACT_EMAIL}
-        </a>
-        {SOCIALS.map((s) => (
-          <a
-            key={s.label}
-            href={s.href}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Nav links */}
+          <nav
             style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-meta)",
-              color: "var(--ink-muted)",
-              textDecoration: "none",
-              transition: "color var(--duration-hover) var(--ease-hover)",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              padding: "0 24px",
+              gap: 24,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--ink-muted)")}
           >
-            {s.label}
-          </a>
-        ))}
-      </div>
-    </div>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                onClick={close}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontStyle: "italic",
+                  fontSize: "clamp(22px, 5vw, 28px)",
+                  color: "var(--ink-primary)",
+                  textDecoration: "none",
+                  lineHeight: 1.2,
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Bottom contact */}
+          <div
+            style={{
+              padding: "16px 24px",
+              display: "flex",
+              alignItems: "center",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
+          >
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-meta)",
+                color: "var(--ink-muted)",
+                textDecoration: "none",
+              }}
+            >
+              {CONTACT_EMAIL}
+            </a>
+            {SOCIALS.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--text-meta)",
+                  color: "var(--ink-muted)",
+                  textDecoration: "none",
+                }}
+              >
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
