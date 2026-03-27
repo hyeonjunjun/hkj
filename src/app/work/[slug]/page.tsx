@@ -1,18 +1,23 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { REVEAL_CONTENT } from "@/lib/animations";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import { PROJECTS } from "@/constants/projects";
 import { CASE_STUDIES } from "@/constants/case-studies";
-import TransitionLink from "@/components/TransitionLink";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.5, ease: [0.23, 0.88, 0.26, 0.92] },
+};
 
 export default function CaseStudy() {
   const { slug } = useParams();
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
   const [scrollPercent, setScrollPercent] = useState(0);
 
   const project = PROJECTS.find((p) => p.id === slug || p.slug === slug);
@@ -23,129 +28,27 @@ export default function CaseStudy() {
   const prevProject = currentIdx > 0 ? PROJECTS[currentIdx - 1] : null;
   const nextProject = currentIdx < PROJECTS.length - 1 ? PROJECTS[currentIdx + 1] : null;
 
-  // Scroll progress indicator
   useEffect(() => {
+    const el = document.querySelector("[data-page-scrollable]") as HTMLElement | null;
+    const target = el ?? window;
+
     const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = window.innerHeight;
-      const scrollY = window.scrollY;
-      const pct = Math.round((scrollY / (scrollHeight - clientHeight)) * 100);
+      const scrollEl = el ?? document.documentElement;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = el ? el.clientHeight : window.innerHeight;
+      const scrollTop = el ? el.scrollTop : window.scrollY;
+      const pct = Math.round((scrollTop / (scrollHeight - clientHeight)) * 100);
       setScrollPercent(Math.max(0, Math.min(pct, 100)));
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    target.addEventListener("scroll", handleScroll, { passive: true });
+    return () => target.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // GSAP scroll reveals
-  const hasAnimated = useRef(false);
-  useEffect(() => {
-    if (!containerRef.current || hasAnimated.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    hasAnimated.current = true;
-
-    // Image reveals
-    const imageEls = containerRef.current.querySelectorAll("[data-media-reveal='image']");
-    imageEls.forEach((el, i) => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 75 },
-        { opacity: 1, y: 0, duration: 1.5, delay: i * 0.1, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 75%", once: true } }
-      );
-    });
-
-    // Video reveals
-    const videoEls = containerRef.current.querySelectorAll("[data-media-reveal='video']");
-    videoEls.forEach((el, i) => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 75, scale: 1.02 },
-        { opacity: 1, y: 0, scale: 1, duration: 1.5, delay: i * 0.1, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 75%", once: true } }
-      );
-    });
-
-    // Text reveals
-    const textEls = containerRef.current.querySelectorAll("[data-text-reveal]");
-    textEls.forEach((el, i) => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 5, filter: "blur(4px)" },
-        { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.75, delay: i * 0.122, ease: "power3.out" }
-      );
-    });
-
-    // Role text stagger
-    const roleEls = containerRef.current.querySelectorAll("[data-role-reveal]");
-    roleEls.forEach((el, i) => {
-      gsap.fromTo(el,
-        { opacity: 0, y: 5, filter: "blur(4px)" },
-        { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.75, delay: i * 0.2, ease: "power3.out" }
-      );
-    });
-
-    // Section reveals
-    const sectionEls = containerRef.current.querySelectorAll("[data-section-reveal]");
-    sectionEls.forEach((el) => {
-      gsap.fromTo(el,
-        REVEAL_CONTENT.from,
-        { ...REVEAL_CONTENT.to, stagger: undefined,
-          scrollTrigger: { trigger: el, start: "top 80%", once: true } }
-      );
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
-  }, [slug]);
-
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        router.push("/");
-        return;
-      }
-
-      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        e.preventDefault();
-        const blocks = Array.from(
-          document.querySelectorAll("[data-media-reveal]")
-        );
-        if (!blocks.length) return;
-
-        const viewportCenter = window.scrollY + window.innerHeight / 2;
-        let closestIdx = 0;
-        let closestDist = Infinity;
-        blocks.forEach((el, idx) => {
-          const rect = (el as HTMLElement).getBoundingClientRect();
-          const elCenter = window.scrollY + rect.top + rect.height / 2;
-          const dist = Math.abs(elCenter - viewportCenter);
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestIdx = idx;
-          }
-        });
-
-        const targetIdx =
-          e.key === "ArrowDown"
-            ? Math.min(closestIdx + 1, blocks.length - 1)
-            : Math.max(closestIdx - 1, 0);
-
-        blocks[targetIdx]?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-
-      if (e.key === " ") {
-        e.preventDefault();
-        const videos = document.querySelectorAll("video");
-        videos.forEach((v) => {
-          const rect = v.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            if (v.paused) { v.play(); } else { v.pause(); }
-          }
-        });
-      }
+      if (e.key === "Escape") router.push("/");
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
@@ -153,10 +56,15 @@ export default function CaseStudy() {
   if (!project) {
     return (
       <div
-        className="w-full h-screen flex items-center justify-center font-mono uppercase"
+        data-page-scrollable
         style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--font-mono)",
           fontSize: 10,
           letterSpacing: "0.1em",
+          textTransform: "uppercase",
           color: "var(--ink-secondary)",
         }}
       >
@@ -165,614 +73,286 @@ export default function CaseStudy() {
     );
   }
 
-  // Helper: check if a string has real content
   const has = (s?: string) => s && s.trim().length > 0;
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen"
-    >
-      {/* ── Content column ── */}
-      <div style={{ maxWidth: "var(--max-cover)", margin: "0 auto", padding: "clamp(80px, 12vh, 140px) var(--page-px)" }}>
-        {/* ── Project Metadata ── */}
-        <div className="mb-16">
+    <div data-page-scrollable>
+      <div
+        style={{
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "clamp(80px, 12vh, 140px) 24px clamp(48px, 8vh, 80px)",
+        }}
+      >
+        {/* Back */}
+        <motion.div {...fadeUp} style={{ marginBottom: 48 }}>
+          <Link
+            href="/"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--ink-muted)",
+              textDecoration: "none",
+            }}
+          >
+            ← Back
+          </Link>
+        </motion.div>
+
+        {/* Project Metadata */}
+        <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
           <h1
-            className="font-mono uppercase"
+            className="font-mono"
             style={{
               fontSize: 10,
               letterSpacing: "0.1em",
+              textTransform: "uppercase",
               color: "var(--ink-primary)",
+              margin: "0 0 16px",
             }}
-            data-text-reveal
           >
             {project.title}
           </h1>
-
           <p
-            className="font-mono uppercase mt-4"
+            className="font-mono"
             style={{
               fontSize: 10,
-              lineHeight: "110%",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
               color: "var(--ink-secondary)",
+              margin: "0 0 24px",
+              lineHeight: 1.6,
             }}
-            data-text-reveal
           >
             {project.description}
           </p>
-
-          <div className="flex gap-8 mt-6">
+          <div style={{ display: "flex", gap: 32 }}>
             {caseStudy?.role && (
-              <div data-role-reveal>
-                <span
-                  className="font-mono uppercase block"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--ink-muted)",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Role
-                </span>
-                <span
-                  className="font-mono uppercase"
-                  style={{
-                    fontSize: 10,
-                    color: "var(--ink-secondary)",
-                  }}
-                >
-                  {caseStudy.role}
-                </span>
+              <div>
+                <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-muted)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Role</span>
+                <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{caseStudy.role}</span>
               </div>
             )}
-
-            <div data-role-reveal>
-              <span
-                className="font-mono uppercase block"
-                style={{
-                  fontSize: 10,
-                  color: "var(--ink-muted)",
-                  marginBottom: "4px",
-                }}
-              >
-                Year
-              </span>
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: 10,
-                  color: "var(--ink-secondary)",
-                }}
-              >
-                {project.year}
-              </span>
+            <div>
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-muted)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Year</span>
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{project.year}</span>
             </div>
-
-            <div data-role-reveal>
-              <span
-                className="font-mono uppercase block"
-                style={{
-                  fontSize: 10,
-                  color: "var(--ink-muted)",
-                  marginBottom: "4px",
-                }}
-              >
-                Sector
-              </span>
-              <span
-                className="font-mono uppercase"
-                style={{
-                  fontSize: 10,
-                  color: "var(--ink-secondary)",
-                }}
-              >
-                {project.sector}
-              </span>
+            <div>
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-muted)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.1em" }}>Sector</span>
+              <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{project.sector}</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* ── Narrative Lede ── */}
+        {/* Narrative Lede */}
         {caseStudy && (has(caseStudy.paradox) || has(caseStudy.stakes)) && (
-          <div className="mb-16" data-section-reveal>
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
             {has(caseStudy.paradox) && (
-              <p
-                className="font-display italic"
-                style={{
-                  fontSize: "var(--text-title)",
-                  lineHeight: 1.4,
-                  color: "var(--ink-primary)",
-                  maxWidth: "58ch",
-                  marginBottom: has(caseStudy.stakes) ? "1.5rem" : 0,
-                }}
-              >
+              <p className="font-display" style={{ fontSize: "var(--text-title)", lineHeight: 1.4, color: "var(--ink-primary)", maxWidth: "58ch", fontStyle: "italic", margin: has(caseStudy.stakes) ? "0 0 24px" : 0 }}>
                 {caseStudy.paradox}
               </p>
             )}
             {has(caseStudy.stakes) && (
-              <p
-               
-                style={{
-                  fontSize: "var(--text-body)",
-                  lineHeight: 1.7,
-                  color: "var(--ink-secondary)",
-                  maxWidth: "58ch",
-                }}
-              >
+              <p style={{ fontSize: "var(--text-body)", lineHeight: 1.7, color: "var(--ink-secondary)", maxWidth: "58ch", margin: 0 }}>
                 {caseStudy.stakes}
               </p>
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Editorial Section ── */}
+        {/* Editorial */}
         {caseStudy && has(caseStudy.editorial.copy) && (
-          <div className="mb-16" data-section-reveal>
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
             {has(caseStudy.editorial.heading) && (
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: "var(--text-title)",
-                  fontWeight: 400,
-                  color: "var(--ink-primary)",
-                  marginBottom: "1rem",
-                }}
-              >
+              <h2 className="font-display" style={{ fontSize: "var(--text-title)", fontWeight: 400, color: "var(--ink-primary)", marginBottom: 16 }}>
                 {caseStudy.editorial.heading}
               </h2>
             )}
             {has(caseStudy.editorial.subhead) && (
-              <p
-                className="font-mono uppercase"
-                style={{
-                  fontSize: "var(--text-meta)",
-                  letterSpacing: "0.1em",
-                  color: "var(--ink-muted)",
-                  marginBottom: "1rem",
-                }}
-              >
+              <p className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 16 }}>
                 {caseStudy.editorial.subhead}
               </p>
             )}
-            <p
-             
-              style={{
-                fontSize: "var(--text-body)",
-                lineHeight: 1.7,
-                color: "var(--ink-secondary)",
-                maxWidth: "58ch",
-              }}
-            >
+            <p style={{ fontSize: "var(--text-body)", lineHeight: 1.7, color: "var(--ink-secondary)", maxWidth: "58ch", margin: 0 }}>
               {caseStudy.editorial.copy}
             </p>
-
-            {/* Editorial images */}
             {caseStudy.editorial.images && caseStudy.editorial.images.length > 0 && (
-              <div className="flex flex-col gap-8 mt-8">
+              <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 32 }}>
                 {caseStudy.editorial.images.map((img, i) => (
-                  <div
-                    key={i}
-                    className="relative w-full overflow-hidden"
-                    style={{ aspectRatio: "16/10" }}
-                    data-media-reveal="image"
-                  >
-                    <Image
-                      src={img}
-                      alt={`${project.title} — editorial ${i + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 95vw, 57vw"
-                      quality={90}
-                    />
-                  </div>
+                  <motion.div key={i} {...fadeUp} style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden" }}>
+                    <Image src={img} alt={`${project.title} — editorial ${i + 1}`} fill className="object-cover" sizes="(max-width: 768px) 95vw, 57vw" quality={90} />
+                  </motion.div>
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Process Steps ── */}
+        {/* Process Steps */}
         {caseStudy?.processSteps && caseStudy.processSteps.length > 0 && (
-          <div className="mb-16" data-section-reveal>
-            <h2
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-meta)",
-                letterSpacing: "0.1em",
-                color: "var(--ink-muted)",
-                marginBottom: "2rem",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <h2 className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 32 }}>
               Process
             </h2>
-            <div className="flex flex-col gap-10">
+            <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
               {caseStudy.processSteps.map((step, i) => (
-                <div key={i} className="flex flex-col gap-4">
+                <motion.div key={i} {...fadeUp} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
-                    <span
-                      className="font-mono"
-                      style={{
-                        fontSize: 10,
-                        color: "var(--ink-muted)",
-                        marginRight: "0.75rem",
-                      }}
-                    >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                     
-                      style={{
-                        fontSize: "var(--text-body)",
-                        fontWeight: 500,
-                        color: "var(--ink-primary)",
-                      }}
-                    >
-                      {step.title}
-                    </span>
+                    <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-muted)", marginRight: 12 }}>{String(i + 1).padStart(2, "0")}</span>
+                    <span style={{ fontSize: "var(--text-body)", fontWeight: 500, color: "var(--ink-primary)" }}>{step.title}</span>
                   </div>
                   {has(step.copy) && (
-                    <p
-                     
-                      style={{
-                        fontSize: "14px",
-                        lineHeight: 1.7,
-                        color: "var(--ink-secondary)",
-                        maxWidth: "58ch",
-                        paddingLeft: "2.5rem",
-                      }}
-                    >
+                    <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--ink-secondary)", maxWidth: "58ch", paddingLeft: 40, margin: 0 }}>
                       {step.copy}
                     </p>
                   )}
                   {step.image && (
-                    <div
-                      className="relative w-full overflow-hidden"
-                      style={{ aspectRatio: "4/3" }}
-                      data-media-reveal="image"
-                    >
-                      <Image
-                        src={step.image}
-                        alt={`${project.title} — ${step.title}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 95vw, 57vw"
-                        quality={90}
-                      />
+                    <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden" }}>
+                      <Image src={step.image} alt={`${project.title} — ${step.title}`} fill className="object-cover" sizes="(max-width: 768px) 95vw, 57vw" quality={90} />
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Highlights ── */}
+        {/* Highlights */}
         {caseStudy?.highlights && caseStudy.highlights.length > 0 && (
-          <div className="mb-16" data-section-reveal>
-            <h2
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-meta)",
-                letterSpacing: "0.1em",
-                color: "var(--ink-muted)",
-                marginBottom: "2rem",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <h2 className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 32 }}>
               Key Details
             </h2>
-            <div className="flex flex-col gap-12">
+            <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
               {caseStudy.highlights.map((hl) => (
-                <div key={hl.id}>
-                  <h3
-                   
-                    style={{
-                      fontSize: "var(--text-body)",
-                      fontWeight: 500,
-                      color: "var(--ink-primary)",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    {hl.title}
-                  </h3>
-                  <p
-                   
-                    style={{
-                      fontSize: "14px",
-                      lineHeight: 1.7,
-                      color: "var(--ink-secondary)",
-                      maxWidth: "58ch",
-                    }}
-                  >
-                    {hl.description}
-                  </p>
+                <motion.div key={hl.id} {...fadeUp}>
+                  <h3 style={{ fontSize: "var(--text-body)", fontWeight: 500, color: "var(--ink-primary)", marginBottom: 8 }}>{hl.title}</h3>
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--ink-secondary)", maxWidth: "58ch", margin: 0 }}>{hl.description}</p>
                   {has(hl.challenge) && (
-                    <p
-                      className="font-display italic mt-4"
-                      style={{
-                        fontSize: "14px",
-                        lineHeight: 1.5,
-                        color: "var(--ink-secondary)",
-                        maxWidth: "58ch",
-                        paddingLeft: "1rem",
-                        borderLeft: "1px solid rgba(var(--ink-rgb), 0.06)",
-                      }}
-                    >
+                    <p className="font-display" style={{ fontSize: 14, lineHeight: 1.5, color: "var(--ink-secondary)", maxWidth: "58ch", paddingLeft: 16, borderLeft: "1px solid rgba(var(--ink-rgb), 0.06)", fontStyle: "italic", marginTop: 16 }}>
                       {hl.challenge}
                     </p>
                   )}
                   {has(hl.recipe) && (
-                    <p
-                      className="font-mono mt-3"
-                      style={{
-                        fontSize: "10px",
-                        letterSpacing: "0.05em",
-                        color: "var(--ink-muted)",
-                      }}
-                    >
-                      {hl.recipe}
-                    </p>
+                    <p className="font-mono" style={{ fontSize: 10, letterSpacing: "0.05em", color: "var(--ink-muted)", marginTop: 12 }}>{hl.recipe}</p>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Engineering ── */}
+        {/* Engineering */}
         {caseStudy?.engineering && has(caseStudy.engineering.copy) && (
-          <div className="mb-16" data-section-reveal>
-            <h2
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-meta)",
-                letterSpacing: "0.1em",
-                color: "var(--ink-muted)",
-                marginBottom: "1rem",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <h2 className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 16 }}>
               Engineering
             </h2>
-            <p
-             
-              style={{
-                fontSize: "14px",
-                lineHeight: 1.7,
-                color: "var(--ink-secondary)",
-                maxWidth: "58ch",
-              }}
-            >
+            <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--ink-secondary)", maxWidth: "58ch", margin: "0 0 16px" }}>
               {caseStudy.engineering.copy}
             </p>
             {caseStudy.engineering.signals.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {caseStudy.engineering.signals.map((signal) => (
-                  <span
-                    key={signal}
-                    className="font-mono uppercase"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                      color: "var(--ink-secondary)",
-                      padding: "3px 8px",
-                      border: "1px solid rgba(var(--ink-rgb), 0.06)",
-                    }}
-                  >
+                  <span key={signal} className="font-mono" style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-secondary)", padding: "3px 8px", border: "1px solid rgba(var(--ink-rgb), 0.06)" }}>
                     {signal}
                   </span>
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Videos ── */}
+        {/* Videos */}
         {caseStudy?.videos && caseStudy.videos.length > 0 && (
-          <div className="flex flex-col gap-8 mb-16">
+          <div style={{ display: "flex", flexDirection: "column", gap: 32, marginBottom: 64 }}>
             {caseStudy.videos.map((video, i) => (
-              <div key={i} data-media-reveal="video">
-                <div
-                  className="relative w-full overflow-hidden"
-                  style={{ aspectRatio: video.aspect || "16/9" }}
-                >
-                  <video
-                    src={video.src}
-                    poster={video.poster}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
+              <motion.div key={i} {...fadeUp}>
+                <div style={{ position: "relative", width: "100%", aspectRatio: video.aspect || "16/9", overflow: "hidden" }}>
+                  <video src={video.src} poster={video.poster} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 {has(video.caption) && (
-                  <p
-                    className="font-mono mt-2"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.05em",
-                      color: "var(--ink-muted)",
-                    }}
-                  >
-                    {video.caption}
-                  </p>
+                  <p className="font-mono" style={{ fontSize: 10, letterSpacing: "0.05em", color: "var(--ink-muted)", marginTop: 8 }}>{video.caption}</p>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
 
-        {/* ── Statistics ── */}
+        {/* Statistics */}
         {caseStudy?.statistics && caseStudy.statistics.length > 0 && (
-          <div className="mb-16" data-section-reveal>
-            <div className="flex gap-8 flex-wrap">
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
               {caseStudy.statistics.map((stat) => (
                 <div key={stat.label}>
-                  <span
-                    className="font-mono uppercase block"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                      color: "var(--ink-muted)",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {stat.label}
-                  </span>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: "var(--text-body)",
-                      color: "var(--ink-primary)",
-                    }}
-                  >
-                    {stat.value}
-                  </span>
+                  <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", display: "block", marginBottom: 4 }}>{stat.label}</span>
+                  <span className="font-mono" style={{ fontSize: "var(--text-body)", color: "var(--ink-primary)" }}>{stat.value}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Gut Punch (closing statement) ── */}
+        {/* Gut Punch */}
         {caseStudy && has(caseStudy.gutPunch) && (
-          <div className="mb-16" data-section-reveal>
-            <p
-              className="font-display italic"
-              style={{
-                fontSize: "var(--text-title)",
-                lineHeight: 1.4,
-                color: "var(--ink-primary)",
-                maxWidth: "48ch",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <p className="font-display" style={{ fontSize: "var(--text-title)", lineHeight: 1.4, color: "var(--ink-primary)", maxWidth: "48ch", fontStyle: "italic", margin: 0 }}>
               {caseStudy.gutPunch}
             </p>
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Schematic / Technical Colophon ── */}
+        {/* Stack */}
         {caseStudy?.schematic && caseStudy.schematic.stack.length > 0 && (
-          <div className="mb-16" data-section-reveal>
-            <h2
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-meta)",
-                letterSpacing: "0.1em",
-                color: "var(--ink-muted)",
-                marginBottom: "1rem",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <h2 className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 16 }}>
               Stack
             </h2>
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {caseStudy.schematic.stack.map((item) => (
-                <span
-                  key={item}
-                  className="font-mono"
-                  style={{
-                    fontSize: "10px",
-                    color: "var(--ink-secondary)",
-                  }}
-                >
-                  {item}
-                </span>
+                <span key={item} className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)" }}>{item}</span>
               ))}
             </div>
             {has(caseStudy.schematic.typography) && (
-              <p
-                className="font-mono mt-3"
-                style={{
-                  fontSize: "10px",
-                  color: "var(--ink-muted)",
-                }}
-              >
-                Type: {caseStudy.schematic.typography}
-              </p>
+              <p className="font-mono" style={{ fontSize: 10, color: "var(--ink-muted)", marginTop: 12 }}>Type: {caseStudy.schematic.typography}</p>
             )}
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Contributors ── */}
+        {/* Credits */}
         {caseStudy?.contributors && caseStudy.contributors.length > 0 && (
-          <div className="mb-16" data-section-reveal>
-            <h2
-              className="font-mono uppercase"
-              style={{
-                fontSize: "var(--text-meta)",
-                letterSpacing: "0.1em",
-                color: "var(--ink-muted)",
-                marginBottom: "0.75rem",
-              }}
-            >
+          <motion.div {...fadeUp} style={{ marginBottom: 64 }}>
+            <h2 className="font-mono" style={{ fontSize: "var(--text-meta)", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 12 }}>
               Credits
             </h2>
             {caseStudy.contributors.map((c) => (
-              <p
-                key={c.name}
-                className="font-mono"
-                style={{
-                  fontSize: "10px",
-                  color: "var(--ink-secondary)",
-                }}
-              >
+              <p key={c.name} className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", margin: "0 0 4px" }}>
                 {c.name} — {c.role}
               </p>
             ))}
-          </div>
+          </motion.div>
         )}
+
+        {/* Prev/Next nav */}
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 48, paddingTop: 24, borderTop: "1px solid rgba(var(--ink-rgb), 0.08)" }}>
+          {prevProject ? (
+            <Link href={`/work/${prevProject.slug}`} className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", letterSpacing: "0.1em", textTransform: "uppercase", textDecoration: "none" }}>
+              ← {prevProject.title}
+            </Link>
+          ) : <span />}
+          {nextProject && (
+            <Link href={`/work/${nextProject.slug}`} className="font-mono" style={{ fontSize: 10, color: "var(--ink-secondary)", letterSpacing: "0.1em", textTransform: "uppercase", textDecoration: "none" }}>
+              {nextProject.title} →
+            </Link>
+          )}
+        </div>
       </div>
 
-      {/* ── Scroll progress ── */}
-      <div
-        className="fixed bottom-0 right-0 padding-x-1"
-        style={{
-          paddingBottom: "clamp(1rem, 2vh, 1.5rem)",
-        }}
-      >
-        <span
-          className="font-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.1em",
-            color: "var(--ink-muted)",
-          }}
-        >
-          {scrollPercent} %
-        </span>
-      </div>
-
-      {/* ── Mobile nav buttons (< 768px) ── */}
-      <div
-        className="md:hidden padding-x-1 pb-8 flex justify-between"
-      >
-        {prevProject && (
-          <TransitionLink
-            href={`/work/${prevProject.slug}`}
-            className="font-mono uppercase"
-            style={{
-              fontSize: 10,
-              color: "var(--ink-secondary)",
-              letterSpacing: "0.1em",
-              textDecoration: "none",
-            }}
-          >
-            ← {prevProject.title}
-          </TransitionLink>
-        )}
-        {nextProject && (
-          <TransitionLink
-            href={`/work/${nextProject.slug}`}
-            className="font-mono uppercase ml-auto"
-            style={{
-              fontSize: 10,
-              color: "var(--ink-secondary)",
-              letterSpacing: "0.1em",
-              textDecoration: "none",
-            }}
-          >
-            {nextProject.title} →
-          </TransitionLink>
-        )}
+      {/* Scroll percent */}
+      <div style={{ position: "fixed", bottom: 16, right: 24 }}>
+        <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.1em", color: "var(--ink-muted)" }}>{scrollPercent} %</span>
       </div>
     </div>
   );
