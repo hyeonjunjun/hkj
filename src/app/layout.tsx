@@ -67,6 +67,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){
+  var t = localStorage.getItem("hkj-theme");
+  if (!t) {
+    var h = new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"})).getHours();
+    t = h >= 6 && h < 18 ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${newsreader.variable} ${satoshi.variable} ${fragmentMono.variable}`}
         suppressHydrationWarning
