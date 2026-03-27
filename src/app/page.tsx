@@ -1,19 +1,11 @@
-"use client";
+import { ContactSheet } from "@/components/ContactSheet";
+import { BottomBar } from "@/components/BottomBar";
 
-import { GRID_ITEMS } from "@/constants/grid-items";
-import MasonryGrid from "@/components/MasonryGrid";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="page-container">
-      <section
-        style={{
-          paddingTop: "var(--space-break)",
-          maxWidth: 1100,
-        }}
-      >
-        <MasonryGrid items={GRID_ITEMS} />
-      </section>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 48px)", paddingTop: 48 }}>
+      <ContactSheet />
+      <BottomBar />
     </div>
   );
 }
