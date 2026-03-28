@@ -7,8 +7,8 @@ import { Cover } from "@/components/Cover";
 
 // Bento layout slots — maps project index to [colSpan, aspectRatio]
 const GRID_SLOTS: Array<[number, string]> = [
-  [8, "4/5"],    // featured — tall
-  [4, "1/1"],    // secondary — square
+  [8, "16/10"],  // featured — landscape-ish
+  [4, "3/4"],    // secondary — portrait
   [12, "21/9"],  // wide banner
 ];
 

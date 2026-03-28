@@ -17,7 +17,7 @@ const generalSans = localFont({
 
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
-  variable: "--font-mono",
+  variable: "--font-fragment",
   weight: "400",
   display: "swap",
   preload: true,
