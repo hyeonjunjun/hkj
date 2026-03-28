@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import { TransitionProvider } from "@/lib/transition-context";
@@ -20,6 +21,13 @@ const fragmentMono = localFont({
   weight: "400",
   display: "swap",
   preload: true,
+});
+
+const dmSerif = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-serif",
+  display: "swap",
 });
 
 /* ── Metadata ── */
@@ -59,7 +67,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${generalSans.variable} ${fragmentMono.variable}`}>
+      <body className={`${generalSans.variable} ${fragmentMono.variable} ${dmSerif.variable}`}>
         {/* SVG grain filter — referenced by Cover component */}
         <svg
           aria-hidden="true"
