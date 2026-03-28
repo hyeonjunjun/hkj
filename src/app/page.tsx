@@ -2,38 +2,30 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { gsap } from "@/lib/gsap";
 import { PIECES, type Piece } from "@/constants/pieces";
 import PageTransition from "@/components/PageTransition";
 
+const VerticalSlider = dynamic(() => import("@/components/VerticalSlider"), {
+  ssr: false,
+});
+
 const pieces = [...PIECES].sort((a, b) => a.order - b.order);
+
+type ViewMode = "list" | "slider";
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const rowsRef = useRef<(HTMLAnchorElement | null)[]>([]);
-  const imageRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [view, setView] = useState<ViewMode>("list");
+  const [sliderBg, setSliderBg] = useState<string | null>(null);
 
-  // Cursor-following image
-  const xTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
-  const yTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
-
+  // Entrance animation for list view
   useEffect(() => {
-    if (!imageRef.current) return;
-    gsap.set(imageRef.current, { xPercent: -50, yPercent: -50 });
-    xTo.current = gsap.quickTo(imageRef.current, "x", {
-      duration: 0.5,
-      ease: "power3",
-    });
-    yTo.current = gsap.quickTo(imageRef.current, "y", {
-      duration: 0.5,
-      ease: "power3",
-    });
-  }, []);
-
-  // Entrance animation
-  useEffect(() => {
+    if (view !== "list") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       if (navRef.current) navRef.current.style.opacity = "1";
       rowsRef.current.forEach((r) => {
@@ -46,39 +38,20 @@ export default function Home() {
     }
 
     const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.2 });
-
-    // Nav
     tl.fromTo(navRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0);
-
-    // Rows clip-reveal stagger
     const validRows = rowsRef.current.filter(Boolean);
     tl.fromTo(
       validRows,
       { clipPath: "inset(100% 0% 0% 0%)", opacity: 0 },
-      {
-        clipPath: "inset(0% 0% 0% 0%)",
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.06,
-      },
+      { clipPath: "inset(0% 0% 0% 0%)", opacity: 1, duration: 0.8, stagger: 0.06 },
       0.15
     );
-  }, []);
+  }, [view]);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (xTo.current && yTo.current) {
-        xTo.current(e.clientX);
-        yTo.current(e.clientY);
-      }
-    },
-    []
-  );
+  const handleMouseMove = useCallback(() => {}, []);
 
   const handleRowEnter = useCallback((piece: Piece, index: number) => {
     setActiveIndex(index);
-
-    // Background color shift
     if (containerRef.current) {
       gsap.to(containerRef.current, {
         backgroundColor: piece.cover.bg,
@@ -86,23 +59,10 @@ export default function Home() {
         ease: "power2.out",
       });
     }
-
-    // Show cursor image
-    if (imageRef.current) {
-      imageRef.current.style.backgroundColor = piece.cover.bg;
-      gsap.to(imageRef.current, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.35,
-        ease: "power2.out",
-      });
-    }
   }, []);
 
   const handleRowLeave = useCallback(() => {
     setActiveIndex(null);
-
-    // Return to paper
     if (containerRef.current) {
       gsap.to(containerRef.current, {
         backgroundColor: "#f5f4f0",
@@ -110,16 +70,27 @@ export default function Home() {
         ease: "power2.out",
       });
     }
-
-    // Hide cursor image
-    if (imageRef.current) {
-      gsap.to(imageRef.current, {
-        opacity: 0,
-        scale: 0.92,
-        duration: 0.3,
-      });
-    }
   }, []);
+
+  // When slider changes active slide, update bg
+  const handleSliderChange = useCallback((index: number) => {
+    setSliderBg(pieces[index].cover.bg);
+  }, []);
+
+  // Determine dynamic text colors
+  const activeBg =
+    view === "slider" && sliderBg
+      ? sliderBg
+      : activeIndex !== null
+        ? pieces[activeIndex].cover.bg
+        : null;
+
+  const navTextColor = activeBg
+    ? getDynamicTextColor(activeBg)
+    : "var(--ink-full)";
+  const navMutedColor = activeBg
+    ? getDynamicMutedColor(activeBg)
+    : "var(--ink-secondary)";
 
   return (
     <PageTransition>
@@ -131,28 +102,13 @@ export default function Home() {
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "var(--paper)",
-          transition: "color 0.4s ease",
+          backgroundColor:
+            view === "slider" && sliderBg ? sliderBg : "var(--paper)",
           position: "relative",
+          transition:
+            view === "slider" ? "background-color 0.8s ease" : undefined,
         }}
       >
-        {/* ── Cursor-following image preview ── */}
-        <div
-          ref={imageRef}
-          style={{
-            position: "fixed",
-            width: "clamp(200px, 22vw, 320px)",
-            aspectRatio: "3/4",
-            pointerEvents: "none",
-            zIndex: 50,
-            opacity: 0,
-            scale: 0.92,
-            overflow: "hidden",
-            filter: "url(#grain)",
-            mixBlendMode: "multiply",
-          }}
-        />
-
         {/* ── Nav ── */}
         <header
           ref={navRef}
@@ -163,9 +119,9 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 var(--grid-margin)",
-            opacity: 0,
+            opacity: view === "slider" ? 1 : 0,
             position: "relative",
-            zIndex: 10,
+            zIndex: 20,
           }}
         >
           <span
@@ -174,13 +130,52 @@ export default function Home() {
               fontSize: 10,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: activeIndex !== null ? getDynamicTextColor(pieces[activeIndex].cover.bg) : "var(--ink-full)",
+              color: navTextColor,
               transition: "color 0.4s ease",
             }}
           >
             HKJ
           </span>
+
           <nav style={{ display: "flex", gap: 24, alignItems: "center" }}>
+            {/* View toggle */}
+            <button
+              onClick={() => setView(view === "list" ? "slider" : "list")}
+              className="font-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: navMutedColor,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                transition: "color 0.3s ease",
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = navTextColor;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = navMutedColor;
+              }}
+            >
+              {view === "list" ? "Slider" : "List"}
+            </button>
+
+            <span
+              style={{
+                width: 1,
+                height: 12,
+                backgroundColor: activeBg
+                  ? isDarkColor(activeBg)
+                    ? "rgba(255,252,245,0.12)"
+                    : "rgba(28,26,23,0.10)"
+                  : "rgba(var(--ink-rgb), 0.10)",
+                transition: "background-color 0.4s ease",
+              }}
+            />
+
             {[
               { label: "Work", href: "/work" },
               { label: "Lab", href: "/lab" },
@@ -194,11 +189,15 @@ export default function Home() {
                   fontSize: 10,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: activeIndex !== null
-                    ? getDynamicMutedColor(pieces[activeIndex].cover.bg)
-                    : "var(--ink-secondary)",
+                  color: navMutedColor,
                   textDecoration: "none",
-                  transition: "color 0.4s ease",
+                  transition: "color 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = navTextColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = navMutedColor;
                 }}
               >
                 {item.label}
@@ -207,156 +206,170 @@ export default function Home() {
           </nav>
         </header>
 
-        {/* ── Project Index ── */}
-        <main
-          id="main"
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: "0 var(--grid-margin)",
-            minHeight: 0,
-            position: "relative",
-            zIndex: 10,
-          }}
-        >
-          {pieces.map((piece, i) => {
-            const num = String(i + 1).padStart(2, "0");
-            const isReversed = i >= Math.ceil(pieces.length / 2);
-            const isActive = activeIndex === i;
-            const isDimmed = activeIndex !== null && activeIndex !== i;
-            const href =
-              piece.type === "project"
-                ? `/work/${piece.slug}`
-                : `/lab/${piece.slug}`;
+        {/* ── List View ── */}
+        {view === "list" && (
+          <main
+            id="main"
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              padding: "0 var(--grid-margin)",
+              minHeight: 0,
+              position: "relative",
+              zIndex: 10,
+            }}
+          >
+            {pieces.map((piece, i) => {
+              const num = String(i + 1).padStart(2, "0");
+              const isReversed = i >= Math.ceil(pieces.length / 2);
+              const isActive = activeIndex === i;
+              const isDimmed = activeIndex !== null && activeIndex !== i;
+              const href =
+                piece.type === "project"
+                  ? `/work/${piece.slug}`
+                  : `/lab/${piece.slug}`;
 
-            // Dynamic text colors based on hovered project's bg
-            const textColor =
-              activeIndex !== null
-                ? getDynamicTextColor(pieces[activeIndex].cover.bg)
-                : "var(--ink-full)";
-            const mutedColor =
-              activeIndex !== null
-                ? getDynamicMutedColor(pieces[activeIndex].cover.bg)
-                : "var(--ink-secondary)";
+              const textColor =
+                activeIndex !== null
+                  ? getDynamicTextColor(pieces[activeIndex].cover.bg)
+                  : "var(--ink-full)";
+              const mutedColor =
+                activeIndex !== null
+                  ? getDynamicMutedColor(pieces[activeIndex].cover.bg)
+                  : "var(--ink-secondary)";
 
-            return (
-              <Link
-                key={piece.slug}
-                ref={(el) => { rowsRef.current[i] = el; }}
-                href={href}
-                onMouseEnter={() => handleRowEnter(piece, i)}
-                onMouseLeave={handleRowLeave}
-                style={{
-                  display: "flex",
-                  flexDirection: isReversed ? "row-reverse" : "row",
-                  alignItems: "baseline",
-                  justifyContent: "space-between",
-                  textDecoration: "none",
-                  padding: "0 clamp(0px, 2vw, 24px)",
-                  height: `${Math.floor(
-                    (100 - 10) / pieces.length
-                  )}%`,
-                  opacity: isDimmed ? 0.2 : 1,
-                  transition:
-                    "opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
-                  transform: isActive ? "translateX(8px)" : "translateX(0)",
-                  clipPath: "inset(100% 0% 0% 0%)",
-                  borderBottom: `1px solid ${
-                    activeIndex !== null
-                      ? isDarkColor(pieces[activeIndex].cover.bg)
-                        ? "rgba(255,252,245,0.06)"
-                        : "rgba(28,26,23,0.06)"
-                      : "rgba(var(--ink-rgb), 0.06)"
-                  }`,
-                }}
-                aria-label={`View ${piece.title}`}
-              >
-                {/* Left group: number + title */}
-                <span
+              return (
+                <Link
+                  key={piece.slug}
+                  ref={(el) => {
+                    rowsRef.current[i] = el;
+                  }}
+                  href={href}
+                  onMouseEnter={() => handleRowEnter(piece, i)}
+                  onMouseLeave={handleRowLeave}
                   style={{
                     display: "flex",
+                    flexDirection: isReversed ? "row-reverse" : "row",
                     alignItems: "baseline",
-                    gap: "0.5em",
+                    justifyContent: "space-between",
+                    textDecoration: "none",
+                    padding: "0 clamp(0px, 2vw, 24px)",
+                    height: `${Math.floor((100 - 10) / pieces.length)}%`,
+                    opacity: isDimmed ? 0.2 : 1,
+                    transition:
+                      "opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+                    transform: isActive
+                      ? "translateX(8px)"
+                      : "translateX(0)",
+                    clipPath: "inset(100% 0% 0% 0%)",
+                    borderBottom: `1px solid ${
+                      activeIndex !== null
+                        ? isDarkColor(pieces[activeIndex].cover.bg)
+                          ? "rgba(255,252,245,0.06)"
+                          : "rgba(28,26,23,0.06)"
+                        : "rgba(var(--ink-rgb), 0.06)"
+                    }`,
                   }}
+                  aria-label={`View ${piece.title}`}
                 >
                   <span
-                    className="font-mono"
                     style={{
-                      fontSize: 10,
-                      letterSpacing: "0.06em",
-                      color: mutedColor,
-                      transition: "color 0.4s ease",
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: "0.5em",
                     }}
                   >
-                    {num}
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.06em",
+                        color: mutedColor,
+                        transition: "color 0.4s ease",
+                      }}
+                    >
+                      {num}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.06em",
+                        color: mutedColor,
+                        transition: "color 0.4s ease",
+                      }}
+                    >
+                      /
+                    </span>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 500,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: textColor,
+                        transition: "color 0.4s ease",
+                      }}
+                    >
+                      {piece.title}
+                    </span>
                   </span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.06em",
-                      color: mutedColor,
-                      transition: "color 0.4s ease",
-                    }}
-                  >
-                    /
-                  </span>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      color: textColor,
-                      transition: "color 0.4s ease",
-                    }}
-                  >
-                    {piece.title}
-                  </span>
-                </span>
 
-                {/* Right group: tags + year */}
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: "clamp(12px, 2vw, 24px)",
-                  }}
-                >
                   <span
-                    className="font-mono"
                     style={{
-                      fontSize: 10,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: mutedColor,
-                      transition: "color 0.4s ease, opacity 0.3s ease, transform 0.3s ease",
-                      opacity: isActive ? 1 : 0,
-                      transform: isActive ? "translateY(0)" : "translateY(4px)",
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: "clamp(12px, 2vw, 24px)",
                     }}
                   >
-                    {piece.tags.slice(0, 2).join(" / ")}
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: mutedColor,
+                        transition:
+                          "color 0.4s ease, opacity 0.3s ease, transform 0.3s ease",
+                        opacity: isActive ? 1 : 0,
+                        transform: isActive
+                          ? "translateY(0)"
+                          : "translateY(4px)",
+                      }}
+                    >
+                      {piece.tags.slice(0, 2).join(" / ")}
+                    </span>
+                    <span
+                      className="font-mono"
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.06em",
+                        color: mutedColor,
+                        transition: "color 0.4s ease",
+                      }}
+                    >
+                      {piece.year}
+                    </span>
                   </span>
-                  <span
-                    className="font-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.06em",
-                      color: mutedColor,
-                      transition: "color 0.4s ease",
-                    }}
-                  >
-                    {piece.year}
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
-        </main>
+                </Link>
+              );
+            })}
+          </main>
+        )}
 
-        {/* ── Footer line ── */}
+        {/* ── Slider View ── */}
+        {view === "slider" && (
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <VerticalSlider
+              pieces={pieces}
+              onActiveChange={handleSliderChange}
+            />
+          </div>
+        )}
+
+        {/* ── Footer ── */}
         <footer
           style={{
             height: 36,
@@ -366,7 +379,7 @@ export default function Home() {
             justifyContent: "space-between",
             padding: "0 var(--grid-margin)",
             position: "relative",
-            zIndex: 10,
+            zIndex: 20,
           }}
         >
           <span
@@ -374,9 +387,7 @@ export default function Home() {
             style={{
               fontSize: 10,
               letterSpacing: "0.06em",
-              color: activeIndex !== null
-                ? getDynamicMutedColor(pieces[activeIndex].cover.bg)
-                : "var(--ink-secondary)",
+              color: navMutedColor,
               transition: "color 0.4s ease",
             }}
           >
@@ -387,9 +398,7 @@ export default function Home() {
             style={{
               fontSize: 10,
               letterSpacing: "0.06em",
-              color: activeIndex !== null
-                ? getDynamicMutedColor(pieces[activeIndex].cover.bg)
-                : "var(--ink-secondary)",
+              color: navMutedColor,
               transition: "color 0.4s ease",
             }}
           >
