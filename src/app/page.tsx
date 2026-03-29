@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { gsap } from "@/lib/gsap";
@@ -17,23 +17,38 @@ const pieces = [...PIECES].sort((a, b) => a.order - b.order);
 export default function Home() {
   const navRef = useRef<HTMLElement>(null);
   const lockupRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const [centerIndex, setCenterIndex] = useState(0);
 
-  // Entrance animation
+  // Entrance
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       if (navRef.current) navRef.current.style.opacity = "1";
       if (lockupRef.current) lockupRef.current.style.opacity = "1";
       return;
     }
-
     const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.1 });
     tl.fromTo(navRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0);
-    tl.fromTo(
-      lockupRef.current,
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.8 },
-      0.05
-    );
+    tl.fromTo(lockupRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8 }, 0.05);
+  }, []);
+
+  // Brand lockup parallax — shifts based on scroll progress
+  const handleScrollProgress = useCallback((progress: number) => {
+    if (!lockupRef.current) return;
+    const x = (progress - 0.5) * -60; // subtle horizontal parallax
+    lockupRef.current.style.transform = `translateX(calc(-50% + ${x}px))`;
+  }, []);
+
+  // Counter update
+  const handleCenterChange = useCallback((index: number) => {
+    setCenterIndex(index);
+    if (counterRef.current) {
+      gsap.fromTo(
+        counterRef.current,
+        { opacity: 0, y: 4 },
+        { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+      );
+    }
   }, []);
 
   return (
@@ -105,12 +120,12 @@ export default function Home() {
           </nav>
         </header>
 
-        {/* ── Brand Lockup (centered, behind gallery) ── */}
+        {/* ── Brand Lockup — parallax on scroll ── */}
         <div
           ref={lockupRef}
           style={{
             position: "absolute",
-            top: "clamp(32px, 8vh, 80px)",
+            top: "clamp(28px, 7vh, 72px)",
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 5,
@@ -145,12 +160,16 @@ export default function Home() {
           </p>
         </div>
 
-        {/* ── Infinite Horizontal Gallery ── */}
+        {/* ── Gallery ── */}
         <main id="main" style={{ flex: 1, minHeight: 0 }}>
-          <HorizontalGrid pieces={pieces} />
+          <HorizontalGrid
+            pieces={pieces}
+            onCenterChange={handleCenterChange}
+            onScrollProgress={handleScrollProgress}
+          />
         </main>
 
-        {/* ── Footer ── */}
+        {/* ── Footer with counter ── */}
         <footer
           style={{
             height: 32,
@@ -173,6 +192,22 @@ export default function Home() {
           >
             Design & Engineering
           </span>
+
+          {/* Center counter */}
+          <span
+            ref={counterRef}
+            className="font-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.06em",
+              fontVariantNumeric: "tabular-nums",
+              color: "var(--ink-full)",
+            }}
+          >
+            {String(centerIndex + 1).padStart(2, "0")} /{" "}
+            {String(pieces.length).padStart(2, "0")}
+          </span>
+
           <span
             className="font-mono"
             style={{

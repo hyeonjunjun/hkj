@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Lenis from "lenis";
@@ -9,42 +9,44 @@ import type { Piece } from "@/constants/pieces";
 
 interface HorizontalGridProps {
   pieces: Piece[];
+  onCenterChange?: (index: number) => void;
+  onScrollProgress?: (progress: number) => void;
 }
 
-// Height variants for visual rhythm
-const HEIGHT_PATTERN = [
-  "55vh", "72vh", "45vh", "68vh", "50vh", "74vh",
+// Height AND width variants for organic rhythm — [width, height]
+const LAYOUT_PATTERN: Array<[string, string]> = [
+  ["clamp(180px, 22vw, 300px)", "55vh"],   // medium, short
+  ["clamp(240px, 30vw, 420px)", "72vh"],   // wide, tall
+  ["clamp(140px, 16vw, 220px)", "45vh"],   // narrow, shorter
+  ["clamp(220px, 26vw, 360px)", "68vh"],   // medium-wide, medium-tall
+  ["clamp(160px, 18vw, 260px)", "50vh"],   // narrow-medium, medium
+  ["clamp(260px, 32vw, 450px)", "74vh"],   // widest, tallest
 ];
 
-/**
- * Infinite horizontal scroll gallery.
- * Items are tripled (left copy + center original + right copy).
- * When scroll reaches the edge copies, it silently resets to the center set.
- */
-export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
+export default function HorizontalGrid({
+  pieces,
+  onCenterChange,
+  onScrollProgress,
+}: HorizontalGridProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
   const lenisRef = useRef<Lenis | null>(null);
   const resetLock = useRef(false);
+  const activeRef = useRef(0);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // Triple the items for infinite illusion
   const tripled = [...pieces, ...pieces, ...pieces];
   const singleSetCount = pieces.length;
 
-  // Calculate the scroll position of the center set
   const getCenterScrollStart = useCallback(() => {
-    const items = itemRefs.current;
-    const startItem = items[singleSetCount];
-    if (!startItem) return 0;
-    return startItem.offsetLeft - 64; // account for padding
+    const item = itemRefs.current[singleSetCount];
+    return item ? item.offsetLeft - 64 : 0;
   }, [singleSetCount]);
 
   const getCenterScrollEnd = useCallback(() => {
-    const items = itemRefs.current;
-    const endItem = items[singleSetCount * 2 - 1];
-    if (!endItem) return Infinity;
-    return endItem.offsetLeft + endItem.offsetWidth;
+    const item = itemRefs.current[singleSetCount * 2 - 1];
+    return item ? item.offsetLeft + item.offsetWidth : Infinity;
   }, [singleSetCount]);
 
   // Lenis setup
@@ -64,36 +66,61 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
     });
     lenisRef.current = lenis;
 
-    // Wait for layout to settle, then jump to center set
+    // Jump to center set
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const centerStart = getCenterScrollStart();
-        lenis.scrollTo(centerStart, { immediate: true });
+        lenis.scrollTo(getCenterScrollStart(), { immediate: true });
       });
     });
 
-    // Velocity-based skew + infinite scroll reset
     lenis.on("scroll", (e: { scroll: number; velocity: number; limit: number }) => {
-      // Skew
-      const skew = Math.max(-3, Math.min(3, e.velocity * 0.12));
+      // Velocity skew
+      const skew = Math.max(-3, Math.min(3, e.velocity * 0.1));
       itemRefs.current.forEach((el) => {
         if (el) el.style.transform = `skewX(${skew}deg)`;
       });
 
-      // Infinite scroll: reset to center when reaching edges
-      if (resetLock.current) return;
+      // Center item detection
+      const containerCenter = wrapper.clientWidth / 2;
+      let closest = 0;
+      let minDist = Infinity;
+      for (let i = singleSetCount; i < singleSetCount * 2; i++) {
+        const el = itemRefs.current[i];
+        if (!el) continue;
+        const itemCenter = el.offsetLeft + el.offsetWidth / 2 - e.scroll;
+        const dist = Math.abs(itemCenter - containerCenter);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = i - singleSetCount;
+        }
+      }
+      if (closest !== activeRef.current) {
+        activeRef.current = closest;
+        onCenterChange?.(closest);
+      }
 
+      // Progress
       const centerStart = getCenterScrollStart();
       const centerEnd = getCenterScrollEnd();
       const scrollWidth = centerEnd - centerStart;
+      if (scrollWidth > 0) {
+        const progress = Math.max(0, Math.min(1, (e.scroll - centerStart) / scrollWidth));
+        onScrollProgress?.(progress);
+      }
 
-      if (e.scroll < centerStart - 100) {
+      // Infinite reset
+      if (resetLock.current) return;
+      const cStart = getCenterScrollStart();
+      const cEnd = getCenterScrollEnd();
+      const sWidth = cEnd - cStart;
+
+      if (e.scroll < cStart - 200) {
         resetLock.current = true;
-        lenis.scrollTo(e.scroll + scrollWidth, { immediate: true });
+        lenis.scrollTo(e.scroll + sWidth, { immediate: true });
         requestAnimationFrame(() => { resetLock.current = false; });
-      } else if (e.scroll > centerEnd + 100) {
+      } else if (e.scroll > cEnd + 200) {
         resetLock.current = true;
-        lenis.scrollTo(e.scroll - scrollWidth, { immediate: true });
+        lenis.scrollTo(e.scroll - sWidth, { immediate: true });
         requestAnimationFrame(() => { resetLock.current = false; });
       }
     });
@@ -109,35 +136,24 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
       cancelAnimationFrame(raf);
       lenis.destroy();
     };
-  }, [getCenterScrollStart, getCenterScrollEnd]);
+  }, [getCenterScrollStart, getCenterScrollEnd, singleSetCount, onCenterChange, onScrollProgress]);
 
-  // Entrance animation
+  // Entrance
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      itemRefs.current.forEach((el) => {
-        if (el) el.style.opacity = "1";
-      });
-      return;
-    }
-
-    // Only animate the center set for entrance
-    const centerItems = itemRefs.current.slice(singleSetCount, singleSetCount * 2).filter(Boolean);
-    // Make all items visible first (clones shouldn't be hidden)
     itemRefs.current.forEach((el) => {
       if (el) el.style.opacity = "1";
     });
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const centerItems = itemRefs.current
+      .slice(singleSetCount, singleSetCount * 2)
+      .filter(Boolean);
+
     gsap.fromTo(
       centerItems,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1,
-        y: 0,
-        stagger: 0.06,
-        duration: 0.7,
-        ease: "power3.out",
-        delay: 0.15,
-      }
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, stagger: 0.05, duration: 0.6, ease: "power3.out", delay: 0.15 }
     );
   }, [singleSetCount]);
 
@@ -158,31 +174,40 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
         style={{
           display: "flex",
           alignItems: "flex-end",
-          gap: "clamp(8px, 1.2vw, 14px)",
+          gap: "clamp(6px, 1vw, 12px)",
           height: "100%",
           padding: "0 var(--grid-margin)",
-          paddingBottom: "clamp(40px, 7vh, 72px)",
+          paddingBottom: "clamp(36px, 6vh, 64px)",
         }}
       >
         {tripled.map((piece, i) => {
-          const heightIdx = i % HEIGHT_PATTERN.length;
-          const height = HEIGHT_PATTERN[heightIdx];
+          const patternIdx = i % LAYOUT_PATTERN.length;
+          const [width, height] = LAYOUT_PATTERN[patternIdx];
           const href =
             piece.type === "project"
               ? `/work/${piece.slug}`
               : `/lab/${piece.slug}`;
+          const realIdx = i % singleSetCount;
+          const isHovered = hoveredIndex === i;
+          const num = String(realIdx + 1).padStart(2, "0");
+
+          const isDark = isDarkColor(piece.cover.bg);
+          const textColor = isDark
+            ? "rgba(255,252,245,0.88)"
+            : "rgba(28,26,23,0.80)";
+          const mutedColor = isDark
+            ? "rgba(255,252,245,0.40)"
+            : "rgba(28,26,23,0.30)";
 
           return (
             <Link
               key={`${piece.slug}-${i}`}
-              ref={(el) => {
-                itemRefs.current[i] = el;
-              }}
+              ref={(el) => { itemRefs.current[i] = el; }}
               href={href}
               style={{
                 display: "block",
                 flexShrink: 0,
-                width: "clamp(160px, 20vw, 280px)",
+                width,
                 height,
                 position: "relative",
                 backgroundColor: piece.cover.bg,
@@ -191,6 +216,8 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
                 transition: "transform 0.12s ease-out",
                 willChange: "transform",
               }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
               aria-label={`View ${piece.title}`}
             >
               {/* Image */}
@@ -199,8 +226,12 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
                   src={piece.image}
                   alt={piece.title}
                   fill
-                  sizes="20vw"
-                  style={{ objectFit: "cover" }}
+                  sizes="30vw"
+                  style={{
+                    objectFit: "cover",
+                    transition: "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+                    transform: isHovered ? "scale(1.04)" : "scale(1)",
+                  }}
                   priority={i >= singleSetCount && i < singleSetCount + 3}
                 />
               )}
@@ -211,7 +242,7 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  opacity: 0.1,
+                  opacity: 0.08,
                   filter: "url(#grain)",
                   background: piece.cover.bg,
                   mixBlendMode: "multiply",
@@ -219,10 +250,79 @@ export default function HorizontalGrid({ pieces }: HorizontalGridProps) {
                   zIndex: 1,
                 }}
               />
+
+              {/* Hover overlay — title + number + tags */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 3,
+                  pointerEvents: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  padding: "clamp(8px, 2%, 14px)",
+                  opacity: isHovered ? 1 : 0,
+                  transition: "opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
+              >
+                {/* Top: number */}
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: "0.06em",
+                    color: mutedColor,
+                  }}
+                >
+                  {num}
+                </span>
+
+                {/* Bottom: title + tags */}
+                <div
+                  style={{
+                    transform: isHovered ? "translateY(0)" : "translateY(6px)",
+                    transition: "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+                  }}
+                >
+                  <p
+                    className="font-display"
+                    style={{
+                      fontSize: "clamp(13px, 1.4vw, 18px)",
+                      fontWeight: 400,
+                      lineHeight: 1.15,
+                      color: textColor,
+                      marginBottom: 3,
+                    }}
+                  >
+                    {piece.title}
+                  </p>
+                  <p
+                    className="font-mono"
+                    style={{
+                      fontSize: 9,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                      color: mutedColor,
+                    }}
+                  >
+                    {piece.tags.slice(0, 2).join(" / ")}
+                  </p>
+                </div>
+              </div>
             </Link>
           );
         })}
       </div>
     </div>
   );
+}
+
+function isDarkColor(hex: string): boolean {
+  const clean = hex.replace("#", "");
+  if (clean.length < 6) return false;
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
 }
