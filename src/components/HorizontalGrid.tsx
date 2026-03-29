@@ -1,316 +1,321 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Lenis from "lenis";
 import { gsap } from "@/lib/gsap";
 import type { Piece } from "@/constants/pieces";
 
 interface HorizontalGridProps {
   pieces: Piece[];
   onCenterChange?: (index: number) => void;
-  onScrollProgress?: (progress: number) => void;
 }
 
-// Height AND width variants for organic rhythm — [width, height]
-const LAYOUT_PATTERN: Array<[string, string]> = [
-  ["clamp(180px, 22vw, 300px)", "55vh"],   // medium, short
-  ["clamp(240px, 30vw, 420px)", "72vh"],   // wide, tall
-  ["clamp(140px, 16vw, 220px)", "45vh"],   // narrow, shorter
-  ["clamp(220px, 26vw, 360px)", "68vh"],   // medium-wide, medium-tall
-  ["clamp(160px, 18vw, 260px)", "50vh"],   // narrow-medium, medium
-  ["clamp(260px, 32vw, 450px)", "74vh"],   // widest, tallest
+/*
+ * Wheel-driven horizontal gallery.
+ *
+ * No Lenis, no ScrollTrigger, no DOM tripling.
+ * Wheel/touch delta → GSAP quickTo for smooth interpolated translateX.
+ * Clamped to content bounds (no infinite loop — clean, no clipping).
+ * Vertical stagger on items for organic wave rhythm.
+ */
+
+const LAYOUT: Array<{ w: string; h: string; align: "flex-start" | "flex-end" | "center" }> = [
+  { w: "clamp(200px, 24vw, 340px)", h: "52vh", align: "flex-end" },
+  { w: "clamp(280px, 34vw, 480px)", h: "68vh", align: "flex-start" },
+  { w: "clamp(160px, 18vw, 240px)", h: "40vh", align: "center" },
+  { w: "clamp(240px, 28vw, 400px)", h: "62vh", align: "flex-end" },
+  { w: "clamp(180px, 20vw, 280px)", h: "46vh", align: "flex-start" },
+  { w: "clamp(300px, 36vw, 500px)", h: "72vh", align: "center" },
 ];
 
 export default function HorizontalGrid({
   pieces,
   onCenterChange,
-  onScrollProgress,
 }: HorizontalGridProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
-  const lenisRef = useRef<Lenis | null>(null);
-  const resetLock = useRef(false);
+  const scrollX = useRef(0);
+  const targetX = useRef(0);
+  const maxScroll = useRef(0);
   const activeRef = useRef(0);
+  const velocityRef = useRef(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const tripled = [...pieces, ...pieces, ...pieces];
-  const singleSetCount = pieces.length;
-
-  const getCenterScrollStart = useCallback(() => {
-    const item = itemRefs.current[singleSetCount];
-    return item ? item.offsetLeft - 64 : 0;
-  }, [singleSetCount]);
-
-  const getCenterScrollEnd = useCallback(() => {
-    const item = itemRefs.current[singleSetCount * 2 - 1];
-    return item ? item.offsetLeft + item.offsetWidth : Infinity;
-  }, [singleSetCount]);
-
-  // Lenis setup
   useEffect(() => {
-    const wrapper = wrapperRef.current;
-    const content = contentRef.current;
-    if (!wrapper || !content) return;
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
 
-    const lenis = new Lenis({
-      wrapper,
-      content,
-      orientation: "horizontal" as const,
-      smoothWheel: true,
-      lerp: 0.07,
-      wheelMultiplier: 1.2,
-      touchMultiplier: 1.5,
-    });
-    lenisRef.current = lenis;
+    // Calculate bounds
+    const updateBounds = () => {
+      maxScroll.current = Math.max(0, track.scrollWidth - container.clientWidth);
+    };
+    updateBounds();
+    window.addEventListener("resize", updateBounds);
 
-    // Jump to center set
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        lenis.scrollTo(getCenterScrollStart(), { immediate: true });
-      });
-    });
+    // Smooth animation loop
+    let raf: number;
+    const tick = () => {
+      // Lerp toward target
+      const prev = scrollX.current;
+      scrollX.current += (targetX.current - scrollX.current) * 0.08;
 
-    lenis.on("scroll", (e: { scroll: number; velocity: number; limit: number }) => {
-      // Velocity skew
-      const skew = Math.max(-3, Math.min(3, e.velocity * 0.1));
+      // Velocity for skew
+      velocityRef.current = scrollX.current - prev;
+      const skew = gsap.utils.clamp(-2, 2, velocityRef.current * 0.3);
+
+      // Apply transform
+      track.style.transform = `translateX(${-scrollX.current}px)`;
+
+      // Skew items
       itemRefs.current.forEach((el) => {
         if (el) el.style.transform = `skewX(${skew}deg)`;
       });
 
       // Center item detection
-      const containerCenter = wrapper.clientWidth / 2;
+      const centerX = container.clientWidth / 2 + scrollX.current;
       let closest = 0;
       let minDist = Infinity;
-      for (let i = singleSetCount; i < singleSetCount * 2; i++) {
-        const el = itemRefs.current[i];
-        if (!el) continue;
-        const itemCenter = el.offsetLeft + el.offsetWidth / 2 - e.scroll;
-        const dist = Math.abs(itemCenter - containerCenter);
+      itemRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const mid = el.offsetLeft + el.offsetWidth / 2;
+        const dist = Math.abs(mid - centerX);
         if (dist < minDist) {
           minDist = dist;
-          closest = i - singleSetCount;
+          closest = i;
         }
-      }
+      });
       if (closest !== activeRef.current) {
         activeRef.current = closest;
         onCenterChange?.(closest);
       }
 
-      // Progress
-      const centerStart = getCenterScrollStart();
-      const centerEnd = getCenterScrollEnd();
-      const scrollWidth = centerEnd - centerStart;
-      if (scrollWidth > 0) {
-        const progress = Math.max(0, Math.min(1, (e.scroll - centerStart) / scrollWidth));
-        onScrollProgress?.(progress);
-      }
-
-      // Infinite reset
-      if (resetLock.current) return;
-      const cStart = getCenterScrollStart();
-      const cEnd = getCenterScrollEnd();
-      const sWidth = cEnd - cStart;
-
-      if (e.scroll < cStart - 200) {
-        resetLock.current = true;
-        lenis.scrollTo(e.scroll + sWidth, { immediate: true });
-        requestAnimationFrame(() => { resetLock.current = false; });
-      } else if (e.scroll > cEnd + 200) {
-        resetLock.current = true;
-        lenis.scrollTo(e.scroll - sWidth, { immediate: true });
-        requestAnimationFrame(() => { resetLock.current = false; });
-      }
-    });
-
-    let raf: number;
-    function tick(time: number) {
-      lenis.raf(time);
       raf = requestAnimationFrame(tick);
-    }
+    };
     raf = requestAnimationFrame(tick);
+
+    // Wheel handler
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      // Use deltaY (vertical scroll) to drive horizontal movement
+      const delta = e.deltaY || e.deltaX;
+      targetX.current = gsap.utils.clamp(
+        0,
+        maxScroll.current,
+        targetX.current + delta
+      );
+    };
+
+    // Touch handlers
+    let touchStartX = 0;
+    let touchStartScroll = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartScroll = targetX.current;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const deltaX = touchStartX - e.touches[0].clientX;
+      targetX.current = gsap.utils.clamp(
+        0,
+        maxScroll.current,
+        touchStartScroll + deltaX
+      );
+    };
+
+    container.addEventListener("wheel", onWheel, { passive: false });
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    container.addEventListener("touchmove", onTouchMove, { passive: false });
+
+    // Entrance animation
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.fromTo(
+        itemRefs.current.filter(Boolean),
+        { clipPath: "inset(100% 0% 0% 0%)", opacity: 0 },
+        {
+          clipPath: "inset(0% 0% 0% 0%)",
+          opacity: 1,
+          duration: 0.9,
+          stagger: 0.07,
+          ease: "power3.out",
+          delay: 0.3,
+        }
+      );
+    } else {
+      itemRefs.current.forEach((el) => {
+        if (el) {
+          el.style.opacity = "1";
+          el.style.clipPath = "none";
+        }
+      });
+    }
 
     return () => {
       cancelAnimationFrame(raf);
-      lenis.destroy();
+      window.removeEventListener("resize", updateBounds);
+      container.removeEventListener("wheel", onWheel);
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
     };
-  }, [getCenterScrollStart, getCenterScrollEnd, singleSetCount, onCenterChange, onScrollProgress]);
-
-  // Entrance
-  useEffect(() => {
-    itemRefs.current.forEach((el) => {
-      if (el) el.style.opacity = "1";
-    });
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const centerItems = itemRefs.current
-      .slice(singleSetCount, singleSetCount * 2)
-      .filter(Boolean);
-
-    gsap.fromTo(
-      centerItems,
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, stagger: 0.05, duration: 0.6, ease: "power3.out", delay: 0.15 }
-    );
-  }, [singleSetCount]);
+  }, [onCenterChange]);
 
   return (
     <div
-      ref={wrapperRef}
+      ref={containerRef}
       style={{
         width: "100%",
         height: "100%",
-        overflowX: "auto",
-        overflowY: "hidden",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
+        overflow: "hidden",
+        cursor: "grab",
+        userSelect: "none",
       }}
     >
       <div
-        ref={contentRef}
+        ref={trackRef}
         style={{
           display: "flex",
-          alignItems: "flex-end",
-          gap: "clamp(6px, 1vw, 12px)",
+          gap: "clamp(10px, 1.5vw, 18px)",
           height: "100%",
-          padding: "0 var(--grid-margin)",
-          paddingBottom: "clamp(36px, 6vh, 64px)",
+          padding: "0 clamp(24px, 6vw, 100px)",
+          alignItems: "center",
+          willChange: "transform",
         }}
       >
-        {tripled.map((piece, i) => {
-          const patternIdx = i % LAYOUT_PATTERN.length;
-          const [width, height] = LAYOUT_PATTERN[patternIdx];
+        {pieces.map((piece, i) => {
+          const layout = LAYOUT[i % LAYOUT.length];
           const href =
             piece.type === "project"
               ? `/work/${piece.slug}`
               : `/lab/${piece.slug}`;
-          const realIdx = i % singleSetCount;
           const isHovered = hoveredIndex === i;
-          const num = String(realIdx + 1).padStart(2, "0");
+          const num = String(i + 1).padStart(2, "0");
 
-          const isDark = isDarkColor(piece.cover.bg);
+          const isDark = isDarkBg(piece.cover.bg);
           const textColor = isDark
-            ? "rgba(255,252,245,0.88)"
-            : "rgba(28,26,23,0.80)";
+            ? "rgba(255,252,245,0.90)"
+            : "rgba(28,26,23,0.82)";
           const mutedColor = isDark
             ? "rgba(255,252,245,0.40)"
-            : "rgba(28,26,23,0.30)";
+            : "rgba(28,26,23,0.28)";
 
           return (
-            <Link
-              key={`${piece.slug}-${i}`}
+            <div
+              key={piece.slug}
               ref={(el) => { itemRefs.current[i] = el; }}
-              href={href}
               style={{
-                display: "block",
                 flexShrink: 0,
-                width,
-                height,
+                width: layout.w,
+                height: layout.h,
+                alignSelf: layout.align,
                 position: "relative",
-                backgroundColor: piece.cover.bg,
-                overflow: "hidden",
-                textDecoration: "none",
-                transition: "transform 0.12s ease-out",
-                willChange: "transform",
+                opacity: 0,
+                clipPath: "inset(100% 0% 0% 0%)",
               }}
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              aria-label={`View ${piece.title}`}
             >
-              {/* Image */}
-              {piece.image && (
-                <Image
-                  src={piece.image}
-                  alt={piece.title}
-                  fill
-                  sizes="30vw"
-                  style={{
-                    objectFit: "cover",
-                    transition: "transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
-                    transform: isHovered ? "scale(1.04)" : "scale(1)",
-                  }}
-                  priority={i >= singleSetCount && i < singleSetCount + 3}
-                />
-              )}
-
-              {/* Grain */}
-              <div
-                aria-hidden="true"
+              <Link
+                href={href}
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  opacity: 0.08,
-                  filter: "url(#grain)",
-                  background: piece.cover.bg,
-                  mixBlendMode: "multiply",
-                  pointerEvents: "none",
-                  zIndex: 1,
+                  display: "block",
+                  width: "100%",
+                  height: "100%",
+                  position: "relative",
+                  backgroundColor: piece.cover.bg,
+                  overflow: "hidden",
+                  textDecoration: "none",
                 }}
-              />
-
-              {/* Hover overlay — title + number + tags */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 3,
-                  pointerEvents: "none",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  padding: "clamp(8px, 2%, 14px)",
-                  opacity: isHovered ? 1 : 0,
-                  transition: "opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
-                }}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                aria-label={`View ${piece.title}`}
               >
-                {/* Top: number */}
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.06em",
-                    color: mutedColor,
-                  }}
-                >
-                  {num}
-                </span>
+                {/* Image */}
+                {piece.image && (
+                  <Image
+                    src={piece.image}
+                    alt={piece.title}
+                    fill
+                    sizes="(max-width: 768px) 60vw, 30vw"
+                    style={{
+                      objectFit: "cover",
+                      transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+                      transform: isHovered ? "scale(1.05)" : "scale(1)",
+                    }}
+                    priority={i < 3}
+                  />
+                )}
 
-                {/* Bottom: title + tags */}
+                {/* Grain */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    opacity: 0.06,
+                    filter: "url(#grain)",
+                    background: piece.cover.bg,
+                    mixBlendMode: "multiply",
+                    pointerEvents: "none",
+                    zIndex: 1,
+                  }}
+                />
+
+                {/* Hover overlay */}
                 <div
                   style={{
-                    transform: isHovered ? "translateY(0)" : "translateY(6px)",
-                    transition: "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 3,
+                    pointerEvents: "none",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    padding: "clamp(10px, 2.5%, 16px)",
+                    opacity: isHovered ? 1 : 0,
+                    transition: "opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
-                  <p
-                    className="font-display"
-                    style={{
-                      fontSize: "clamp(13px, 1.4vw, 18px)",
-                      fontWeight: 400,
-                      lineHeight: 1.15,
-                      color: textColor,
-                      marginBottom: 3,
-                    }}
-                  >
-                    {piece.title}
-                  </p>
-                  <p
+                  <span
                     className="font-mono"
+                    style={{ fontSize: 9, letterSpacing: "0.06em", color: mutedColor }}
+                  >
+                    {num}
+                  </span>
+                  <div
                     style={{
-                      fontSize: 9,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: mutedColor,
+                      transform: isHovered ? "translateY(0)" : "translateY(8px)",
+                      transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
                     }}
                   >
-                    {piece.tags.slice(0, 2).join(" / ")}
-                  </p>
+                    <p
+                      className="font-display"
+                      style={{
+                        fontSize: "clamp(14px, 1.6vw, 20px)",
+                        fontWeight: 400,
+                        lineHeight: 1.15,
+                        color: textColor,
+                        marginBottom: 2,
+                      }}
+                    >
+                      {piece.title}
+                    </p>
+                    <p
+                      className="font-mono"
+                      style={{
+                        fontSize: 9,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: mutedColor,
+                      }}
+                    >
+                      {piece.tags.slice(0, 2).join(" / ")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           );
         })}
       </div>
@@ -318,11 +323,11 @@ export default function HorizontalGrid({
   );
 }
 
-function isDarkColor(hex: string): boolean {
-  const clean = hex.replace("#", "");
-  if (clean.length < 6) return false;
-  const r = parseInt(clean.substring(0, 2), 16);
-  const g = parseInt(clean.substring(2, 4), 16);
-  const b = parseInt(clean.substring(4, 6), 16);
+function isDarkBg(hex: string): boolean {
+  const c = hex.replace("#", "");
+  if (c.length < 6) return false;
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
 }

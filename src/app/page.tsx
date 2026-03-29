@@ -32,12 +32,6 @@ export default function Home() {
     tl.fromTo(lockupRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8 }, 0.05);
   }, []);
 
-  // Brand lockup parallax — shifts based on scroll progress
-  const handleScrollProgress = useCallback((progress: number) => {
-    if (!lockupRef.current) return;
-    const x = (progress - 0.5) * -60; // subtle horizontal parallax
-    lockupRef.current.style.transform = `translateX(calc(-50% + ${x}px))`;
-  }, []);
 
   // Counter update
   const handleCenterChange = useCallback((index: number) => {
@@ -165,7 +159,6 @@ export default function Home() {
           <HorizontalGrid
             pieces={pieces}
             onCenterChange={handleCenterChange}
-            onScrollProgress={handleScrollProgress}
           />
         </main>
 
