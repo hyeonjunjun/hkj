@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { gsap } from "@/lib/gsap";
+import { gsap, SplitText } from "@/lib/gsap";
 import { PIECES } from "@/constants/pieces";
 import PageTransition from "@/components/PageTransition";
 
@@ -17,30 +17,64 @@ const pieces = [...PIECES].sort((a, b) => a.order - b.order);
 export default function Home() {
   const navRef = useRef<HTMLElement>(null);
   const lockupRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const metaRefs = useRef<(HTMLElement | null)[]>([]);
   const counterRef = useRef<HTMLSpanElement>(null);
   const [centerIndex, setCenterIndex] = useState(0);
 
-  // Entrance
+  // Entrance choreography
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      if (navRef.current) navRef.current.style.opacity = "1";
-      if (lockupRef.current) lockupRef.current.style.opacity = "1";
+      [navRef, lockupRef].forEach((ref) => {
+        if (ref.current) ref.current.style.opacity = "1";
+      });
       return;
     }
-    const tl = gsap.timeline({ defaults: { ease: "expo.out" }, delay: 0.1 });
-    tl.fromTo(navRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0);
-    tl.fromTo(lockupRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.8 }, 0.05);
+
+    const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+
+    // Phase 1: Brand lockup — chars reveal
+    if (titleRef.current) {
+      const split = new SplitText(titleRef.current, { type: "chars" });
+      tl.fromTo(
+        split.chars,
+        { yPercent: 120, opacity: 0 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.03,
+          ease: "power3.out",
+        },
+        0.2
+      );
+    }
+
+    // Phase 2: Metadata lines stagger
+    const validMeta = metaRefs.current.filter(Boolean);
+    tl.fromTo(
+      validMeta,
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.6, stagger: 0.06 },
+      0.6
+    );
+
+    // Phase 3: Nav
+    tl.fromTo(
+      navRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5 },
+      0.8
+    );
   }, []);
 
-
-  // Counter update
   const handleCenterChange = useCallback((index: number) => {
     setCenterIndex(index);
     if (counterRef.current) {
       gsap.fromTo(
         counterRef.current,
-        { opacity: 0, y: 4 },
-        { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }
+        { opacity: 0, y: 3 },
+        { opacity: 1, y: 0, duration: 0.25, ease: "power2.out" }
       );
     }
   }, []);
@@ -54,107 +88,138 @@ export default function Home() {
           display: "flex",
           flexDirection: "column",
           backgroundColor: "var(--paper)",
-          position: "relative",
         }}
       >
-        {/* ── Nav ── */}
-        <header
-          ref={navRef}
-          style={{
-            height: 40,
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 var(--grid-margin)",
-            opacity: 0,
-            position: "relative",
-            zIndex: 20,
-          }}
-        >
-          <span
-            className="font-mono"
-            style={{
-              fontSize: "var(--text-label)",
-              letterSpacing: "var(--tracking-label)",
-              textTransform: "uppercase",
-              color: "var(--ink-full)",
-            }}
-          >
-            HKJ
-          </span>
-          <nav style={{ display: "flex", gap: 28, alignItems: "center" }}>
-            {[
-              { label: "Work", href: "/work" },
-              { label: "Lab", href: "/lab" },
-              { label: "About", href: "/about" },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="font-mono"
-                style={{
-                  fontSize: "var(--text-label)",
-                  letterSpacing: "var(--tracking-label)",
-                  textTransform: "uppercase",
-                  color: "var(--ink-secondary)",
-                  textDecoration: "none",
-                  transition: "color var(--dur-hover) var(--ease-out)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var(--ink-full)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "var(--ink-secondary)";
-                }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </header>
-
-        {/* ── Brand Lockup — parallax on scroll ── */}
+        {/* ═══ TOP ZONE: Brand + Nav ═══ */}
         <div
-          ref={lockupRef}
           style={{
-            position: "absolute",
-            top: "clamp(28px, 7vh, 72px)",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 5,
-            textAlign: "center",
-            pointerEvents: "none",
-            opacity: 0,
+            flexShrink: 0,
+            padding: "0 var(--grid-margin)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <h1
-            className="font-display"
+          {/* Nav */}
+          <header
+            ref={navRef}
             style={{
-              fontSize: "clamp(56px, 14vw, 180px)",
-              fontWeight: 700,
-              lineHeight: 0.88,
-              color: "var(--ink-full)",
-              letterSpacing: "-0.04em",
+              height: 48,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              opacity: 0,
             }}
           >
-            HKJ
-          </h1>
-          <p
-            className="font-mono"
+            <span
+              className="font-mono"
+              style={{
+                fontSize: "var(--text-label)",
+                letterSpacing: "var(--tracking-label)",
+                textTransform: "uppercase",
+                color: "var(--ink-full)",
+              }}
+            >
+              HKJ
+            </span>
+            <nav style={{ display: "flex", gap: 28, alignItems: "center" }}>
+              {[
+                { label: "Work", href: "/work" },
+                { label: "Lab", href: "/lab" },
+                { label: "About", href: "/about" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="font-mono"
+                  style={{
+                    fontSize: "var(--text-label)",
+                    letterSpacing: "var(--tracking-label)",
+                    textTransform: "uppercase",
+                    color: "var(--ink-secondary)",
+                    textDecoration: "none",
+                    transition: "color var(--dur-hover) var(--ease-out)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "var(--ink-full)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "var(--ink-secondary)";
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </header>
+
+          {/* Brand lockup */}
+          <div
+            ref={lockupRef}
             style={{
-              fontSize: 11,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--ink-secondary)",
-              marginTop: 10,
+              paddingTop: "clamp(16px, 3vh, 40px)",
+              paddingBottom: "clamp(20px, 4vh, 48px)",
             }}
           >
-            Studio / 2026
-          </p>
+            {/* Title — large display, overflow hidden for char reveal */}
+            <h1
+              ref={titleRef}
+              className="font-display"
+              style={{
+                fontSize: "var(--text-display)",
+                fontWeight: 700,
+                lineHeight: "var(--leading-display)",
+                letterSpacing: "var(--tracking-display)",
+                color: "var(--ink-full)",
+                overflow: "hidden",
+              }}
+            >
+              HKJ Studio
+            </h1>
+
+            {/* Metadata row */}
+            <div
+              style={{
+                display: "flex",
+                gap: "clamp(24px, 4vw, 48px)",
+                marginTop: "clamp(12px, 2vh, 20px)",
+                flexWrap: "wrap",
+              }}
+            >
+              {[
+                "Design & Engineering",
+                "Seoul",
+                "2024 — Present",
+              ].map((text, i) => (
+                <span
+                  key={text}
+                  ref={(el) => { metaRefs.current[i] = el; }}
+                  className="font-mono"
+                  style={{
+                    fontSize: "var(--text-label)",
+                    letterSpacing: "var(--tracking-label)",
+                    textTransform: "uppercase",
+                    color: "var(--ink-muted)",
+                    opacity: 0,
+                  }}
+                >
+                  {text}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* ── Gallery ── */}
+        {/* Divider */}
+        <div
+          style={{
+            height: 1,
+            backgroundColor: "var(--ink-ghost)",
+            marginInline: "var(--grid-margin)",
+            flexShrink: 0,
+          }}
+        />
+
+        {/* ═══ BOTTOM ZONE: Gallery ═══ */}
         <main id="main" style={{ flex: 1, minHeight: 0 }}>
           <HorizontalGrid
             pieces={pieces}
@@ -162,17 +227,15 @@ export default function Home() {
           />
         </main>
 
-        {/* ── Footer with counter ── */}
+        {/* Footer */}
         <footer
           style={{
-            height: 32,
+            height: 36,
             flexShrink: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 var(--grid-margin)",
-            position: "relative",
-            zIndex: 20,
           }}
         >
           <span
@@ -183,24 +246,21 @@ export default function Home() {
               color: "var(--ink-muted)",
             }}
           >
-            Design & Engineering
+            {pieces[centerIndex]?.title}
           </span>
-
-          {/* Center counter */}
           <span
             ref={counterRef}
             className="font-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.06em",
+              fontSize: "var(--text-label)",
+              letterSpacing: "var(--tracking-label)",
               fontVariantNumeric: "tabular-nums",
-              color: "var(--ink-full)",
+              color: "var(--ink-secondary)",
             }}
           >
             {String(centerIndex + 1).padStart(2, "0")} /{" "}
             {String(pieces.length).padStart(2, "0")}
           </span>
-
           <span
             className="font-mono"
             style={{
@@ -209,7 +269,7 @@ export default function Home() {
               color: "var(--ink-muted)",
             }}
           >
-            Seoul, 2026
+            {pieces[centerIndex]?.tags[0]?.toUpperCase()}
           </span>
         </footer>
       </div>
