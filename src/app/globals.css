@@ -7,37 +7,39 @@
    ──────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── Ground & Ink ── */
-  --paper: #f5f4f0;
-  --ink-full:      rgba(28, 26, 23, 1.00);
-  --ink-primary:   rgba(28, 26, 23, 0.72);
-  --ink-secondary: rgba(28, 26, 23, 0.38);
-  --ink-ghost:     rgba(28, 26, 23, 0.10);
-  --ink-rgb: 28, 26, 23;
-
-  /* ── Accent — reserved for focus outlines only ── */
-  --accent: rgba(28, 26, 23, 0.72);
-  --accent-rgb: 28, 26, 23;
+  /* ── Ground & Ink (single color, 8 opacity levels) ── */
+  --paper: #f5f1ec;
+  --ink-rgb: 42, 37, 32;
+  --ink-full:      rgba(42, 37, 32, 1.00);
+  --ink-90:        rgba(42, 37, 32, 0.90);
+  --ink-primary:   rgba(42, 37, 32, 0.70);
+  --ink-secondary: rgba(42, 37, 32, 0.55);
+  --ink-muted:     rgba(42, 37, 32, 0.40);
+  --ink-faint:     rgba(42, 37, 32, 0.20);
+  --ink-ghost:     rgba(42, 37, 32, 0.08);
 
   /* ── Typography ── */
   --font-display: var(--font-serif), Georgia, "Times New Roman", serif;
   --font-body:    var(--font-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono:    var(--font-fragment), "SF Mono", "Fira Code", monospace;
 
-  /* ── Type Scale — editorial restraint ── */
-  --text-display:  clamp(42px, 8vw, 120px);
+  /* ── Type Scale (Corentin/Bao To reference) ── */
+  --text-display:  clamp(48px, 10vw, 140px);
   --text-heading:  clamp(18px, 2.5vw, 28px);
-  --text-body-lg:  16px;
   --text-body:     14px;
-  --text-label:    10px;
-  --text-meta:     10px;
+  --text-label:    11px;
+  --text-meta:     11px;
 
   /* ── Leading ── */
-  --leading-display: 0.92;
-  --leading-heading: 1.2;
-  --leading-body:    1.65;
+  --leading-display: 0.90;
+  --leading-heading: 1.15;
+  --leading-body:    1.55;
 
-  /* ── Spacing ── */
+  /* ── Tracking ── */
+  --tracking-label: 0.08em;
+  --tracking-display: -0.02em;
+
+  /* ── Spacing (8pt base) ── */
   --space-xs:   4px;
   --space-sm:   8px;
   --space-md:   16px;
@@ -48,15 +50,18 @@
 
   /* ── Grid ── */
   --grid-cols:   12;
-  --grid-gutter: clamp(8px, 1.5vw, 16px);
-  --grid-margin: clamp(16px, 4vw, 64px);
-  --grid-max:    1400px;
+  --grid-gutter: 20px;
+  --grid-margin: 52px;
+  --grid-max:    1600px;
 
-  /* ── Motion ── */
-  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-snap:  cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-hover:  300ms;
-  --dur-reveal: 600ms;
+  /* ── Motion (Awwwards reference curves) ── */
+  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-reveal:  cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-heavy:   cubic-bezier(0.75, 0, 0, 1);
+  --dur-hover:    200ms;
+  --dur-reveal:   700ms;
+  --dur-transition: 600ms;
 }
 
 /* ── Reset ── */

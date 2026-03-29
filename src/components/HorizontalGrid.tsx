@@ -12,21 +12,30 @@ interface HorizontalGridProps {
 }
 
 /*
- * Wheel-driven horizontal gallery.
+ * Wheel-driven horizontal gallery — Awwwards reference implementation.
  *
- * No Lenis, no ScrollTrigger, no DOM tripling.
- * Wheel/touch delta → GSAP quickTo for smooth interpolated translateX.
- * Clamped to content bounds (no infinite loop — clean, no clipping).
- * Vertical stagger on items for organic wave rhythm.
+ * - Varied item sizes with dramatic contrast (200px → 480px)
+ * - Vertical stagger (top/center/bottom alignment)
+ * - Titles visible at rest (not just on hover)
+ * - Dim-siblings on hover (opacity 0.4)
+ * - Image scale(1.05) on hover
+ * - Clip-path entrance with easeInOutQuart
+ * - Velocity-based skew (±2deg)
+ * - 20px gaps (editorial standard)
  */
 
-const LAYOUT: Array<{ w: string; h: string; align: "flex-start" | "flex-end" | "center" }> = [
-  { w: "clamp(200px, 24vw, 340px)", h: "52vh", align: "flex-end" },
-  { w: "clamp(280px, 34vw, 480px)", h: "68vh", align: "flex-start" },
+// Dramatic size variation — [width, height, verticalAlign]
+const LAYOUT: Array<{
+  w: string;
+  h: string;
+  align: "flex-start" | "flex-end" | "center";
+}> = [
+  { w: "clamp(220px, 26vw, 380px)", h: "56vh", align: "flex-end" },
+  { w: "clamp(300px, 36vw, 500px)", h: "72vh", align: "flex-start" },
   { w: "clamp(160px, 18vw, 240px)", h: "40vh", align: "center" },
-  { w: "clamp(240px, 28vw, 400px)", h: "62vh", align: "flex-end" },
-  { w: "clamp(180px, 20vw, 280px)", h: "46vh", align: "flex-start" },
-  { w: "clamp(300px, 36vw, 500px)", h: "72vh", align: "center" },
+  { w: "clamp(260px, 30vw, 440px)", h: "65vh", align: "flex-end" },
+  { w: "clamp(180px, 20vw, 280px)", h: "48vh", align: "flex-start" },
+  { w: "clamp(340px, 38vw, 520px)", h: "74vh", align: "center" },
 ];
 
 export default function HorizontalGrid({
@@ -48,33 +57,24 @@ export default function HorizontalGrid({
     const track = trackRef.current;
     if (!container || !track) return;
 
-    // Calculate bounds
     const updateBounds = () => {
       maxScroll.current = Math.max(0, track.scrollWidth - container.clientWidth);
     };
     updateBounds();
     window.addEventListener("resize", updateBounds);
 
-    // Smooth animation loop
+    // Smooth RAF loop
     let raf: number;
     const tick = () => {
-      // Lerp toward target
       const prev = scrollX.current;
       scrollX.current += (targetX.current - scrollX.current) * 0.08;
-
-      // Velocity for skew
       velocityRef.current = scrollX.current - prev;
-      const skew = gsap.utils.clamp(-2, 2, velocityRef.current * 0.3);
 
-      // Apply transform
-      track.style.transform = `translateX(${-scrollX.current}px)`;
+      // Skew
+      const skew = gsap.utils.clamp(-2, 2, velocityRef.current * 0.25);
+      track.style.transform = `translateX(${-scrollX.current}px) skewX(${skew}deg)`;
 
-      // Skew items
-      itemRefs.current.forEach((el) => {
-        if (el) el.style.transform = `skewX(${skew}deg)`;
-      });
-
-      // Center item detection
+      // Center detection
       const centerX = container.clientWidth / 2 + scrollX.current;
       let closest = 0;
       let minDist = Infinity;
@@ -96,61 +96,46 @@ export default function HorizontalGrid({
     };
     raf = requestAnimationFrame(tick);
 
-    // Wheel handler
+    // Wheel
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      // Use deltaY (vertical scroll) to drive horizontal movement
       const delta = e.deltaY || e.deltaX;
-      targetX.current = gsap.utils.clamp(
-        0,
-        maxScroll.current,
-        targetX.current + delta
-      );
+      targetX.current = gsap.utils.clamp(0, maxScroll.current, targetX.current + delta);
     };
 
-    // Touch handlers
+    // Touch
     let touchStartX = 0;
     let touchStartScroll = 0;
-
     const onTouchStart = (e: TouchEvent) => {
       touchStartX = e.touches[0].clientX;
       touchStartScroll = targetX.current;
     };
-
     const onTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       const deltaX = touchStartX - e.touches[0].clientX;
-      targetX.current = gsap.utils.clamp(
-        0,
-        maxScroll.current,
-        touchStartScroll + deltaX
-      );
+      targetX.current = gsap.utils.clamp(0, maxScroll.current, touchStartScroll + deltaX);
     };
 
     container.addEventListener("wheel", onWheel, { passive: false });
     container.addEventListener("touchstart", onTouchStart, { passive: true });
     container.addEventListener("touchmove", onTouchMove, { passive: false });
 
-    // Entrance animation
+    // Entrance — clip-path reveal with easeInOutQuart
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.fromTo(
         itemRefs.current.filter(Boolean),
-        { clipPath: "inset(100% 0% 0% 0%)", opacity: 0 },
+        { clipPath: "inset(100% 0% 0% 0%)" },
         {
           clipPath: "inset(0% 0% 0% 0%)",
-          opacity: 1,
           duration: 0.9,
-          stagger: 0.07,
-          ease: "power3.out",
-          delay: 0.3,
+          stagger: 0.06,
+          ease: "circ.inOut",
+          delay: 0.4,
         }
       );
     } else {
       itemRefs.current.forEach((el) => {
-        if (el) {
-          el.style.opacity = "1";
-          el.style.clipPath = "none";
-        }
+        if (el) el.style.clipPath = "none";
       });
     }
 
@@ -178,9 +163,10 @@ export default function HorizontalGrid({
         ref={trackRef}
         style={{
           display: "flex",
-          gap: "clamp(10px, 1.5vw, 18px)",
+          gap: 20,
           height: "100%",
-          padding: "0 clamp(24px, 6vw, 100px)",
+          padding: "0 var(--grid-margin)",
+          paddingBottom: "clamp(32px, 5vh, 56px)",
           alignItems: "center",
           willChange: "transform",
         }}
@@ -192,15 +178,16 @@ export default function HorizontalGrid({
               ? `/work/${piece.slug}`
               : `/lab/${piece.slug}`;
           const isHovered = hoveredIndex === i;
+          const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
           const num = String(i + 1).padStart(2, "0");
 
           const isDark = isDarkBg(piece.cover.bg);
-          const textColor = isDark
+          const textOnCover = isDark
             ? "rgba(255,252,245,0.90)"
-            : "rgba(28,26,23,0.82)";
-          const mutedColor = isDark
-            ? "rgba(255,252,245,0.40)"
-            : "rgba(28,26,23,0.28)";
+            : "rgba(42,37,32,0.82)";
+          const mutedOnCover = isDark
+            ? "rgba(255,252,245,0.45)"
+            : "rgba(42,37,32,0.32)";
 
           return (
             <div
@@ -209,19 +196,22 @@ export default function HorizontalGrid({
               style={{
                 flexShrink: 0,
                 width: layout.w,
-                height: layout.h,
                 alignSelf: layout.align,
-                position: "relative",
-                opacity: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
                 clipPath: "inset(100% 0% 0% 0%)",
+                opacity: isDimmed ? 0.4 : 1,
+                transition: "opacity 300ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
+              {/* Image container */}
               <Link
                 href={href}
                 style={{
                   display: "block",
                   width: "100%",
-                  height: "100%",
+                  height: layout.h,
                   position: "relative",
                   backgroundColor: piece.cover.bg,
                   overflow: "hidden",
@@ -231,7 +221,6 @@ export default function HorizontalGrid({
                 onMouseLeave={() => setHoveredIndex(null)}
                 aria-label={`View ${piece.title}`}
               >
-                {/* Image */}
                 {piece.image && (
                   <Image
                     src={piece.image}
@@ -240,7 +229,7 @@ export default function HorizontalGrid({
                     sizes="(max-width: 768px) 60vw, 30vw"
                     style={{
                       objectFit: "cover",
-                      transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+                      transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                       transform: isHovered ? "scale(1.05)" : "scale(1)",
                     }}
                     priority={i < 3}
@@ -258,63 +247,60 @@ export default function HorizontalGrid({
                     background: piece.cover.bg,
                     mixBlendMode: "multiply",
                     pointerEvents: "none",
-                    zIndex: 1,
                   }}
                 />
 
-                {/* Hover overlay */}
-                <div
+                {/* Number — always visible, top-left */}
+                <span
+                  className="font-mono"
                   style={{
                     position: "absolute",
-                    inset: 0,
-                    zIndex: 3,
-                    pointerEvents: "none",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    padding: "clamp(10px, 2.5%, 16px)",
-                    opacity: isHovered ? 1 : 0,
-                    transition: "opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+                    top: 12,
+                    left: 14,
+                    fontSize: "var(--text-label)",
+                    letterSpacing: "var(--tracking-label)",
+                    color: mutedOnCover,
+                    zIndex: 2,
                   }}
                 >
-                  <span
-                    className="font-mono"
-                    style={{ fontSize: 9, letterSpacing: "0.06em", color: mutedColor }}
-                  >
-                    {num}
-                  </span>
-                  <div
-                    style={{
-                      transform: isHovered ? "translateY(0)" : "translateY(8px)",
-                      transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
-                    }}
-                  >
-                    <p
-                      className="font-display"
-                      style={{
-                        fontSize: "clamp(14px, 1.6vw, 20px)",
-                        fontWeight: 400,
-                        lineHeight: 1.15,
-                        color: textColor,
-                        marginBottom: 2,
-                      }}
-                    >
-                      {piece.title}
-                    </p>
-                    <p
-                      className="font-mono"
-                      style={{
-                        fontSize: 9,
-                        letterSpacing: "0.06em",
-                        textTransform: "uppercase",
-                        color: mutedColor,
-                      }}
-                    >
-                      {piece.tags.slice(0, 2).join(" / ")}
-                    </p>
-                  </div>
-                </div>
+                  {num}
+                </span>
               </Link>
+
+              {/* Title + tags — ALWAYS visible below image */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 12,
+                }}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <span
+                  className="font-body"
+                  style={{
+                    fontSize: "var(--text-body)",
+                    color: "var(--ink-90)",
+                    lineHeight: "var(--leading-body)",
+                  }}
+                >
+                  {piece.title}
+                </span>
+                <span
+                  className="font-mono"
+                  style={{
+                    fontSize: "var(--text-label)",
+                    letterSpacing: "var(--tracking-label)",
+                    textTransform: "uppercase",
+                    color: "var(--ink-muted)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {piece.tags[0]}
+                </span>
+              </div>
             </div>
           );
         })}

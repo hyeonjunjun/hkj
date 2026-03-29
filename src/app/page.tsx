@@ -75,15 +75,15 @@ export default function Home() {
           <span
             className="font-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.08em",
+              fontSize: "var(--text-label)",
+              letterSpacing: "var(--tracking-label)",
               textTransform: "uppercase",
               color: "var(--ink-full)",
             }}
           >
             HKJ
           </span>
-          <nav style={{ display: "flex", gap: 20, alignItems: "center" }}>
+          <nav style={{ display: "flex", gap: 28, alignItems: "center" }}>
             {[
               { label: "Work", href: "/work" },
               { label: "Lab", href: "/lab" },
@@ -94,12 +94,12 @@ export default function Home() {
                 href={item.href}
                 className="font-mono"
                 style={{
-                  fontSize: 10,
-                  letterSpacing: "0.08em",
+                  fontSize: "var(--text-label)",
+                  letterSpacing: "var(--tracking-label)",
                   textTransform: "uppercase",
                   color: "var(--ink-secondary)",
                   textDecoration: "none",
-                  transition: "color 0.3s ease",
+                  transition: "color var(--dur-hover) var(--ease-out)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = "var(--ink-full)";
@@ -178,9 +178,9 @@ export default function Home() {
           <span
             className="font-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              color: "var(--ink-secondary)",
+              fontSize: "var(--text-label)",
+              letterSpacing: "var(--tracking-label)",
+              color: "var(--ink-muted)",
             }}
           >
             Design & Engineering
@@ -204,9 +204,9 @@ export default function Home() {
           <span
             className="font-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              color: "var(--ink-secondary)",
+              fontSize: "var(--text-label)",
+              letterSpacing: "var(--tracking-label)",
+              color: "var(--ink-muted)",
             }}
           >
             Seoul, 2026
