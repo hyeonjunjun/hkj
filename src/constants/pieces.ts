@@ -13,6 +13,7 @@ export interface Piece {
   tags: string[];
   status: "shipped" | "wip";
   year: number;
+  image?: string;
 }
 
 export const PIECES: Piece[] = [
@@ -26,6 +27,7 @@ export const PIECES: Piece[] = [
     tags: ["brand", "ecommerce", "3d"],
     status: "shipped",
     year: 2026,
+    image: "/images/gyeol-display-hanji.webp",
   },
   {
     slug: "sift",
@@ -37,6 +39,7 @@ export const PIECES: Piece[] = [
     tags: ["mobile", "ai", "product"],
     status: "shipped",
     year: 2025,
+    image: "/images/sift-v2.webp",
   },
   {
     slug: "conductor",
@@ -59,6 +62,7 @@ export const PIECES: Piece[] = [
     tags: ["texture", "material"],
     status: "shipped",
     year: 2026,
+    image: "/images/gyeol-spring.webp",
   },
   {
     slug: "rain-on-stone",
@@ -70,6 +74,7 @@ export const PIECES: Piece[] = [
     tags: ["texture", "material"],
     status: "shipped",
     year: 2026,
+    image: "/images/gyeol-rain.webp",
   },
   {
     slug: "clouds-at-sea",
