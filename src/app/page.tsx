@@ -30,15 +30,6 @@ function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
-function adjustBrightness(hex: string, percent: number): string {
-  const c = hex.replace("#", "");
-  if (c.length < 6) return hex;
-  const r = Math.max(0, Math.min(255, parseInt(c.slice(0, 2), 16) + Math.round(255 * percent / 100)));
-  const g = Math.max(0, Math.min(255, parseInt(c.slice(2, 4), 16) + Math.round(255 * percent / 100)));
-  const b = Math.max(0, Math.min(255, parseInt(c.slice(4, 6), 16) + Math.round(255 * percent / 100)));
-  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
-}
-
 function isDark(hex: string): boolean {
   const c = hex.replace("#", "");
   if (c.length < 6) return false;
@@ -65,10 +56,9 @@ export default function Home() {
   const [centerIdx, setCenterIdx] = useState(0);
 
   const piece = pieces[centerIdx];
-  const dark = isDark(piece.cover.bg);
-  const textColor = dark ? "rgba(255,252,245,0.92)" : "var(--fg)";
-  const mutedColor = dark ? "rgba(255,252,245,0.40)" : "var(--fg-3)";
-  const faintColor = dark ? "rgba(255,252,245,0.18)" : "var(--fg-4)";
+  const textColor = "var(--fg)";
+  const mutedColor = "var(--fg-3)";
+  const faintColor = "var(--fg-4)";
 
   // ── Navigate to a specific item index ──
   const goTo = (idx: number) => {
@@ -273,8 +263,7 @@ export default function Home() {
         overflow: "hidden",
         display: "grid",
         gridTemplateRows: "48px 1fr auto auto",
-        background: `radial-gradient(ellipse at center, ${piece.cover.bg} 0%, ${adjustBrightness(piece.cover.bg, -15)} 100%)`,
-        transition: "background 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+        background: "var(--bg)",
         position: "relative",
       }}>
 
@@ -390,8 +379,7 @@ export default function Home() {
                 letterSpacing: "-0.03em",
                 lineHeight: 1.0,
                 color: textColor,
-                transition: "color 500ms ease",
-                textAlign: "center",
+                    textAlign: "center",
               }}>
                 {piece.title}
               </h2>
@@ -403,8 +391,7 @@ export default function Home() {
               fontSize: 13,
               lineHeight: 1.5,
               color: mutedColor,
-              transition: "color 500ms ease",
-              textAlign: "center",
+                textAlign: "center",
               maxWidth: 400,
             }}>
               {piece.description}
@@ -423,8 +410,7 @@ export default function Home() {
               <span style={{
                 width: 3, height: 3, borderRadius: "50%",
                 backgroundColor: faintColor,
-                transition: "background-color 500ms ease",
-              }} />
+                  }} />
               <span style={{
                 fontFamily: "var(--font-mono)", fontSize: 10,
                 letterSpacing: "0.08em",
@@ -433,8 +419,7 @@ export default function Home() {
               <span style={{
                 width: 3, height: 3, borderRadius: "50%",
                 backgroundColor: faintColor,
-                transition: "background-color 500ms ease",
-              }} />
+                  }} />
               <span style={{
                 fontFamily: "var(--font-mono)", fontSize: 10,
                 letterSpacing: "0.08em", textTransform: "uppercase",
@@ -451,15 +436,14 @@ export default function Home() {
         }}>
           <div style={{
             height: 1, marginBottom: 10,
-            backgroundColor: dark ? "rgba(255,252,245,0.08)" : "rgba(26,25,23,0.05)",
+            backgroundColor: "rgba(26,25,23,0.05)",
             position: "relative", transition: "background-color 500ms ease",
           }}>
             <div ref={progressRef} style={{
               position: "absolute", top: 0, left: 0, height: "100%",
               width: `${((centerIdx + 1) / N) * 100}%`,
               backgroundColor: textColor,
-              transition: "background-color 500ms ease",
-            }} />
+              }} />
           </div>
           <div style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
