@@ -3,9 +3,14 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { gsap, SplitText } from "@/lib/gsap";
 import { PIECES } from "@/constants/pieces";
 import PageTransition from "@/components/PageTransition";
+
+const CustomCursor = dynamic(() => import("@/components/CustomCursor"), {
+  ssr: false, loading: () => null,
+});
 
 const pieces = [...PIECES].sort((a, b) => a.order - b.order);
 
@@ -49,37 +54,35 @@ export default function Home() {
 
     const tl = gsap.timeline();
 
-    // Brand name — chars rise
+    // Phase 1: Brand name — chars rise from center outward (tighter: 1s total)
     if (brandRef.current) {
       brandRef.current.style.opacity = "1";
       const split = new SplitText(brandRef.current, { type: "chars" });
       tl.fromTo(split.chars,
-        { yPercent: 110, opacity: 0, rotateZ: 3 },
-        { yPercent: 0, opacity: 1, rotateZ: 0, duration: 1.4, stagger: 0.035, ease: "expo.out" },
-        0.15
+        { yPercent: 100, opacity: 0 },
+        { yPercent: 0, opacity: 1, duration: 0.9, stagger: { each: 0.03, from: "center" }, ease: "power3.out" },
+        0.1
       );
     }
 
-    // Tagline
+    // Phase 2: Tagline + nav + footer — simultaneous (0.5s after brand starts)
     tl.fromTo(taglineRef.current,
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
-      0.8
+      { opacity: 0, y: 6 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      0.5
     );
-
-    // Nav + footer
     tl.fromTo([navRef.current, footerRef.current],
       { opacity: 0 },
-      { opacity: 1, duration: 0.5, stagger: 0.1 },
-      1.0
+      { opacity: 1, duration: 0.4, stagger: 0.05 },
+      0.6
     );
 
-    // Gallery items — clip from bottom
+    // Phase 3: Gallery items — clip-path + subtle scale (0.7s after brand starts)
     const items = itemRefs.current.filter(Boolean);
     tl.fromTo(items,
-      { clipPath: "inset(100% 0 0 0)" },
-      { clipPath: "inset(0% 0 0 0)", duration: 1, stagger: 0.06, ease: "circ.inOut" },
-      0.9
+      { clipPath: "inset(100% 0 0 0)", scale: 1.02 },
+      { clipPath: "inset(0% 0 0 0)", scale: 1, duration: 0.8, stagger: 0.05, ease: "circ.inOut" },
+      0.7
     );
   }, []);
 
@@ -251,7 +254,23 @@ export default function Home() {
                   >
                     <Link href={href}
                       onMouseEnter={() => setHovered(i)}
-                      onMouseLeave={() => setHovered(null)}
+                      onMouseLeave={(e) => {
+                        setHovered(null);
+                        // Reset magnetic offset
+                        gsap.to(e.currentTarget, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.5)" });
+                      }}
+                      onMouseMove={(e) => {
+                        // Magnetic hover — card follows cursor within bounds
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const cx = (e.clientX - rect.left - rect.width / 2) / rect.width;
+                        const cy = (e.clientY - rect.top - rect.height / 2) / rect.height;
+                        gsap.to(e.currentTarget, {
+                          x: cx * 8,  // ±8px max
+                          y: cy * 6,  // ±6px max
+                          duration: 0.3,
+                          ease: "power2.out",
+                        });
+                      }}
                       aria-label={`View ${piece.title}`}
                       style={{
                         display: "block", width: "100%", height: heights[i % 6],
@@ -332,6 +351,9 @@ export default function Home() {
 
         {/* Grain */}
         <div className="grain" />
+
+        {/* Custom cursor */}
+        <CustomCursor />
       </div>
     </PageTransition>
   );
