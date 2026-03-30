@@ -1,9 +1,4 @@
 # metric_direction: higher_is_better
 iteration	commit	metric	delta	guard	status	description
-0	cd930fe	1	0.0	pass	baseline	initial state — build passes, portfolio rough
-1	4ec4c5e	1	0.0	-	keep	remove empty className attrs from about + case study
-2	79d26be	1	0.0	-	keep	flatten exploration gallery — delete detail routes, items non-clickable
-3	2eadfea	1	0.0	-	keep	remove dead components — CloudCanvas, gacha, audio (1798 lines)
-4	e2dd48a	1	0.0	-	keep	unify all pages to blur-reveal presets (exploration, writing, about)
-6	e612458	1	0.0	-	keep	add MASK_TEXT reveals + TIMING reference + mask-line CSS + eq-bar keyframes
-7	10acb47	1	0.0	-	keep	add blur placeholders to project covers
+0	0253e98	1	0.0	-	baseline	editorial one-pager restructure — clean build
+1	cdd73c3	1	0.0	-	keep	single-viewport archive homepage — no scroll, 3x2 grid, serif display font

@@ -36,9 +36,12 @@ body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-  height: 100dvh;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+body::-webkit-scrollbar { display: none; }
 
 ::selection { background: rgba(var(--fg-rgb), 0.12); }
 
