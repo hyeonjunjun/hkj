@@ -30,6 +30,15 @@ function mod(n: number, m: number): number {
   return ((n % m) + m) % m;
 }
 
+function adjustBrightness(hex: string, percent: number): string {
+  const c = hex.replace("#", "");
+  if (c.length < 6) return hex;
+  const r = Math.max(0, Math.min(255, parseInt(c.slice(0, 2), 16) + Math.round(255 * percent / 100)));
+  const g = Math.max(0, Math.min(255, parseInt(c.slice(2, 4), 16) + Math.round(255 * percent / 100)));
+  const b = Math.max(0, Math.min(255, parseInt(c.slice(4, 6), 16) + Math.round(255 * percent / 100)));
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 function isDark(hex: string): boolean {
   const c = hex.replace("#", "");
   if (c.length < 6) return false;
@@ -217,18 +226,42 @@ export default function Home() {
     tl.to(infoRef.current, { opacity: 1, y: 0, duration: 0.2, ease: "power2.out" });
   }, [centerIdx]);
 
-  // ── Entrance ──
+  // ── Entrance choreography ──
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       [navRef, footerRef].forEach(r => { if (r.current) r.current.style.opacity = "1"; });
       if (infoRef.current) infoRef.current.style.opacity = "1";
       return;
     }
-    const tl = gsap.timeline();
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    // Phase 1: Nav + footer
     tl.fromTo([navRef.current, footerRef.current],
-      { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.1 }, 0.1);
+      { opacity: 0 }, { opacity: 1, duration: 0.5, stagger: 0.08 }, 0.1);
+
+    // Phase 2: Carousel items stagger from center
+    const items = itemRefs.current.filter(Boolean);
+    if (items.length) {
+      tl.fromTo(items,
+        { scale: 0.7, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.9,
+          stagger: { each: 0.08, from: "center" },
+          ease: "power3.out",
+        },
+        0.2
+      );
+    }
+
+    // Phase 3: Info area
     tl.fromTo(infoRef.current,
-      { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.5);
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      0.6
+    );
   }, []);
 
   const href = piece.type === "project" ? `/work/${piece.slug}` : `/lab/${piece.slug}`;
@@ -240,8 +273,8 @@ export default function Home() {
         overflow: "hidden",
         display: "grid",
         gridTemplateRows: "48px 1fr auto auto",
-        backgroundColor: piece.cover.bg,
-        transition: "background-color 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+        background: `radial-gradient(ellipse at center, ${piece.cover.bg} 0%, ${adjustBrightness(piece.cover.bg, -15)} 100%)`,
+        transition: "background 700ms cubic-bezier(0.22, 1, 0.36, 1)",
         position: "relative",
       }}>
 
@@ -292,10 +325,12 @@ export default function Home() {
               >
                 <Link
                   href={p.type === "project" ? `/work/${p.slug}` : `/lab/${p.slug}`}
+                  data-cursor-view
                   style={{
                     display: "block", width: "100%", height: "100%",
                     position: "relative", backgroundColor: p.cover.bg,
                     overflow: "hidden", textDecoration: "none",
+                    transition: "box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
                   {p.image && (
@@ -324,12 +359,12 @@ export default function Home() {
         {/* ═══ DECORATED PROJECT INFO ═══ */}
         <div ref={infoRef} style={{
           padding: "0 var(--margin)",
-          paddingTop: 16,
-          paddingBottom: 12,
+          paddingTop: "clamp(16px, 3vh, 32px)",
+          paddingBottom: "clamp(12px, 2vh, 24px)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 8,
+          gap: 12,
           opacity: 0,
           position: "relative",
           zIndex: 20,
@@ -337,20 +372,30 @@ export default function Home() {
           {/* Title — large display serif */}
           <Link href={href} style={{
             textDecoration: "none",
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
           }}>
-            <h2 style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(28px, 4vw, 56px)",
-              fontWeight: 400,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.0,
-              color: textColor,
-              transition: "color 500ms ease",
-              textAlign: "center",
-            }}>
-              {piece.title}
-            </h2>
+            {/* Project number + title */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: "clamp(10px, 1.2vw, 14px)",
+                letterSpacing: "0.06em", fontVariantNumeric: "tabular-nums",
+                color: faintColor, transition: "color 500ms ease",
+              }}>
+                {String(centerIdx + 1).padStart(2, "0")}
+              </span>
+              <h2 style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(28px, 4vw, 56px)",
+                fontWeight: 400,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.0,
+                color: textColor,
+                transition: "color 500ms ease",
+                textAlign: "center",
+              }}>
+                {piece.title}
+              </h2>
+            </div>
 
             {/* Description — body text */}
             <p style={{
