@@ -1,13 +1,11 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import Lenis from "lenis";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, Observer } from "@/lib/gsap";
 import { PIECES } from "@/constants/pieces";
-import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
 import PageTransition from "@/components/PageTransition";
 
 const CustomCursor = dynamic(() => import("@/components/CustomCursor"), {
@@ -26,655 +24,419 @@ function isDark(hex: string): boolean {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
 }
 
-// Grid aspect ratios for visual rhythm
-const GRID_ASPECTS = ["4/5", "3/4", "1/1", "4/5", "3/4", "1/1"];
-
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
-  const brandRef = useRef<HTMLHeadingElement>(null);
-  const heroImageRef = useRef<HTMLDivElement>(null);
-  const indexRefs = useRef<(HTMLElement | null)[]>([]);
-  const taglineRef = useRef<HTMLElement>(null);
-  const scrollCueRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const gridItemRefs = useRef<(HTMLElement | null)[]>([]);
-  const aboutRef = useRef<HTMLElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
 
-  const [featuredIdx, setFeaturedIdx] = useState(0);
-  const [gridHovered, setGridHovered] = useState<number | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const animating = useRef(false);
 
-  const featured = pieces[featuredIdx];
+  const piece = pieces[current];
+  const dark = isDark(piece.cover.bg);
+  const textColor = dark ? "rgba(255,252,245,0.92)" : "var(--fg)";
+  const mutedColor = dark ? "rgba(255,252,245,0.45)" : "var(--fg-3)";
+  const bgColor = piece.cover.bg;
 
-  /* ── Lenis smooth scroll + ScrollTrigger sync ── */
+  // Navigate to next/prev project
+  const goTo = useCallback((direction: 1 | -1) => {
+    if (animating.current) return;
+    const next = ((current + direction) % pieces.length + pieces.length) % pieces.length;
+    animating.current = true;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setCurrent(next);
+        animating.current = false;
+      },
+    });
+
+    // Fade out current info
+    tl.to([titleRef.current, metaRef.current], {
+      opacity: 0,
+      y: -12 * direction,
+      duration: 0.3,
+      ease: "power2.in",
+    }, 0);
+
+    // Crossfade image via clip-path
+    tl.to(imageContainerRef.current, {
+      opacity: 0.6,
+      scale: 0.98,
+      duration: 0.25,
+      ease: "power2.in",
+    }, 0);
+
+    tl.set(imageContainerRef.current, {}, "+=0.05");
+
+    // Reveal new state
+    tl.to(imageContainerRef.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+
+    tl.fromTo([titleRef.current, metaRef.current],
+      { opacity: 0, y: 12 * direction },
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", stagger: 0.06 },
+      "-=0.35"
+    );
+
+    // Progress bar
+    const nextProgress = ((next + 1) / pieces.length) * 100;
+    tl.to(progressRef.current, {
+      width: `${nextProgress}%`,
+      duration: 0.4,
+      ease: "power2.out",
+    }, 0.1);
+  }, [current]);
+
+  // GSAP Observer — wheel + touch + keyboard
   useEffect(() => {
-    const lenis = new Lenis({
-      lerp: 0.08,
-      smoothWheel: true,
-      wheelMultiplier: 1,
+    const obs = Observer.create({
+      target: containerRef.current!,
+      type: "wheel,touch,pointer",
+      tolerance: 80,
+      onDown: () => goTo(1),
+      onUp: () => goTo(-1),
+      wheelSpeed: -1,
+      preventDefault: true,
     });
 
-    // Sync Lenis with GSAP ScrollTrigger + track scroll position
-    lenis.on("scroll", (e: { scroll: number }) => {
-      ScrollTrigger.update();
-      setScrolled(e.scroll > 80);
-    });
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
-
-    // Refresh ScrollTrigger after Lenis settles
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
-
-    return () => {
-      lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); goTo(1); }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); goTo(-1); }
     };
-  }, []);
-  const featuredBg = featured?.cover.bg || "#2a241c";
+    window.addEventListener("keydown", onKey);
 
-  /* ── Entrance choreography ── */
+    return () => { obs.kill(); window.removeEventListener("keydown", onKey); };
+  }, [goTo]);
+
+  // Mouse parallax on image
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const container = containerRef.current;
+    const img = imageContainerRef.current;
+    if (!container || !img) return;
 
-    if (reduced) {
-      [navRef, taglineRef, scrollCueRef].forEach((r) => {
-        if (r.current) r.current.style.opacity = "1";
+    const onMove = (e: MouseEvent) => {
+      const cx = (e.clientX / window.innerWidth - 0.5) * 2;
+      const cy = (e.clientY / window.innerHeight - 0.5) * 2;
+      gsap.to(img, {
+        x: cx * 12,
+        y: cy * 8,
+        duration: 0.8,
+        ease: "power2.out",
       });
-      if (brandRef.current) {
-        brandRef.current.style.opacity = "0.15";
-        brandRef.current.style.filter = "none";
-      }
-      if (heroImageRef.current) heroImageRef.current.style.clipPath = "none";
-      indexRefs.current.forEach((el) => {
-        if (el) el.style.opacity = "1";
-      });
+    };
+
+    container.addEventListener("mousemove", onMove);
+    return () => container.removeEventListener("mousemove", onMove);
+  }, []);
+
+  // Entrance
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      [navRef, footerRef].forEach(r => { if (r.current) r.current.style.opacity = "1"; });
+      if (imageContainerRef.current) imageContainerRef.current.style.clipPath = "none";
+      if (titleRef.current) titleRef.current.style.opacity = "1";
+      if (metaRef.current) metaRef.current.style.opacity = "1";
       return;
     }
 
     const tl = gsap.timeline();
 
-    // Phase 1: Brand name materializes (blur → sharp)
-    if (brandRef.current) {
-      tl.fromTo(
-        brandRef.current,
-        { opacity: 0, scale: 1.03, filter: "blur(12px)" },
-        { opacity: 0.12, scale: 1, filter: "blur(0px)", duration: 0.8, ease: "power2.out" },
-        0.1
-      );
-    }
+    // Nav + footer
+    tl.fromTo([navRef.current, footerRef.current],
+      { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.1);
 
-    // Phase 2: Hero image clip-path reveal
-    if (heroImageRef.current) {
-      tl.fromTo(
-        heroImageRef.current,
-        { clipPath: "inset(100% 0 0 0)" },
-        { clipPath: "inset(0% 0 0 0)", duration: 0.9, ease: "circ.inOut" },
-        0.3
-      );
-    }
+    // Image clip-path reveal
+    tl.fromTo(imageContainerRef.current,
+      { clipPath: "inset(100% 0 0 0)" },
+      { clipPath: "inset(0% 0 0 0)", duration: 1, ease: "circ.inOut" }, 0.2);
 
-    // Phase 3: Index titles stagger
-    const validIndex = indexRefs.current.filter(Boolean);
-    tl.fromTo(
-      validIndex,
-      { opacity: 0, x: 12 },
-      { opacity: 1, x: 0, duration: 0.5, stagger: 0.04, ease: "power2.out" },
-      0.6
-    );
+    // Title + meta
+    tl.fromTo([titleRef.current, metaRef.current],
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" }, 0.7);
 
-    // Phase 4: Nav + tagline + scroll cue
-    tl.fromTo(
-      [navRef.current, taglineRef.current, scrollCueRef.current],
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4, stagger: 0.06 },
-      0.8
-    );
+    // Counter
+    tl.fromTo(counterRef.current,
+      { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.9);
+
+    // Progress bar
+    tl.fromTo(progressRef.current,
+      { width: "0%" },
+      { width: `${(1 / pieces.length) * 100}%`, duration: 0.6, ease: "power2.out" }, 0.8);
   }, []);
 
-  /* ── Scroll-triggered reveals for grid + about ── */
-  useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      gridItemRefs.current.forEach((el) => {
-        if (el) { el.style.opacity = "1"; el.style.clipPath = "none"; }
-      });
-      if (aboutRef.current) aboutRef.current.style.opacity = "1";
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      // Grid items reveal on scroll
-      gridItemRefs.current.forEach((el) => {
-        if (!el) return;
-        gsap.fromTo(
-          el,
-          { clipPath: "inset(100% 0 0 0)", opacity: 0 },
-          {
-            clipPath: "inset(0% 0 0 0)",
-            opacity: 1,
-            duration: 0.8,
-            ease: "circ.inOut",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 88%",
-              once: true,
-            },
-          }
-        );
-      });
-
-      // About section reveal
-      if (aboutRef.current) {
-        gsap.fromTo(
-          aboutRef.current,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: aboutRef.current,
-              start: "top 85%",
-              once: true,
-            },
-          }
-        );
-      }
-
-      // Hero parallax
-      if (heroImageRef.current) {
-        gsap.to(heroImageRef.current, {
-          yPercent: -8,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroImageRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
-
-      // Brand name parallax (slower)
-      if (brandRef.current) {
-        gsap.to(brandRef.current, {
-          yPercent: -15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: brandRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
-    });
-
-    return () => ctx.revert();
-  }, []);
+  const href = piece.type === "project" ? `/work/${piece.slug}` : `/lab/${piece.slug}`;
 
   return (
     <PageTransition>
-      <div style={{ background: "var(--bg)", minHeight: "100dvh" }}>
-
-        {/* ═══ NAV (sticky) ═══ */}
+      <div
+        ref={containerRef}
+        style={{
+          height: "100dvh",
+          overflow: "hidden",
+          display: "grid",
+          gridTemplateRows: "48px 1fr auto",
+          backgroundColor: bgColor,
+          transition: "background-color 600ms cubic-bezier(0.22, 1, 0.36, 1)",
+          position: "relative",
+        }}
+      >
+        {/* ═══ NAV ═══ */}
         <header
           ref={navRef}
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            height: 48,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 var(--margin)",
-            background: scrolled ? "rgba(245, 241, 236, 0.9)" : "transparent",
-            backdropFilter: scrolled ? "blur(12px)" : "none",
-            WebkitBackdropFilter: scrolled ? "blur(12px)" : "none",
-            borderBottom: scrolled ? "1px solid var(--fg-5)" : "1px solid transparent",
-            transition: "background 300ms var(--ease), border-color 300ms var(--ease), backdrop-filter 300ms var(--ease)",
             opacity: 0,
+            position: "relative",
+            zIndex: 20,
           }}
         >
           <span style={{
             fontFamily: "var(--font-mono)", fontSize: 11,
-            letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--fg)",
+            letterSpacing: "0.1em", textTransform: "uppercase",
+            color: textColor, transition: "color 500ms ease",
           }}>
             HKJ
           </span>
-          <nav style={{ display: "flex", gap: 28 }}>
-            {["Work", "Lab", "About"].map((l) => (
-              <Link key={l} href={`/${l.toLowerCase()}`} style={{
-                fontFamily: "var(--font-mono)", fontSize: 11,
-                letterSpacing: "0.1em", textTransform: "uppercase",
-                color: "var(--fg-2)", textDecoration: "none",
-                transition: "color 200ms var(--ease)",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--fg)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--fg-2)"; }}
-              >{l}</Link>
-            ))}
-          </nav>
+          <div style={{ display: "flex", gap: 28, alignItems: "center" }}>
+            <span style={{
+              fontFamily: "var(--font-mono)", fontSize: 11,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              color: mutedColor, transition: "color 500ms ease",
+            }}>
+              Brand & Product Studio
+            </span>
+            <Link href="/about" style={{
+              fontFamily: "var(--font-mono)", fontSize: 11,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              color: mutedColor, textDecoration: "none",
+              transition: "color 200ms ease",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = textColor; }}
+            onMouseLeave={e => { e.currentTarget.style.color = mutedColor; }}
+            >
+              About
+            </Link>
+          </div>
         </header>
 
-        {/* ═══ HERO (100vh) ═══ */}
-        <section
-          id="main"
+        {/* ═══ MAIN ═══ */}
+        <main
           style={{
-            position: "relative",
-            height: "100vh",
-            overflow: "hidden",
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "1fr clamp(200px, 28vw, 400px)",
+            gap: "var(--margin)",
             padding: "0 var(--margin)",
+            alignItems: "center",
+            minHeight: 0,
+            position: "relative",
+            zIndex: 10,
           }}
         >
-          {/* Layer 1: Monumental brand name */}
-          <h1
-            ref={brandRef}
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -55%)",
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(180px, 28vw, 480px)",
-              fontWeight: 400,
-              lineHeight: 0.82,
-              letterSpacing: "-0.05em",
-              color: "var(--fg)",
-              opacity: 0,
-              pointerEvents: "none",
-              userSelect: "none",
-              zIndex: 1,
-              whiteSpace: "nowrap",
-            }}
-          >
-            HKJ
-          </h1>
-
-          {/* Layer 2: Featured image — all images stacked, crossfade via opacity */}
-          <div
-            ref={heroImageRef}
-            style={{
-              position: "absolute",
-              left: "var(--margin)",
-              top: "12%",
-              width: "clamp(280px, 38vw, 560px)",
-              height: "clamp(360px, 52vh, 660px)",
-              overflow: "hidden",
-              zIndex: 3,
-              clipPath: "inset(100% 0 0 0)",
-              backgroundColor: featuredBg,
-              transition: "background-color 500ms var(--ease)",
-            }}
-          >
-            {/* Stack all piece images — only active one is visible */}
-            {pieces.map((p, i) => (
-              p.image ? (
-                <Image
-                  key={p.slug}
-                  src={p.image}
-                  alt={p.title}
-                  fill
-                  sizes="(max-width: 768px) 80vw, 38vw"
-                  style={{
-                    objectFit: "cover",
-                    opacity: featuredIdx === i ? 1 : 0,
-                    transition: "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)",
-                    zIndex: featuredIdx === i ? 2 : 1,
-                  }}
-                  priority={i === 0}
-                />
-              ) : null
-            ))}
-            {/* Color field for imageless pieces */}
+          {/* Left: Featured image */}
+          <Link href={href} style={{ display: "block", textDecoration: "none" }}>
             <div
+              ref={imageContainerRef}
               style={{
-                position: "absolute",
-                inset: 0,
-                backgroundColor: featuredBg,
-                transition: "background-color 500ms var(--ease)",
-                zIndex: 0,
+                position: "relative",
+                width: "100%",
+                aspectRatio: "4/3",
+                maxHeight: "70vh",
+                overflow: "hidden",
+                clipPath: "inset(100% 0 0 0)",
+                backgroundColor: bgColor,
               }}
-            />
-            {/* Grain */}
+            >
+              {/* All images stacked */}
+              {pieces.map((p, i) => (
+                p.image ? (
+                  <Image
+                    key={p.slug}
+                    src={p.image}
+                    alt={p.title}
+                    fill
+                    sizes="(max-width: 768px) 90vw, 65vw"
+                    style={{
+                      objectFit: "cover",
+                      opacity: current === i ? 1 : 0,
+                      transition: "opacity 500ms cubic-bezier(0.22, 1, 0.36, 1)",
+                      zIndex: current === i ? 2 : 1,
+                    }}
+                    priority={i === 0}
+                  />
+                ) : null
+              ))}
+              {/* Grain */}
+              <div aria-hidden="true" style={{
+                position: "absolute", inset: 0, opacity: 0.04,
+                filter: "url(#grain)", background: "var(--bg)",
+                mixBlendMode: "multiply", pointerEvents: "none", zIndex: 3,
+              }} />
+            </div>
+          </Link>
+
+          {/* Right: Project info */}
+          <div style={{
+            display: "flex", flexDirection: "column",
+            justifyContent: "center", gap: 24,
+            height: "100%",
+          }}>
+            {/* Title block */}
+            <div ref={titleRef} style={{ opacity: 0 }}>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: 10,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                color: mutedColor, display: "block", marginBottom: 12,
+                transition: "color 500ms ease",
+              }}>
+                {piece.type === "project" ? "Project" : "Experiment"}
+              </span>
+              <h2 style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "clamp(28px, 3.5vw, 52px)",
+                fontWeight: 400,
+                lineHeight: 1.05,
+                letterSpacing: "-0.02em",
+                color: textColor,
+                marginBottom: 12,
+                transition: "color 500ms ease",
+              }}>
+                {piece.title}
+              </h2>
+              <p style={{
+                fontSize: 14, lineHeight: 1.55,
+                color: mutedColor, maxWidth: 340,
+                transition: "color 500ms ease",
+              }}>
+                {piece.description}
+              </p>
+            </div>
+
+            {/* Meta */}
+            <div ref={metaRef} style={{
+              display: "flex", flexDirection: "column", gap: 8, opacity: 0,
+            }}>
+              <div style={{
+                display: "flex", gap: 16, alignItems: "baseline",
+              }}>
+                <span style={{
+                  fontFamily: "var(--font-mono)", fontSize: 10,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  color: mutedColor, transition: "color 500ms ease",
+                }}>
+                  {piece.tags.slice(0, 2).join(" / ")}
+                </span>
+                <span style={{
+                  fontFamily: "var(--font-mono)", fontSize: 10,
+                  letterSpacing: "0.08em",
+                  color: mutedColor, transition: "color 500ms ease",
+                }}>
+                  {piece.year}
+                </span>
+              </div>
+
+              {/* View link */}
+              <Link href={href} style={{
+                fontFamily: "var(--font-mono)", fontSize: 11,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                color: textColor, textDecoration: "none",
+                display: "inline-flex", alignItems: "center", gap: 6,
+                marginTop: 8, transition: "color 500ms ease, gap 200ms ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.gap = "10px"; }}
+              onMouseLeave={e => { e.currentTarget.style.gap = "6px"; }}
+              >
+                View Project <span style={{ fontSize: 14 }}>→</span>
+              </Link>
+            </div>
+          </div>
+        </main>
+
+        {/* ═══ FOOTER + PROGRESS ═══ */}
+        <footer
+          ref={footerRef}
+          style={{
+            padding: "0 var(--margin)",
+            paddingBottom: 16,
+            opacity: 0,
+            position: "relative",
+            zIndex: 20,
+          }}
+        >
+          {/* Progress bar */}
+          <div style={{
+            height: 1,
+            backgroundColor: dark ? "rgba(255,252,245,0.12)" : "rgba(26,25,23,0.08)",
+            marginBottom: 12,
+            position: "relative",
+            transition: "background-color 500ms ease",
+          }}>
             <div
-              aria-hidden="true"
+              ref={progressRef}
               style={{
                 position: "absolute",
-                inset: 0,
-                opacity: 0.05,
-                filter: "url(#grain)",
-                background: "var(--bg)",
-                mixBlendMode: "multiply",
-                pointerEvents: "none",
-                zIndex: 3,
+                top: 0,
+                left: 0,
+                height: "100%",
+                width: `${((current + 1) / pieces.length) * 100}%`,
+                backgroundColor: textColor,
+                transition: "background-color 500ms ease",
               }}
             />
           </div>
 
-          {/* Layer 3: Project index (right side) */}
-          <div
-            style={{
-              position: "absolute",
-              right: "var(--margin)",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 5,
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              alignItems: "flex-end",
-            }}
-          >
-            {pieces.map((piece, i) => {
-              const isActive = featuredIdx === i;
-              return (
-                <Link
-                  key={piece.slug}
-                  ref={(el) => { indexRefs.current[i] = el; }}
-                  href={piece.type === "project" ? `/work/${piece.slug}` : `/lab/${piece.slug}`}
-                  onMouseEnter={() => setFeaturedIdx(i)}
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 11,
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    textAlign: "right",
-                    textDecoration: "none",
-                    color: isActive ? "var(--fg)" : "var(--fg-3)",
-                    transition: "color 250ms var(--ease), letter-spacing 300ms var(--ease)",
-                    padding: "4px 0",
-                    opacity: 0,
-                  }}
-                >
-                  {piece.title}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Tagline — bottom left */}
-          <span
-            ref={taglineRef}
-            style={{
-              position: "absolute",
-              bottom: "clamp(24px, 4vh, 48px)",
-              left: "var(--margin)",
-              fontFamily: "var(--font-mono)",
-              fontSize: 11,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "var(--fg-3)",
-              opacity: 0,
-              zIndex: 5,
-            }}
-          >
-            Brand & product design studio — Seoul
-          </span>
-
-          {/* Scroll cue — bottom center, animated */}
-          <div
-            ref={scrollCueRef}
-            style={{
-              position: "absolute",
-              bottom: "clamp(24px, 4vh, 48px)",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-              opacity: 0,
-              zIndex: 5,
-            }}
-          >
+          {/* Footer row */}
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
             <span style={{
               fontFamily: "var(--font-mono)", fontSize: 10,
               letterSpacing: "0.1em", textTransform: "uppercase",
-              color: "var(--fg-4)",
+              color: mutedColor, transition: "color 500ms ease",
             }}>
-              Scroll
+              Brand & Product Design Studio — Seoul
             </span>
+
             <span
+              ref={counterRef}
               style={{
-                display: "block",
-                width: 1,
-                height: 24,
-                backgroundColor: "var(--fg-4)",
-                animation: "scrollPulse 2s ease-in-out infinite",
+                fontFamily: "var(--font-mono)", fontSize: 11,
+                letterSpacing: "0.08em",
+                fontVariantNumeric: "tabular-nums",
+                color: textColor, transition: "color 500ms ease",
+                opacity: 0,
               }}
-            />
-          </div>
-        </section>
-
-        {/* ═══ PROJECT GRID (scroll reveals) ═══ */}
-        <section
-          style={{
-            padding: "clamp(80px, 12vh, 140px) var(--margin)",
-          }}
-        >
-          {/* Section label */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              marginBottom: "clamp(32px, 5vh, 56px)",
-              borderBottom: "1px solid var(--fg-5)",
-              paddingBottom: 16,
-            }}
-          >
-            <span style={{
-              fontFamily: "var(--font-mono)", fontSize: 11,
-              letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--fg-3)",
-            }}>
-              Selected Work
+            >
+              {String(current + 1).padStart(2, "0")} / {String(pieces.length).padStart(2, "0")}
             </span>
+
             <span style={{
-              fontFamily: "var(--font-mono)", fontSize: 11,
-              letterSpacing: "0.1em", color: "var(--fg-3)",
-              fontVariantNumeric: "tabular-nums",
+              fontFamily: "var(--font-mono)", fontSize: 10,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              color: mutedColor, transition: "color 500ms ease",
             }}>
-              {String(pieces.length).padStart(2, "0")} Pieces
+              © 2026 HKJ
             </span>
           </div>
-
-          {/* Grid */}
-          <div
-            ref={gridRef}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "clamp(16px, 2.5vw, 32px)",
-              rowGap: "clamp(40px, 6vh, 72px)",
-            }}
-          >
-            {pieces.map((piece, i) => {
-              const href = piece.type === "project" ? `/work/${piece.slug}` : `/lab/${piece.slug}`;
-              const isHovered = gridHovered === i;
-              const isDimmed = gridHovered !== null && gridHovered !== i;
-              const dark = isDark(piece.cover.bg);
-              const coverMuted = dark ? "rgba(255,252,245,0.35)" : "rgba(26,25,23,0.25)";
-              const n = String(i + 1).padStart(2, "0");
-
-              return (
-                <div
-                  key={piece.slug}
-                  ref={(el) => { gridItemRefs.current[i] = el; }}
-                  style={{
-                    opacity: 0,
-                    clipPath: "inset(100% 0 0 0)",
-                    transition: "opacity 350ms var(--ease)",
-                    ...(isDimmed ? { opacity: 0.4 } : {}),
-                  }}
-                >
-                  <Link
-                    href={href}
-                    onMouseEnter={() => setGridHovered(i)}
-                    onMouseLeave={() => setGridHovered(null)}
-                    style={{
-                      display: "block",
-                      position: "relative",
-                      aspectRatio: GRID_ASPECTS[i % GRID_ASPECTS.length],
-                      backgroundColor: piece.cover.bg,
-                      overflow: "hidden",
-                      textDecoration: "none",
-                    }}
-                    aria-label={`View ${piece.title}`}
-                  >
-                    {piece.image && (
-                      <Image
-                        src={piece.image}
-                        alt={piece.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        style={{
-                          objectFit: "cover",
-                          transition: "transform 700ms var(--ease)",
-                          transform: isHovered ? "scale(1.05)" : "scale(1)",
-                        }}
-                      />
-                    )}
-                    {/* Grain */}
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        position: "absolute", inset: 0, opacity: 0.05,
-                        filter: "url(#grain)", background: piece.cover.bg,
-                        mixBlendMode: "multiply", pointerEvents: "none",
-                      }}
-                    />
-                    {/* Number */}
-                    <span style={{
-                      position: "absolute", top: 10, left: 12, zIndex: 2,
-                      fontFamily: "var(--font-mono)", fontSize: 10,
-                      letterSpacing: "0.08em", color: coverMuted,
-                    }}>{n}</span>
-                  </Link>
-                  {/* Caption */}
-                  <div style={{
-                    display: "flex", justifyContent: "space-between",
-                    alignItems: "baseline", marginTop: 8, gap: 12,
-                  }}>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--fg)" }}>
-                      {piece.title}
-                    </span>
-                    <span style={{
-                      fontFamily: "var(--font-mono)", fontSize: 10,
-                      letterSpacing: "0.08em", textTransform: "uppercase",
-                      color: "var(--fg-3)", flexShrink: 0,
-                    }}>
-                      {piece.tags[0]}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ═══ ABOUT + CONTACT ═══ */}
-        <section
-          ref={aboutRef}
-          style={{
-            padding: "clamp(64px, 10vh, 120px) var(--margin)",
-            borderTop: "1px solid var(--fg-5)",
-            opacity: 0,
-          }}
-        >
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "clamp(32px, 5vw, 80px)",
-          }}>
-            {/* Left: statement */}
-            <div>
-              <p style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(20px, 2.5vw, 32px)",
-                fontWeight: 400,
-                lineHeight: 1.3,
-                color: "var(--fg)",
-                marginBottom: 24,
-              }}>
-                Designing brands, products, and the systems between them.
-              </p>
-              <p style={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: "var(--fg-2)",
-                maxWidth: 440,
-              }}>
-                HKJ is a design studio focused on brand identity, product design,
-                and design engineering. Based in Seoul, working globally.
-              </p>
-            </div>
-
-            {/* Right: contact */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 24, alignItems: "flex-end" }}>
-              <div style={{ textAlign: "right" }}>
-                <span style={{
-                  fontFamily: "var(--font-mono)", fontSize: 11,
-                  letterSpacing: "0.1em", textTransform: "uppercase",
-                  color: "var(--fg-3)", display: "block", marginBottom: 8,
-                }}>
-                  Inquiries
-                </span>
-                <a href={`mailto:${CONTACT_EMAIL}`} style={{
-                  fontFamily: "var(--font-mono)", fontSize: 11,
-                  letterSpacing: "0.06em", color: "var(--fg)",
-                  textDecoration: "none", transition: "color 200ms var(--ease)",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--fg-2)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--fg)"; }}
-                >
-                  {CONTACT_EMAIL}
-                </a>
-              </div>
-              <div style={{ display: "flex", gap: 20 }}>
-                {SOCIALS.map((s) => (
-                  <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{
-                    fontFamily: "var(--font-mono)", fontSize: 11,
-                    letterSpacing: "0.08em", textTransform: "uppercase",
-                    color: "var(--fg-3)", textDecoration: "none",
-                    transition: "color 200ms var(--ease)",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--fg)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--fg-3)"; }}
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══ FOOTER ═══ */}
-        <footer style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 var(--margin)", height: 48,
-          borderTop: "1px solid var(--fg-5)",
-        }}>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--fg-3)" }}>
-            HKJ Studio &copy; 2026
-          </span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--fg-3)" }}>
-            Seoul, KR
-          </span>
         </footer>
 
         {/* Grain */}
         <div className="grain" />
 
-        {/* Custom cursor */}
+        {/* Cursor */}
         <CustomCursor />
       </div>
     </PageTransition>
