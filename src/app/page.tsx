@@ -16,7 +16,6 @@ const CustomCursor = dynamic(() => import("@/components/CustomCursor"), {
 });
 
 const pieces = [...PIECES].sort((a, b) => a.order - b.order);
-const piecesWithImages = pieces.filter((p) => p.image);
 
 function isDark(hex: string): boolean {
   const c = hex.replace("#", "");
@@ -36,13 +35,14 @@ export default function Home() {
   const heroImageRef = useRef<HTMLDivElement>(null);
   const indexRefs = useRef<(HTMLElement | null)[]>([]);
   const taglineRef = useRef<HTMLElement>(null);
-  const scrollCueRef = useRef<HTMLElement>(null);
+  const scrollCueRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const gridItemRefs = useRef<(HTMLElement | null)[]>([]);
   const aboutRef = useRef<HTMLElement>(null);
 
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [gridHovered, setGridHovered] = useState<number | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   const featured = pieces[featuredIdx];
 
@@ -54,8 +54,11 @@ export default function Home() {
       wheelMultiplier: 1,
     });
 
-    // Sync Lenis with GSAP ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update);
+    // Sync Lenis with GSAP ScrollTrigger + track scroll position
+    lenis.on("scroll", (e: { scroll: number }) => {
+      ScrollTrigger.update();
+      setScrolled(e.scroll > 80);
+    });
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);
     });
@@ -71,7 +74,6 @@ export default function Home() {
       gsap.ticker.remove(lenis.raf);
     };
   }, []);
-  const featuredImage = featured?.image || piecesWithImages[0]?.image;
   const featuredBg = featured?.cover.bg || "#2a241c";
 
   /* ── Entrance choreography ── */
@@ -232,9 +234,11 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "space-between",
             padding: "0 var(--margin)",
-            background: "var(--bg)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            background: scrolled ? "rgba(245, 241, 236, 0.9)" : "transparent",
+            backdropFilter: scrolled ? "blur(12px)" : "none",
+            WebkitBackdropFilter: scrolled ? "blur(12px)" : "none",
+            borderBottom: scrolled ? "1px solid var(--fg-5)" : "1px solid transparent",
+            transition: "background 300ms var(--ease), border-color 300ms var(--ease), backdrop-filter 300ms var(--ease)",
             opacity: 0,
           }}
         >
@@ -294,7 +298,7 @@ export default function Home() {
             HKJ
           </h1>
 
-          {/* Layer 2: Featured image */}
+          {/* Layer 2: Featured image — all images stacked, crossfade via opacity */}
           <div
             ref={heroImageRef}
             style={{
@@ -307,19 +311,39 @@ export default function Home() {
               zIndex: 3,
               clipPath: "inset(100% 0 0 0)",
               backgroundColor: featuredBg,
+              transition: "background-color 500ms var(--ease)",
             }}
           >
-            {featuredImage && (
-              <Image
-                src={featuredImage}
-                alt={featured?.title || "Featured work"}
-                fill
-                sizes="(max-width: 768px) 80vw, 38vw"
-                style={{ objectFit: "cover", transition: "opacity 500ms var(--ease)" }}
-                priority
-              />
-            )}
-            {/* Grain on image */}
+            {/* Stack all piece images — only active one is visible */}
+            {pieces.map((p, i) => (
+              p.image ? (
+                <Image
+                  key={p.slug}
+                  src={p.image}
+                  alt={p.title}
+                  fill
+                  sizes="(max-width: 768px) 80vw, 38vw"
+                  style={{
+                    objectFit: "cover",
+                    opacity: featuredIdx === i ? 1 : 0,
+                    transition: "opacity 600ms cubic-bezier(0.22, 1, 0.36, 1)",
+                    zIndex: featuredIdx === i ? 2 : 1,
+                  }}
+                  priority={i === 0}
+                />
+              ) : null
+            ))}
+            {/* Color field for imageless pieces */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: featuredBg,
+                transition: "background-color 500ms var(--ease)",
+                zIndex: 0,
+              }}
+            />
+            {/* Grain */}
             <div
               aria-hidden="true"
               style={{
@@ -327,9 +351,10 @@ export default function Home() {
                 inset: 0,
                 opacity: 0.05,
                 filter: "url(#grain)",
-                background: featuredBg,
+                background: "var(--bg)",
                 mixBlendMode: "multiply",
                 pointerEvents: "none",
+                zIndex: 3,
               }}
             />
           </div>
@@ -394,25 +419,39 @@ export default function Home() {
             Brand & product design studio — Seoul
           </span>
 
-          {/* Scroll cue — bottom center */}
-          <span
+          {/* Scroll cue — bottom center, animated */}
+          <div
             ref={scrollCueRef}
             style={{
               position: "absolute",
               bottom: "clamp(24px, 4vh, 48px)",
               left: "50%",
               transform: "translateX(-50%)",
-              fontFamily: "var(--font-mono)",
-              fontSize: 10,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--fg-4)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 6,
               opacity: 0,
               zIndex: 5,
             }}
           >
-            Scroll
-          </span>
+            <span style={{
+              fontFamily: "var(--font-mono)", fontSize: 10,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              color: "var(--fg-4)",
+            }}>
+              Scroll
+            </span>
+            <span
+              style={{
+                display: "block",
+                width: 1,
+                height: 24,
+                backgroundColor: "var(--fg-4)",
+                animation: "scrollPulse 2s ease-in-out infinite",
+              }}
+            />
+          </div>
         </section>
 
         {/* ═══ PROJECT GRID (scroll reveals) ═══ */}
