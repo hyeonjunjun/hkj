@@ -1,93 +1,349 @@
 @import "tailwindcss";
 
-/* ────────────────────────────────────────────────────────────
-   HKJ — Brand Website
-   Not a portfolio. The brand experiencing itself.
-   ──────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   HKJ — The Registry
+   DESIGN_VARIANCE: 8 · MOTION_INTENSITY: 6 · VISUAL_DENSITY: 4
+   ───────────────────────────────────────────── */
 
 :root {
-  --bg: #faf9f6;
+  --bg: #f7f6f3;
   --fg: #1a1917;
   --fg-rgb: 26, 25, 23;
-  --fg-2: rgba(26, 25, 23, 0.60);
-  --fg-3: rgba(26, 25, 23, 0.35);
-  --fg-4: rgba(26, 25, 23, 0.15);
-  --fg-5: rgba(26, 25, 23, 0.06);
+  --fg-2: rgba(26, 25, 23, 0.55);
+  --fg-3: rgba(26, 25, 23, 0.30);
+  --fg-4: rgba(26, 25, 23, 0.12);
+  --fg-5: rgba(26, 25, 23, 0.05);
 
   --font-display: var(--font-serif), Georgia, serif;
-  --font-sans: var(--font-sans), system-ui, sans-serif;
-  --font-mono: var(--font-fragment), monospace;
+  --font-body: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-fragment), "SF Mono", monospace;
 
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
-  --ease-reveal: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration: 500ms;
+  --margin: clamp(20px, 4vw, 48px);
+}
 
-  --margin: clamp(20px, 5vw, 56px);
+html.dark {
+  --bg: #0c0b09;
+  --fg: #ebe6de;
+  --fg-rgb: 235, 230, 222;
+  --fg-2: rgba(235, 230, 222, 0.55);
+  --fg-3: rgba(235, 230, 222, 0.30);
+  --fg-4: rgba(235, 230, 222, 0.12);
+  --fg-5: rgba(235, 230, 222, 0.05);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar { display: none; }
 
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans);
-  font-size: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
   line-height: 1.5;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-  height: 100dvh;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  transition: background-color var(--duration) var(--ease),
+              color var(--duration) var(--ease);
 }
 
-body::-webkit-scrollbar { display: none; }
+::selection { background: rgba(var(--fg-rgb), 0.10); }
 
-::selection { background: rgba(var(--fg-rgb), 0.12); }
+:focus-visible {
+  outline: 1px solid var(--fg-3);
+  outline-offset: 3px;
+}
 
-:focus-visible { outline: 1.5px solid var(--fg); outline-offset: 3px; }
+/* Hide scrollbars everywhere */
+*::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
 
 .skip-to-content {
-  position: absolute; top: -999px; left: var(--margin);
-  z-index: 99999; padding: 8px 16px;
+  position: absolute; top: -100px; left: var(--margin);
+  z-index: 999; padding: 8px 16px;
   background: var(--fg); color: var(--bg);
-  font: 11px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
-  text-decoration: none; transition: top 200ms var(--ease);
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  text-decoration: none;
+  transition: top 200ms var(--ease);
 }
-.skip-to-content:focus { top: 0; }
+.skip-to-content:focus { top: 8px; }
 
-/* Grain */
-.grain {
-  position: fixed; inset: 0; z-index: 9999;
-  pointer-events: none; opacity: 0.035;
-  filter: url(#grain); background: var(--bg);
-  mix-blend-mode: multiply;
+/* ── The Registry Layout ── */
+
+.registry {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  min-height: 100dvh;
 }
 
-/* 3D Carousel */
-.carousel-stage {
-  perspective: 1800px;
-  perspective-origin: center center;
+@media (max-width: 767px) {
+  .registry {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Left panel */
+.registry-index {
+  display: flex;
+  flex-direction: column;
+  padding: var(--margin);
+  padding-right: clamp(24px, 3vw, 40px);
+  min-height: 100dvh;
   position: relative;
+}
+
+/* Right panel — image canvas */
+.registry-canvas {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--fg-5);
+}
+
+@media (max-width: 767px) {
+  .registry-canvas {
+    position: relative;
+    height: 50vw;
+    order: -1;
+  }
+}
+
+.registry-canvas img {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  object-fit: cover;
+  object-position: center 30%;
 }
 
-.carousel-item {
+/* Image crossfade */
+.canvas-image {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 600ms var(--ease);
 }
+.canvas-image.active {
+  opacity: 1;
+}
+
+/* Grain on canvas only */
+.canvas-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  filter: url(#grain);
+  background: var(--bg);
+  mix-blend-mode: multiply;
+  z-index: 2;
+}
+html.dark .canvas-grain {
+  mix-blend-mode: screen;
+}
+
+/* Vignette on canvas */
+.canvas-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 100px rgba(var(--fg-rgb), 0.04);
+  z-index: 3;
+}
+
+/* ── Project Row ── */
+
+.project-row {
+  display: block;
+  text-decoration: none;
+  color: var(--fg);
+  padding: clamp(16px, 2.5vh, 28px) 0;
+  border-bottom: 1px solid var(--fg-5);
+  transition: opacity var(--duration) var(--ease);
+  cursor: pointer;
+}
+
+.project-row:first-child {
+  border-top: 1px solid var(--fg-5);
+}
+
+/* Active press — tactile feedback */
+.project-row:active {
+  transform: scale(0.995);
+}
+
+/* Row content */
+.project-row-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.project-row-number {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+.project-row-title {
+  flex: 1;
+  color: var(--fg);
+  transition: color var(--duration) var(--ease);
+}
+
+.project-row-year {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--duration) var(--ease);
+}
+
+.project-row-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  padding-left: 32px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--fg-4);
+  transition: color var(--duration) var(--ease);
+}
+
+/* Dim non-hovered rows when ANY row is hovered */
+.project-list:hover .project-row {
+  opacity: 0.25;
+}
+.project-list:hover .project-row:hover {
+  opacity: 1;
+}
+
+/* Brighten tags on hovered row */
+.project-row:hover .project-row-tags {
+  color: var(--fg-3);
+}
+.project-row:hover .project-row-year {
+  color: var(--fg-2);
+}
+
+/* ── Filter Bar ── */
+
+.filter-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: clamp(20px, 3vh, 36px);
+}
+
+.filter-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--fg-3);
+  padding: 0;
+  transition: color var(--duration) var(--ease);
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  color: var(--fg);
+}
+
+/* ── Nav ── */
+
+.site-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(32px, 6vh, 64px);
+}
+
+.site-nav a {
+  color: var(--fg-3);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.site-nav a:hover {
+  color: var(--fg);
+}
+
+.site-mark {
+  color: var(--fg);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+/* ── Statement ── */
+
+.statement {
+  color: var(--fg-3);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+  max-width: 32ch;
+  margin-bottom: clamp(24px, 4vh, 48px);
+}
+
+/* ── Footer ── */
+
+.site-footer {
+  margin-top: auto;
+  padding-top: clamp(24px, 4vh, 40px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--fg-4);
+  letter-spacing: 0.06em;
+}
+
+.site-footer a {
+  color: var(--fg-3);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.site-footer a:hover {
+  color: var(--fg);
+}
+
+/* ── Entrance stagger (CSS-only, MOTION_INTENSITY 6) ── */
+
+.entrance {
+  opacity: 0;
+  animation: fadeIn var(--duration) var(--ease) forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* Stagger via CSS custom property --i */
+.entrance { animation-delay: calc(var(--i, 0) * 80ms + 100ms); }
+
+/* ── Reduced motion ── */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
   }
+  .entrance { opacity: 1; }
 }
+
+/* ── Detail pages ── */
+
+[data-page-scrollable] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+[data-page-scrollable]::-webkit-scrollbar { display: none; }

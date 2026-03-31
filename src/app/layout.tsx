@@ -3,9 +3,6 @@ import localFont from "next/font/local";
 import { DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import { TransitionProvider } from "@/lib/transition-context";
-
-/* ── Fonts ── */
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -30,20 +27,15 @@ const dmSerif = DM_Serif_Display({
   display: "swap",
 });
 
-/* ── Metadata ── */
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
-  title: {
-    default: "HKJ",
-    template: "%s — HKJ",
-  },
+  title: { default: "HKJ", template: "%s — HKJ" },
   description:
-    "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+    "Design engineering at the intersection of craft and systems thinking.",
   openGraph: {
     title: "HKJ",
     description:
-      "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+      "Design engineering at the intersection of craft and systems thinking.",
     url: "https://hkjstudio.com",
     siteName: "HKJ",
     locale: "en_US",
@@ -53,25 +45,28 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "HKJ",
     description:
-      "Design engineering at the intersection of high-fidelity craft and deep systems thinking.",
+      "Design engineering at the intersection of craft and systems thinking.",
     creator: "@hyeonjunjun",
   },
 };
 
-/* ── Root Layout ── */
-
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${generalSans.variable} ${fragmentMono.variable} ${dmSerif.variable}`}>
-        {/* SVG grain filter — referenced by Cover component */}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(t!=="light"&&(new Date().getHours()>=18||new Date().getHours()<6))){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+          }}
+        />
+      </head>
+      <body
+        className={`${generalSans.variable} ${fragmentMono.variable} ${dmSerif.variable}`}
+      >
         <svg
           aria-hidden="true"
-          focusable="false"
           style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
         >
           <defs>
@@ -83,8 +78,8 @@ export default function RootLayout({
                 stitchTiles="stitch"
                 result="noise"
               />
-              <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
-              <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" />
+              <feColorMatrix type="saturate" values="0" in="noise" result="gn" />
+              <feBlend in="SourceGraphic" in2="gn" mode="multiply" />
             </filter>
           </defs>
         </svg>
@@ -93,11 +88,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <RouteAnnouncer />
-
-        {/* Transition system — provides context + progress bar */}
-        <TransitionProvider>
-          {children}
-        </TransitionProvider>
+        {children}
       </body>
     </html>
   );
