@@ -5,44 +5,42 @@ import Image from "next/image";
 import { PIECES } from "@/constants/pieces";
 import { CONTACT_EMAIL, SOCIALS } from "@/constants/contact";
 
-const projects = PIECES.filter((p) => p.type === "project").sort((a, b) => a.order - b.order);
-
-// Organic positions for each project — asymmetric, not a grid
-const POSITIONS = [
-  { left: "5%", top: "8%" },
-  { left: "38%", top: "18%" },
-  { left: "68%", top: "5%" },
-];
-
-// Callout line configs per project — unique angles
-const CALLOUTS = [
-  { lineX1: 220, lineY1: 60, lineX2: 310, lineY2: 20, labelLeft: 318, labelTop: 12 },
-  { lineX1: 220, lineY1: 90, lineX2: 300, lineY2: 120, labelLeft: 308, labelTop: 112 },
-  { lineX1: 0, lineY1: 70, lineX2: -80, lineY2: 40, labelLeft: -200, labelTop: 32 },
-];
+const projects = PIECES.filter((p) => p.type === "project").sort(
+  (a, b) => a.order - b.order
+);
 
 export default function Home() {
   return (
     <main className="home" id="main">
       {/* ── Top bar ── */}
       <header className="top-bar fade-in" style={{ animationDelay: "0.1s" }}>
-        <span className="top-bar-mark">HKJ Studio</span>
+        <div className="top-bar-left">
+          <span className="top-bar-mark">HKJ</span>
+          <span className="top-bar-sep">/</span>
+          <span className="top-bar-sub">Studio</span>
+        </div>
         <nav className="top-bar-nav">
-          {SOCIALS.map((s) => (
-            <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer">
-              {s.label}
-            </a>
-          ))}
           <Link href="/about">About</Link>
           <a href={`mailto:${CONTACT_EMAIL}`}>Connect</a>
         </nav>
       </header>
 
-      {/* ── Project area — organic placement ── */}
-      <div className="project-area">
+      {/* ── Hero statement ── */}
+      <div className="hero-statement fade-in" style={{ animationDelay: "0.2s" }}>
+        <h1 className="hero-title">
+          Design engineering
+          <br />
+          for brands that care
+        </h1>
+        <p className="hero-sub">
+          HKJ Studio crafts brands, products, and digital experiences
+          with intention and precision.
+        </p>
+      </div>
+
+      {/* ── Featured projects — horizontal row with stagger ── */}
+      <section className="projects-row">
         {projects.map((piece, i) => {
-          const pos = POSITIONS[i];
-          const callout = CALLOUTS[i];
           const href = `/work/${piece.slug}`;
           const globalIdx = PIECES.indexOf(piece);
 
@@ -51,92 +49,86 @@ export default function Home() {
               key={piece.slug}
               href={href}
               className="project-card fade-in"
-              style={{
-                left: pos.left,
-                top: pos.top,
-                animationDelay: `${0.3 + i * 0.15}s`,
-              }}
+              style={{ animationDelay: `${0.35 + i * 0.12}s` }}
             >
-              {/* Thumbnail */}
+              {/* Image */}
               <div className="project-thumb">
                 {piece.image ? (
                   <Image
                     src={piece.image}
                     alt={piece.title}
-                    width={640}
-                    height={400}
-                    sizes="22vw"
+                    width={800}
+                    height={500}
+                    sizes="(max-width: 768px) 90vw, 30vw"
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    priority={i < 2}
                   />
-                ) : null}
+                ) : (
+                  <div className="project-thumb-empty">
+                    <span>{piece.status === "wip" ? "In progress" : piece.title}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Project info */}
-              <div className="project-info">
-                <span className="project-num">{String(globalIdx + 1).padStart(2, "0")}</span>
-                <span className="project-name">{piece.title}</span>
-                <span className="project-year">{piece.year}</span>
+              {/* Callout line — SVG connecting image to label */}
+              <div className="project-annotation">
+                <svg
+                  className="project-line"
+                  width="100%"
+                  height="24"
+                  preserveAspectRatio="none"
+                >
+                  <line x1="0" y1="12" x2="100%" y2="12" />
+                  <rect x="0" y="9" width="6" height="6" />
+                </svg>
               </div>
 
-              {/* SVG callout line */}
-              <svg className="callout-svg" viewBox="-200 -20 600 200">
-                <line
-                  x1={callout.lineX1}
-                  y1={callout.lineY1}
-                  x2={callout.lineX2}
-                  y2={callout.lineY2}
-                />
-                <rect
-                  x={callout.lineX2 - 3}
-                  y={callout.lineY2 - 3}
-                  width={6}
-                  height={6}
-                />
-              </svg>
-
-              {/* Callout label */}
-              <span
-                className="callout-label"
-                style={{ left: callout.labelLeft, top: callout.labelTop }}
-              >
-                {piece.tags.map((tag, ti) => (
-                  <span key={tag}>
-                    {ti > 0 && " · "}
-                    {ti === 0 ? <strong>{tag}</strong> : tag}
+              {/* Project meta */}
+              <div className="project-meta">
+                <div className="project-meta-left">
+                  <span className="project-num">
+                    {String(globalIdx + 1).padStart(2, "0")}
                   </span>
-                ))}
-              </span>
+                  <span className="project-name">{piece.title}</span>
+                </div>
+                <span className="project-tags">
+                  {piece.tags.map((tag, ti) => (
+                    <span key={tag}>
+                      {ti > 0 && " · "}
+                      {ti === 0 ? <strong>{tag}</strong> : tag}
+                    </span>
+                  ))}
+                </span>
+              </div>
+
+              <span className="project-year">{piece.year}</span>
             </Link>
           );
         })}
+      </section>
 
-        {/* ── Handwritten notes ── */}
-        <span
-          className="hand-note fade-in"
-          style={{ bottom: "12%", right: "8%", animationDelay: "0.8s" }}
-        >
-          &ldquo;making things that feel right&rdquo;
-        </span>
-
-        <span
-          className="hand-note fade-in"
-          style={{ top: "4%", left: "42%", animationDelay: "0.9s" }}
-        >
-          latest work &darr;
-        </span>
-
-        <span
-          className="hand-note fade-in"
-          style={{ bottom: "25%", left: "35%", animationDelay: "1.0s" }}
-        >
-          brands, products, concepts
-        </span>
-      </div>
+      {/* ── Hand note ── */}
+      <span
+        className="hand-note fade-in"
+        style={{ animationDelay: "0.9s" }}
+      >
+        &ldquo;making things that feel right&rdquo;
+      </span>
 
       {/* ── Bottom bar ── */}
-      <footer className="bottom-bar fade-in" style={{ animationDelay: "0.6s" }}>
-        <span>Design engineer</span>
-        <span>Est. 2025</span>
+      <footer className="bottom-bar fade-in" style={{ animationDelay: "0.7s" }}>
+        <div className="bottom-bar-left">
+          <span>Design engineer</span>
+          <span className="bottom-bar-dot">·</span>
+          <span>New York</span>
+        </div>
+        <div className="bottom-bar-right">
+          {SOCIALS.map((s) => (
+            <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer">
+              {s.label}
+            </a>
+          ))}
+        </div>
       </footer>
     </main>
   );
