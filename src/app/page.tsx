@@ -37,30 +37,34 @@ export default function Home() {
       });
       return;
     }
-    gsap.set(".project", { y: 16 });
+    gsap.set(".project", { y: 12 });
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
     tl.to(".nav", { opacity: 1, duration: 0.4 }, 0);
-    tl.to(".headline", { opacity: 1, duration: 0.5 }, 0.1);
-    tl.to(".project", { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }, 0.25);
-    tl.to(".foot", { opacity: 1, duration: 0.4 }, 0.5);
+    tl.to(".headline", { opacity: 1, duration: 0.5 }, 0.15);
+    tl.to(".project", { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0.3);
+    tl.to(".foot", { opacity: 1, duration: 0.4 }, 0.55);
   }, []);
 
   return (
     <main className="home" id="main" ref={mainRef}>
+      {/* Nav */}
       <header className="nav fade-in">
-        <Link href="/" className="nav-mark">HKJ</Link>
+        <Link href="/" className="nav-mark">HKJ Studio</Link>
         <div className="nav-links">
           <Link href="/about">About</Link>
           <a href={`mailto:${CONTACT_EMAIL}`}>Contact</a>
         </div>
       </header>
 
+      {/* Center */}
       <div className="center">
         <div className="headline fade-in">
-          <h1>where craft<br />meets intention</h1>
-          <p className="headline-sub">
-            A design engineering practice by Hyeon Jun
-          </p>
+          <h1>
+            Brands, products, and ideas
+            <br />
+            built with craft and intention.
+          </h1>
+          <p className="headline-sub">Selected work</p>
         </div>
 
         <section className="projects">
@@ -74,36 +78,36 @@ export default function Home() {
                       src={piece.image}
                       alt={piece.title}
                       width={800}
-                      height={533}
+                      height={600}
                       sizes="(max-width: 768px) 90vw, 30vw"
                       priority
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
                     <div className="project-empty">
-                      <span>{piece.status === "wip" ? "In progress" : ""}</span>
+                      <span>{piece.status === "wip" ? "Coming soon" : ""}</span>
                     </div>
                   )}
                 </div>
-                <div className="project-meta">
-                  <span className="project-name">{piece.title}</span>
-                  <span className="project-detail">{piece.tags[0]} · {piece.year}</span>
-                </div>
+                <span className="project-name">{piece.title}</span>
+                <span className="project-detail">
+                  {piece.tags[0]} · {piece.year}
+                </span>
               </Link>
             );
           })}
         </section>
       </div>
 
+      {/* Footer */}
       <footer className="foot fade-in">
-        <span>{time ? `New York · ${time}` : "\u00A0"}</span>
+        <span>New York{time ? ` · ${time}` : ""}</span>
         <div className="foot-right">
           {SOCIALS.map((s) => (
             <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer">
               {s.label}
             </a>
           ))}
-          <span>Est. 2025</span>
         </div>
       </footer>
     </main>
