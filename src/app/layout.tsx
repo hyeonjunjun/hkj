@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
+import PageShell from "@/components/PageShell";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -58,7 +59,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(t!=="light"&&(new Date().getHours()>=18||new Date().getHours()<6))){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+            __html: `(function(){try{if(localStorage.getItem("theme")==="light"){document.documentElement.classList.add("light")}}catch(e){}})()`,
           }}
         />
       </head>
@@ -84,11 +85,13 @@ export default function RootLayout({
           </defs>
         </svg>
 
-        <a href="#main" className="skip-to-content">
-          Skip to content
-        </a>
         <RouteAnnouncer />
-        {children}
+        <PageShell>
+          <a href="#main" className="skip-to-content">
+            Skip to content
+          </a>
+          {children}
+        </PageShell>
       </body>
     </html>
   );

@@ -1,0 +1,175 @@
+<h2>Typographic List — Structural Direction</h2>
+<p class="subtitle">How should the project rows be structured? Subdivision-style: border-separated, mechanical, precise.</p>
+
+<div class="cards" style="grid-template-columns: 1fr;">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; background: #0a0a09; color: #f5f5f5; font-family: 'SF Mono', 'Consolas', monospace; overflow: hidden;">
+      <!-- Mockup of row structure A -->
+      <div style="padding: 32px 40px; border-bottom: 1px solid rgba(245,245,245,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.04em; opacity: 0.35; text-transform: uppercase; margin-bottom: 24px;">
+          <span>HKJ</span>
+          <div style="display: flex; gap: 24px;">
+            <span>Work</span><span>Lab</span><span>About</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 40px;">
+        <!-- Row 1 -->
+        <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 20px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 24px;">
+            <span style="font-size: 10px; opacity: 0.2; font-family: 'SF Mono', monospace;">01</span>
+            <span style="font-size: 15px; font-family: Georgia, serif; letter-spacing: -0.01em;">GYEOL: 결</span>
+          </div>
+          <div style="display: flex; gap: 32px; font-size: 10px; opacity: 0.3; letter-spacing: 0.03em; text-transform: uppercase;">
+            <span>Brand · E-commerce · 3D</span>
+            <span>2026</span>
+          </div>
+        </div>
+        <!-- Row 2 -->
+        <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 20px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 24px;">
+            <span style="font-size: 10px; opacity: 0.2; font-family: 'SF Mono', monospace;">02</span>
+            <span style="font-size: 15px; font-family: Georgia, serif; letter-spacing: -0.01em;">Sift</span>
+          </div>
+          <div style="display: flex; gap: 32px; font-size: 10px; opacity: 0.3; letter-spacing: 0.03em; text-transform: uppercase;">
+            <span>Mobile · AI · Product</span>
+            <span>2025</span>
+          </div>
+        </div>
+        <!-- Row 3 -->
+        <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 20px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 24px;">
+            <span style="font-size: 10px; opacity: 0.2; font-family: 'SF Mono', monospace;">03</span>
+            <span style="font-size: 15px; font-family: Georgia, serif; letter-spacing: -0.01em; opacity: 0.4;">Promptineer</span>
+          </div>
+          <div style="display: flex; gap: 32px; font-size: 10px; opacity: 0.3; letter-spacing: 0.03em; text-transform: uppercase;">
+            <span>Design System · UI</span>
+            <span style="opacity: 0.5;">In Progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Compact Rows, Inline Metadata</h3>
+      <p>Tight rows with number + title left, tags + year right. Subdivision's border-separated rhythm. Each row a thin horizontal band. Hover reveals image as a full-width panel expanding below the row or a cursor-following thumbnail.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; background: #0a0a09; color: #f5f5f5; font-family: 'SF Mono', 'Consolas', monospace; overflow: hidden;">
+      <div style="padding: 32px 40px; border-bottom: 1px solid rgba(245,245,245,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.04em; opacity: 0.35; text-transform: uppercase; margin-bottom: 24px;">
+          <span>HKJ</span>
+          <div style="display: flex; gap: 24px;">
+            <span>Work</span><span>Lab</span><span>About</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 40px;">
+        <!-- Row 1 - Large -->
+        <div style="padding: 32px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px;">
+            <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">01</span>
+            <span style="font-size: 28px; font-family: Georgia, serif; letter-spacing: -0.02em; font-weight: 400;">GYEOL: 결</span>
+          </div>
+          <div style="margin-left: 26px; font-size: 10px; opacity: 0.25; letter-spacing: 0.04em; text-transform: uppercase;">
+            Brand · E-commerce · 3D &nbsp;&nbsp;&nbsp; 2026
+          </div>
+        </div>
+        <!-- Row 2 -->
+        <div style="padding: 32px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px;">
+            <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">02</span>
+            <span style="font-size: 28px; font-family: Georgia, serif; letter-spacing: -0.02em; font-weight: 400;">Sift</span>
+          </div>
+          <div style="margin-left: 26px; font-size: 10px; opacity: 0.25; letter-spacing: 0.04em; text-transform: uppercase;">
+            Mobile · AI · Product &nbsp;&nbsp;&nbsp; 2025
+          </div>
+        </div>
+        <!-- Row 3 -->
+        <div style="padding: 32px 0; border-bottom: 1px solid rgba(245,245,245,0.06);">
+          <div style="display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px;">
+            <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">03</span>
+            <span style="font-size: 28px; font-family: Georgia, serif; letter-spacing: -0.02em; font-weight: 400; opacity: 0.35;">Promptineer</span>
+          </div>
+          <div style="margin-left: 26px; font-size: 10px; opacity: 0.25; letter-spacing: 0.04em; text-transform: uppercase;">
+            Design System · UI &nbsp;&nbsp;&nbsp; In Progress
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Large Title, Stacked Metadata</h3>
+      <p>Bigger title treatment (28px display serif), metadata below on its own line. More vertical space per row. Rows breathe more. Closer to New Apology's editorial weight. Hover reveals image as full-width band between rows.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; background: #0a0a09; color: #f5f5f5; font-family: 'SF Mono', 'Consolas', monospace; overflow: hidden;">
+      <div style="padding: 32px 40px; border-bottom: 1px solid rgba(245,245,245,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: 0.04em; opacity: 0.35; text-transform: uppercase; margin-bottom: 24px;">
+          <span>HKJ</span>
+          <div style="display: flex; gap: 24px;">
+            <span>Work</span><span>Lab</span><span>About</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 40px;">
+        <!-- Row 1 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">01</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em;">GYEOL: 결</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">Brand · E-commerce · 3D</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right;">2026</span>
+        </div>
+        <!-- Row 2 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">02</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em;">Sift</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">Mobile · AI · Product</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right;">2025</span>
+        </div>
+        <!-- Row 3 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">03</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em; opacity: 0.4;">Promptineer</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">Design System · UI</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right; opacity: 0.15;">WIP</span>
+        </div>
+        <!-- Row 4 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">04</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em;">Spring Grain</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">Texture · Material</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right;">2026</span>
+        </div>
+        <!-- Row 5 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">05</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em;">Rain on Stone</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">Texture · Material</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right;">2026</span>
+        </div>
+        <!-- Row 6 -->
+        <div style="display: grid; grid-template-columns: 32px 1fr 200px 60px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(245,245,245,0.06); gap: 0;">
+          <span style="font-size: 10px; opacity: 0.15; font-family: 'SF Mono', monospace;">06</span>
+          <span style="font-size: 14px; font-family: Georgia, serif; letter-spacing: -0.005em; opacity: 0.4;">Clouds at Sea</span>
+          <span style="font-size: 10px; opacity: 0.25; letter-spacing: 0.03em; text-transform: uppercase; text-align: right;">WebGL · Generative</span>
+          <span style="font-size: 10px; opacity: 0.2; letter-spacing: 0.03em; text-align: right; opacity: 0.15;">WIP</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Grid Columns, Data Table Feel</h3>
+      <p>Fixed 4-column grid (number | title | tags | year). Tight, systematic, like a database index. Most Subdivision-like — mechanical, no wasted space. All 6 pieces visible in minimal vertical space. Hover reveals image as overlay or expanding row.</p>
+    </div>
+  </div>
+
+</div>

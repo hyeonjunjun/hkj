@@ -14,12 +14,13 @@ export interface Piece {
   status: "shipped" | "wip";
   year: number;
   image?: string;
+  video?: string;
 }
 
 export const PIECES: Piece[] = [
   {
     slug: "gyeol",
-    title: "GYEOL",
+    title: "Gyeol",
     type: "project",
     order: 1,
     description: "Conceptual fragrance and e-commerce brand rooted in Korean craft traditions.",
@@ -28,10 +29,11 @@ export const PIECES: Piece[] = [
     status: "shipped",
     year: 2026,
     image: "/images/gyeol-display-hanji.webp",
+    video: "/assets/gyeol-broll-combined.mp4",
   },
   {
     slug: "sift",
-    title: "SIFT",
+    title: "Sift",
     type: "project",
     order: 2,
     description: "AI-powered tool for finding what matters in your camera roll.",
@@ -43,7 +45,7 @@ export const PIECES: Piece[] = [
   },
   {
     slug: "promptineer",
-    title: "PROMPTINEER",
+    title: "Promptineer",
     type: "project",
     order: 3,
     description: "A design system that orchestrates consistency across product surfaces.",
@@ -53,38 +55,15 @@ export const PIECES: Piece[] = [
     year: 2026,
   },
   {
-    slug: "spring-grain",
-    title: "SPRING GRAIN",
+    slug: "clouds-at-sea",
+    title: "Clouds at Sea",
     type: "experiment",
     order: 4,
-    description: "Cherry blossom season captured in surface tension.",
-    cover: { bg: "#C4B5A0", text: "rgba(35,32,28,0.82)" },
-    tags: ["texture", "material"],
-    status: "shipped",
-    year: 2026,
-    image: "/images/gyeol-spring.webp",
-  },
-  {
-    slug: "rain-on-stone",
-    title: "RAIN ON STONE",
-    type: "experiment",
-    order: 5,
-    description: "Wet granite. The way water reveals what was always there.",
-    cover: { bg: "#7A8B8C", text: "rgba(255,252,245,0.85)" },
-    tags: ["texture", "material"],
-    status: "shipped",
-    year: 2026,
-    image: "/images/gyeol-rain.webp",
-  },
-  {
-    slug: "clouds-at-sea",
-    title: "CLOUDS AT SEA",
-    type: "experiment",
-    order: 6,
     description: "Somewhere between water and sky, the horizon dissolves.",
     cover: { bg: "#8BA4B8", text: "rgba(255,252,245,0.85)" },
     tags: ["webgl", "generative"],
     status: "shipped",
     year: 2026,
+    video: "/assets/cloudsatsea.mp4",
   },
 ];

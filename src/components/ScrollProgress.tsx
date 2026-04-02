@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 export default function ScrollProgress() {
   const [progress, setProgress] = useState(0);
@@ -56,7 +57,7 @@ export default function ScrollProgress() {
         {progress}%
       </span>
       <a
-        href="mailto:hello@hkjstudio.com"
+        href={`mailto:${CONTACT_EMAIL}`}
         style={{
           fontFamily: "var(--font-mono)",
           fontSize: 10,
