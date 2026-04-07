@@ -2,6 +2,7 @@
 
 import { Suspense, useRef, useCallback } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
+import { ContactShadows } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { useTheaterStore } from "@/store/useTheaterStore";
 import { PIECES } from "@/constants/pieces";
@@ -89,13 +90,26 @@ export default function Scene3D() {
       transition={{ type: "spring" as const, stiffness: 200, damping: 28 }}
     >
       <Canvas
-        camera={{ position: [0, 0, 4.5], fov: 45 }}
+        camera={{ position: [0, 0, 5], fov: 40 }}
+        dpr={[1, 2]}
+        frameloop="always"
         style={{ background: "transparent", cursor: "grab" }}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.2} />
-        <directionalLight position={[3, 4, 5]} intensity={0.7} color="#f0eee8" />
-        <directionalLight position={[-2, -1, 3]} intensity={0.15} color="#e0ddd5" />
+        {/* Studio lighting — 3-point */}
+        <ambientLight intensity={0.1} />
+        <directionalLight position={[3, 4, 5]} intensity={0.8} color="#f0eee8" />
+        <directionalLight position={[-3, 0, 3]} intensity={0.25} color="#e0ddd5" />
+        <directionalLight position={[0, -2, -4]} intensity={0.15} color="#ffffff" />
+
+        {/* Contact shadow */}
+        <ContactShadows
+          position={[0, -1.1, 0]}
+          opacity={0.3}
+          blur={2}
+          far={4}
+          color="#000000"
+        />
 
         <DragController dragRef={dragRef} />
 
