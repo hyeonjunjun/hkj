@@ -1,5 +1,6 @@
 import { AnimatePresence } from "framer-motion";
 import { useTheaterStore } from "@/store/useTheaterStore";
+import { useURLSync } from "@/hooks/useURLSync";
 import TopBar from "@/components/TopBar";
 import BottomBar from "@/components/BottomBar";
 import Scene3D from "@/components/Scene3D";
@@ -30,6 +31,8 @@ function ActiveView({
 }
 
 export default function TheaterStage() {
+  useURLSync();
+
   const preloaderDone = useTheaterStore((s) => s.preloaderDone);
   const activeTab = useTheaterStore((s) => s.activeTab);
   const isDetailExpanded = useTheaterStore((s) => s.isDetailExpanded);
