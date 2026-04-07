@@ -156,19 +156,19 @@ export default function IndexPage() {
       </div>
 
       {/* Character selector — right side, vertical strip */}
-      <div className="absolute right-[clamp(32px,8vw,96px)] top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3">
+      <div className="absolute right-[clamp(32px,8vw,96px)] top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
         {projects.map((piece, i) => {
           const isActive = i === activeIndex;
           return (
             <button
               key={piece.slug}
               onClick={() => setActiveIndex(i)}
-              className="relative w-16 h-16 overflow-hidden transition-all duration-500"
+              className="relative w-[72px] h-[72px] overflow-hidden transition-all duration-500"
               data-cursor="link"
               style={{
                 border: isActive
                   ? "1px solid var(--accent-warm-1)"
-                  : "1px solid var(--fg-4)",
+                  : "1px solid rgba(240,238,232,0.1)",
                 opacity: isActive ? 1 : 0.5,
               }}
             >

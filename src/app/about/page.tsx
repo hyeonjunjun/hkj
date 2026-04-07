@@ -69,7 +69,22 @@ export default function AboutPage() {
         className="absolute inset-0 z-10 flex items-center"
         style={{ paddingInline: "clamp(32px, 8vw, 96px)" }}
       >
-        <div className="flex gap-[clamp(40px,6vw,100px)] w-full max-w-[1100px] max-md:flex-col">
+        <div className="flex gap-[clamp(40px,6vw,100px)] w-full max-w-[1100px] max-md:flex-col relative">
+          {/* Vertical divider between columns */}
+          <motion.div
+            className="absolute max-md:hidden"
+            style={{
+              left: "45%",
+              top: "0",
+              bottom: "0",
+              width: "1px",
+              background: "linear-gradient(to bottom, transparent, var(--fg-4), transparent)",
+            }}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          />
+
           {/* Left column — identity */}
           <div className="w-[45%] max-md:w-full">
             <motion.span

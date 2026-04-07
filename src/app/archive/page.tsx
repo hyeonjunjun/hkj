@@ -168,16 +168,21 @@ export default function ArchivePage() {
               (_, i) => (
                 <motion.div
                   key={`empty-${i}`}
-                  className="aspect-square"
+                  className="aspect-square flex items-center justify-center"
                   style={{
                     border: "1px solid var(--fg-4)",
-                    background: "transparent",
-                    opacity: 0.3,
+                    background: "var(--bg-elevated)",
                   }}
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.3 }}
+                  animate={{ opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.6 + i * 0.05 }}
-                />
+                >
+                  {/* Empty slot cross mark */}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" opacity="0.15">
+                    <line x1="4" y1="4" x2="12" y2="12" stroke="var(--fg)" strokeWidth="0.5" />
+                    <line x1="12" y1="4" x2="4" y2="12" stroke="var(--fg)" strokeWidth="0.5" />
+                  </svg>
+                </motion.div>
               )
             )}
           </div>
