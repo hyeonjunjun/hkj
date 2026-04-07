@@ -20,59 +20,31 @@ export default function TheaterStage() {
 
   if (!preloaderDone) return null;
 
-  // Index uses a full-viewport poster layout (no left/right split)
-  const isFullViewport = activeTab === "index" && !isDetailExpanded;
-
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden" id="main">
       <TopBar />
       <BottomBar />
 
-      {/* 3D scene — behind everything on Index, beside content otherwise */}
+      {/* Text column — left 35% */}
       <div
-        className="absolute flex items-center justify-center"
+        className="absolute z-10"
         style={{
-          right: 0,
-          top: 56,
-          bottom: 44,
-          width: isFullViewport ? "100%" : "58%",
-          zIndex: isFullViewport ? 0 : 5,
-          opacity: isFullViewport ? 0.5 : 1,
-          transition: "width 0.5s ease, opacity 0.5s ease",
+          left: 0,
+          top: 52,
+          bottom: 40,
+          width: "35%",
+          paddingLeft: "clamp(32px, 6vw, 80px)",
+          paddingRight: 24,
+          display: "flex",
+          alignItems: "center",
         }}
       >
-        <Scene3D />
-      </div>
-
-      {/* Content zone */}
-      {isFullViewport ? (
-        /* Index: full-viewport poster composition */
-        <div
-          className="absolute z-10"
-          style={{ top: 56, bottom: 44, left: 0, right: 0 }}
-        >
-          <AnimatePresence mode="wait">
-            <IndexView key="index" />
-          </AnimatePresence>
-        </div>
-      ) : (
-        /* Other views: left-side panel */
-        <div
-          className="absolute z-10"
-          style={{
-            left: 0,
-            top: 56,
-            bottom: 44,
-            width: "45%",
-            paddingLeft: "clamp(32px, 8vw, 96px)",
-            paddingRight: 24,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ maxWidth: 320, width: "100%" }}>
           <AnimatePresence mode="wait">
             {isDetailExpanded ? (
               <DetailView key="detail" />
+            ) : activeTab === "index" ? (
+              <IndexView key="index" />
             ) : activeTab === "archive" ? (
               <ArchiveView key="archive" />
             ) : (
@@ -80,7 +52,23 @@ export default function TheaterStage() {
             )}
           </AnimatePresence>
         </div>
-      )}
+      </div>
+
+      {/* 3D canvas — right 65% */}
+      <div
+        className="absolute flex items-center justify-center"
+        style={{
+          right: 0,
+          top: 52,
+          bottom: 40,
+          width: "65%",
+          zIndex: 5,
+          transform: activeTab === "about" ? "scale(0.7)" : "scale(1)",
+          transition: "transform 0.5s ease",
+        }}
+      >
+        <Scene3D />
+      </div>
     </div>
   );
 }
