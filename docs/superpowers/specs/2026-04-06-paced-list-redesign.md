@@ -29,23 +29,25 @@ A minimalist editorial portfolio with atmospheric depth inspired by game UI (Wut
 
 ### 2.2 Color System
 
+**This is a full replacement of the existing color tokens.** The old values (`--bg: #0a0a09`, `--fg: rgba(245, 245, 240, 1.00)`, light mode `#f7f6f3`) are overwritten. Two new gradient accent tokens (`--accent-warm`, `--accent-cool`) are added — these do not exist in the current CSS and must be created. The existing `--fg-5` token is removed (unused in the new design).
+
 ```
 Dark mode (default):
 --bg:           #0a0a0b          (near-black, faintly warm)
---bg-elevated:  #111113          (panels, preview areas)
+--bg-elevated:  #111113          (NEW — panels, preview areas)
 --fg:           rgba(240, 238, 232, 0.88)  (warm off-white)
 --fg-2:         rgba(240, 238, 232, 0.50)
 --fg-3:         rgba(240, 238, 232, 0.20)
 --fg-4:         rgba(240, 238, 232, 0.08)
 
---accent-warm:  gradient #c8a455 → #d4a04a → #e8c08a
+--accent-warm:  gradient #c8a455 → #d4a04a → #e8c08a  (NEW)
                 (interactive highlights, resonance moments)
---accent-cool:  gradient #4a8a8c → #3d6e8a → #2a4a6e
+--accent-cool:  gradient #4a8a8c → #3d6e8a → #2a4a6e  (NEW)
                 (atmospheric elements, cursor, ambient glow)
 
 Light mode:
 --bg:           #f5f3ee          (warm off-white)
---bg-elevated:  #eceae4
+--bg-elevated:  #eceae4          (NEW)
 --fg:           rgba(20, 18, 15, 0.82)
 --fg-2:         rgba(20, 18, 15, 0.50)
 --fg-3:         rgba(20, 18, 15, 0.20)
@@ -62,6 +64,8 @@ Gradients: same hues, reduced opacity
 | Mono | Fragment Mono, 400 | Nav, labels, meta, badges. 10-13px. All-caps at 10-11px with 0.06em tracking for labels. |
 
 Typographic scale is restrained. The biggest element is a project title at ~28-36px. Everything else is 11-15px. Whitespace does the talking.
+
+**Styling migration:** The current codebase uses ~800 lines of hand-written vanilla CSS in `globals.css`. Tailwind CSS is already installed as a dependency (imported at line 1 of `globals.css`), but the existing styles are all custom CSS classes. This redesign shifts to Tailwind utility classes for layout, spacing, and typography, with a small set of custom CSS for the geometric frame system, particle canvas, and cursor overlay. The existing `globals.css` is gutted and rebuilt — most class-based rules (`.home`, `.media-layer`, `.header-module`, `.index-row`, `.center-info`, `.archive-view`, `.project-grid`, `.project-card`, `.detail-*`, etc.) are removed. Tailwind config must define: custom colors (all `--bg`, `--fg`, `--accent-*` tokens), font families (`--font-body`, `--font-mono`, `--font-display`), the `--ease` timing function, and the 768px breakpoint.
 
 ### 2.4 The Geometric Frame System
 
@@ -111,6 +115,8 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 
 ### 3.3 Page Transitions
 
+**Migration note:** The current codebase uses a custom `TransitionContext` + `PageShell` system with CSS keyframe entrance/exit animations (`page-enter`, `page-exit`, staggered border-draw sequence). This entire system is replaced. `TransitionContext.tsx`, `TransitionLink.tsx`, `PageShell.tsx`, and all `page-enter`/`page-exit`/`data-stagger` CSS will be removed. Framer Motion's `AnimatePresence` + `layoutId` handles all transitions natively.
+
 - **Shared layout animations** via Framer Motion `layoutId`:
   - Clicking a project on the homepage or index page: the media frame animates and expands to become the detail page hero frame. Spatial continuity.
   - Back navigation: hero frame contracts back to its origin position.
@@ -119,6 +125,7 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 ### 3.4 Smooth Scroll
 
 - **Lenis** for momentum-based smooth scrolling across all pages.
+- **Layout-breaking change:** The current `body` has `overflow: hidden; height: 100dvh` (the foundation of the non-scrolling single-viewport homepage). These must be removed. Additionally, `.home { overflow: hidden; height: 100dvh; }` and `[data-page-scrollable] { overflow: auto; height: 100dvh; }` are removed — Lenis manages scroll behavior on all pages. Audit all `overflow: hidden` declarations in `globals.css` during migration.
 - Native scrollbar hidden (already implemented via CSS `scrollbar-width: none` and `::-webkit-scrollbar`).
 - Lenis config: moderate smoothness, not too heavy. The scroll should feel weighted but not fight the user.
 
@@ -137,6 +144,8 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 ## 4. Pages
 
 ### 4.1 Homepage
+
+**Migration note:** This is a total structural rewrite. The current homepage is a single-viewport, non-scrolling layout with fullscreen media background, a sidebar project index, and a view toggle between "list" and "index" modes. All of that is removed: `ViewToggle` component, `viewMode` state, the `media-layer`, `header-module`, `center-info`, and `archive-view` structures. The homepage becomes a vertically-scrolled editorial page.
 
 **Structure:** Single vertically-scrolled page with Lenis smooth scroll. No scroll snapping.
 
@@ -164,6 +173,8 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 - WIP projects: solid color block placeholder within the frame, small micro-illustration, "In progress" label in mono.
 
 ### 4.2 Index Page (/index)
+
+**Routing change:** This is a new route. The current codebase has `/work` and `/lab` routes with detail pages at `/work/[slug]` and `/lab/[slug]`. These are replaced by `/index` and `/archive` with detail pages at `/index/[slug]` and `/archive/[slug]`. All existing route files under `src/app/work/` and `src/app/lab/` are removed and recreated under the new paths.
 
 **Purpose:** Focused list of shipped projects.
 
@@ -260,7 +271,7 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 | Frames/Icons | Inline SVG + Framer Motion `motion.path` | Geometric frames and micro-illustrations as SVG. `pathLength` for draw-on effects. |
 | Fonts | General Sans (local), Fragment Mono (local), DM Serif Display (Google) | Already loaded. Good typographic range. |
 
-**Removed:** GSAP (replaced by Framer Motion)
+**Note:** The current codebase has a `src/lib/gsap.ts` file but all actual animations are CSS keyframes — GSAP is not actively used. `framer-motion` and `lenis` are new npm dependencies that must be installed. The existing CSS animation system (`page-enter`, `page-exit`, `data-stagger`, `drawLine`, `drawVertLine`, etc.) is fully replaced by Framer Motion and can be removed from `globals.css`.
 
 **Performance:**
 - Particles run on own rAF loop, independent of React
@@ -296,3 +307,45 @@ Replaces the native cursor entirely. Rendered as a fixed Framer Motion overlay.
 - Color contrast: fg/bg ratios meet WCAG AA at all opacity levels used for readable text
 - Custom cursor: underlying native cursor behavior preserved for assistive tech (cursor component is decorative overlay only)
 - Route announcer for SPA navigation (existing)
+
+---
+
+## 9. Migration & Data Model Notes
+
+### 9.1 Components Removed
+- `TransitionContext.tsx`, `TransitionLink.tsx`, `PageShell.tsx` — replaced by Framer Motion `AnimatePresence`
+- `ViewToggle.tsx` — view toggle concept removed; homepage is now single-mode
+- `ScrollProgress.tsx` — evaluate if still needed; may be replaced by scroll-driven effects
+- `Nav.tsx` — rewritten to match new nav structure
+- `src/lib/gsap.ts` — unused, remove
+
+### 9.2 Routes Changed
+| Old | New |
+|-----|-----|
+| `/` (single-viewport, dual-mode) | `/` (vertically-scrolled editorial) |
+| `/work` | `/index` |
+| `/work/[slug]` | `/index/[slug]` |
+| `/lab` | `/archive` |
+| `/lab/[slug]` | `/archive/[slug]` |
+| `/about` | `/about` (unchanged) |
+
+### 9.3 Data Model (`pieces.ts`)
+- `Piece.cover.bg` and `Piece.cover.text` are retained — used for WIP project placeholders (color block within geometric frame).
+- `Piece.type` values remain `"project"` and `"experiment"` internally, but display as "Index" and "Archive" in the UI.
+- Detail page long-form content: currently not in the data model. For v1, detail pages use the existing `description` field + hardcoded sections per slug. A structured content model (markdown or CMS) is a future enhancement, not part of this spec.
+
+### 9.4 404 Page
+- Existing `not-found.tsx` is retained and restyled to match the new design system (dark bg, mono type, geometric frame accent).
+
+### 9.5 SEO / Metadata
+- `layout.tsx` metadata export is preserved. Title template and descriptions unchanged.
+- OG image (`opengraph-image.tsx`) restyled to match new color system.
+- Route changes require redirects in `next.config.js`:
+  ```
+  redirects: [
+    { source: '/work', destination: '/index', permanent: true },
+    { source: '/work/:slug', destination: '/index/:slug', permanent: true },
+    { source: '/lab', destination: '/archive', permanent: true },
+    { source: '/lab/:slug', destination: '/archive/:slug', permanent: true },
+  ]
+  ```
