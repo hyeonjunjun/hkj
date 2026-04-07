@@ -4,6 +4,9 @@ import { DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
+import ParticleCanvas from "@/components/ParticleCanvas";
+import Cursor from "@/components/Cursor";
+import Nav from "@/components/Nav";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -67,6 +70,9 @@ export default function RootLayout({
         className={`${generalSans.variable} ${fragmentMono.variable} ${dmSerif.variable}`}
       >
         <RouteAnnouncer />
+        <ParticleCanvas />
+        <Cursor />
+        <Nav />
         <SmoothScroll>
           <a href="#main" className="skip-to-content">
             Skip to content
