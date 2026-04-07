@@ -95,12 +95,35 @@ body {
 
 /* ═══ GEO FRAME ═══ */
 
-.geo-frame {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  pointer-events: none;
+.geo-frame-wrap {
+  position: relative;
+  overflow: hidden;
 }
+
+/* ═══ LINKS ═══ */
+
+a { color: inherit; text-decoration: none; }
+
+/* ═══ FOOTER ═══ */
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(16px, 3vh, 24px) 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--fg-3);
+  border-top: 1px solid var(--fg-4);
+}
+
+.foot a {
+  color: var(--fg-3);
+  text-decoration: none;
+  transition: color 0.3s var(--ease);
+}
+.foot a:hover { color: var(--fg); }
 
 /* ═══ REDUCED MOTION ═══ */
 

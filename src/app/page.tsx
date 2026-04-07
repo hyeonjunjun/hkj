@@ -10,13 +10,13 @@ export default function Home() {
     <main id="main">
       <HeroSection />
 
-      <div className="flex flex-col gap-[clamp(20vh,35vh,40vh)]">
+      <div className="flex flex-col" style={{ gap: "clamp(120px, 20vh, 200px)" }}>
         {allPieces.map((piece, i) => (
           <ProjectSection key={piece.slug} piece={piece} index={i} />
         ))}
       </div>
 
-      <div className="px-[clamp(24px,6vw,48px)] mt-[20vh]">
+      <div className="px-[clamp(32px,8vw,96px)]" style={{ marginTop: "clamp(120px, 15vh, 200px)" }}>
         <Footer />
       </div>
     </main>
