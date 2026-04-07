@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { useTheaterStore } from "@/store/useTheaterStore";
 import { PIECES } from "@/constants/pieces";
@@ -15,68 +17,80 @@ export default function TopBar() {
 
   return (
     <div
-      className="absolute top-0 left-0 right-0 z-20 h-12 flex items-center justify-between"
+      className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between"
       style={{
+        height: 56,
         paddingInline: "clamp(32px, 8vw, 96px)",
         borderBottom: "1px solid var(--fg-4)",
       }}
     >
-      {/* Left side */}
-      <div>
-        {isDetailExpanded ? (
-          <button
-            onClick={collapseDetail}
-            data-cursor-label="Back"
-            className="font-mono text-[11px] uppercase tracking-[0.08em]"
-            style={{ color: "var(--fg)" }}
-          >
-            &larr; Back
-          </button>
-        ) : (
-          <span
-            className="font-mono text-[11px] uppercase tracking-[0.08em]"
-            style={{ color: "var(--fg)" }}
-          >
-            HKJ
-          </span>
-        )}
-      </div>
+      {/* Left: mark or back */}
+      {isDetailExpanded ? (
+        <button
+          onClick={collapseDetail}
+          data-cursor-label="Back"
+          className="font-mono uppercase"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.08em",
+            color: "var(--fg-2)",
+          }}
+        >
+          ← Back
+        </button>
+      ) : (
+        <span
+          className="font-display"
+          style={{
+            fontSize: 16,
+            letterSpacing: "0.01em",
+            color: "var(--fg)",
+          }}
+        >
+          HKJ
+        </span>
+      )}
 
-      {/* Right side */}
-      <div>
-        {isDetailExpanded ? (
-          <span
-            className="font-mono text-[9px] uppercase tracking-[0.08em]"
-            style={{ color: "var(--fg-3)" }}
-          >
-            {selectedPiece?.title ?? ""}
-          </span>
-        ) : (
-          <div className="flex items-center gap-4">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className="relative font-mono text-[10px] uppercase tracking-[0.08em] pb-1"
-                style={{
-                  color:
-                    activeTab === tab ? "var(--fg)" : "var(--fg-3)",
-                }}
-              >
-                {tab}
-                {activeTab === tab && (
-                  <motion.div
-                    layoutId="tab-indicator"
-                    className="absolute bottom-0 left-0 right-0 h-px"
-                    style={{ background: "var(--fg)" }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Right: tabs or title */}
+      {isDetailExpanded ? (
+        <span
+          className="font-mono uppercase"
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.08em",
+            color: "var(--fg-3)",
+          }}
+        >
+          {selectedPiece?.title ?? ""}
+        </span>
+      ) : (
+        <div className="flex items-center gap-6">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className="relative font-mono uppercase"
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.08em",
+                paddingBottom: 4,
+                color: activeTab === tab ? "var(--fg)" : "var(--fg-3)",
+                transition: "color 0.2s ease",
+              }}
+            >
+              {tab}
+              {activeTab === tab && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute bottom-0 left-0 right-0"
+                  style={{ height: 1, background: "var(--fg)" }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -49,10 +49,11 @@ export default function TheaterStage() {
         className="absolute flex items-center"
         style={{
           left: 0,
-          top: 48,
-          bottom: 40,
-          width: "38%",
+          top: 56,
+          bottom: 44,
+          width: "40%",
           paddingLeft: "clamp(32px, 8vw, 96px)",
+          paddingRight: 24,
         }}
       >
         <AnimatePresence mode="wait">
@@ -65,9 +66,9 @@ export default function TheaterStage() {
         className="absolute flex items-center justify-center"
         style={{
           right: 0,
-          top: 48,
-          bottom: 40,
-          width: "60%",
+          top: 56,
+          bottom: 44,
+          width: "58%",
         }}
       >
         <Scene3D />

@@ -9,12 +9,26 @@ const enter = { opacity: 0, y: 16 };
 const visible = { opacity: 1, y: 0 };
 const transition = { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const };
 
+function SectionDivider() {
+  return (
+    <div
+      style={{
+        height: 1,
+        width: "100%",
+        background: "var(--fg-4)",
+        marginTop: 36,
+        marginBottom: 32,
+      }}
+    />
+  );
+}
+
 export default function DetailView() {
   const selectedSlug = useTheaterStore((s) => s.selectedSlug);
   const piece = PIECES.find((p) => p.slug === selectedSlug);
   if (!piece) return null;
 
-  const caseStudy = CASE_STUDIES[piece.slug];
+  const cs = CASE_STUDIES[piece.slug];
   const orderLabel = String(piece.order).padStart(2, "0");
 
   return (
@@ -32,24 +46,24 @@ export default function DetailView() {
         className="block font-mono uppercase"
         style={{
           fontSize: 9,
-          letterSpacing: "0.14em",
+          letterSpacing: "0.08em",
           color: "var(--fg-3)",
-          marginBottom: 12,
+          marginBottom: 16,
         }}
       >
-        {orderLabel} — Project
+        {orderLabel} — {piece.type === "project" ? "Project" : "Experiment"}
       </span>
 
       {/* Title */}
       <h1
         className="font-display"
         style={{
-          fontSize: "clamp(28px, 4vw, 44px)",
+          fontSize: "clamp(32px, 4.5vw, 48px)",
           letterSpacing: "-0.02em",
+          lineHeight: 1.05,
           color: "var(--fg)",
-          lineHeight: 1.1,
           margin: 0,
-          marginBottom: 16,
+          marginBottom: 20,
         }}
       >
         {piece.title}
@@ -57,30 +71,31 @@ export default function DetailView() {
 
       {/* Description */}
       <p
+        className="font-body"
         style={{
           fontSize: 14,
-          lineHeight: 1.7,
+          lineHeight: 1.75,
+          letterSpacing: "-0.005em",
           color: "var(--fg-2)",
-          maxWidth: 400,
+          maxWidth: 420,
           margin: 0,
-          marginBottom: 20,
+          marginBottom: 24,
         }}
       >
         {piece.description}
       </p>
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-1.5" style={{ marginBottom: 16 }}>
+      <div className="flex flex-wrap" style={{ gap: 6, marginBottom: 8 }}>
         {piece.tags.map((tag) => (
           <span
             key={tag}
             className="font-mono uppercase"
             style={{
               fontSize: 8,
-              letterSpacing: "0.08em",
+              letterSpacing: "0.06em",
               border: "1px solid var(--fg-4)",
-              paddingInline: 8,
-              paddingBlock: 2,
+              padding: "3px 8px",
               color: "var(--fg-3)",
             }}
           >
@@ -95,151 +110,134 @@ export default function DetailView() {
         style={{
           fontSize: 9,
           fontVariantNumeric: "tabular-nums",
+          letterSpacing: "0.06em",
           color: "var(--fg-3)",
         }}
       >
-        {piece.year}
+        {piece.status === "wip" ? "In progress" : piece.year}
       </span>
 
       {/* Case study content */}
-      {caseStudy && (
+      {cs && (
         <>
-          {/* Divider */}
-          <div
-            style={{
-              height: 1,
-              width: "100%",
-              background: "var(--fg-4)",
-              marginBlock: 32,
-            }}
-          />
+          <SectionDivider />
 
           {/* Editorial */}
           <h2
             className="font-display"
             style={{
               fontSize: "clamp(20px, 2.5vw, 28px)",
-              color: "var(--fg)",
+              letterSpacing: "-0.01em",
               lineHeight: 1.2,
+              color: "var(--fg)",
               margin: 0,
-              marginBottom: caseStudy.editorial.subhead ? 8 : 16,
+              marginBottom: cs.editorial.subhead ? 8 : 16,
             }}
           >
-            {caseStudy.editorial.heading}
+            {cs.editorial.heading}
           </h2>
 
-          {caseStudy.editorial.subhead && (
+          {cs.editorial.subhead && (
             <span
               className="block font-mono uppercase"
               style={{
                 fontSize: 9,
-                letterSpacing: "0.14em",
+                letterSpacing: "0.08em",
                 color: "var(--fg-3)",
                 marginBottom: 16,
               }}
             >
-              {caseStudy.editorial.subhead}
+              {cs.editorial.subhead}
             </span>
           )}
 
           <p
+            className="font-body"
             style={{
               fontSize: 14,
-              lineHeight: 1.75,
+              lineHeight: 1.8,
+              letterSpacing: "-0.005em",
               color: "var(--fg-2)",
               margin: 0,
             }}
           >
-            {caseStudy.editorial.copy}
+            {cs.editorial.copy}
           </p>
 
           {/* Process section */}
-          {caseStudy.process && (
+          {cs.process && (
             <>
-              <div
-                style={{
-                  height: 1,
-                  width: "100%",
-                  background: "var(--fg-4)",
-                  marginBlock: 32,
-                }}
-              />
+              <SectionDivider />
 
-              <h3
-                className="font-display"
+              <span
+                className="block font-mono uppercase"
                 style={{
-                  fontSize: "clamp(20px, 2.5vw, 28px)",
-                  color: "var(--fg)",
-                  lineHeight: 1.2,
-                  margin: 0,
+                  fontSize: 10,
+                  letterSpacing: "0.08em",
+                  color: "var(--fg-3)",
                   marginBottom: 16,
                 }}
               >
-                {caseStudy.process.title}
-              </h3>
+                {cs.process.title}
+              </span>
 
               <p
+                className="font-body"
                 style={{
                   fontSize: 14,
-                  lineHeight: 1.75,
+                  lineHeight: 1.8,
+                  letterSpacing: "-0.005em",
                   color: "var(--fg-2)",
                   margin: 0,
                 }}
               >
-                {caseStudy.process.copy}
+                {cs.process.copy}
               </p>
             </>
           )}
 
           {/* Engineering section */}
-          {caseStudy.engineering && (
+          {cs.engineering && (
             <>
-              <div
-                style={{
-                  height: 1,
-                  width: "100%",
-                  background: "var(--fg-4)",
-                  marginBlock: 32,
-                }}
-              />
+              <SectionDivider />
 
-              <h3
-                className="font-display"
+              <span
+                className="block font-mono uppercase"
                 style={{
-                  fontSize: "clamp(20px, 2.5vw, 28px)",
-                  color: "var(--fg)",
-                  lineHeight: 1.2,
-                  margin: 0,
+                  fontSize: 10,
+                  letterSpacing: "0.08em",
+                  color: "var(--fg-3)",
                   marginBottom: 16,
                 }}
               >
-                {caseStudy.engineering.title}
-              </h3>
+                {cs.engineering.title}
+              </span>
 
               <p
+                className="font-body"
                 style={{
                   fontSize: 14,
-                  lineHeight: 1.75,
+                  lineHeight: 1.8,
+                  letterSpacing: "-0.005em",
                   color: "var(--fg-2)",
                   margin: 0,
                   marginBottom: 16,
                 }}
               >
-                {caseStudy.engineering.copy}
+                {cs.engineering.copy}
               </p>
 
               {/* Signal badges */}
-              <div className="flex flex-wrap gap-1.5">
-                {caseStudy.engineering.signals.map((signal) => (
+              <div className="flex flex-wrap" style={{ gap: 6 }}>
+                {cs.engineering.signals.map((signal) => (
                   <span
                     key={signal}
                     className="font-mono uppercase"
                     style={{
                       fontSize: 8,
-                      letterSpacing: "0.08em",
+                      letterSpacing: "0.06em",
                       border: "1px solid var(--fg-4)",
-                      paddingInline: 8,
-                      paddingBlock: 2,
+                      padding: "3px 8px",
                       color: "var(--fg-3)",
                     }}
                   >
@@ -252,8 +250,8 @@ export default function DetailView() {
         </>
       )}
 
-      {/* Bottom padding for scroll breathing room */}
-      <div style={{ height: 48 }} />
+      {/* Scroll breathing room */}
+      <div style={{ height: 56 }} />
     </motion.div>
   );
 }

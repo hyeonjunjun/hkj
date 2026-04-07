@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment } from "react";
 import { motion } from "framer-motion";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
@@ -9,7 +11,7 @@ const anim = {
   transition: { duration: 0.3 },
 };
 
-const stats = [
+const stats: [string, string][] = [
   ["Location", "New York"],
   ["Focus", "Design Engineering"],
   ["Experience", "3+ years"],
@@ -18,9 +20,9 @@ const stats = [
 
 const experience = [
   {
-    period: "2024 — Now",
+    period: "2024 —",
     role: "Freelance Design Engineer",
-    desc: "Building digital products and brand experiences for select clients.",
+    desc: "Digital products and brand experiences for select clients.",
   },
   {
     period: "2023 — 24",
@@ -30,13 +32,21 @@ const experience = [
   {
     period: "2021 — 23",
     role: "Frontend Developer",
-    desc: "Building interfaces and design systems at scale.",
+    desc: "Interfaces and design systems at scale.",
   },
 ];
 
 function Divider() {
   return (
-    <div className="h-px w-8 my-5" style={{ background: "var(--fg-4)" }} />
+    <div
+      style={{
+        height: 1,
+        width: 32,
+        background: "var(--fg-4)",
+        marginTop: 28,
+        marginBottom: 24,
+      }}
+    />
   );
 }
 
@@ -45,19 +55,26 @@ export default function AboutView() {
     <motion.div className="w-full" {...anim}>
       {/* Profile label */}
       <span
-        className="font-mono text-[9px] uppercase tracking-[0.14em] block mb-4"
-        style={{ color: "var(--fg-3)" }}
+        className="font-mono uppercase block"
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.08em",
+          color: "var(--fg-3)",
+          marginBottom: 16,
+        }}
       >
         Profile
       </span>
 
       {/* Lead paragraph */}
       <p
-        className="font-display tracking-[-0.02em]"
+        className="font-display"
         style={{
-          fontSize: "clamp(24px, 3vw, 32px)",
-          color: "var(--fg)",
+          fontSize: "clamp(26px, 3vw, 34px)",
+          letterSpacing: "-0.02em",
           lineHeight: 1.2,
+          color: "var(--fg)",
+          maxWidth: 440,
         }}
       >
         Design engineer building at the intersection of craft and systems
@@ -66,8 +83,15 @@ export default function AboutView() {
 
       {/* Body */}
       <p
-        className="mt-4 text-[13px] max-w-[340px]"
-        style={{ color: "var(--fg-2)", lineHeight: 1.7 }}
+        className="font-body"
+        style={{
+          fontSize: 14,
+          lineHeight: 1.75,
+          letterSpacing: "-0.005em",
+          color: "var(--fg-2)",
+          maxWidth: 360,
+          marginTop: 16,
+        }}
       >
         I care about type, motion, and the invisible details that make digital
         products feel considered. Currently based in New York, open to
@@ -77,7 +101,15 @@ export default function AboutView() {
       <Divider />
 
       {/* Stats grid */}
-      <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 font-mono text-[9px] uppercase tracking-[0.06em]">
+      <div
+        className="grid font-mono uppercase"
+        style={{
+          gridTemplateColumns: "80px 1fr",
+          gap: "8px 16px",
+          fontSize: 9,
+          letterSpacing: "0.06em",
+        }}
+      >
         {stats.map(([key, value]) => (
           <Fragment key={key}>
             <span style={{ color: "var(--fg-3)" }}>{key}</span>
@@ -88,21 +120,40 @@ export default function AboutView() {
 
       <Divider />
 
-      {/* Experience list */}
-      <div className="flex flex-col gap-3">
+      {/* Experience */}
+      <div className="flex flex-col" style={{ gap: 16 }}>
         {experience.map((entry) => (
-          <div key={entry.period} className="flex gap-3">
+          <div key={entry.period} className="flex" style={{ gap: 16 }}>
             <span
-              className="font-mono text-[9px] tabular-nums shrink-0"
-              style={{ width: 72, color: "var(--fg-3)" }}
+              className="font-mono shrink-0"
+              style={{
+                fontSize: 9,
+                letterSpacing: "0.04em",
+                fontVariantNumeric: "tabular-nums",
+                width: 80,
+                color: "var(--fg-3)",
+                paddingTop: 3,
+              }}
             >
               {entry.period}
             </span>
             <div>
-              <div className="text-[13px]" style={{ color: "var(--fg)" }}>
+              <div
+                className="font-body"
+                style={{ fontSize: 14, letterSpacing: "-0.005em", color: "var(--fg)" }}
+              >
                 {entry.role}
               </div>
-              <div className="text-[12px]" style={{ color: "var(--fg-3)" }}>
+              <div
+                className="font-body"
+                style={{
+                  fontSize: 12,
+                  letterSpacing: "0",
+                  color: "var(--fg-3)",
+                  marginTop: 2,
+                  lineHeight: 1.5,
+                }}
+              >
                 {entry.desc}
               </div>
             </div>
@@ -112,25 +163,33 @@ export default function AboutView() {
 
       <Divider />
 
-      {/* Contact email */}
+      {/* Contact */}
       <a
         href={`mailto:${CONTACT_EMAIL}`}
-        className="font-mono text-[10px] block"
-        style={{ color: "var(--fg-2)" }}
+        className="font-mono block"
+        style={{
+          fontSize: 10,
+          letterSpacing: "0.02em",
+          color: "var(--fg-2)",
+        }}
       >
         {CONTACT_EMAIL}
       </a>
 
       {/* Social links */}
-      <div className="flex gap-4 mt-3">
+      <div className="flex" style={{ gap: 16, marginTop: 12 }}>
         {SOCIALS.map((s) => (
           <a
             key={s.label}
             href={s.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-[8px] uppercase"
-            style={{ color: "var(--fg-3)" }}
+            className="font-mono uppercase"
+            style={{
+              fontSize: 8,
+              letterSpacing: "0.06em",
+              color: "var(--fg-3)",
+            }}
           >
             {s.label}
           </a>
