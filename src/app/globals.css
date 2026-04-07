@@ -45,8 +45,6 @@ a { color: inherit; text-decoration: none; }
 }
 .skip-to-content:focus { top: 8px; }
 
-.particle-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-
 .cursor-overlay { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
 
 @media (hover: hover) and (pointer: fine) {

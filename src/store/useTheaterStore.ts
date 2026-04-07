@@ -13,6 +13,8 @@ interface TheaterState {
   isDetailExpanded: boolean;
   expandDetail: () => void;
   collapseDetail: () => void;
+  activeDetailPanel: "overview" | "process" | "engineering";
+  setActiveDetailPanel: (panel: "overview" | "process" | "engineering") => void;
 }
 
 const firstProject = PIECES.filter((p) => p.type === "project").sort((a, b) => a.order - b.order)[0];
@@ -26,5 +28,7 @@ export const useTheaterStore = create<TheaterState>((set) => ({
   setSelectedSlug: (slug) => set({ selectedSlug: slug }),
   isDetailExpanded: false,
   expandDetail: () => set({ isDetailExpanded: true }),
-  collapseDetail: () => set({ isDetailExpanded: false }),
+  collapseDetail: () => set({ isDetailExpanded: false, activeDetailPanel: "overview" }),
+  activeDetailPanel: "overview",
+  setActiveDetailPanel: (panel) => set({ activeDetailPanel: panel }),
 }));

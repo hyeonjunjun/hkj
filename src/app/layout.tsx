@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import ParticleCanvas from "@/components/ParticleCanvas";
 import Cursor from "@/components/Cursor";
 
 const switzer = localFont({
@@ -61,7 +60,6 @@ export default function RootLayout({
         className={`${switzer.variable} ${gambetta.variable} ${fragmentMono.variable}`}
       >
         <RouteAnnouncer />
-        <ParticleCanvas density="normal" cursorResponsive />
         <Cursor />
         <a href="#main" className="skip-to-content">
           Skip to content
