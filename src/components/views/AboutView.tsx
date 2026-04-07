@@ -8,14 +8,14 @@ const anim = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
   exit: { opacity: 0 },
-  transition: { duration: 0.4 },
+  transition: { duration: 0.3 },
 };
 
 const stats: [string, string][] = [
-  ["Location", "New York"],
-  ["Focus", "Design Engineering"],
-  ["Experience", "3+ years"],
-  ["Status", "Available"],
+  ["LOCATION", "New York"],
+  ["FOCUS", "Design Engineering"],
+  ["EXPERIENCE", "3+ years"],
+  ["STATUS", "Available"],
 ];
 
 const experience = [
@@ -26,126 +26,181 @@ const experience = [
 
 export default function AboutView() {
   return (
-    <motion.div className="w-full h-full relative" {...anim}>
-      {/* ═══ Large statement — poster scale ═══ */}
-      <div
-        className="absolute font-display"
+    <motion.div {...anim}>
+      {/* 1. Label */}
+      <span
+        className="block font-mono uppercase"
         style={{
-          bottom: 80,
-          left: 0,
-          right: -40,
-          fontSize: "clamp(36px, 5vw, 56px)",
-          letterSpacing: "-0.03em",
-          lineHeight: 1.1,
-          color: "var(--fg)",
-          fontWeight: 500,
-          zIndex: 2,
+          fontSize: 10,
+          fontWeight: 400,
+          letterSpacing: "0.08em",
+          lineHeight: 1,
+          color: "var(--fg-3)",
+          marginBottom: 16,
         }}
       >
-        Design
-        <br />
-        engineering
-        <br />
-        <span style={{ color: "var(--fg-2)" }}>at the intersection</span>
+        PROFILE
+      </span>
+
+      {/* 2. Lead */}
+      <h1
+        className="font-display"
+        style={{
+          fontSize: 26,
+          fontWeight: 500,
+          letterSpacing: "-0.02em",
+          lineHeight: 1.2,
+          color: "var(--fg)",
+          maxWidth: 320,
+          margin: 0,
+        }}
+      >
+        Design engineer building at the intersection of craft and systems
+        thinking.
+      </h1>
+
+      {/* 3. Body */}
+      <p
+        className="font-body"
+        style={{
+          fontSize: 13,
+          fontWeight: 400,
+          letterSpacing: "-0.005em",
+          lineHeight: 1.7,
+          color: "var(--fg-2)",
+          maxWidth: 280,
+          margin: 0,
+          marginTop: 16,
+        }}
+      >
+        I care about type, motion, and the invisible details that make digital
+        products feel considered.
+      </p>
+
+      {/* 4. Divider */}
+      <div
+        style={{
+          height: 1,
+          background: "var(--fg-4)",
+          marginTop: 24,
+          marginBottom: 24,
+        }}
+      />
+
+      {/* 5. Stats grid */}
+      <div
+        className="font-mono uppercase"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "64px 1fr",
+          gap: "8px 16px",
+          fontSize: 9,
+          fontWeight: 400,
+          letterSpacing: "0.06em",
+          lineHeight: 1.8,
+        }}
+      >
+        {stats.map(([key, value]) => (
+          <Fragment key={key}>
+            <span style={{ color: "var(--fg-3)" }}>{key}</span>
+            <span style={{ color: "var(--fg-2)" }}>{value}</span>
+          </Fragment>
+        ))}
       </div>
 
-      {/* ═══ Info block — top left ═══ */}
-      <div className="absolute" style={{ top: 0, left: 0, zIndex: 3 }}>
-        <span
-          className="font-mono uppercase block"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.1em",
-            color: "var(--fg-3)",
-            marginBottom: 20,
-          }}
-        >
-          Profile
-        </span>
+      {/* 6. Divider */}
+      <div
+        style={{
+          height: 1,
+          background: "var(--fg-4)",
+          marginTop: 24,
+          marginBottom: 24,
+        }}
+      />
 
-        {/* Stats */}
-        <div
-          className="font-mono uppercase"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.06em",
-            lineHeight: 2.2,
-          }}
-        >
-          {stats.map(([key, value]) => (
-            <div key={key}>
-              <span style={{ color: "var(--fg-3)" }}>{key}</span>
-              {"  "}
-              <span style={{ color: "var(--fg-2)" }}>{value}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div
-          style={{
-            height: 1,
-            width: 24,
-            background: "var(--fg-4)",
-            marginTop: 20,
-            marginBottom: 16,
-          }}
-        />
-
-        {/* Experience — compact */}
-        <div
-          className="font-mono"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.04em",
-            lineHeight: 2,
-          }}
-        >
-          {experience.map((e) => (
-            <div key={e.period}>
-              <span style={{ color: "var(--fg-3)", fontVariantNumeric: "tabular-nums" }}>
-                {e.period}
-              </span>
-              {"  "}
-              <span style={{ color: "var(--fg-2)" }}>{e.role}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Divider */}
-        <div
-          style={{
-            height: 1,
-            width: 24,
-            background: "var(--fg-4)",
-            marginTop: 20,
-            marginBottom: 16,
-          }}
-        />
-
-        {/* Contact */}
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="font-mono block"
-          style={{ fontSize: 9, color: "var(--fg-2)", letterSpacing: "0.02em" }}
-        >
-          {CONTACT_EMAIL}
-        </a>
-
-        <div className="flex" style={{ gap: 12, marginTop: 8 }}>
-          {SOCIALS.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono uppercase"
-              style={{ fontSize: 8, letterSpacing: "0.06em", color: "var(--fg-3)" }}
+      {/* 7. Experience */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {experience.map((e) => (
+          <div key={e.period} style={{ display: "flex" }}>
+            <span
+              className="font-mono"
+              style={{
+                fontSize: 9,
+                fontWeight: 400,
+                letterSpacing: "0.06em",
+                lineHeight: 1.8,
+                fontVariantNumeric: "tabular-nums",
+                width: 80,
+                flexShrink: 0,
+                color: "var(--fg-3)",
+              }}
             >
-              {s.label}
-            </a>
-          ))}
-        </div>
+              {e.period}
+            </span>
+            <span
+              className="font-body"
+              style={{
+                fontSize: 11,
+                fontWeight: 400,
+                lineHeight: 1.6,
+                color: "var(--fg)",
+              }}
+            >
+              {e.role}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* 8. Divider */}
+      <div
+        style={{
+          height: 1,
+          background: "var(--fg-4)",
+          marginTop: 24,
+          marginBottom: 24,
+        }}
+      />
+
+      {/* 9. Email */}
+      <a
+        href={`mailto:${CONTACT_EMAIL}`}
+        className="font-body block"
+        style={{
+          fontSize: 11,
+          fontWeight: 400,
+          lineHeight: 1.6,
+          color: "var(--fg-2)",
+          textDecoration: "none",
+        }}
+      >
+        {CONTACT_EMAIL}
+      </a>
+
+      {/* 10. Socials */}
+      <div
+        className="flex"
+        style={{ gap: 12, marginTop: 12 }}
+      >
+        {SOCIALS.map((s) => (
+          <a
+            key={s.label}
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono uppercase"
+            style={{
+              fontSize: 8,
+              fontWeight: 400,
+              letterSpacing: "0.06em",
+              lineHeight: 1,
+              color: "var(--fg-3)",
+              textDecoration: "none",
+            }}
+          >
+            {s.label}
+          </a>
+        ))}
       </div>
     </motion.div>
   );
