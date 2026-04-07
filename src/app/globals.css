@@ -1,38 +1,16 @@
 @import "tailwindcss";
 
-/* ═══ COLOR SYSTEM — Dark-first ═══ */
-
 :root {
   --bg: #0a0a0b;
-  --bg-elevated: #111113;
   --fg: rgba(240, 238, 232, 0.88);
   --fg-2: rgba(240, 238, 232, 0.50);
   --fg-3: rgba(240, 238, 232, 0.20);
   --fg-4: rgba(240, 238, 232, 0.08);
-
-  --accent-warm-1: #c8a455;
-  --accent-warm-2: #d4a04a;
-  --accent-warm-3: #e8c08a;
-  --accent-cool-1: #4a8a8c;
-  --accent-cool-2: #3d6e8a;
-  --accent-cool-3: #2a4a6e;
-
   --font-body: var(--font-sans), system-ui, sans-serif;
   --font-mono: var(--font-fragment), "SF Mono", monospace;
   --font-display: var(--font-serif), Georgia, serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-html.light {
-  --bg: #f5f3ee;
-  --bg-elevated: #eceae4;
-  --fg: rgba(20, 18, 15, 0.82);
-  --fg-2: rgba(20, 18, 15, 0.50);
-  --fg-3: rgba(20, 18, 15, 0.20);
-  --fg-4: rgba(20, 18, 15, 0.08);
-}
-
-/* ═══ RESETS ═══ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
@@ -53,158 +31,28 @@ body {
   height: 100dvh;
 }
 
-/* Game screen — fixed viewport, no scroll */
-.game-screen {
-  position: relative;
-  width: 100%;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-/* Scrollable page — for detail/about pages that need scroll */
-.scrollable-screen {
-  position: relative;
-  width: 100%;
-  height: 100dvh;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.scrollable-screen::-webkit-scrollbar { display: none; }
-
 ::selection { background: var(--fg-4); }
 :focus-visible { outline: 1px solid var(--fg-3); outline-offset: 3px; }
-
-/* ═══ SKIP TO CONTENT ═══ */
+a { color: inherit; text-decoration: none; }
 
 .skip-to-content {
   position: absolute; top: -100px; left: 24px;
   z-index: 999; padding: 8px 16px;
   background: var(--fg); color: var(--bg);
   font: 500 10px/1 var(--font-mono);
-  letter-spacing: 0.04em;
-  text-decoration: none;
+  letter-spacing: 0.04em; text-decoration: none;
   transition: top 0.3s var(--ease);
 }
 .skip-to-content:focus { top: 8px; }
 
-/* ═══ PARTICLE CANVAS ═══ */
+.particle-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
-.particle-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
+.cursor-overlay { position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; }
 
-/* ═══ CURSOR OVERLAY ═══ */
-
-.cursor-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  pointer-events: none;
-  mix-blend-mode: difference;
-}
-
-/* Hide native cursor on desktop */
 @media (hover: hover) and (pointer: fine) {
   html { cursor: none; }
   a, button, [role="button"] { cursor: none; }
 }
-
-/* ═══ GEO FRAME ═══ */
-
-.geo-frame-wrap {
-  position: relative;
-  overflow: hidden;
-}
-
-/* ═══ PANEL SYSTEM — Game UI chrome ═══ */
-
-.ui-panel {
-  position: relative;
-  border: 1px solid var(--fg-4);
-  background: rgba(10, 10, 11, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-/* Corner accents on panels */
-.ui-panel::before,
-.ui-panel::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-}
-
-.ui-panel::before {
-  top: -1px;
-  left: -1px;
-  width: 12px;
-  height: 12px;
-  border-top: 1px solid var(--accent-warm-1);
-  border-left: 1px solid var(--accent-warm-1);
-}
-
-.ui-panel::after {
-  bottom: -1px;
-  right: -1px;
-  width: 12px;
-  height: 12px;
-  border-bottom: 1px solid var(--accent-warm-1);
-  border-right: 1px solid var(--accent-warm-1);
-  opacity: 0.4;
-}
-
-.ui-panel--cool::before {
-  border-color: var(--accent-cool-1);
-}
-
-.ui-panel--cool::after {
-  border-color: var(--accent-cool-1);
-}
-
-/* Panel header bar */
-.ui-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--fg-4);
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
-
-/* ═══ LINKS ═══ */
-
-a { color: inherit; text-decoration: none; }
-
-/* ═══ FOOTER ═══ */
-
-.foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: clamp(16px, 3vh, 24px) 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: var(--fg-3);
-  border-top: 1px solid var(--fg-4);
-}
-
-.foot a {
-  color: var(--fg-3);
-  text-decoration: none;
-  transition: color 0.3s var(--ease);
-}
-.foot a:hover { color: var(--fg); }
-
-/* ═══ REDUCED MOTION ═══ */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
