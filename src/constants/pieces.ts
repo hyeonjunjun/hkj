@@ -15,6 +15,7 @@ export interface Piece {
   year: number;
   image?: string;
   video?: string;
+  coverArt?: string;
 }
 
 export const PIECES: Piece[] = [
