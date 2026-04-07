@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheaterStore } from "@/store/useTheaterStore";
 import { PIECES } from "@/constants/pieces";
@@ -19,202 +17,166 @@ export default function IndexView() {
 
   return (
     <motion.div
-      className="absolute inset-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* ═══ Background image — revealed behind type ═══ */}
-      <AnimatePresence mode="wait">
-        {selected.image && (
-          <motion.div
-            key={`bg-${selected.slug}`}
-            className="absolute inset-0 z-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.15 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Image
-              src={selected.image}
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover"
-              priority
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Dark overlay to keep text readable */}
-      <div
-        className="absolute inset-0 z-[1]"
+      {/* Section label */}
+      <span
+        className="font-mono uppercase"
         style={{
-          background:
-            "linear-gradient(to right, rgba(10,10,11,0.92) 0%, rgba(10,10,11,0.7) 50%, rgba(10,10,11,0.85) 100%)",
-        }}
-      />
-
-      {/* ═══ Corner metadata — Aristide Benoist style ═══ */}
-      <div className="absolute inset-0 z-[3] pointer-events-none" style={{ padding: "clamp(32px,8vw,96px)" }}>
-        {/* Top-left: section + count */}
-        <span
-          className="font-mono uppercase absolute"
-          style={{
-            top: 20,
-            left: "clamp(32px,8vw,96px)",
-            fontSize: 9,
-            letterSpacing: "0.1em",
-            color: "var(--fg-3)",
-          }}
-        >
-          Index — {projects.length} Projects
-        </span>
-
-        {/* Top-right: coordinates */}
-        <span
-          className="font-mono absolute"
-          style={{
-            top: 20,
-            right: "clamp(32px,8vw,96px)",
-            fontSize: 9,
-            letterSpacing: "0.06em",
-            color: "var(--fg-3)",
-            fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          40.7128° N, 74.0060° W
-        </span>
-
-        {/* Bottom-left: selected metadata */}
-        <div
-          className="absolute font-mono uppercase"
-          style={{
-            bottom: 16,
-            left: "clamp(32px,8vw,96px)",
-            fontSize: 9,
-            letterSpacing: "0.06em",
-            color: "var(--fg-3)",
-          }}
-        >
-          <span style={{ color: "var(--fg-2)" }}>
-            {selected.status === "wip" ? "WIP" : selected.year}
-          </span>
-          {" — "}
-          {selected.tags.join(" / ")}
-        </div>
-
-        {/* Bottom-right: CTA */}
-        <button
-          onClick={expandDetail}
-          data-cursor-label="View"
-          className="font-mono uppercase absolute pointer-events-auto"
-          style={{
-            bottom: 16,
-            right: "clamp(32px,8vw,96px)",
-            fontSize: 9,
-            letterSpacing: "0.08em",
-            color: "var(--fg)",
-          }}
-        >
-          View project →
-        </button>
-      </div>
-
-      {/* ═══ Title stack — the composition ═══ */}
-      <div
-        className="absolute inset-0 z-[2] flex flex-col justify-center"
-        style={{
-          paddingLeft: "clamp(32px,8vw,96px)",
-          paddingRight: "clamp(32px,8vw,96px)",
-          gap: 0,
+          display: "block",
+          fontSize: 10,
+          fontWeight: 400,
+          letterSpacing: "0.08em",
+          lineHeight: 1,
+          color: "var(--fg-3)",
+          marginBottom: 24,
         }}
       >
+        PROJECTS
+      </span>
+
+      {/* Selector list */}
+      <div className="flex flex-col" style={{ gap: 0 }}>
         {projects.map((p) => {
           const isActive = p.slug === selected.slug;
           return (
             <button
               key={p.slug}
               onClick={() => setSelectedSlug(p.slug)}
-              className="text-left flex items-baseline w-full transition-all duration-500 group"
+              className="text-left"
               style={{
-                padding: "clamp(8px,1vh,16px) 0",
-                borderBottom: "1px solid var(--fg-4)",
+                padding: "8px 0",
+                display: "flex",
+                alignItems: "baseline",
+                gap: 12,
               }}
             >
               {/* Number */}
               <span
-                className="font-mono shrink-0"
+                className="font-mono"
                 style={{
-                  fontSize: 10,
+                  fontSize: 9,
                   letterSpacing: "0.06em",
                   fontVariantNumeric: "tabular-nums",
-                  width: 40,
+                  width: 24,
+                  flexShrink: 0,
                   color: isActive ? "var(--fg-2)" : "var(--fg-3)",
-                  transition: "color 0.3s",
                 }}
               >
                 {String(p.order).padStart(2, "0")}
               </span>
 
-              {/* Title — massive */}
+              {/* Title */}
               <span
-                className="font-display block"
+                className="font-body"
                 style={{
-                  fontSize: "clamp(48px, 8vw, 120px)",
-                  letterSpacing: "-0.04em",
-                  lineHeight: 1,
-                  fontWeight: 500,
+                  fontSize: 13,
+                  letterSpacing: "-0.005em",
+                  fontWeight: isActive ? 500 : 400,
                   color: isActive ? "var(--fg)" : "var(--fg-3)",
-                  transition: "color 0.4s, opacity 0.4s",
-                  opacity: isActive ? 1 : 0.3,
                 }}
               >
                 {p.title}
               </span>
-
-              {/* Year — appears on active */}
-              <span
-                className="font-mono ml-auto shrink-0 self-end"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.06em",
-                  fontVariantNumeric: "tabular-nums",
-                  color: "var(--fg-3)",
-                  opacity: isActive ? 1 : 0,
-                  transition: "opacity 0.3s",
-                  paddingBottom: "clamp(12px,1.5vh,20px)",
-                }}
-              >
-                {p.status === "wip" ? "WIP" : p.year}
-              </span>
             </button>
           );
         })}
+      </div>
 
-        {/* Description — below the stack */}
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={`desc-${selected.slug}`}
+      {/* Divider */}
+      <div
+        style={{
+          height: 1,
+          width: "100%",
+          background: "var(--fg-4)",
+          marginTop: 24,
+          marginBottom: 24,
+        }}
+      />
+
+      {/* Animated metadata + description + CTA */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selected.slug}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Metadata grid */}
+          <div
+            className="font-mono"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "64px 1fr",
+              gap: "8px 16px",
+              fontSize: 9,
+              fontWeight: 400,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
+          >
+            <span style={{ color: "var(--fg-3)" }}>N</span>
+            <span style={{ color: "var(--fg-2)" }}>
+              {String(selected.order).padStart(2, "0")}
+            </span>
+
+            <span style={{ color: "var(--fg-3)" }}>Title</span>
+            <span style={{ color: "var(--fg-2)" }}>{selected.title}</span>
+
+            <span style={{ color: "var(--fg-3)" }}>Year</span>
+            <span style={{ color: "var(--fg-2)" }}>
+              {selected.status === "wip" ? "IN PROGRESS" : selected.year}
+            </span>
+
+            <span style={{ color: "var(--fg-3)" }}>Type</span>
+            <span style={{ color: "var(--fg-2)" }}>
+              {selected.tags.join(" / ")}
+            </span>
+
+            <span style={{ color: "var(--fg-3)" }}>Status</span>
+            <span style={{ color: "var(--fg-2)" }}>
+              {selected.status === "shipped" ? "SHIPPED" : "WIP"}
+            </span>
+          </div>
+
+          {/* Description */}
+          <p
             className="font-body"
             style={{
-              fontSize: 12,
+              fontSize: 13,
               lineHeight: 1.7,
-              color: "var(--fg-3)",
-              maxWidth: 320,
-              marginTop: 24,
+              letterSpacing: "-0.005em",
+              color: "var(--fg-2)",
+              maxWidth: 280,
+              marginTop: 16,
             }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
           >
             {selected.description}
-          </motion.p>
-        </AnimatePresence>
-      </div>
+          </p>
+
+          {/* CTA */}
+          <button
+            onClick={expandDetail}
+            data-cursor-label="View"
+            className="font-mono uppercase"
+            style={{
+              fontSize: 10,
+              fontWeight: 400,
+              letterSpacing: "0.08em",
+              lineHeight: 1,
+              color: "var(--fg)",
+              marginTop: 24,
+              display: "block",
+            }}
+          >
+            VIEW PROJECT →
+          </button>
+        </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 }
