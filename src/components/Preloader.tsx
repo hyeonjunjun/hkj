@@ -96,7 +96,7 @@ export default function Preloader() {
             position: "fixed",
             inset: 0,
             zIndex: 100,
-            background: "#000",
+            background: "var(--bg)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",

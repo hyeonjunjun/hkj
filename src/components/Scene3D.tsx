@@ -73,9 +73,7 @@ function DragController({
 export default function Scene3D() {
   const selectedSlug = useTheaterStore((s) => s.selectedSlug);
 
-  const piece = PIECES.find((p) => p.slug === selectedSlug);
-  const textureUrl = piece?.coverArt ?? piece?.image;
-  const coverColor = piece?.cover.bg ?? "#1a1a1a";
+  const piece = PIECES.find((p) => p.slug === selectedSlug) ?? PIECES[0];
 
   const dragRef = useRef({
     isDragging: false,
@@ -96,19 +94,19 @@ export default function Scene3D() {
         style={{ background: "transparent", cursor: "grab" }}
         gl={{ antialias: true, alpha: true }}
       >
-        {/* Studio lighting — 3-point */}
-        <ambientLight intensity={0.2} />
-        <directionalLight position={[3, 4, 5]} intensity={1.0} color="#f0eee8" />
-        <directionalLight position={[-3, 0, 3]} intensity={0.35} color="#e0ddd5" />
-        <directionalLight position={[0, -2, -4]} intensity={0.2} color="#ffffff" />
+        {/* Studio lighting — warm, soft for light background */}
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[3, 4, 5]} intensity={1.2} color="#fff8f0" />
+        <directionalLight position={[-3, 0, 3]} intensity={0.4} color="#f0ebe0" />
+        <directionalLight position={[0, -2, -4]} intensity={0.3} color="#e8e4de" />
 
-        {/* Contact shadow */}
+        {/* Contact shadow — softer on light bg */}
         <ContactShadows
           position={[0, -1.1, 0]}
-          opacity={0.3}
-          blur={2}
+          opacity={0.12}
+          blur={3}
           far={4}
-          color="#000000"
+          color="#8a8070"
         />
 
         <DragController dragRef={dragRef} />
@@ -116,8 +114,7 @@ export default function Scene3D() {
         <Suspense fallback={null}>
           <CDCase
             key={selectedSlug}
-            textureUrl={textureUrl}
-            coverColor={coverColor}
+            piece={piece}
             dragRef={dragRef}
           />
         </Suspense>

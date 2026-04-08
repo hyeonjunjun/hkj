@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0a0a0b;
-  --fg: rgba(240, 238, 232, 0.88);
-  --fg-2: rgba(240, 238, 232, 0.50);
-  --fg-3: rgba(240, 238, 232, 0.20);
-  --fg-4: rgba(240, 238, 232, 0.08);
+  --bg: #f4f1ec;
+  --fg: rgba(20, 18, 14, 0.88);
+  --fg-2: rgba(20, 18, 14, 0.50);
+  --fg-3: rgba(20, 18, 14, 0.22);
+  --fg-4: rgba(20, 18, 14, 0.08);
   --font-body: var(--font-sans), "Helvetica Neue", system-ui, sans-serif;
   --font-mono: var(--font-fragment), "SF Mono", "Consolas", monospace;
   --font-display: var(--font-serif), "Georgia", serif;
