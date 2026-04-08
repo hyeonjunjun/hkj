@@ -1,6 +1,6 @@
 # HKJ Studio — Resonance Surface Design Spec
 
-> A warm typographic surface with a single living frequency line — everything else is ink, paper, and restraint.
+> A cold monolith with one warm breath — monospace structure, mineral surface, a single living frequency line.
 
 ---
 
@@ -13,12 +13,13 @@ The portfolio for HKJ (Hyeon Jun / Ryan Jun), a design engineer positioning as c
 **Supersedes:** This spec replaces both `RYKJUN-PROJECT-FRAMEWORK.md` (gallery-wall grid concept) and `HKJ-FRAMEWORK.md` (text-list with hover covers). The editorial scroll with resonance layer is the new direction. Those framework files should be updated or archived after implementation.
 
 **References:**
-- WuWa: compression-and-release color, material specificity, each element has its own atmosphere
+- WuWa: compression-and-release color, material specificity, resonance ontology, diegetic interface
+- Project Hail Mary: isolation, technical precision, discovery through constraint
+- Cyberpunk 2077: HUD aesthetics, chrome materiality, neon-on-dark accent discipline
 - Bao To: opacity hierarchy, inverted hover dimming, extreme type restraint
 - Cathy Dolle: numbered typographic index, fashion-archive aesthetic
-- Aino: project numbering as architecture, mathematical grid
-- Aristide Benoist: oversized numerals as spatial structure, paginated project treatments
-- Cereal/Fabien Baron: editorial systems where small deviations become events
+- Aino: project numbering as architecture, mathematical grid, ASCII mode system
+- Brutalist architecture: raw concrete, exposed structure, honest materials, monolithic presence
 
 ---
 
@@ -26,17 +27,18 @@ The portfolio for HKJ (Hyeon Jun / Ryan Jun), a design engineer positioning as c
 
 1. **Composition, not components.** No nav bars, hero sections, or footers. Spatial relationships between elements at extreme scale contrast.
 2. **One living element.** The waveform line carries the entire resonance concept. Nothing else animates at rest. Restraint makes the one moving thing powerful.
-3. **Ink on paper.** Single warm ground color. One ink at seven opacity stops. Project accent colors appear ONLY in the waveform and margin images — compression-and-release.
-4. **The grid is left-shifted.** Content column sits left of center (~8vw offset), activating the right margin as compositional negative space.
-5. **Typography creates events through scale contrast.** 40vw ghost letterforms and 9px metadata coexist. The middle range is avoided.
-6. **Consistent system, precise deviations.** All projects share one typographic structure. Images breaking the column grid are the ONLY deviations. Deviations are loud because the system is strict.
+3. **Ink on mineral.** Cool ground color (concrete, not paper). One ink at seven opacity stops. Project accent colors appear ONLY in the waveform and margin images — compression-and-release.
+4. **The grid is left-shifted.** Content column sits left of center (~8vw offset), activating the right margin as compositional negative space. A vertical structural line marks the column edge.
+5. **Monospace is the primary voice.** Fragment Mono at scale IS the brutalist statement. Newsreader drops to accent role — only philosophy/paradox lines. The system font carries the architecture.
+6. **Exposed structure.** Grid lines, column markers, dividers are visible, not hidden. The structure is honest — like exposed concrete in brutalist architecture.
+7. **Consistent system, precise deviations.** All projects share one typographic structure. Images breaking the column grid are the ONLY deviations. Deviations are loud because the system is strict.
 
 ---
 
 ## Color
 
 ```css
---paper: #f7f6f3;
+--surface: #f0f0ed;           /* mineral — cooler, concrete-like, not warm paper */
 --ink-full:      rgba(35, 32, 28, 1.00);
 --ink-primary:   rgba(35, 32, 28, 0.82);
 --ink-secondary: rgba(35, 32, 28, 0.52);
@@ -54,7 +56,7 @@ The portfolio for HKJ (Hyeon Jun / Ryan Jun), a design engineer positioning as c
 
 All transitions use `--ease-swift` unless stated otherwise. This is the single easing curve for the entire site.
 
-Background is ALWAYS `--paper`. Never shifts on any page. Project accent colors exist only in:
+Background is ALWAYS `--surface`. Never shifts on any page. Project accent colors exist only in:
 - The waveform line color (on hover/scroll proximity)
 - The margin hover image
 
@@ -70,32 +72,63 @@ Project accent colors:
 
 | Role | Font | Usage |
 |------|------|-------|
-| Display | Newsreader (variable, italic available) | Project titles, philosophy statement, editorial headings |
-| Body | General Sans (variable) | Descriptions, paragraphs |
-| System | Fragment Mono | Numbers, metadata, labels, nav, clock, wordmark |
+| Primary | Fragment Mono | Project titles, ghost letters, numbers, nav, labels, ALL structural text |
+| Accent | Newsreader (variable, italic) | Philosophy statement, case study paradox lines ONLY — the warm breath |
+| Body | General Sans (variable) | Descriptions, paragraphs, body copy |
+
+Fragment Mono at scale is the neo-brutalist signature. Monospace at 40vw is architecture. Newsreader appears rarely — when it does, it's an event.
 
 | Element | Size | Weight | Details |
 |---------|------|--------|---------|
-| Ghost HKJ letters | `clamp(240px, 40vw, 480px)` | 300 | Newsreader italic, `--ink-ghost` (0.10), parallax |
-| Philosophy statement | `clamp(22px, 3vw, 32px)` | 400 | Newsreader italic, `--ink-primary` |
-| Project title | `clamp(28px, 3.5vw, 40px)` | 400 | Newsreader, `--ink-primary` |
-| Case study paradox | `clamp(20px, 2.5vw, 28px)` | 400 | Newsreader italic, `--ink-primary` |
+| Ghost HKJ letters | `clamp(240px, 40vw, 480px)` | 400 | Fragment Mono, `--ink-ghost` (0.10), parallax |
+| Philosophy statement | `clamp(22px, 3vw, 32px)` | 400 | Newsreader italic, `--ink-primary` — the ONE warm moment |
+| Project title | `clamp(28px, 3.5vw, 40px)` | 400 | Fragment Mono, `--ink-primary` |
+| Case study paradox | `clamp(20px, 2.5vw, 28px)` | 400 | Newsreader italic, `--ink-primary` — the other warm moment |
 | Body text | 15px | 400 | General Sans, `--ink-secondary`, max 54ch |
 | Project description | 15px | 400 | General Sans, `--ink-secondary`, max 42ch |
 | Nav links | 11px | 400 | Fragment Mono, uppercase, 0.06em tracking |
 | Section labels | 10px | 400 | Fragment Mono, uppercase, 0.06em tracking, `--ink-muted` |
 | Metadata | 10px | 400 | Fragment Mono, 0.04em tracking, `--ink-muted` |
-| Ghost numbers | `clamp(120px, 15vw, 200px)` | 300 | Fragment Mono, `--ink-whisper` (0.05) |
+| Ghost numbers | `clamp(120px, 15vw, 200px)` | 400 | Fragment Mono, `--ink-whisper` (0.05) |
+| Project numbers (chrome) | 10px | 400 | Fragment Mono, chrome gradient (see Chrome section) |
 | Clock | 10px | 400 | Fragment Mono, tabular-nums, `--ink-muted` |
 | Colophon | 9px | 400 | Fragment Mono, `--ink-ghost` |
 
 Typography rules:
 - `text-rendering: optimizeLegibility` on body
-- `font-feature-settings: "kern" 1, "liga" 1` on display text
-- `font-feature-settings: "tnum" 1` on all mono
+- `font-feature-settings: "kern" 1, "liga" 1` on Newsreader (accent)
+- `font-feature-settings: "tnum" 1` on Fragment Mono
 - `letter-spacing: -0.01em` on General Sans body
 - `letter-spacing: 0.06em` on Fragment Mono labels
+- `letter-spacing: 0.02em` on Fragment Mono at display scale (titles, ghost letters)
 - Never bold. Hierarchy through opacity and size only.
+
+---
+
+## Chrome Accent
+
+One material-specific detail: project numbers (`01`, `02`, `03`, `04`) in the work sequence use a subtle chrome gradient on the text, creating a brushed-metal sheen:
+
+```css
+.chrome-text {
+  background: linear-gradient(
+    135deg,
+    var(--ink-muted) 0%,
+    var(--ink-ghost) 30%,
+    var(--ink-secondary) 50%,
+    var(--ink-ghost) 70%,
+    var(--ink-muted) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+```
+
+The gradient position shifts with scroll (`background-position` linked to scroll Y), creating a subtle light-catching effect as you scroll past each number. Like brushed aluminum rotating under a light source. This is the ONE material flourish in an otherwise flat design.
+
+Applied to: project numbers in the work sequence and case study metadata bar number only. Nothing else.
 
 ---
 
@@ -106,7 +139,7 @@ Typography rules:
 Full-viewport composition. Three elements at extreme scale contrast:
 
 **1. Ghost HKJ letterforms**
-- Newsreader italic, `clamp(240px, 40vw, 480px)`
+- Fragment Mono, `clamp(240px, 40vw, 480px)`
 - Positioned in the lower-left quadrant
 - The H's left stroke cropped by viewport edge by ~15%
 - Color: `--ink-ghost` (0.10)
@@ -116,8 +149,8 @@ Full-viewport composition. Three elements at extreme scale contrast:
 **2. Waveform line**
 - `<canvas>` element, `position: fixed`, full viewport width
 - Vertical position: ~60vh
-- At rest: single sine wave, low amplitude (~4px), slow oscillation (~0.3Hz)
-- Color: `--ink-faint` at rest
+- At rest: single sine wave, amplitude 8px, slow oscillation (~0.3Hz) — visible, not subtle
+- Color: `--ink-ghost` at rest (0.10 — present on the surface, not hiding)
 - Responds to cursor proximity: amplitude increases within 200px radius of pointer
 - Responds to scroll: color and frequency shift based on nearest project zone
 - Persists across all pages (fixed position, never removed)
@@ -140,6 +173,8 @@ Full-viewport composition. Three elements at extreme scale contrast:
 
 Content column: max-width 900px, margin-left ~8vw (left-shifted, not centered). The right margin is active negative space.
 
+**Structural line:** A vertical 1px line in `--ink-whisper` runs the full height of the page at the content column's left edge. This is a bleed mark — exposed structure. It anchors the grid visually and says "this layout is intentional."
+
 No "SELECTED WORK" label. No section header. The work sequence begins as a continuation of the first viewport's composition.
 
 **Each project follows one structure:**
@@ -147,10 +182,10 @@ No "SELECTED WORK" label. No section header. The work sequence begins as a conti
 ```
 [ghost number, ~200px, --ink-whisper, behind title]
 
-[number] ...................... [SECTOR · YEAR]    ← Fragment Mono, 10px
-[Title]                                            ← Newsreader, clamp(28-40px)
+[number] ...................... [SECTOR · YEAR]    ← Fragment Mono, 10px (number has chrome gradient)
+[Title]                                            ← Fragment Mono, clamp(28-40px)
 [One-sentence description, max 42ch]               ← General Sans, 15px, --ink-secondary
-──────────────────────────────────────────────────  ← 1px rule, --ink-whisper
+──────────────────────────────────────────────────  ← 1px rule, --ink-ghost (visible, not hidden)
 ```
 
 Number and metadata sit on the same baseline, left and right respectively. Title below. Description below that. Rule below that.
@@ -160,13 +195,13 @@ Spacing between projects: uniform `clamp(48px, 8vh, 72px)`. Consistent rhythm �
 **Hover behavior — inverted dimming + margin image:**
 
 On hover of any project block:
-1. All OTHER projects shift to `--ink-ghost` (0.10) — instant, no transition. Ink already faded.
+1. All OTHER projects shift to `--ink-whisper` (0.05) — instant, no transition. Nearly invisible. Brutalist focus.
 2. Hovered project stays at full `--ink-primary`.
 3. In the right margin (the negative space), a project image fades in at fixed position, right-aligned to viewport edge. 500ms fade, 85% opacity. Grain overlay (feTurbulence, 0.03). This is a figure plate — editorial convention.
 4. The fixed waveform line shifts color to the project's accent over 400ms.
 5. Waveform frequency character adjusts: tighter for technical projects, slower for generative.
 
-On hover-out: image fades (300ms), all projects return to full ink, waveform returns to `--ink-faint`.
+On hover-out: image fades (300ms), all projects return to full ink, waveform returns to `--ink-ghost`.
 
 **Project-specific waveform behaviors:**
 - Gyeol: warm amber tint, medium-high frequency, moderate amplitude
@@ -190,7 +225,7 @@ hyeonjunjun07@gmail.com         LINKEDIN  GITHUB  TWITTER
 
 Fragment Mono, 10px. Email at `--ink-secondary`, social links at `--ink-muted`. Single line. Below: `© 2026 HKJ Studio` in Fragment Mono, 9px, `--ink-ghost`.
 
-Then `72px` of paper. The page ends with emptiness. The composition breathes out.
+Then `72px` of surface. The page ends with emptiness. The composition breathes out.
 
 ---
 
@@ -198,7 +233,7 @@ Then `72px` of paper. The page ends with emptiness. The composition breathes out
 
 ### Transition
 
-Current page fades to paper color (300ms). Waveform shifts to project accent color during the gap. New page content blur-reveals (500ms): `opacity:0, y:32, filter:blur(3px)` → clear.
+Current page fades to surface color (300ms). Waveform shifts to project accent color during the gap. New page content blur-reveals (500ms): `opacity:0, y:32, filter:blur(3px)` → clear.
 
 The waveform stays fixed throughout — it's the thread connecting all pages.
 
@@ -228,21 +263,25 @@ General Sans, 15px, `--ink-secondary`, max 54ch. 2-3 sentences. Why this matters
 **5. Hero image** — full-bleed break.
 The image extends from the content column's left edge to the RIGHT viewport edge. It breaks the column intentionally — the editorial "bleed." Grain overlay. Blur-reveal on scroll-enter (GSAP ScrollTrigger, threshold 85%, once: true).
 
-**6. Body sections** — strict repeating pattern:
+**6. Body sections** — modular block vocabulary, not a prescribed sequence.
+
+Each block follows one pattern:
 ```
 SECTION LABEL                    ← Fragment Mono, 10px, uppercase, --ink-muted
                                  ← 24px gap
 Body copy. Max 54ch. 15px.       ← General Sans, --ink-secondary
-                                 ← 64px gap before next section
+                                 ← 64px gap before next block
 ```
 
-Sections in order:
-- Editorial overview (from `editorial.copy`)
-- Process (from `process.copy`)
-- Process steps (numbered, `01`-`04`, Fragment Mono numbers + title + copy)
-- Key details/highlights (title + description + challenge in italic)
-- Engineering (copy + signal tags with 1px `--ink-whisper` borders)
-- Statistics (large mono numbers ~24px with tiny labels below, flex row)
+Available block types (each project uses only what serves it):
+- **Text block:** label + body copy (editorial overview, process description)
+- **Steps block:** numbered steps (`01`-`04`, Fragment Mono numbers + title + copy)
+- **Highlights block:** title + description + challenge in Newsreader italic
+- **Signals block:** engineering copy + signal tags (1px `--ink-ghost` borders)
+- **Stats block:** large mono numbers ~24px + tiny labels below, flex row
+- **Media block:** image or video (bleeds right — see below)
+
+Per-project block selection defined in case study data. Gyeol might use: text → steps → highlights → signals → media. Sift might use: text → text → highlights → stats. The vocabulary is fixed; the sequence is per-project. Editorial, not template.
 
 **7. Media breaks** — images and videos break the column grid same as hero (bleed to right viewport edge). These are the only spatial deviations. Scroll-triggered blur-reveal. Video captions in Fragment Mono, 9px, `--ink-ghost`.
 
@@ -299,12 +338,12 @@ The single interactive element. A `<canvas>` with `position: fixed`, `z-index: 1
 
 | Parameter | Rest State | On Hover | Description |
 |-----------|-----------|----------|-------------|
-| amplitude | 4px | varies per project | Base wave height |
+| amplitude | 8px | varies per project | Base wave height — visible at rest |
 | frequency | 0.003 | varies per project | Wave tightness |
 | speed | 0.0008 | 0.0008 | Phase advance per frame |
-| color | `--ink-faint` | project accent | Stroke color |
+| color | `--ink-ghost` | project accent | Stroke color |
 | cursorInfluence | 200px radius | 200px radius | Amplitude boost near pointer |
-| cursorAmplitude | +12px at center | +12px at center | Extra amplitude from cursor proximity |
+| cursorAmplitude | +20px at center | +20px at center | Extra amplitude from cursor proximity — responds with conviction |
 
 ### Scroll-linked behavior
 
@@ -325,14 +364,14 @@ Each project occupies a "zone" defined by its DOM position. As the viewport cent
 ### Cursor interaction
 
 When the cursor is within 200px of the waveform's y-position:
-- Local amplitude increases based on distance: `extra = 12 * (1 - distance/200)`
+- Local amplitude increases based on distance: `extra = 20 * (1 - distance/200)`
 - Applied as a gaussian bump centered on cursor x-position, width ~150px
 - Creates a "pluck" effect — like touching a string
 
 ### Reduced motion
 
 If `prefers-reduced-motion: reduce`:
-- Waveform draws as a static horizontal line at `--ink-faint`
+- Waveform draws as a static horizontal line at `--ink-ghost`
 - No animation, no cursor response
 - Color still shifts on hover (instant, no lerp)
 - All blur-reveal entrance animations disabled — content visible immediately
@@ -357,7 +396,7 @@ All reveals use blur as the primary primitive. Content comes into focus, not sli
 | Page enter | blur:3px, y:32 | clear | 500ms | 60ms |
 | Margin image in | `opacity:0` | `opacity:0.85` | 500ms | — |
 | Margin image out | `opacity:0.85` | `opacity:0` | 300ms | — |
-| Hover dimming | `--ink-primary` | `--ink-ghost` | instant | — |
+| Hover dimming | `--ink-primary` | `--ink-whisper` | instant | — |
 
 Two tempos only:
 - **Immediate** (0-200ms): hover states, dimming, cursor response
@@ -468,7 +507,7 @@ Page transitions use a shared layout wrapper in `layout.tsx` that:
 
 ### Loading states
 
-During route transitions, the paper background is always visible. No skeleton, no spinner. The 300ms exit + 500ms enter creates an 800ms total transition where the page is "breathing" — content fades out, paper holds, content fades in. The waveform's continuous animation provides visual continuity.
+During route transitions, the surface background is always visible. No skeleton, no spinner. The 300ms exit + 500ms enter creates an 800ms total transition where the page is "breathing" — content fades out, surface holds, content fades in. The waveform's continuous animation provides visual continuity.
 
 ---
 
@@ -491,7 +530,7 @@ During route transitions, the paper background is always visible. No skeleton, n
 | `src/store/useStore.ts` | Minimal: hoveredSlug, activeProjectZone |
 | `src/constants/pieces.ts` | Project data with accent colors and frequency values |
 | `src/components/PageTransition.tsx` | AnimatePresence wrapper for route transitions |
-| `src/app/not-found.tsx` | 404 page — paper background, waveform, minimal "not found" text |
+| `src/app/not-found.tsx` | 404 page — surface background, waveform, minimal "not found" text |
 
 ---
 
