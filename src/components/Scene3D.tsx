@@ -97,10 +97,10 @@ export default function Scene3D() {
         gl={{ antialias: true, alpha: true }}
       >
         {/* Studio lighting — 3-point */}
-        <ambientLight intensity={0.1} />
-        <directionalLight position={[3, 4, 5]} intensity={0.8} color="#f0eee8" />
-        <directionalLight position={[-3, 0, 3]} intensity={0.25} color="#e0ddd5" />
-        <directionalLight position={[0, -2, -4]} intensity={0.15} color="#ffffff" />
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[3, 4, 5]} intensity={1.0} color="#f0eee8" />
+        <directionalLight position={[-3, 0, 3]} intensity={0.35} color="#e0ddd5" />
+        <directionalLight position={[0, -2, -4]} intensity={0.2} color="#ffffff" />
 
         {/* Contact shadow */}
         <ContactShadows

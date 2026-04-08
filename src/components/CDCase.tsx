@@ -79,18 +79,18 @@ function CDCaseWithTexture({
 
   const materials = useMemo(() => {
     const edge = new THREE.MeshStandardMaterial({
-      color: "#0d0d0d",
-      roughness: 0.9,
-      metalness: 0,
+      color: "#1a1a1a",
+      roughness: 0.85,
+      metalness: 0.02,
     });
     const front = new THREE.MeshStandardMaterial({
       map: texture,
-      color: coverColor,
-      roughness: 0.85,
-      metalness: 0.05,
+      color: "#ffffff", // White so texture renders at full brightness
+      roughness: 0.8,
+      metalness: 0.03,
     });
     return [edge, edge, edge, edge, front, edge];
-  }, [texture, coverColor]);
+  }, [texture]);
 
   return (
     <mesh
@@ -115,14 +115,14 @@ function CDCaseWithColor({
 
   const materials = useMemo(() => {
     const edge = new THREE.MeshStandardMaterial({
-      color: "#0d0d0d",
-      roughness: 0.9,
-      metalness: 0,
+      color: "#1a1a1a",
+      roughness: 0.85,
+      metalness: 0.02,
     });
     const front = new THREE.MeshStandardMaterial({
       color: coverColor,
-      roughness: 0.85,
-      metalness: 0.05,
+      roughness: 0.8,
+      metalness: 0.03,
     });
     return [edge, edge, edge, edge, front, edge];
   }, [coverColor]);

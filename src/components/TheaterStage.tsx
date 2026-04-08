@@ -54,6 +54,18 @@ export default function TheaterStage() {
         </div>
       </div>
 
+      {/* Vertical divider between zones */}
+      <div
+        className="absolute z-10"
+        style={{
+          left: "35%",
+          top: 52,
+          bottom: 40,
+          width: 1,
+          background: "linear-gradient(to bottom, transparent 10%, var(--fg-4) 30%, var(--fg-4) 70%, transparent 90%)",
+        }}
+      />
+
       {/* 3D canvas — right 65% */}
       <div
         className="absolute flex items-center justify-center"

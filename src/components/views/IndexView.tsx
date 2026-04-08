@@ -24,18 +24,17 @@ export default function IndexView() {
     >
       {/* Section label */}
       <span
-        className="font-mono uppercase"
+        className="font-mono uppercase block"
         style={{
-          display: "block",
           fontSize: 10,
           fontWeight: 400,
           letterSpacing: "0.08em",
           lineHeight: 1,
           color: "var(--fg-3)",
-          marginBottom: 24,
+          marginBottom: 32,
         }}
       >
-        PROJECTS
+        Projects
       </span>
 
       {/* Selector list */}
@@ -48,13 +47,14 @@ export default function IndexView() {
               onClick={() => setSelectedSlug(p.slug)}
               className="text-left"
               style={{
-                padding: "8px 0",
+                padding: "10px 0",
                 display: "flex",
                 alignItems: "baseline",
                 gap: 12,
+                borderBottom: "1px solid var(--fg-4)",
+                transition: "all 0.2s ease",
               }}
             >
-              {/* Number */}
               <span
                 className="font-mono"
                 style={{
@@ -68,8 +68,6 @@ export default function IndexView() {
               >
                 {String(p.order).padStart(2, "0")}
               </span>
-
-              {/* Title */}
               <span
                 className="font-body"
                 style={{
@@ -81,23 +79,26 @@ export default function IndexView() {
               >
                 {p.title}
               </span>
+              {/* Year — right aligned, only on active */}
+              <span
+                className="font-mono ml-auto"
+                style={{
+                  fontSize: 9,
+                  letterSpacing: "0.06em",
+                  fontVariantNumeric: "tabular-nums",
+                  color: "var(--fg-3)",
+                  opacity: isActive ? 1 : 0,
+                  transition: "opacity 0.2s",
+                }}
+              >
+                {p.status === "wip" ? "WIP" : p.year}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Divider */}
-      <div
-        style={{
-          height: 1,
-          width: "100%",
-          background: "var(--fg-4)",
-          marginTop: 24,
-          marginBottom: 24,
-        }}
-      />
-
-      {/* Animated metadata + description + CTA */}
+      {/* ── Animated detail section ── */}
       <AnimatePresence mode="wait">
         <motion.div
           key={selected.slug}
@@ -105,42 +106,23 @@ export default function IndexView() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          style={{ marginTop: 32 }}
         >
-          {/* Metadata grid */}
+          {/* Compact metadata — just type and status */}
           <div
-            className="font-mono"
+            className="font-mono uppercase"
             style={{
-              display: "grid",
-              gridTemplateColumns: "64px 1fr",
-              gap: "8px 16px",
               fontSize: 9,
               fontWeight: 400,
               letterSpacing: "0.06em",
-              textTransform: "uppercase",
+              lineHeight: 1.8,
+              color: "var(--fg-3)",
+              marginBottom: 16,
             }}
           >
-            <span style={{ color: "var(--fg-3)" }}>N</span>
-            <span style={{ color: "var(--fg-2)" }}>
-              {String(selected.order).padStart(2, "0")}
-            </span>
-
-            <span style={{ color: "var(--fg-3)" }}>Title</span>
-            <span style={{ color: "var(--fg-2)" }}>{selected.title}</span>
-
-            <span style={{ color: "var(--fg-3)" }}>Year</span>
-            <span style={{ color: "var(--fg-2)" }}>
-              {selected.status === "wip" ? "IN PROGRESS" : selected.year}
-            </span>
-
-            <span style={{ color: "var(--fg-3)" }}>Type</span>
-            <span style={{ color: "var(--fg-2)" }}>
-              {selected.tags.join(" / ")}
-            </span>
-
-            <span style={{ color: "var(--fg-3)" }}>Status</span>
-            <span style={{ color: "var(--fg-2)" }}>
-              {selected.status === "shipped" ? "SHIPPED" : "WIP"}
-            </span>
+            {selected.tags.join(" / ")}
+            <span style={{ margin: "0 8px", opacity: 0.3 }}>—</span>
+            {selected.status === "shipped" ? "Shipped" : "In progress"}
           </div>
 
           {/* Description */}
@@ -152,7 +134,6 @@ export default function IndexView() {
               letterSpacing: "-0.005em",
               color: "var(--fg-2)",
               maxWidth: 280,
-              marginTop: 16,
             }}
           >
             {selected.description}
@@ -173,7 +154,7 @@ export default function IndexView() {
               display: "block",
             }}
           >
-            VIEW PROJECT →
+            View project →
           </button>
         </motion.div>
       </AnimatePresence>

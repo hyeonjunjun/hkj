@@ -8,16 +8,17 @@ export default function BottomBar() {
   const selectedSlug = useTheaterStore((s) => s.selectedSlug);
 
   const selectedPiece = PIECES.find((p) => p.slug === selectedSlug);
+  const projectCount = PIECES.filter((p) => p.type === "project").length;
   const experimentCount = PIECES.filter((p) => p.type === "experiment").length;
 
-  const contextText = (() => {
+  const leftText = (() => {
     switch (activeTab) {
       case "index":
-        return selectedPiece ? String(selectedPiece.year) : "";
+        return `${String(selectedPiece?.order ?? 1).padStart(2, "0")} / ${String(projectCount).padStart(2, "0")}`;
       case "archive":
         return `${experimentCount} collected`;
       case "about":
-        return "New York";
+        return "40.7128° N, 74.0060° W";
     }
   })();
 
@@ -38,12 +39,13 @@ export default function BottomBar() {
           letterSpacing: "0.06em",
           lineHeight: 1.8,
           color: "var(--fg-3)",
+          fontVariantNumeric: "tabular-nums",
         }}
       >
-        {contextText}
+        {leftText}
       </span>
       <span
-        className="font-mono"
+        className="font-mono uppercase"
         style={{
           fontSize: 9,
           fontWeight: 400,
@@ -52,7 +54,7 @@ export default function BottomBar() {
           color: "var(--fg-3)",
         }}
       >
-        v1.0
+        New York
       </span>
     </div>
   );
