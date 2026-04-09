@@ -1,13 +1,19 @@
 "use client";
 
-import Preloader from "@/components/Preloader";
-import TheaterStage from "@/components/TheaterStage";
+import Nav from "@/components/Nav";
+import HeroSection from "@/components/HeroSection";
+import WorkIndex from "@/components/WorkIndex";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
     <>
-      <Preloader />
-      <TheaterStage />
+      <Nav />
+      <main id="main">
+        <HeroSection />
+        <WorkIndex />
+      </main>
+      <Footer />
     </>
   );
 }

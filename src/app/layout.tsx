@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import Cursor from "@/components/Cursor";
 
-const switzer = localFont({
-  src: "../fonts/switzer/Switzer-Variable.woff2",
+const generalSans = localFont({
+  src: "../fonts/general-sans/GeneralSans-Variable.woff2",
   variable: "--font-sans",
-  weight: "100 900",
+  weight: "200 700",
   display: "swap",
   preload: true,
 });
 
-const gambetta = localFont({
-  src: "../fonts/gambetta/Gambetta-Variable.woff2",
+const newsreader = Newsreader({
+  subsets: ["latin"],
   variable: "--font-serif",
-  weight: "300 700",
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
   display: "swap",
-  preload: true,
 });
 
 const fragmentMono = localFont({
@@ -57,10 +57,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${switzer.variable} ${gambetta.variable} ${fragmentMono.variable}`}
+        className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable}`}
       >
         <RouteAnnouncer />
-        <Cursor />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
