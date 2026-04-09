@@ -13,8 +13,8 @@ interface RGB {
   b: number;
 }
 
-const REST_COLOR: RGB = { r: 35, g: 32, b: 28 };
-const REST_ALPHA = 0.1;
+const REST_COLOR: RGB = { r: 255, g: 255, b: 255 };
+const REST_ALPHA = 0.06;
 
 function hexToRgb(hex: string): RGB {
   const h = hex.replace("#", "");

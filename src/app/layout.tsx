@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
+import StarField from "@/components/StarField";
 import Waveform from "@/components/Waveform";
 import NavCoordinates from "@/components/NavCoordinates";
 import PageTransition from "@/components/PageTransition";
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body
         className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable}`}
       >
+        <StarField />
         <RouteAnnouncer />
         <Waveform />
         <NavCoordinates />
