@@ -16,10 +16,7 @@ export default function GhostLetters() {
     const parent = el.parentElement;
     if (!parent) return;
 
-    // Set initial opacity for dev visibility
-    gsap.set(el, { opacity: 0.1 });
-
-    // Parallax + fade on scroll
+    // Parallax + fade on scroll (from whatever opacity the entrance choreography set)
     gsap.to(el, {
       y: "-15vh",
       opacity: 0.03,
@@ -41,6 +38,7 @@ export default function GhostLetters() {
     <div
       ref={ref}
       aria-hidden="true"
+      data-ghost-letters
       className="font-mono"
       style={{
         position: "absolute",

@@ -23,6 +23,7 @@ export default function NavCoordinates() {
   return (
     <nav
       aria-label="Site navigation"
+      data-nav-reveal
       style={{
         position: "fixed",
         top: 0,

@@ -1,10 +1,76 @@
 "use client";
 
+import { useEffect } from "react";
+import gsap from "gsap";
 import GhostLetters from "@/components/GhostLetters";
 import WorkSequence from "@/components/WorkSequence";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
 export default function Home() {
+  useEffect(() => {
+    const isFirstVisit = !sessionStorage.getItem("hkj-visited");
+
+    const waveCanvas = document.querySelector<HTMLElement>("canvas[aria-hidden]");
+    const nav = document.querySelector<HTMLElement>("[data-nav-reveal]");
+    const ghost = document.querySelector<HTMLElement>("[data-ghost-letters]");
+    const colophon = document.querySelector<HTMLElement>("[data-colophon]");
+
+    if (isFirstVisit) {
+      sessionStorage.setItem("hkj-visited", "1");
+
+      // Set all entrance elements to invisible before choreography
+      if (waveCanvas) gsap.set(waveCanvas, { clipPath: "inset(0 100% 0 0)" });
+      if (nav) gsap.set(nav, { opacity: 0, filter: "blur(6px)" });
+      if (ghost) gsap.set(ghost, { opacity: 0 });
+      if (colophon) gsap.set(colophon, { opacity: 0 });
+
+      const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+      // t=0: Waveform draws left-to-right over 800ms
+      if (waveCanvas) {
+        tl.to(waveCanvas, {
+          clipPath: "inset(0 0% 0 0)",
+          duration: 0.8,
+          ease: "power1.inOut",
+        }, 0);
+      }
+
+      // t=400ms: Nav blur-reveal
+      if (nav) {
+        tl.to(nav, {
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.5,
+        }, 0.4);
+      }
+
+      // t=600ms: Ghost letters fade in to 0.10
+      if (ghost) {
+        tl.to(ghost, {
+          opacity: 0.1,
+          duration: 0.6,
+        }, 0.6);
+      }
+
+      // t=800ms: Colophon reveal
+      if (colophon) {
+        tl.to(colophon, {
+          opacity: 1,
+          duration: 0.4,
+        }, 0.8);
+      }
+    } else {
+      // Repeat visit: quick 300ms fade-in of all content
+      if (waveCanvas) gsap.set(waveCanvas, { clipPath: "inset(0 0% 0 0)" });
+      if (ghost) gsap.set(ghost, { opacity: 0.1 });
+      if (colophon) gsap.set(colophon, { opacity: 1 });
+      if (nav) {
+        gsap.set(nav, { opacity: 0 });
+        gsap.to(nav, { opacity: 1, duration: 0.3 });
+      }
+    }
+  }, []);
+
   return (
     <>
       <main id="main">
@@ -20,6 +86,7 @@ export default function Home() {
 
           {/* Colophon — bottom right */}
           <div
+            data-colophon
             className="font-mono uppercase"
             style={{
               position: "absolute",
