@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,6 +36,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const cs = CASE_STUDIES[piece.slug];
+  const reducedMotion = useReducedMotion();
 
   const currentIdx = allPieces.findIndex((p) => p.slug === piece.slug);
   const nextPiece = allPieces[(currentIdx + 1) % allPieces.length];
@@ -44,6 +46,16 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     if (!containerRef.current) return;
 
     const fixedEls = containerRef.current.querySelectorAll("[data-entrance]");
+    const blocks = containerRef.current.querySelectorAll("[data-reveal]");
+
+    if (reducedMotion) {
+      // Show everything immediately — no animation
+      gsap.set(fixedEls, { opacity: 1, y: 0, filter: "blur(0px)" });
+      if (heroRef.current) gsap.set(heroRef.current, { opacity: 1, y: 0 });
+      gsap.set(blocks, { opacity: 1, y: 0, filter: "blur(0px)" });
+      return;
+    }
+
     gsap.fromTo(
       fixedEls,
       { opacity: 0, y: 24, filter: "blur(2px)" },
@@ -78,7 +90,6 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     }
 
     // Modular blocks — scroll-triggered reveals
-    const blocks = containerRef.current.querySelectorAll("[data-reveal]");
     blocks.forEach((block) => {
       gsap.fromTo(
         block,
@@ -101,7 +112,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     return () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, [piece.slug]);
+  }, [piece.slug, reducedMotion]);
 
   // Column layout — left-shifted, same as homepage
   const colStyle: React.CSSProperties = {

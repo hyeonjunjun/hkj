@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PIECES } from "@/constants/pieces";
 import { useStore } from "@/store/useStore";
 import MarginImage from "./MarginImage";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,6 +19,7 @@ export default function WorkSequence() {
   const setHoveredSlug = useStore((s) => s.setHoveredSlug);
   const setActiveZoneSlug = useStore((s) => s.setActiveZoneSlug);
 
+  const reducedMotion = useReducedMotion();
   const hoveredPiece = PIECES.find((p) => p.slug === hoveredSlug);
   const marginSrc = hoveredPiece?.coverArt || hoveredPiece?.image || null;
 
@@ -37,6 +39,15 @@ export default function WorkSequence() {
   // GSAP reveal on scroll
   useEffect(() => {
     const rows = rowRefs.current.filter(Boolean) as HTMLElement[];
+
+    if (reducedMotion) {
+      // Show all content immediately — no animation
+      rows.forEach((row) => {
+        gsap.set(row, { opacity: 1, y: 0, filter: "blur(0px)" });
+      });
+      return;
+    }
+
     rows.forEach((row) => {
       gsap.fromTo(
         row,
@@ -71,7 +82,7 @@ export default function WorkSequence() {
     return () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, []);
+  }, [reducedMotion]);
 
   // Scroll zone tracking via IntersectionObserver
   useEffect(() => {
