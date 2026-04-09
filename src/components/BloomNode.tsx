@@ -161,23 +161,23 @@ function runBloomCanvas(
          ── Phase 2: Calm flow (0.8s+)
            Gentle sine undulation traveling along the border */
 
-      const bounceDecay = Math.max(0, 1 - timeSinceActive / 0.8);
-      const bounceAmp = bounceDecay * 4; // px displacement during bounce
-      const bounceSpeed = 12; // fast oscillation during bounce
+      /* ── BOUNCE: one clean pulse that decays exponentially ── */
+      const bounceDecay = Math.exp(-timeSinceActive * 5); // fast exp decay
+      const bounceAmp = bounceDecay * 2.5;
+      const bounceFreq = 8;
 
-      const calmAmp = 1.8; // px displacement during calm flow
-      const calmSpeed = 0.4; // slow traveling wave
-      const calmWaveLen = 0.15; // wavelength as fraction of perimeter
+      /* ── CALM FLOW: barely perceptible breathing ── */
+      const calmAmp = 0.6; // subtle — the line breathes, not waves
+      const calmSpeed = 0.25; // very slow traveling wave
+      const calmWaveLen = 0.2;
 
-      // The bright segment: a region of higher brightness that
-      // slowly sweeps around the perimeter
-      const brightPos = (time * 0.06) % 1.0; // slow sweep, 0-1
-      const brightWidth = 0.25; // 25% of perimeter is bright
+      /* ── BRIGHT SEGMENT: tight, intense highlight ── */
+      const brightPos = (time * 0.04) % 1.0; // very slow sweep
+      const brightWidth = 0.12; // 12% of perimeter — concentrated
 
       ctx.save();
       ctx.translate(PAD, PAD);
 
-      // Draw the flowing border as a thick path with varying alpha
       for (let seg = 0; seg < SAMPLES; seg++) {
         const t0 = seg / SAMPLES;
         const t1 = (seg + 1) / SAMPLES;
@@ -185,60 +185,59 @@ function runBloomCanvas(
         const p0 = getPerimeterPoint(t0, w, h);
         const p1 = getPerimeterPoint(t1, w, h);
 
-        // Calculate displacement for this point
-        const wave = Math.sin(t0 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
-        const displacement = wave * calmAmp + Math.sin(t0 * 30 + time * bounceSpeed) * bounceAmp;
+        // Displacement: subtle calm wave + decaying bounce
+        const calmWave = Math.sin(t0 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
+        const bounceWave = Math.sin(t0 * 20 + time * bounceFreq);
+        const disp0 = calmWave * calmAmp + bounceWave * bounceAmp;
 
-        const wave1 = Math.sin(t1 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
-        const displacement1 = wave1 * calmAmp + Math.sin(t1 * 30 + time * bounceSpeed) * bounceAmp;
+        const calmWave1 = Math.sin(t1 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
+        const bounceWave1 = Math.sin(t1 * 20 + time * bounceFreq);
+        const disp1 = calmWave1 * calmAmp + bounceWave1 * bounceAmp;
 
-        // Displaced positions
-        const x0 = p0.x + p0.nx * displacement;
-        const y0 = p0.y + p0.ny * displacement;
-        const x1 = p1.x + p1.nx * displacement1;
-        const y1 = p1.y + p1.ny * displacement1;
+        const x0 = p0.x + p0.nx * disp0;
+        const y0 = p0.y + p0.ny * disp0;
+        const x1 = p1.x + p1.nx * disp1;
+        const y1 = p1.y + p1.ny * disp1;
 
-        // Brightness: smooth falloff from bright segment
+        // Brightness: tight smooth falloff from bright segment
         let dist = Math.abs(t0 - brightPos);
-        if (dist > 0.5) dist = 1 - dist; // wrap around
-        const brightFactor = Math.max(0, 1 - dist / (brightWidth / 2));
-        const smoothBright = brightFactor * brightFactor * (3 - 2 * brightFactor); // smoothstep
+        if (dist > 0.5) dist = 1 - dist;
+        const brightRaw = Math.max(0, 1 - dist / (brightWidth / 2));
+        const smoothBright = brightRaw * brightRaw * (3 - 2 * brightRaw);
 
-        // Base alpha + bright boost
-        const baseAlpha = 0.15; // dim static border
-        const brightAlpha = 0.85;
-        const alpha = baseAlpha + smoothBright * (brightAlpha - baseAlpha);
+        // Dim border is nearly invisible, bright segment pops
+        const baseAlpha = 0.08;
+        const peakAlpha = 0.9;
+        const alpha = baseAlpha + smoothBright * (peakAlpha - baseAlpha);
 
-        // Color: dim segments are white, bright segments are gold
+        // Color shifts from cool dim white to warm bright gold
         const r = Math.round(255 - smoothBright * (255 - cr));
         const g = Math.round(255 - smoothBright * (255 - cg));
         const b = Math.round(255 - smoothBright * (255 - cb));
 
-        // Line width varies: thicker in bright segment
-        const lineW = 1 + smoothBright * 1;
-
+        // Uniform thin line — brightness does the work, not width
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(x1, y1);
         ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.lineWidth = lineW;
+        ctx.lineWidth = 1;
         ctx.lineCap = "round";
         ctx.stroke();
 
-        // Glow layer on bright segments
-        if (smoothBright > 0.1) {
+        // Soft glow halo ONLY on the brightest portion
+        if (smoothBright > 0.3) {
           ctx.beginPath();
           ctx.moveTo(x0, y0);
           ctx.lineTo(x1, y1);
-          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${smoothBright * 0.15})`;
-          ctx.lineWidth = lineW + 6;
+          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${smoothBright * 0.12})`;
+          ctx.lineWidth = 8;
           ctx.filter = "blur(4px)";
           ctx.stroke();
           ctx.filter = "none";
         }
       }
 
-      // Corner accent dots — small bright circles at the 4 corners
+      // Corner accent — tiny bright points at the 4 vertices
       const corners = [
         { x: 0, y: 0 },
         { x: w, y: 0 },
@@ -246,13 +245,14 @@ function runBloomCanvas(
         { x: 0, y: h },
       ];
       for (const c of corners) {
-        const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 6);
-        grad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0.6)`);
-        grad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, 0.15)`);
+        // Tight bright dot
+        const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 4);
+        grad.addColorStop(0, `rgba(255, 235, 180, 0.7)`);
+        grad.addColorStop(0.3, `rgba(${cr}, ${cg}, ${cb}, 0.35)`);
         grad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.arc(c.x, c.y, 4, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -267,29 +267,26 @@ function runBloomCanvas(
       ctx.restore();
     }
 
-    /* ── Inner glow when active ──────────────────────────── */
+    /* ── Subtle atmospheric fill when active ────────────── */
     if (isActive) {
       ctx.save();
       ctx.translate(PAD, PAD);
-      const glowGrad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-      glowGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0.04)`);
-      glowGrad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, 0.02)`);
-      glowGrad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
-      ctx.fillStyle = glowGrad;
-      ctx.fillRect(-10, -10, w + 20, h + 20);
-      ctx.restore();
-    }
 
-    /* ── Outer bloom when active ─────────────────────────── */
-    if (isActive) {
-      ctx.save();
-      ctx.translate(PAD, PAD);
-      const bloomGrad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.4, w / 2, h / 2, Math.max(w, h) * 0.9);
-      bloomGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0.06)`);
-      bloomGrad.addColorStop(0.6, `rgba(${cr}, ${cg}, ${cb}, 0.025)`);
-      bloomGrad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
-      ctx.fillStyle = bloomGrad;
+      // Very faint warm wash inside — barely perceptible
+      const innerGrad = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.6);
+      innerGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0.025)`);
+      innerGrad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
+      ctx.fillStyle = innerGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Outer atmospheric bloom — the light spilling into the void
+      const outerGrad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.5, w / 2, h / 2, Math.max(w, h) * 0.85);
+      outerGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0.035)`);
+      outerGrad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, 0.015)`);
+      outerGrad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
+      ctx.fillStyle = outerGrad;
       ctx.fillRect(-PAD, -PAD, w + PAD * 2, h + PAD * 2);
+
       ctx.restore();
     }
 
