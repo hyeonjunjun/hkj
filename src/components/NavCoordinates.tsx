@@ -78,7 +78,7 @@ export default function NavCoordinates() {
 
       {/* gap-16 between last link and clock */}
       <span style={{ marginLeft: -8 }}>
-        <NycClock className="mobile:hidden" />
+        <NycClock className="hidden md:inline" />
       </span>
     </nav>
   );

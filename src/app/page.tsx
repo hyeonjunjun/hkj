@@ -5,15 +5,27 @@ import gsap from "gsap";
 import GhostLetters from "@/components/GhostLetters";
 import WorkSequence from "@/components/WorkSequence";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export default function Home() {
-  useEffect(() => {
-    const isFirstVisit = !sessionStorage.getItem("hkj-visited");
+  const reducedMotion = useReducedMotion();
 
+  useEffect(() => {
     const waveCanvas = document.querySelector<HTMLElement>("canvas[aria-hidden]");
     const nav = document.querySelector<HTMLElement>("[data-nav-reveal]");
     const ghost = document.querySelector<HTMLElement>("[data-ghost-letters]");
     const colophon = document.querySelector<HTMLElement>("[data-colophon]");
+
+    if (reducedMotion) {
+      // Skip entrance choreography entirely — show everything immediately
+      if (waveCanvas) gsap.set(waveCanvas, { clipPath: "inset(0 0% 0 0)" });
+      if (ghost) gsap.set(ghost, { opacity: 0.1 });
+      if (colophon) gsap.set(colophon, { opacity: 1 });
+      if (nav) gsap.set(nav, { opacity: 1, filter: "blur(0px)" });
+      return;
+    }
+
+    const isFirstVisit = !sessionStorage.getItem("hkj-visited");
 
     if (isFirstVisit) {
       sessionStorage.setItem("hkj-visited", "1");
@@ -69,7 +81,7 @@ export default function Home() {
         gsap.to(nav, { opacity: 1, duration: 0.3 });
       }
     }
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <>
@@ -106,6 +118,7 @@ export default function Home() {
 
         {/* Footer — minimal */}
         <footer
+          id="home-footer"
           style={{
             marginTop: "clamp(100px, 15vh, 180px)",
             marginLeft: "8vw",

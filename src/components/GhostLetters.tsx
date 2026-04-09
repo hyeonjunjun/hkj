@@ -3,15 +3,23 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function GhostLetters() {
   const ref = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (reducedMotion) {
+      // Show at fixed 0.10 opacity, no parallax
+      gsap.set(el, { opacity: 0.1, y: 0 });
+      return;
+    }
 
     const parent = el.parentElement;
     if (!parent) return;
@@ -32,14 +40,14 @@ export default function GhostLetters() {
     return () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div
       ref={ref}
       aria-hidden="true"
       data-ghost-letters
-      className="font-mono"
+      className="font-mono hidden md:block"
       style={{
         position: "absolute",
         bottom: "10vh",

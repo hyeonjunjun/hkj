@@ -3,13 +3,20 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!containerRef.current) return;
     const els = containerRef.current.querySelectorAll("[data-reveal]");
+
+    if (reducedMotion) {
+      gsap.set(els, { opacity: 1, y: 0, filter: "blur(0px)" });
+      return;
+    }
 
     gsap.fromTo(
       els,
@@ -24,7 +31,7 @@ export default function AboutPage() {
         delay: 0.2,
       }
     );
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <main
@@ -36,6 +43,16 @@ export default function AboutPage() {
         paddingRight: "clamp(24px, 5vw, 64px)",
       }}
     >
+      <style>{`
+        @media (max-width: 767px) {
+          #main {
+            margin-left: 0 !important;
+            max-width: none !important;
+            padding-inline: 24px !important;
+            padding-right: 24px !important;
+          }
+        }
+      `}</style>
       {/* ── Philosophy statement ── */}
       <p
         data-reveal
