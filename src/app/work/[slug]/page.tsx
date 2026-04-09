@@ -2,7 +2,6 @@
 
 import { useParams } from "next/navigation";
 import CaseStudy from "@/components/CaseStudy";
-import Footer from "@/components/Footer";
 import { PIECES } from "@/constants/pieces";
 
 export default function WorkDetailPage() {
@@ -34,7 +33,6 @@ export default function WorkDetailPage() {
       <main id="main">
         <CaseStudy piece={piece} />
       </main>
-      <Footer />
     </>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
-import Footer from "@/components/Footer";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
 export default function AboutPage() {
@@ -165,7 +164,6 @@ export default function AboutPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }
