@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-export default function NycClock() {
+export default function NycClock({ className }: { className?: string }) {
   const [time, setTime] = useState("");
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function NycClock() {
 
   return (
     <span
-      className="font-mono"
+      className={["font-mono", className].filter(Boolean).join(" ")}
       style={{
         fontSize: 10,
         letterSpacing: "0.06em",

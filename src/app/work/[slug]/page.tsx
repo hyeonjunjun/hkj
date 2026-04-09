@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Nav from "@/components/Nav";
 import CaseStudy from "@/components/CaseStudy";
 import Footer from "@/components/Footer";
 import { PIECES } from "@/constants/pieces";
@@ -13,7 +12,6 @@ export default function WorkDetailPage() {
   if (!piece) {
     return (
       <>
-        <Nav />
         <main
           id="main"
           style={{
@@ -33,7 +31,6 @@ export default function WorkDetailPage() {
 
   return (
     <>
-      <Nav />
       <main id="main">
         <CaseStudy piece={piece} />
       </main>

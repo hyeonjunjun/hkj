@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
-import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 
@@ -30,7 +29,6 @@ export default function AboutPage() {
 
   return (
     <>
-      <Nav />
       <main
         id="main"
         ref={containerRef}
