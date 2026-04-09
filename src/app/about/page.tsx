@@ -27,143 +27,189 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <>
-      <main
-        id="main"
-        ref={containerRef}
+    <main
+      id="main"
+      ref={containerRef}
+      style={{
+        maxWidth: 900,
+        marginLeft: "8vw",
+        paddingRight: "clamp(24px, 5vw, 64px)",
+      }}
+    >
+      {/* ── Philosophy statement ── */}
+      <p
+        data-reveal
+        className="font-display"
         style={{
-          maxWidth: 900,
-          margin: "0 auto",
-          paddingInline: "clamp(24px, 5vw, 64px)",
+          fontStyle: "italic",
+          fontSize: "clamp(22px, 3vw, 32px)",
+          lineHeight: 1.35,
+          fontWeight: 400,
+          color: "var(--ink-primary)",
+          maxWidth: "54ch",
+          paddingTop: 96,
+          opacity: 0,
         }}
       >
-        {/* ── Bio ── */}
-        <div data-reveal style={{ paddingTop: 120, paddingBottom: 48, opacity: 0 }}>
-          <p
-            className="font-display italic"
-            style={{
-              fontSize: "clamp(22px, 3vw, 32px)",
-              lineHeight: 1.35,
-              fontWeight: 400,
-              color: "var(--ink-primary)",
-              maxWidth: "54ch",
-            }}
-          >
-            Design engineer building at the intersection of craft and systems thinking.
-          </p>
-          <p
-            className="font-body"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--ink-secondary)",
-              marginTop: 24,
-              maxWidth: "54ch",
-            }}
-          >
-            I care about type, motion, and the invisible details that make digital products feel considered.
-            Based in New York, working independently on projects that bridge design engineering and brand craft.
-          </p>
-        </div>
+        Design engineer building at the intersection of craft and systems thinking.
+      </p>
 
-        {/* ── Experience ── */}
-        <div data-reveal style={{ paddingBottom: 48, opacity: 0 }}>
-          <span
-            className="font-mono uppercase block"
+      {/* ── Body ── */}
+      <p
+        data-reveal
+        className="font-body"
+        style={{
+          fontSize: 15,
+          lineHeight: 1.7,
+          color: "var(--ink-secondary)",
+          maxWidth: "54ch",
+          marginTop: 24,
+          opacity: 0,
+        }}
+      >
+        I care about type, motion, and the invisible details that make digital products feel considered.
+      </p>
+
+      <p
+        data-reveal
+        className="font-body"
+        style={{
+          fontSize: 15,
+          lineHeight: 1.7,
+          color: "var(--ink-secondary)",
+          maxWidth: "54ch",
+          marginTop: 0,
+          opacity: 0,
+        }}
+      >
+        Based in New York, working independently on projects that bridge design engineering and brand craft.
+      </p>
+
+      {/* ── Experience ── */}
+      <div style={{ marginTop: 48 }}>
+        <span
+          data-reveal
+          className="font-mono"
+          style={{
+            display: "block",
+            fontSize: 11,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            color: "var(--ink-muted)",
+            marginBottom: 24,
+            opacity: 0,
+          }}
+        >
+          Experience
+        </span>
+
+        {[
+          ["2024 \u2014", "Independent, Design Engineering"],
+          ["2023 \u2014 24", "Design Technologist"],
+          ["2021 \u2014 23", "Frontend Developer"],
+        ].map(([period, role]) => (
+          <div
+            key={period}
+            data-reveal
             style={{
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              color: "var(--ink-muted)",
-              marginBottom: 24,
+              display: "flex",
+              gap: 24,
+              padding: "10px 0",
+              borderBottom: "1px solid var(--ink-ghost)",
+              opacity: 0,
             }}
           >
-            Experience
-          </span>
-          {[
-            ["2024 \u2014", "Independent, Design Engineering"],
-            ["2023 \u2014 24", "Design Technologist"],
-            ["2021 \u2014 23", "Frontend Developer"],
-          ].map(([period, role]) => (
-            <div
-              key={period}
-              className="flex"
+            <span
+              className="font-mono"
               style={{
-                gap: 24,
-                padding: "10px 0",
-                borderBottom: "1px solid var(--ink-whisper)",
+                fontSize: 11,
+                fontVariantNumeric: "tabular-nums",
+                color: "var(--ink-muted)",
+                width: 80,
+                flexShrink: 0,
               }}
             >
-              <span
-                className="font-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.04em",
-                  fontVariantNumeric: "tabular-nums",
-                  color: "var(--ink-muted)",
-                  width: 80,
-                  flexShrink: 0,
-                }}
-              >
-                {period}
-              </span>
-              <span
-                className="font-body"
-                style={{
-                  fontSize: 15,
-                  color: "var(--ink-primary)",
-                }}
-              >
-                {role}
-              </span>
-            </div>
-          ))}
-        </div>
+              {period}
+            </span>
+            <span
+              className="font-body"
+              style={{
+                fontSize: 15,
+                color: "var(--ink-primary)",
+              }}
+            >
+              {role}
+            </span>
+          </div>
+        ))}
+      </div>
 
-        {/* ── Contact ── */}
-        <div data-reveal style={{ paddingBottom: 72, opacity: 0 }}>
-          <span
-            className="font-mono uppercase block"
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.06em",
-              color: "var(--ink-muted)",
-              marginBottom: 24,
-            }}
-          >
-            Contact
-          </span>
+      {/* ── Contact ── */}
+      <div style={{ marginTop: 48, paddingBottom: 72 }}>
+        <span
+          data-reveal
+          className="font-mono"
+          style={{
+            display: "block",
+            fontSize: 11,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            color: "var(--ink-muted)",
+            marginBottom: 24,
+            opacity: 0,
+          }}
+        >
+          Contact
+        </span>
+
+        <p
+          data-reveal
+          className="font-body"
+          style={{
+            fontSize: 15,
+            color: "var(--ink-primary)",
+            marginBottom: 16,
+            opacity: 0,
+          }}
+        >
+          For work inquiries, reach me at{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="font-body block"
-            style={{
-              fontSize: 15,
-              color: "var(--ink-primary)",
-              marginBottom: 16,
-            }}
+            style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 3 }}
           >
             {CONTACT_EMAIL}
           </a>
-          <div className="flex" style={{ gap: 20 }}>
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono uppercase"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.06em",
-                  color: "var(--ink-muted)",
-                  transition: "color 0.3s var(--ease-swift)",
-                }}
-              >
-                {s.label}
-              </a>
-            ))}
-          </div>
+        </p>
+
+        <div
+          data-reveal
+          style={{
+            display: "flex",
+            gap: 20,
+            flexWrap: "wrap",
+            opacity: 0,
+          }}
+        >
+          {SOCIALS.map((s) => (
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono"
+              style={{
+                fontSize: 11,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--ink-muted)",
+                transition: "color 0.3s var(--ease-swift)",
+              }}
+            >
+              {s.label}
+            </a>
+          ))}
         </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
