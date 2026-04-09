@@ -50,18 +50,22 @@ export default function GhostLetters() {
       className="font-mono hidden md:block"
       style={{
         position: "absolute",
-        bottom: "10vh",
-        left: "-5vw",
+        bottom: "8vh",
+        left: "-3vw",
         fontSize: "clamp(240px, 40vw, 480px)",
-        letterSpacing: "0.02em",
-        lineHeight: 0.85,
-        color: "var(--ink-ghost)",
+        letterSpacing: "-0.02em",
+        lineHeight: 0.82,
+        background: "linear-gradient(180deg, var(--ink-ghost) 0%, var(--ink-whisper) 100%)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
         userSelect: "none",
         pointerEvents: "none",
         opacity: 0,
+        fontWeight: 400,
       }}
     >
-      <span className="hidden md:block">HKJ</span>
+      HKJ
     </div>
   );
 }

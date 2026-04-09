@@ -16,11 +16,11 @@ export default function MarginImage({ src, alt }: MarginImageProps) {
       {src && (
         <motion.div
           key={src}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.85 }}
-          exit={{ opacity: 0, transition: { duration: 0.3, ease: [0.23, 0.88, 0.26, 0.92] } }}
+          initial={{ opacity: 0, scale: 0.96, y: "-48%" }}
+          animate={{ opacity: 0.9, scale: 1, y: "-50%" }}
+          exit={{ opacity: 0, scale: 0.96, y: "-48%", transition: { duration: 0.3, ease: [0.23, 0.88, 0.26, 0.92] } }}
           transition={{
-            duration: 0.5,
+            duration: 0.6,
             ease: [0.23, 0.88, 0.26, 0.92],
           }}
           className="hidden md:block"
@@ -28,7 +28,6 @@ export default function MarginImage({ src, alt }: MarginImageProps) {
             position: "fixed",
             right: 24,
             top: "50%",
-            transform: "translateY(-50%)",
             width: 280,
             zIndex: 5,
             pointerEvents: "none",

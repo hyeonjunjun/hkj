@@ -179,9 +179,8 @@ export default function Waveform() {
         ctx.lineTo(w, centerY);
         const c = st.color;
         ctx.strokeStyle = `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${st.alpha.toFixed(2)})`;
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-        rafRef.current = requestAnimationFrame(frame);
         return;
       }
 
@@ -226,8 +225,18 @@ export default function Waveform() {
 
       const c = st.color;
       ctx.strokeStyle = `rgba(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)},${st.alpha.toFixed(2)})`;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
       ctx.stroke();
+
+      /* secondary ghost line — creates depth/echo effect */
+      ctx.globalAlpha = 0.15;
+      ctx.lineWidth = 4;
+      ctx.filter = "blur(3px)";
+      ctx.stroke();
+      ctx.filter = "none";
+      ctx.globalAlpha = 1;
 
       rafRef.current = requestAnimationFrame(frame);
     }

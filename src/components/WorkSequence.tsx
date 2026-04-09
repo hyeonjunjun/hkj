@@ -161,16 +161,21 @@ export default function WorkSequence() {
                 aria-hidden="true"
                 style={{
                   position: "absolute",
-                  top: -20,
-                  left: 0,
-                  fontSize: "clamp(120px, 15vw, 200px)",
+                  top: -10,
+                  left: -8,
+                  fontSize: "clamp(100px, 12vw, 160px)",
                   lineHeight: 1,
-                  color: isDimmed
+                  letterSpacing: "-0.04em",
+                  background: isDimmed
                     ? "var(--ink-whisper)"
-                    : "var(--ink-whisper)",
+                    : "linear-gradient(180deg, var(--ink-ghost) 0%, var(--ink-whisper) 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
                   pointerEvents: "none",
                   userSelect: "none",
                   zIndex: 0,
+                  transition: "none",
                 }}
               >
                 {piece.number}
@@ -216,12 +221,13 @@ export default function WorkSequence() {
                 className="font-mono"
                 style={{
                   fontSize: "clamp(28px, 3.5vw, 40px)",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1.2,
-                  marginTop: 8,
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.15,
+                  marginTop: 12,
                   position: "relative",
                   zIndex: 1,
                   color: "inherit",
+                  fontWeight: 400,
                 }}
               >
                 {piece.title}

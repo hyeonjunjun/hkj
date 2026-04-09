@@ -94,11 +94,54 @@ export default function Home() {
             overflow: "hidden",
           }}
         >
+          {/* Atmospheric gradient — creates depth, light source from top-right */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(ellipse 80% 60% at 75% 20%, rgba(35,32,28,0.018) 0%, transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+
           <GhostLetters />
+
+          {/* Scroll indicator — subtle animated chevron */}
+          <div
+            data-colophon
+            style={{
+              position: "absolute",
+              bottom: 48,
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <span
+              className="font-mono uppercase"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.12em",
+                color: "var(--ink-ghost)",
+              }}
+            >
+              Scroll
+            </span>
+            <div
+              style={{
+                width: 1,
+                height: 24,
+                background: "linear-gradient(180deg, var(--ink-ghost) 0%, transparent 100%)",
+              }}
+            />
+          </div>
 
           {/* Colophon — bottom right */}
           <div
-            data-colophon
             className="font-mono uppercase"
             style={{
               position: "absolute",
@@ -109,7 +152,22 @@ export default function Home() {
               color: "var(--ink-ghost)",
             }}
           >
-            Design Engineering &middot; New York &middot; 2026
+            Design Engineering · New York · 2026
+          </div>
+
+          {/* HKJ wordmark — top left, anchoring the space */}
+          <div
+            className="font-mono uppercase"
+            style={{
+              position: "absolute",
+              top: 20,
+              left: "clamp(24px, 5vw, 64px)",
+              fontSize: 11,
+              letterSpacing: "0.08em",
+              color: "var(--ink-primary)",
+            }}
+          >
+            HKJ
           </div>
         </section>
 
