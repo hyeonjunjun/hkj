@@ -56,6 +56,18 @@ export default function WorkSequence() {
       );
     });
 
+    // Chrome gradient scroll-linked sheen on project numbers
+    gsap.to(".chrome-text", {
+      backgroundPosition: "100% 100%",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".work-sequence",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1,
+      },
+    });
+
     return () => {
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
