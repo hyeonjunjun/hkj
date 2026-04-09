@@ -9,18 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "var(--bg)",
-        "bg-elevated": "var(--bg-elevated)",
-        fg: "var(--fg)",
-        "fg-2": "var(--fg-2)",
-        "fg-3": "var(--fg-3)",
-        "fg-4": "var(--fg-4)",
-        "accent-warm-1": "var(--accent-warm-1)",
-        "accent-warm-2": "var(--accent-warm-2)",
-        "accent-warm-3": "var(--accent-warm-3)",
-        "accent-cool-1": "var(--accent-cool-1)",
-        "accent-cool-2": "var(--accent-cool-2)",
-        "accent-cool-3": "var(--accent-cool-3)",
+        surface: "var(--surface)",
+        "ink-full": "var(--ink-full)",
+        "ink-primary": "var(--ink-primary)",
+        "ink-secondary": "var(--ink-secondary)",
+        "ink-muted": "var(--ink-muted)",
+        "ink-faint": "var(--ink-faint)",
+        "ink-ghost": "var(--ink-ghost)",
+        "ink-whisper": "var(--ink-whisper)",
       },
       fontFamily: {
         body: ["var(--font-body)"],
@@ -28,10 +24,11 @@ const config: Config = {
         display: ["var(--font-display)"],
       },
       transitionTimingFunction: {
-        ease: "var(--ease)",
+        swift: "var(--ease-swift)",
       },
       screens: {
         mobile: { max: "768px" },
+        tablet: { min: "769px", max: "1024px" },
       },
     },
   },
