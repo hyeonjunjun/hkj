@@ -3,6 +3,9 @@ import localFont from "next/font/local";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
+import Waveform from "@/components/Waveform";
+import NavCoordinates from "@/components/NavCoordinates";
+import PageTransition from "@/components/PageTransition";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -60,10 +63,12 @@ export default function RootLayout({
         className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable}`}
       >
         <RouteAnnouncer />
+        <Waveform />
+        <NavCoordinates />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );
