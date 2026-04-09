@@ -86,9 +86,9 @@ function spawnParticle(w: number, h: number): Particle {
     y,
     vx: Math.cos(angle) * speed,
     vy: Math.sin(angle) * speed - 0.1, // slight upward bias
-    size: 0.8 + Math.random() * 2,
+    size: 1.2 + Math.random() * 2.5,
     life: 1.0,
-    maxLife: 1.5 + Math.random() * 1.5, // 1.5-3 seconds
+    maxLife: 2 + Math.random() * 2, // 2-4 seconds
     edge,
   };
 }
@@ -168,24 +168,28 @@ function runParticleCanvas(
         continue;
       }
 
-      // Fade curve: fade in quickly, linger, fade out
-      const fadeIn = Math.min(p.life * 5, 1); // first 20% of life
-      const fadeOut = Math.min((1 - (1 - p.life)) * 1, p.life);
-      const alpha = Math.min(fadeIn, fadeOut) * 0.7;
+      // Fade curve: quick in, linger, fade out
+      const fadeIn = Math.min((1 - p.life) * 8, 1);
+      const fadeOut = p.life;
+      const alpha = Math.min(fadeIn, fadeOut);
 
-      // Hot core
+      // Hot white core → gold mid → transparent edge
       const grad = ctx.createRadialGradient(
         p.x, p.y, 0,
-        p.x, p.y, p.size * 4
+        p.x, p.y, p.size * 6
       );
-      grad.addColorStop(0, `rgba(${cr + 40}, ${cg + 40}, ${cb + 20}, ${alpha})`);
-      grad.addColorStop(0.25, `rgba(${cr}, ${cg}, ${cb}, ${alpha * 0.5})`);
+      // White-hot center
+      grad.addColorStop(0, `rgba(255, 240, 200, ${alpha * 0.9})`);
+      // Gold mid
+      grad.addColorStop(0.15, `rgba(${Math.min(cr + 60, 255)}, ${Math.min(cg + 50, 255)}, ${cb + 30}, ${alpha * 0.7})`);
+      // Warm falloff
+      grad.addColorStop(0.4, `rgba(${cr}, ${cg}, ${cb}, ${alpha * 0.25})`);
       grad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
 
       ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.size * 6, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalCompositeOperation = "source-over";
     }
@@ -237,25 +241,30 @@ export default function BloomNode({
   }, [noParticles]);
 
   /* ── CSS for the bloom cascade ─────────────────────────── */
+  /* WuWa's active state is BOLD. The element is a lantern.
+     The glow actually illuminates the surrounding void. */
 
   const borderColor = active
-    ? `rgba(196, 162, 101, 0.25)`
+    ? `rgba(196, 162, 101, 0.6)`
     : `rgba(255, 255, 255, 0.06)`;
 
-  const innerGlow = active
-    ? `inset 0 0 30px rgba(196, 162, 101, 0.08), inset 0 0 60px rgba(196, 162, 101, 0.03)`
-    : "none";
-
-  const outerBloom = active
-    ? `0 0 40px 8px rgba(196, 162, 101, 0.06), 0 0 80px 20px rgba(196, 162, 101, 0.03)`
-    : "none";
-
   const combinedShadow = active
-    ? `inset 0 0 30px rgba(196, 162, 101, 0.08), inset 0 0 60px rgba(196, 162, 101, 0.03), 0 0 40px 8px rgba(196, 162, 101, 0.06), 0 0 80px 20px rgba(196, 162, 101, 0.03)`
+    ? [
+        // Inner glow — warm light filling the glass
+        `inset 0 0 20px rgba(196, 162, 101, 0.15)`,
+        `inset 0 0 50px rgba(196, 162, 101, 0.07)`,
+        // Tight outer glow — the bright edge bloom
+        `0 0 15px 2px rgba(196, 162, 101, 0.2)`,
+        // Medium bloom — light radiating outward
+        `0 0 40px 8px rgba(196, 162, 101, 0.12)`,
+        // Wide atmospheric bloom — illuminating the void
+        `0 0 80px 24px rgba(196, 162, 101, 0.06)`,
+        `0 0 120px 40px rgba(196, 162, 101, 0.03)`,
+      ].join(", ")
     : "none";
 
   const cornerColor = active
-    ? `rgba(196, 162, 101, 0.5)`
+    ? `rgba(196, 162, 101, 0.8)`
     : `rgba(255, 255, 255, 0.06)`;
 
   const cs = cornerSize;
@@ -265,8 +274,8 @@ export default function BloomNode({
     border: `1px solid ${borderColor}`,
     boxShadow: combinedShadow,
     transition: active
-      ? "border-color 200ms var(--ease-swift), box-shadow 400ms var(--ease-swift) 100ms"
-      : "border-color 200ms var(--ease-swift), box-shadow 200ms var(--ease-swift)",
+      ? "border-color 200ms var(--ease-swift), box-shadow 500ms var(--ease-swift) 100ms"
+      : "border-color 200ms var(--ease-swift), box-shadow 300ms var(--ease-swift)",
     ...style,
   };
 
@@ -339,6 +348,35 @@ export default function BloomNode({
           transition: "border-color 200ms var(--ease-swift)",
         }}
       />
+
+      {/* Vertical light streak — the WuWa signature line through the element */}
+      {active && (
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "-40%",
+            bottom: "-40%",
+            left: "50%",
+            width: 1,
+            transform: "translateX(-0.5px)",
+            background: `linear-gradient(
+              180deg,
+              transparent 0%,
+              rgba(196, 162, 101, 0.03) 15%,
+              rgba(196, 162, 101, 0.12) 35%,
+              rgba(196, 162, 101, 0.25) 50%,
+              rgba(196, 162, 101, 0.12) 65%,
+              rgba(196, 162, 101, 0.03) 85%,
+              transparent 100%
+            )`,
+            pointerEvents: "none",
+            zIndex: -1,
+            opacity: active ? 1 : 0,
+            transition: "opacity 400ms var(--ease-swift)",
+          }}
+        />
+      )}
 
       {/* Particle canvas — positioned to overflow beyond the border */}
       {!noParticles && (
