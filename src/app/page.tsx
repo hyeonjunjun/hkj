@@ -49,13 +49,11 @@ export default function Home() {
       const targetX = (mouse.x - 0.5) * 2;
       const targetY = (mouse.y - 0.5) * 2;
 
-      /* Spring physics — heavy camera feel with real momentum.
-         stiffness: how hard the spring pulls toward target
-         friction: velocity RETENTION per frame (closer to 1 = more momentum)
-         With friction 0.93, velocity only loses 7% per frame → carries
-         through the target and overshoots, then oscillates back. */
-      const stiffness = 0.08;
-      const friction = 0.93;
+      /* Critically damped spring — weighted but smooth, no overshoot.
+         Low stiffness + high friction = slow acceleration, gradual
+         deceleration, settles exactly at target without bouncing. */
+      const stiffness = 0.018;
+      const friction = 0.82;
 
       velocityRef.current.x += (targetX - panRef.current.x) * stiffness;
       velocityRef.current.y += (targetY - panRef.current.y) * stiffness;
