@@ -49,26 +49,28 @@ export default function Home() {
       const targetX = (mouse.x - 0.5) * 2;
       const targetY = (mouse.y - 0.5) * 2;
 
-      /* Spring physics — gives the pan weight + momentum.
-         Stiffness builds force toward target, damping settles it.
-         Slight overshoot is desirable — that's the "weight." */
-      const stiffness = 0.025;
-      const damping = 0.86;
+      /* Spring physics — heavy camera feel with real momentum.
+         stiffness: how hard the spring pulls toward target
+         friction: velocity RETENTION per frame (closer to 1 = more momentum)
+         With friction 0.93, velocity only loses 7% per frame → carries
+         through the target and overshoots, then oscillates back. */
+      const stiffness = 0.08;
+      const friction = 0.93;
 
       velocityRef.current.x += (targetX - panRef.current.x) * stiffness;
       velocityRef.current.y += (targetY - panRef.current.y) * stiffness;
-      velocityRef.current.x *= damping;
-      velocityRef.current.y *= damping;
+      velocityRef.current.x *= friction;
+      velocityRef.current.y *= friction;
 
       panRef.current.x += velocityRef.current.x;
       panRef.current.y += velocityRef.current.y;
 
       if (sceneRef.current) {
-        /* Scene is scaled 1.2 → 10% overflow each axis available
-           We pan by up to ±5% on X and ±3% on Y (eye tracking feel) */
-        const tx = -panRef.current.x * 5;
-        const ty = -panRef.current.y * 3;
-        sceneRef.current.style.transform = `scale(1.2) translate3d(${tx}%, ${ty}%, 0)`;
+        /* Scene scaled 1.25 → 12.5% overflow each axis.
+           Pan amplitude bumped to ±8% X, ±5% Y so the weight is visible. */
+        const tx = -panRef.current.x * 8;
+        const ty = -panRef.current.y * 5;
+        sceneRef.current.style.transform = `scale(1.25) translate3d(${tx}%, ${ty}%, 0)`;
       }
 
       rafRef.current = requestAnimationFrame(animate);
@@ -106,7 +108,7 @@ export default function Home() {
           inset: 0,
           transformOrigin: "center center",
           willChange: "transform",
-          transform: "scale(1.2)",
+          transform: "scale(1.25)",
         }}
       >
         <video
