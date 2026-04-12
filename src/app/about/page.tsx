@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DUR } from "@/lib/motion";
 
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,7 @@ export default function AboutPage() {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 0.5,
+        duration: DUR.reveal,
         stagger: 0.06,
         ease: "power3.out",
         delay: 0.2,
@@ -117,7 +118,7 @@ export default function AboutPage() {
             opacity: 0,
           }}
         >
-          Experience
+          [EXPERIENCE]
         </span>
 
         {[
@@ -176,7 +177,7 @@ export default function AboutPage() {
             opacity: 0,
           }}
         >
-          Contact
+          [CONTACT]
         </span>
 
         <p

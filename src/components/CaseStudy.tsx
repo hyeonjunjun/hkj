@@ -7,6 +7,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DUR } from "@/lib/motion";
+import ScrollProgress from "@/components/ScrollProgress";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +18,7 @@ interface CaseStudyProps {
   piece: Piece;
 }
 
+// T1.8 — Bracket section labels
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <span
@@ -27,7 +30,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         marginBottom: 24,
       }}
     >
-      {children}
+      [{children}]
     </span>
   );
 }
@@ -63,7 +66,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 0.5,
+        duration: DUR.reveal,
         stagger: 0.07,
         ease: "power3.out",
         delay: 0.1,
@@ -78,7 +81,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
+          duration: DUR.reveal,
           ease: "power3.out",
           scrollTrigger: {
             trigger: heroRef.current,
@@ -98,7 +101,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 0.5,
+          duration: DUR.reveal,
           ease: "power3.out",
           scrollTrigger: {
             trigger: block,
@@ -131,6 +134,9 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
       className="case-study-outer"
       style={{ paddingBottom: 0 }}
     >
+      {/* T1.9 — ScrollProgress ribbon, first child */}
+      <ScrollProgress />
+
       <style>{`
         .case-study-outer {
           --col-max: 900px;
@@ -160,6 +166,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
       `}</style>
 
       {/* ── 1. Metadata bar ── */}
+      {/* T1.8 — Bracketed metadata: [number] / TITLE / [year] / [SECTOR] */}
       <div
         className="case-study-col"
         data-entrance
@@ -176,13 +183,13 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
             color: "var(--ink-muted)",
           }}
         >
-          <span className="chrome-text">{piece.number}</span>
+          [<span className="chrome-text">{piece.number}</span>]
           {" / "}
           {piece.title.toUpperCase()}
           {" / "}
-          {piece.status === "wip" ? "IN PROGRESS" : piece.year}
+          [{piece.status === "wip" ? "IN PROGRESS" : piece.year}]
           {" / "}
-          {piece.sector.toUpperCase()}
+          [{piece.sector.toUpperCase()}]
         </span>
       </div>
 

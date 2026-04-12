@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CONTACT_EMAIL } from "@/constants/contact";
+import { useStore } from "@/store/useStore";
 
 const allPieces = [...PIECES].sort((a, b) => a.order - b.order);
 
@@ -31,12 +32,20 @@ const HOTSPOTS: Hotspot[] = [
 export default function Home() {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
+  const vignetteRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const panRef = useRef({ x: 0, y: 0 });
   const velocityRef = useRef({ x: 0, y: 0 });
+  const frameCountRef = useRef(0);
+
+  const setPan = useStore((s) => s.setPan);
+  const pan = useStore((s) => s.pan);
 
   useEffect(() => {
+    /* Respect reduced motion preference */
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const onMove = (e: MouseEvent) => {
       mouseRef.current.x = e.clientX / window.innerWidth;
       mouseRef.current.y = e.clientY / window.innerHeight;
@@ -50,10 +59,9 @@ export default function Home() {
       const targetY = (mouse.y - 0.5) * 2;
 
       /* Critically damped spring — weighted but smooth, no overshoot.
-         Low stiffness + high friction = slow acceleration, gradual
-         deceleration, settles exactly at target without bouncing. */
-      const stiffness = 0.018;
-      const friction = 0.82;
+         Stiffness 0.05 + friction 0.78 = responsive but still damped. */
+      const stiffness = prefersReduced ? 0 : 0.05;
+      const friction = 0.78;
 
       velocityRef.current.x += (targetX - panRef.current.x) * stiffness;
       velocityRef.current.y += (targetY - panRef.current.y) * stiffness;
@@ -63,12 +71,27 @@ export default function Home() {
       panRef.current.x += velocityRef.current.x;
       panRef.current.y += velocityRef.current.y;
 
+      /* Velocity magnitude for instrumentation + blur */
+      const speed = Math.hypot(velocityRef.current.x, velocityRef.current.y);
+
       if (sceneRef.current) {
         /* Scene scaled 1.25 → 12.5% overflow each axis.
-           Pan amplitude bumped to ±8% X, ±5% Y so the weight is visible. */
-        const tx = -panRef.current.x * 8;
-        const ty = -panRef.current.y * 5;
+           Pan amplitude: ±11% X, ±7% Y so the weight is visible. */
+        const tx = -panRef.current.x * 11;
+        const ty = -panRef.current.y * 7;
         sceneRef.current.style.transform = `scale(1.25) translate3d(${tx}%, ${ty}%, 0)`;
+      }
+
+      /* Velocity-driven atmospheric blur on vignette */
+      if (!prefersReduced && vignetteRef.current) {
+        const blurPx = Math.min(4, speed * 180);
+        vignetteRef.current.style.filter = `blur(${blurPx}px)`;
+      }
+
+      /* Throttle store writes to every 2nd frame to reduce churn */
+      frameCountRef.current += 1;
+      if (frameCountRef.current % 2 === 0) {
+        setPan({ x: panRef.current.x, y: panRef.current.y, speed });
       }
 
       rafRef.current = requestAnimationFrame(animate);
@@ -79,9 +102,21 @@ export default function Home() {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [setPan]);
 
   const hoveredPiece = hoveredSlug ? allPieces.find((p) => p.slug === hoveredSlug) : null;
+  const accentColor = hoveredPiece?.accent && hoveredPiece.accent !== "" ? hoveredPiece.accent : "#C4A265";
+
+  /* Velocity bar for HUD */
+  const barChars = ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"];
+  const barLength = 12;
+  const velIntensity = Math.min(1, pan.speed * 40);
+  const filledCells = Math.round(velIntensity * barLength);
+  const velocityBar = Array.from({ length: barLength }, (_, i) =>
+    i < filledCells ? "█" : "▏"
+  ).join("");
+
+  const hudTransition = "border-color 0.6s var(--ease-swift), background-color 0.6s var(--ease-swift), box-shadow 0.6s var(--ease-swift)";
 
   return (
     <main
@@ -92,7 +127,8 @@ export default function Home() {
         overflow: "hidden",
         position: "relative",
         background: "#0a0a0c",
-      }}
+        "--accent-hover": accentColor,
+      } as React.CSSProperties}
     >
       {/* ════════════════════════════════════════════════════════
           LAYER 0 — The scene
@@ -123,13 +159,13 @@ export default function Home() {
           }}
         />
 
-        {/* Warm atmospheric haze — golden hour push */}
+        {/* Warm atmospheric haze — golden hour push, accent-tinted */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(ellipse 100% 80% at 60% 40%, rgba(196,162,101,0.05) 0%, transparent 60%)",
+              "radial-gradient(ellipse 100% 80% at 60% 40%, color-mix(in oklab, var(--accent-hover) 6%, transparent) 0%, transparent 60%)",
             mixBlendMode: "screen",
             pointerEvents: "none",
           }}
@@ -137,6 +173,7 @@ export default function Home() {
 
         {/* Subtle vignette — edges and bottom darken for HUD readability */}
         <div
+          ref={vignetteRef}
           style={{
             position: "absolute",
             inset: 0,
@@ -191,7 +228,7 @@ export default function Home() {
                   transition: "all 0.4s cubic-bezier(.23,.88,.26,.92)",
                 }}
               >
-                {/* Pulsing outer ring */}
+                {/* Inner pulsing ring */}
                 <span
                   aria-hidden="true"
                   style={{
@@ -199,7 +236,7 @@ export default function Home() {
                     inset: -5,
                     borderRadius: "50%",
                     border: "1px solid rgba(196,162,101,0.3)",
-                    animation: "hotspot-pulse 2.8s ease-in-out infinite",
+                    animation: "hotspot-pulse 1.8s ease-in-out infinite",
                   }}
                 />
                 {/* Second ring for depth */}
@@ -210,13 +247,24 @@ export default function Home() {
                     inset: -12,
                     borderRadius: "50%",
                     border: "1px solid rgba(196,162,101,0.12)",
-                    animation: "hotspot-pulse 2.8s ease-in-out 0.6s infinite",
+                    animation: "hotspot-pulse 2.0s ease-in-out 0.6s infinite",
+                  }}
+                />
+                {/* Third ring — subtle far pulse */}
+                <span
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: -20,
+                    borderRadius: "50%",
+                    border: "1px solid rgba(196,162,101,0.06)",
+                    animation: "hotspot-pulse 2.2s ease-in-out 1.2s infinite",
                   }}
                 />
               </Link>
 
               {/* Editorial label — appears on hover */}
-              {isHovered && <HotspotLabel piece={piece} side={hotspot.labelSide} />}
+              {isHovered && <HotspotLabel piece={piece} side={hotspot.labelSide} accentColor={accentColor} />}
             </div>
           );
         })}
@@ -226,25 +274,27 @@ export default function Home() {
           LAYER 2 — Glass HUD (fixed viewport position)
           ════════════════════════════════════════════════════════ */}
 
-      {/* Top-left: HKJ wordmark */}
-      <div
-        style={{
-          position: "fixed",
-          top: "clamp(20px, 3vh, 32px)",
-          left: "clamp(28px, 3.5vw, 52px)",
-          zIndex: 60,
-        }}
-      >
-        <span
-          className="font-mono uppercase"
-          style={{
-            fontSize: 12,
-            letterSpacing: "0.14em",
-            color: "rgba(255,255,255,0.9)",
-          }}
-        >
-          HKJ
-        </span>
+      {/* Top-left: HKJ wordmark — promoted to hero element */}
+      <div style={{ position: "fixed", top: "clamp(20px, 3vh, 32px)", left: "clamp(28px, 3.5vw, 52px)", zIndex: 60 }}>
+        <div className="font-mono uppercase" style={{
+          fontSize: 9,
+          letterSpacing: "0.14em",
+          color: "rgba(255,255,255,0.35)",
+          marginBottom: 4,
+        }}>
+          [HKJ_01_26 // STUDIO / NY]
+        </div>
+        <h1 className="font-display italic" style={{
+          fontSize: "clamp(28px, 2.6vw, 38px)",
+          fontWeight: 400,
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          color: "rgba(255,255,255,0.96)",
+          textShadow: "0 0 40px rgba(196,162,101,0.12)",
+          margin: 0,
+        }}>
+          Hyeon Jun
+        </h1>
       </div>
 
       {/* Bottom-left: Identity panel */}
@@ -258,15 +308,26 @@ export default function Home() {
           background: "rgba(10,10,12,0.28)",
           backdropFilter: "blur(18px) saturate(1.15)",
           WebkitBackdropFilter: "blur(18px) saturate(1.15)",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: `1px solid color-mix(in oklab, var(--accent-hover) 8%, rgba(255,255,255,0.05))`,
           display: "flex",
           flexDirection: "column",
           gap: 6,
+          transition: hudTransition,
         }}
       >
         {/* Corner registration marks */}
-        <HudCorners />
+        <HudCorners color="color-mix(in oklab, var(--accent-hover) 40%, transparent)" />
 
+        <span
+          className="font-mono uppercase"
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.14em",
+            color: "rgba(255,255,255,0.35)",
+          }}
+        >
+          [DESIGN_ENGINEER // NY]
+        </span>
         <span
           className="font-display italic"
           style={{
@@ -277,16 +338,6 @@ export default function Home() {
           }}
         >
           Hyeon Jun
-        </span>
-        <span
-          className="font-mono uppercase"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.14em",
-            color: "rgba(255,255,255,0.35)",
-          }}
-        >
-          Design Engineer · New York
         </span>
         <a
           href={`mailto:${CONTACT_EMAIL}`}
@@ -305,7 +356,7 @@ export default function Home() {
         </a>
       </div>
 
-      {/* Bottom-right: System readout */}
+      {/* Bottom-right: Live instrumentation HUD */}
       <div
         style={{
           position: "fixed",
@@ -316,48 +367,75 @@ export default function Home() {
           background: "rgba(10,10,12,0.28)",
           backdropFilter: "blur(18px) saturate(1.15)",
           WebkitBackdropFilter: "blur(18px) saturate(1.15)",
-          border: "1px solid rgba(255,255,255,0.05)",
+          border: `1px solid color-mix(in oklab, var(--accent-hover) 8%, rgba(255,255,255,0.05))`,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
           gap: 4,
-          minWidth: 160,
+          minWidth: 190,
+          transition: hudTransition,
         }}
       >
-        <HudCorners />
+        <HudCorners color="color-mix(in oklab, var(--accent-hover) 40%, transparent)" />
 
-        <span
-          className="font-mono uppercase"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.14em",
-            color: "rgba(255,255,255,0.35)",
-          }}
-        >
-          Environment
-        </span>
-        <span
+        {/* Row 1: PAN readout */}
+        <div
           className="font-mono"
           style={{
-            fontSize: 11,
-            letterSpacing: "0.04em",
-            color: "rgba(255,255,255,0.75)",
+            fontSize: 10,
+            letterSpacing: "0.06em",
             fontVariantNumeric: "tabular-nums",
+            display: "flex",
+            gap: 6,
+            alignItems: "baseline",
           }}
         >
-          Clouds at Sea
-        </span>
-        <span
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>[PAN]</span>
+          <span style={{ color: "rgba(255,255,255,0.75)" }}>
+            [X {pan.x >= 0 ? "+" : ""}{pan.x.toFixed(2)} // Y {pan.y >= 0 ? "+" : ""}{pan.y.toFixed(2)}]
+          </span>
+        </div>
+
+        {/* Row 2: VEL bar */}
+        <div
+          className="font-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.02em",
+            fontVariantNumeric: "tabular-nums",
+            display: "flex",
+            gap: 6,
+            alignItems: "baseline",
+          }}
+        >
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>[VEL]</span>
+          <span style={{ color: "rgba(255,255,255,0.75)" }}>{velocityBar}</span>
+        </div>
+
+        {/* Row 3: SIG count — warms to accent on hover */}
+        <div
           className="font-mono uppercase"
           style={{
             fontSize: 9,
             letterSpacing: "0.14em",
-            color: "rgba(196,162,101,0.5)",
+            display: "flex",
+            gap: 6,
+            alignItems: "baseline",
             marginTop: 2,
           }}
         >
-          {String(HOTSPOTS.length).padStart(2, "0")} Signals Detected
-        </span>
+          <span style={{ color: "rgba(255,255,255,0.35)" }}>[SIG]</span>
+          <span
+            style={{
+              color: hoveredPiece?.accent && hoveredPiece.accent !== ""
+                ? hoveredPiece.accent
+                : "rgba(196,162,101,0.5)",
+              transition: "color 0.6s",
+            }}
+          >
+            {String(HOTSPOTS.length).padStart(2, "0")} Detected
+          </span>
+        </div>
       </div>
 
       {/* Bottom-center: Contextual prompt */}
@@ -372,17 +450,18 @@ export default function Home() {
           background: "rgba(10,10,12,0.35)",
           backdropFilter: "blur(18px) saturate(1.15)",
           WebkitBackdropFilter: "blur(18px) saturate(1.15)",
-          border: "1px solid rgba(196,162,101,0.18)",
+          border: `1px solid color-mix(in oklab, var(--accent-hover) 18%, transparent)`,
           display: "flex",
           alignItems: "center",
           gap: 14,
           minWidth: 320,
           justifyContent: "center",
+          transition: hudTransition,
         }}
       >
-        <HudCorners color="rgba(196,162,101,0.55)" />
+        <HudCorners color="color-mix(in oklab, var(--accent-hover) 55%, transparent)" />
 
-        <span style={{ width: 18, height: 1, background: "rgba(196,162,101,0.35)" }} />
+        <span style={{ width: 18, height: 1, background: "color-mix(in oklab, var(--accent-hover) 35%, transparent)" }} />
         <span
           className="font-mono uppercase"
           style={{
@@ -393,10 +472,10 @@ export default function Home() {
           }}
         >
           {hoveredPiece
-            ? `Click ● to Enter ${hoveredPiece.title}`
-            : "Move to Explore · Hover a Signal"}
+            ? `[→ CLICK TO ENTER {${hoveredPiece.title.toUpperCase()}}]`
+            : "[+ MOVE TO EXPLORE]"}
         </span>
-        <span style={{ width: 18, height: 1, background: "rgba(196,162,101,0.35)" }} />
+        <span style={{ width: 18, height: 1, background: "color-mix(in oklab, var(--accent-hover) 35%, transparent)" }} />
       </div>
 
       {/* ════════════════════════════════════════════════════════
@@ -408,8 +487,8 @@ export default function Home() {
           50% { opacity: 0.75; transform: scale(1.5); }
         }
         @keyframes label-emerge {
-          0% { opacity: 0; transform: scale(0.96); }
-          100% { opacity: 1; transform: scale(1); }
+          0% { opacity: 0; transform: scale(0.90); filter: blur(4px); }
+          100% { opacity: 1; transform: scale(1); filter: blur(0); }
         }
       `}</style>
     </main>
@@ -439,7 +518,7 @@ function HudCorners({ color = "rgba(196,162,101,0.4)" }: { color?: string }) {
 /* ════════════════════════════════════════════════════════════
    Editorial hotspot label with thin connecting line
    ════════════════════════════════════════════════════════════ */
-function HotspotLabel({ piece, side }: { piece: Piece; side: LabelSide }) {
+function HotspotLabel({ piece, side, accentColor }: { piece: Piece; side: LabelSide; accentColor: string }) {
   const LINE_LEN = 56;
   const LABEL_OFFSET = 80;
 
@@ -492,7 +571,7 @@ function HotspotLabel({ piece, side }: { piece: Piece; side: LabelSide }) {
       style={{
         position: "absolute",
         pointerEvents: "none",
-        animation: "label-emerge 0.4s cubic-bezier(.23,.88,.26,.92) forwards",
+        animation: "label-emerge 0.5s cubic-bezier(.2, .9, .2, 1) forwards",
         transformOrigin: "center",
         ...wrapperStyle[side],
       }}
@@ -519,7 +598,7 @@ function HotspotLabel({ piece, side }: { piece: Piece; side: LabelSide }) {
             style={{
               fontSize: 9,
               letterSpacing: "0.1em",
-              color: "var(--gold, #C4A265)",
+              color: accentColor,
               fontVariantNumeric: "tabular-nums",
             }}
           >
@@ -559,7 +638,7 @@ function HotspotLabel({ piece, side }: { piece: Piece; side: LabelSide }) {
           }}
         >
           {piece.status === "wip" ? "WIP · " : ""}
-          {piece.year} · Click to Enter
+          {piece.year} · [→ CLICK TO ENTER]
         </div>
 
         {/* Connecting line back to hotspot */}
