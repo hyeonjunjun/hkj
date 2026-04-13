@@ -8,8 +8,6 @@ import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DUR } from "@/lib/motion";
-import ScrollProgress from "@/components/ScrollProgress";
-
 gsap.registerPlugin(ScrollTrigger);
 
 const allPieces = [...PIECES].sort((a, b) => a.order - b.order);
@@ -126,9 +124,6 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
       className="case-study-outer"
       style={{ paddingBottom: 0 }}
     >
-      {/* T1.9 — ScrollProgress ribbon, first child */}
-      <ScrollProgress />
-
       <style>{`
         .case-study-outer {
           --col-max: 900px;

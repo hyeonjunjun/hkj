@@ -6,7 +6,6 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
 import NavCoordinates from "@/components/NavCoordinates";
 import PageTransition from "@/components/PageTransition";
-import Reticle from "@/components/Reticle";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -66,7 +65,6 @@ export default function RootLayout({
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />
-        <Reticle />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>

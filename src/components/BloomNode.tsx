@@ -174,83 +174,99 @@ function runBloomCanvas(
       /* ── Phase 1: Initial bounce (0-0.8s)
            Fast energy pulse — large displacement that decays
          ── Phase 2: Calm flow (0.8s+)
-           Gentle sine undulation traveling along the border */
+           Multi-line overlapping undulation with additive blending */
 
       /* ── BOUNCE: one clean pulse that decays exponentially ── */
       const bounceDecay = Math.exp(-timeSinceActive * 5); // fast exp decay
       const bounceAmp = bounceDecay * 2.5;
       const bounceFreq = 8;
 
-      /* ── CALM FLOW: barely perceptible breathing ── */
-      const calmAmp = 0.6; // subtle — the line breathes, not waves
-      const calmSpeed = 0.25; // very slow traveling wave
-      const calmWaveLen = 0.2;
-
       /* ── BRIGHT SEGMENT: tight, intense highlight ── */
       const brightPos = (time * 0.04) % 1.0; // very slow sweep
       const brightWidth = 0.12; // 12% of perimeter — concentrated
 
+      /* ── Multi-line configs: overlapping semi-transparent strokes ── */
+      const LINE_CONFIGS = [
+        { ampScale: 1.0,  phaseSpeed: 0.25, phaseOffset: 0.0,  alpha: 0.30, width: 2.0, blur: 3 },
+        { ampScale: 0.7,  phaseSpeed: 0.18, phaseOffset: 1.8,  alpha: 0.22, width: 2.5, blur: 4 },
+        { ampScale: 1.3,  phaseSpeed: 0.32, phaseOffset: 3.6,  alpha: 0.18, width: 1.5, blur: 2 },
+        { ampScale: 0.5,  phaseSpeed: 0.14, phaseOffset: 5.2,  alpha: 0.12, width: 3.0, blur: 5 },
+      ];
+
+      /* ── Triple-sine displacement (pseudo-noise) ── */
+      function displacement(t: number, config: typeof LINE_CONFIGS[0]): number {
+        const baseAmp = 1.2 * config.ampScale;
+        const wave1 = Math.sin(t * 31.4 + time * config.phaseSpeed * 6.28 + config.phaseOffset);
+        const wave2 = Math.sin(t * 17.7 + time * config.phaseSpeed * 4.10 + config.phaseOffset * 1.3) * 0.6;
+        const wave3 = Math.sin(t * 53.1 + time * config.phaseSpeed * 2.73 + config.phaseOffset * 0.7) * 0.3;
+        const bounceWave = Math.sin(t * 20 + time * bounceFreq);
+        return (wave1 + wave2 + wave3) * baseAmp + bounceWave * bounceAmp;
+      }
+
       ctx.save();
       ctx.translate(PAD, PAD);
+
+      /* ── Draw all 4 lines with additive blending ── */
+      ctx.globalCompositeOperation = "lighter";
+
+      for (const config of LINE_CONFIGS) {
+        ctx.filter = `blur(${config.blur}px)`;
+        ctx.lineWidth = config.width;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${config.alpha})`;
+
+        ctx.beginPath();
+        for (let seg = 0; seg <= SAMPLES; seg++) {
+          const t = seg / SAMPLES;
+          const p = getPerimeterPoint(t, w, h);
+          const disp = displacement(t, config);
+          const x = p.x + p.nx * disp;
+          const y = p.y + p.ny * disp;
+          if (seg === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      /* ── Bright segment overlay pass ── */
+      ctx.filter = "blur(6px)";
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = "round";
 
       for (let seg = 0; seg < SAMPLES; seg++) {
         const t0 = seg / SAMPLES;
         const t1 = (seg + 1) / SAMPLES;
 
+        let dist = Math.abs(t0 - brightPos);
+        if (dist > 0.5) dist = 1 - dist;
+        if (dist > brightWidth / 2) continue; // outside bright window
+
+        const brightRaw = Math.max(0, 1 - dist / (brightWidth / 2));
+        const smoothBright = brightRaw * brightRaw * (3 - 2 * brightRaw);
+
         const p0 = getPerimeterPoint(t0, w, h);
         const p1 = getPerimeterPoint(t1, w, h);
 
-        // Displacement: subtle calm wave + decaying bounce
-        const calmWave = Math.sin(t0 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
-        const bounceWave = Math.sin(t0 * 20 + time * bounceFreq);
-        const disp0 = calmWave * calmAmp + bounceWave * bounceAmp;
-
-        const calmWave1 = Math.sin(t1 * (1 / calmWaveLen) * Math.PI * 2 - time * calmSpeed * Math.PI * 2);
-        const bounceWave1 = Math.sin(t1 * 20 + time * bounceFreq);
-        const disp1 = calmWave1 * calmAmp + bounceWave1 * bounceAmp;
+        // Use first config for bright segment displacement
+        const disp0 = displacement(t0, LINE_CONFIGS[0]);
+        const disp1 = displacement(t1, LINE_CONFIGS[0]);
 
         const x0 = p0.x + p0.nx * disp0;
         const y0 = p0.y + p0.ny * disp0;
         const x1 = p1.x + p1.nx * disp1;
         const y1 = p1.y + p1.ny * disp1;
 
-        // Brightness: tight smooth falloff from bright segment
-        let dist = Math.abs(t0 - brightPos);
-        if (dist > 0.5) dist = 1 - dist;
-        const brightRaw = Math.max(0, 1 - dist / (brightWidth / 2));
-        const smoothBright = brightRaw * brightRaw * (3 - 2 * brightRaw);
-
-        // Dim border is nearly invisible, bright segment pops
-        const baseAlpha = 0.08;
-        const peakAlpha = 0.9;
-        const alpha = baseAlpha + smoothBright * (peakAlpha - baseAlpha);
-
-        // Color shifts from cool dim white to warm bright gold
-        const r = Math.round(255 - smoothBright * (255 - cr));
-        const g = Math.round(255 - smoothBright * (255 - cg));
-        const b = Math.round(255 - smoothBright * (255 - cb));
-
-        // Uniform thin line — brightness does the work, not width
         ctx.beginPath();
         ctx.moveTo(x0, y0);
         ctx.lineTo(x1, y1);
-        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.lineWidth = 1;
-        ctx.lineCap = "round";
+        ctx.strokeStyle = `rgba(255, 240, 200, ${smoothBright * 0.5})`;
         ctx.stroke();
-
-        // Soft glow halo ONLY on the brightest portion
-        if (smoothBright > 0.3) {
-          ctx.beginPath();
-          ctx.moveTo(x0, y0);
-          ctx.lineTo(x1, y1);
-          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${smoothBright * 0.12})`;
-          ctx.lineWidth = 8;
-          ctx.filter = "blur(4px)";
-          ctx.stroke();
-          ctx.filter = "none";
-        }
       }
+
+      /* ── Reset blending and filter ── */
+      ctx.filter = "none";
+      ctx.globalCompositeOperation = "source-over";
 
       // Corner accent — tiny bright points at the 4 vertices
       const corners = [
