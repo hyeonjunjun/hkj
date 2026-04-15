@@ -1,279 +1,331 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { PIECES } from "@/constants/pieces";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const allPieces = [...PIECES].sort((a, b) => a.order - b.order);
 
-const mono: React.CSSProperties = {
-  fontFamily: "var(--font-mono)",
-  fontSize: 9,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-};
-
-/* Visual identity per project — flat color panels with centered mark */
-const CARD_STYLES: Record<string, { bg: string; fg: string; mark: string }> = {
-  gyeol: { bg: "#1a1a1a", fg: "#fafafa", mark: "T//" },
-  sift: { bg: "#efefef", fg: "#1a1a1a", mark: "◆" },
-  promptineer: { bg: "#d93b3b", fg: "#1a1a1a", mark: "///" },
-  "clouds-at-sea": { bg: "#1a1a1a", fg: "#fafafa", mark: "X" },
+/* Curated aspect ratios for masonry — varied, intentional */
+const ASPECT: Record<string, string> = {
+  gyeol: "4 / 5",
+  sift: "3 / 4",
+  promptineer: "5 / 4",
+  "clouds-at-sea": "16 / 10",
 };
 
 export default function Home() {
-  const [active, setActive] = useState(0);
-  const total = allPieces.length;
-
-  const next = useCallback(() => setActive((i) => (i + 1) % total), [total]);
-  const prev = useCallback(() => setActive((i) => (i - 1 + total) % total), [total]);
+  const mainRef = useRef<HTMLElement>(null);
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-    };
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) < 20 && Math.abs(e.deltaY) < 20) return;
-      if (timer) return;
-      if (e.deltaX > 0 || e.deltaY > 0) next();
-      else prev();
-      timer = setTimeout(() => { timer = null; }, 400);
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("wheel", onWheel, { passive: true });
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("wheel", onWheel);
-      if (timer) clearTimeout(timer);
-    };
-  }, [next, prev]);
-
-  const activePiece = allPieces[active];
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.from("[data-reveal]", {
+        opacity: 0,
+        y: 20,
+        duration: 0.8,
+        stagger: 0.08,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+      gsap.utils.toArray<HTMLElement>("[data-tile]").forEach((el, i) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 30,
+          duration: 0.7,
+          delay: i * 0.05,
+          ease: "power2.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        });
+      });
+    }, mainRef);
+    return () => ctx.revert();
+  }, []);
 
   return (
     <main
+      ref={mainRef}
       id="main"
-      style={{
-        position: "relative",
-        minHeight: "100svh",
-        overflow: "hidden",
-      }}
+      style={{ position: "relative", zIndex: 1 }}
     >
-      {/* ── Carousel stage ── */}
+      {/* ════════ HERO ════════ */}
       <section
         style={{
-          position: "absolute",
-          inset: 0,
+          minHeight: "100svh",
+          padding: "clamp(80px, 12vh, 160px) clamp(24px, 5vw, 80px) 48px",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           justifyContent: "center",
-          perspective: "1400px",
+          maxWidth: 1400,
+          margin: "0 auto",
         }}
       >
+        {/* Small introduction kicker */}
         <div
+          data-reveal
           style={{
-            position: "relative",
-            width: "min(80vw, 1000px)",
-            height: "min(48vw, 560px)",
-            transformStyle: "preserve-3d",
+            fontFamily: "var(--font-mono)",
+            fontSize: 11,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--ink-muted)",
+            marginBottom: 40,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
           }}
         >
-          {allPieces.map((piece, i) => {
-            const offset = i - active;
-            const abs = Math.abs(offset);
-            const style = CARD_STYLES[piece.slug] ?? {
-              bg: "#1a1a1a",
-              fg: "#fafafa",
-              mark: piece.number,
-            };
-            /* Cards to the side get tilted + pushed back */
-            const translateX = offset * 62;
-            const translateZ = -abs * 260;
-            const rotateY = offset * -24;
-            const opacity = abs > 2 ? 0 : 1 - abs * 0.25;
-
-            return (
-              <Link
-                key={piece.slug}
-                href={`/work/${piece.slug}`}
-                onMouseEnter={() => setActive(i)}
-                aria-label={piece.title}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  transform: `translate3d(${translateX}%, 0, ${translateZ}px) rotateY(${rotateY}deg)`,
-                  transition: "transform 0.7s cubic-bezier(.2,.8,.2,1), opacity 0.5s ease",
-                  transformOrigin: "center center",
-                  opacity,
-                  pointerEvents: abs > 1 ? "none" : "auto",
-                  zIndex: 10 - abs,
-                }}
-              >
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    background: style.bg,
-                    borderRadius: 4,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: abs === 0
-                      ? "0 40px 80px -20px rgba(0,0,0,0.4)"
-                      : "0 20px 40px -20px rgba(0,0,0,0.2)",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "clamp(48px, 8vw, 120px)",
-                      fontWeight: 700,
-                      color: style.fg,
-                      letterSpacing: "-0.04em",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {style.mark}
-                  </span>
-
-                  {/* Corner marks */}
-                  <span style={{ ...mono, position: "absolute", top: 12, left: 12, color: style.fg, opacity: 0.4 }}>
-                    CH# {piece.number}
-                  </span>
-                  <span style={{ ...mono, position: "absolute", top: 12, right: 12, color: style.fg, opacity: 0.4 }}>
-                    {piece.year}
-                  </span>
-                  <span style={{ ...mono, position: "absolute", bottom: 12, left: 12, color: style.fg, opacity: 0.4 }}>
-                    {piece.title.replace(/_$/, "")}
-                  </span>
-                  <span style={{ ...mono, position: "absolute", bottom: 12, right: 12, color: style.fg, opacity: 0.4 }}>
-                    {piece.status === "wip" ? "WIP" : "LIVE"}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── Caption beneath carousel ── */}
-      <section
-        style={{
-          position: "absolute",
-          bottom: "calc(16vh)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          textAlign: "center",
-          zIndex: 20,
-          pointerEvents: "none",
-          maxWidth: "min(90vw, 640px)",
-        }}
-      >
-        <div style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 16,
-          marginBottom: 12,
-        }}>
-          {allPieces.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              aria-label={`Go to project ${i + 1}`}
-              style={{
-                width: i === active ? 20 : 6,
-                height: 2,
-                background: i === active ? "var(--nd-1100)" : "var(--nd-600)",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                transition: "width 0.4s var(--ease)",
-                pointerEvents: "auto",
-              }}
-            />
-          ))}
+          <span
+            aria-hidden
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "#4ade80",
+              display: "inline-block",
+              animation: "pulse 2s ease-in-out infinite",
+            }}
+          />
+          Available for select projects — 2026
         </div>
 
-        <h1 style={{
-          fontFamily: "var(--font-body)",
-          fontSize: "clamp(18px, 1.8vw, 28px)",
-          fontWeight: 600,
-          color: "var(--nd-1100)",
-          letterSpacing: "-0.02em",
-          lineHeight: 1.3,
-          margin: 0,
-        }}>
-          {activePiece.title.replace(/_$/, "")}
+        {/* The big statement — human, with a touch of italic for warmth */}
+        <h1
+          data-reveal
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "clamp(40px, 6.5vw, 108px)",
+            fontWeight: 400,
+            lineHeight: 1.02,
+            letterSpacing: "-0.035em",
+            color: "var(--ink)",
+            margin: 0,
+            maxWidth: "18ch",
+          }}
+        >
+          I&apos;m{" "}
+          <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400 }}>
+            Hyeon
+          </span>
+          ,
+          <br />
+          a design engineer building brands and digital artifacts in New York.
         </h1>
 
-        <p style={{
-          fontFamily: "var(--font-body)",
-          fontSize: 13,
-          color: "var(--nd-700)",
-          lineHeight: 1.4,
-          margin: "8px auto 0",
-          maxWidth: "46ch",
-        }}>
-          {activePiece.description}
-        </p>
+        {/* Currently working on — dated, specific, human */}
+        <div
+          data-reveal
+          style={{
+            marginTop: 56,
+            maxWidth: 560,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 10,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "var(--ink-faint)",
+            }}
+          >
+            Currently
+          </span>
+          <p
+            style={{
+              fontSize: 16,
+              lineHeight: 1.55,
+              color: "var(--ink-muted)",
+              margin: 0,
+            }}
+          >
+            Exploring creative direction, brand identity, and visual systems
+            generated with AI — treating the model as a collaborator, not a
+            shortcut. Writing about what I learn at{" "}
+            <Link
+              href="/archive"
+              style={{
+                color: "var(--ink)",
+                textDecoration: "underline",
+                textDecorationThickness: 1,
+                textUnderlineOffset: 3,
+              }}
+            >
+              the archive
+            </Link>
+            .
+          </p>
+        </div>
 
-        <div style={{ ...mono, marginTop: 16, color: "var(--nd-700)" }}>
-          {activePiece.sector}&nbsp;&nbsp;/&nbsp;&nbsp;{String(active + 1).padStart(2, "0")} of {String(total).padStart(2, "0")}
+        {/* Scroll indicator */}
+        <div
+          data-reveal
+          style={{
+            marginTop: "auto",
+            paddingTop: 80,
+            fontFamily: "var(--font-mono)",
+            fontSize: 10,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "var(--ink-faint)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span>Selected work</span>
+          <span aria-hidden>↓</span>
         </div>
       </section>
 
-      {/* ── Side arrow hints ── */}
-      <button
-        onClick={prev}
-        aria-label="Previous project"
+      {/* ════════ MASONRY GRID ════════ */}
+      <section
         style={{
-          position: "fixed",
-          left: 16,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 40,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          fontFamily: "var(--font-mono)",
-          fontSize: 16,
-          color: "var(--nd-700)",
-          padding: 12,
-          transition: "color 0.15s var(--ease)",
+          padding: "0 clamp(24px, 5vw, 80px) 160px",
+          maxWidth: 1400,
+          margin: "0 auto",
+          columnCount: 2,
+          columnGap: "clamp(16px, 2.5vw, 32px)",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--nd-1100)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--nd-700)"; }}
+        className="masonry"
       >
-        ←
-      </button>
-      <button
-        onClick={next}
-        aria-label="Next project"
+        {allPieces.map((piece, i) => {
+          const isHovered = hoveredSlug === piece.slug;
+          const isDimmed = hoveredSlug !== null && !isHovered;
+          return (
+            <Link
+              key={piece.slug}
+              href={`/work/${piece.slug}`}
+              data-tile
+              onMouseEnter={() => setHoveredSlug(piece.slug)}
+              onMouseLeave={() => setHoveredSlug(null)}
+              style={{
+                display: "block",
+                breakInside: "avoid",
+                marginBottom: "clamp(16px, 2.5vw, 32px)",
+                opacity: isDimmed ? 0.4 : 1,
+                transition: "opacity 0.3s var(--ease)",
+              }}
+            >
+              {/* Image */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  aspectRatio: ASPECT[piece.slug] ?? "4 / 5",
+                  overflow: "hidden",
+                  background: "var(--ink-ghost)",
+                  borderRadius: 2,
+                }}
+              >
+                {piece.image ? (
+                  <Image
+                    src={piece.image}
+                    alt={piece.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{
+                      objectFit: "cover",
+                      transform: isHovered ? "scale(1.02)" : "scale(1)",
+                      transition: "transform 0.6s var(--ease)",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 11,
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      color: "var(--ink-faint)",
+                    }}
+                  >
+                    {piece.status === "wip" ? "In progress" : piece.title}
+                  </div>
+                )}
+              </div>
+
+              {/* Caption — under each tile, minimal */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginTop: 12,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                <span style={{ color: "var(--ink)", fontWeight: 500 }}>
+                  <span style={{ color: "var(--ink-faint)", marginRight: 10 }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {piece.title.replace(/_$/, "")}
+                </span>
+                <span style={{ color: "var(--ink-muted)" }}>
+                  {piece.sector}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </section>
+
+      {/* ════════ FOOTER ════════ */}
+      <footer
         style={{
-          position: "fixed",
-          right: 16,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 40,
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
+          padding: "48px clamp(24px, 5vw, 80px)",
+          maxWidth: 1400,
+          margin: "0 auto",
+          borderTop: "1px solid var(--ink-ghost)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          flexWrap: "wrap",
+          gap: 16,
           fontFamily: "var(--font-mono)",
-          fontSize: 16,
-          color: "var(--nd-700)",
-          padding: 12,
-          transition: "color 0.15s var(--ease)",
+          fontSize: 11,
+          letterSpacing: "0.04em",
+          color: "var(--ink-muted)",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--nd-1100)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--nd-700)"; }}
       >
-        →
-      </button>
+        <a
+          href="mailto:hyeonjunjun07@gmail.com"
+          style={{ color: "var(--ink)" }}
+        >
+          hyeonjunjun07@gmail.com
+        </a>
+        <span>© {new Date().getFullYear()} Hyeon Jun — New York</span>
+      </footer>
+
+      {/* Mobile: single column masonry */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(0.85); }
+        }
+        @media (max-width: 768px) {
+          .masonry { column-count: 1 !important; }
+        }
+        @media (min-width: 1200px) {
+          .masonry { column-count: 3 !important; }
+        }
+      `}</style>
     </main>
   );
 }
