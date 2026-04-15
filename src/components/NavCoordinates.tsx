@@ -22,45 +22,79 @@ export default function NavCoordinates() {
         fontSize: 11,
         letterSpacing: "0.04em",
         pointerEvents: "none",
-        mixBlendMode: "difference",
       }}
     >
       <Link
         href="/"
         style={{
-          color: "#fff",
+          fontFamily: "var(--font-mono)",
+          fontSize: 11,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "var(--ink)",
           textDecoration: "none",
           pointerEvents: "auto",
+          transition: "opacity 0.15s var(--ease)",
         }}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.6")}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
       >
-        Hyeon Jun
+        HKJ
       </Link>
       <div style={{ display: "flex", gap: 24, pointerEvents: "auto" }}>
-        <Link
-          href="/about"
-          style={{
-            color: pathname === "/about" ? "#fff" : "#888",
-            transition: "color 0.15s var(--ease)",
-          }}
-        >
-          About
+        <Link href="/about" className={`nav-link${pathname === "/about" ? " is-active" : ""}`}>
+          <span className="nav-link-arrow" aria-hidden>→</span>
+          <span className="nav-link-text">About</span>
         </Link>
-        <Link
-          href="/archive"
-          style={{
-            color: pathname === "/archive" ? "#fff" : "#888",
-            transition: "color 0.15s var(--ease)",
-          }}
-        >
-          Archive
+        <Link href="/" className={`nav-link${pathname === "/" ? " is-active" : ""}`}>
+          <span className="nav-link-arrow" aria-hidden>→</span>
+          <span className="nav-link-text">Work</span>
         </Link>
-        <a
-          href="mailto:hyeonjunjun07@gmail.com"
-          style={{ color: "#888", transition: "color 0.15s var(--ease)" }}
-        >
-          Contact
+        <a href="mailto:hyeonjunjun07@gmail.com" className="nav-link">
+          <span className="nav-link-arrow" aria-hidden>→</span>
+          <span className="nav-link-text">Contact</span>
         </a>
       </div>
+      <style jsx>{`
+        .nav-link {
+          display: inline-flex;
+          align-items: baseline;
+          color: var(--ink-muted);
+          text-decoration: none;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.04em;
+          transition: color 200ms var(--ease);
+        }
+        .nav-link.is-active {
+          color: var(--ink);
+        }
+        .nav-link:hover {
+          color: var(--ink);
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          text-decoration-thickness: 1px;
+        }
+        .nav-link-arrow {
+          display: inline-block;
+          overflow: hidden;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--ink);
+          opacity: 0;
+          width: 0;
+          margin-right: 0;
+          transform: translateX(-4px);
+          transition: opacity 200ms var(--ease), width 200ms var(--ease),
+            margin-right 200ms var(--ease), transform 200ms var(--ease);
+        }
+        .nav-link:hover .nav-link-arrow {
+          opacity: 1;
+          width: 1em;
+          margin-right: 6px;
+          transform: translateX(0);
+        }
+      `}</style>
     </nav>
   );
 }

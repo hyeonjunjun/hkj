@@ -11,37 +11,41 @@ export default function NotFound() {
       }}
     >
       <p
-        className="font-mono"
         style={{
+          fontFamily: "var(--font-mono)",
           fontSize: "clamp(48px, 8vw, 80px)",
           lineHeight: 1,
-          color: "var(--ink-ghost)",
           letterSpacing: "-0.02em",
+          color: "var(--ink-faint)",
         }}
       >
         404
       </p>
 
       <p
-        className="font-body"
         style={{
+          fontFamily: "var(--font-sans)",
           fontSize: 15,
-          color: "var(--ink-secondary)",
-          marginTop: 16,
+          lineHeight: 1.6,
+          color: "var(--ink-muted)",
+          marginTop: 20,
+          maxWidth: "40ch",
         }}
       >
-        This page doesn&apos;t exist.
+        This page doesn&apos;t exist — or it wandered off.
       </p>
 
       <Link
         href="/"
-        className="font-mono uppercase"
         style={{
           display: "inline-block",
+          fontFamily: "var(--font-mono)",
           fontSize: 11,
-          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
           color: "var(--ink-muted)",
-          marginTop: 24,
+          marginTop: 32,
+          transition: "color 0.3s var(--ease)",
         }}
       >
         Return home

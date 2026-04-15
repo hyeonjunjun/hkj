@@ -2,12 +2,19 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
+import AsciiFrame from "@/components/AsciiFrame";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DUR } from "@/lib/motion";
 
+const EXPERIENCE: Array<[string, string]> = [
+  ["2024 — Present", "Independent, Design Engineering"],
+  ["2023 — 2024", "Design Technologist"],
+  ["2021 — 2023", "Frontend Developer"],
+];
+
 export default function AboutPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -15,20 +22,19 @@ export default function AboutPage() {
     const els = containerRef.current.querySelectorAll("[data-reveal]");
 
     if (reducedMotion) {
-      gsap.set(els, { opacity: 1, y: 0, filter: "blur(0px)" });
+      gsap.set(els, { opacity: 1, y: 0 });
       return;
     }
 
     gsap.fromTo(
       els,
-      { opacity: 0, y: 32, filter: "blur(3px)" },
+      { opacity: 0, y: 16 },
       {
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
-        duration: DUR.reveal,
-        stagger: 0.06,
-        ease: "power3.out",
+        duration: DUR.reveal ?? 0.8,
+        stagger: 0.08,
+        ease: "power2.out",
         delay: 0.2,
       }
     );
@@ -38,205 +44,270 @@ export default function AboutPage() {
     <main
       id="main"
       ref={containerRef}
-      style={{
-        maxWidth: 900,
-        marginLeft: "8vw",
-        paddingRight: "clamp(24px, 5vw, 64px)",
-      }}
+      style={{ position: "relative", zIndex: 1 }}
     >
+      <div className="about-grid">
+        <div className="about-portrait" data-reveal style={{ opacity: 0 }}>
+          <AsciiFrame
+            topLeft="HYEONJOON / 결"
+            topRight="EST 2021"
+            bottomLeft="DESIGN ENGINEER"
+            bottomRight="NEW YORK"
+            padding={0}
+          >
+            <div className="about-portrait__media">
+              <span className="about-portrait__label">
+                [ PORTRAIT / ASCII PLACEHOLDER ]
+              </span>
+            </div>
+          </AsciiFrame>
+        </div>
+
+        <div className="about-philosophy" data-reveal style={{ opacity: 0 }}>
+          <div className="about-kicker">ABOUT · HKJ · 2026</div>
+          <p className="about-statement">
+            Design engineer building at the intersection of{" "}
+            <span className="about-statement__em">craft</span> and systems
+            thinking.
+          </p>
+          <p className="about-body">
+            I care about type, motion, and the invisible details that make
+            digital products feel considered — the margins you only notice
+            when they&apos;re wrong, the easing curves that make a transition
+            feel alive.
+          </p>
+          <p className="about-body">
+            Based in New York, working independently on projects that bridge
+            design engineering and brand craft.
+          </p>
+        </div>
+
+        <div className="about-experience" data-reveal style={{ opacity: 0 }}>
+          <AsciiFrame
+            topLeft="EXPERIENCE / 03 ENTRIES"
+            topRight="2021 – 2026"
+            bottomLeft="INDEPENDENT · DESIGN ENGINEERING"
+            padding={0}
+          >
+            <div className="about-experience__inner">
+              {EXPERIENCE.map(([period, role], i) => (
+                <div
+                  key={period}
+                  className="about-experience__row"
+                  style={{
+                    borderBottom:
+                      i === EXPERIENCE.length - 1
+                        ? "none"
+                        : "1px solid var(--ink-ghost)",
+                  }}
+                >
+                  <span className="about-experience__period">{period}</span>
+                  <span className="about-experience__role">{role}</span>
+                </div>
+              ))}
+            </div>
+          </AsciiFrame>
+        </div>
+
+        <div className="about-contact" data-reveal style={{ opacity: 0 }}>
+          <AsciiFrame
+            topLeft="CONTACT"
+            topRight="AVAILABLE 2026"
+            bottomRight="NEW YORK"
+            padding={0}
+          >
+            <div className="about-contact__inner">
+              <p className="about-contact__lede">
+                For work inquiries, reach me at{" "}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="about-contact__mail"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+                .
+              </p>
+              <div className="about-contact__socials">
+                {SOCIALS.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="about-contact__social"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </AsciiFrame>
+        </div>
+
+        <footer className="about-signoff" data-reveal style={{ opacity: 0 }}>
+          <div className="about-signoff__name">Hyeonjoon</div>
+          <div className="about-signoff__role">
+            — DESIGN ENGINEER, HKJ · 2026
+          </div>
+        </footer>
+      </div>
+
       <style>{`
+        .about-grid {
+          display: grid;
+          grid-template-columns: repeat(12, 1fr);
+          gap: clamp(16px, 2vw, 32px);
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: clamp(72px, 10vh, 120px) clamp(24px, 4vw, 64px) clamp(48px, 8vh, 96px);
+        }
+        .about-portrait { grid-column: 1 / span 5; }
+        .about-philosophy { grid-column: 7 / span 6; }
+        .about-experience {
+          grid-column: 1 / span 12;
+          margin-top: clamp(64px, 10vh, 120px);
+        }
+        .about-contact {
+          grid-column: 7 / span 6;
+          margin-top: clamp(48px, 6vh, 72px);
+        }
+        .about-signoff {
+          grid-column: 1 / span 12;
+          text-align: right;
+          margin-top: clamp(80px, 12vh, 140px);
+          margin-bottom: clamp(48px, 8vh, 96px);
+        }
+        .about-portrait__media {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4 / 5;
+          background: var(--paper-2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .about-portrait__label {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-faint);
+        }
+        .about-kicker {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-faint);
+          margin-bottom: 32px;
+        }
+        .about-statement {
+          font-family: var(--font-serif);
+          font-style: italic;
+          font-size: clamp(28px, 3.2vw, 40px);
+          line-height: 1.25;
+          color: var(--ink);
+          max-width: 28ch;
+          margin: 0 0 32px 0;
+          font-weight: 400;
+        }
+        .about-statement__em {
+          font-family: var(--font-serif);
+          font-style: italic;
+        }
+        .about-body {
+          font-family: var(--font-sans);
+          font-size: 16px;
+          line-height: 1.7;
+          color: var(--ink-muted);
+          max-width: 54ch;
+          margin: 0 0 20px 0;
+        }
+        .about-experience__inner {
+          padding: clamp(24px, 3vw, 40px);
+        }
+        .about-experience__row {
+          display: flex;
+          gap: 32px;
+          padding: 18px 0;
+        }
+        .about-experience__period {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          font-variant-numeric: tabular-nums;
+          color: var(--ink-faint);
+          width: 180px;
+          flex-shrink: 0;
+          text-transform: uppercase;
+        }
+        .about-experience__role {
+          font-family: var(--font-sans);
+          font-size: 15px;
+          color: var(--ink);
+        }
+        .about-contact__inner {
+          padding: clamp(24px, 3vw, 40px);
+        }
+        .about-contact__lede {
+          font-family: var(--font-sans);
+          font-size: 15px;
+          line-height: 1.7;
+          color: var(--ink-muted);
+          margin: 0 0 24px 0;
+          max-width: 48ch;
+        }
+        .about-contact__mail {
+          color: var(--ink);
+          text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 3px;
+        }
+        .about-contact__socials {
+          display: flex;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        .about-contact__social {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--ink-muted);
+          transition: color 0.3s var(--ease);
+        }
+        .about-contact__social:hover {
+          color: var(--ink);
+        }
+        .about-signoff__name {
+          font-family: var(--font-serif);
+          font-style: italic;
+          font-size: clamp(40px, 5vw, 72px);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          color: var(--ink);
+        }
+        .about-signoff__role {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--ink-muted);
+          margin-top: 16px;
+        }
         @media (max-width: 767px) {
-          #main {
-            margin-left: 0 !important;
-            max-width: none !important;
-            padding-inline: 24px !important;
-            padding-right: 24px !important;
+          .about-portrait,
+          .about-philosophy,
+          .about-experience,
+          .about-contact,
+          .about-signoff {
+            grid-column: 1 / -1;
+          }
+          .about-signoff {
+            text-align: left;
           }
         }
       `}</style>
-      {/* ── Philosophy kicker ── */}
-      <div
-        data-reveal
-        style={{ fontSize: 9, letterSpacing: "0.14em", color: "rgba(255,255,255,0.35)", marginBottom: 32, paddingTop: 96, opacity: 0 }}
-        className="font-mono uppercase"
-      >
-        [ABOUT // HKJ_STUDIO_NY]
-      </div>
-
-      {/* ── Philosophy statement ── */}
-      <p
-        data-reveal
-        className="font-display"
-        style={{
-          fontStyle: "italic",
-          fontSize: "clamp(22px, 3vw, 32px)",
-          lineHeight: 1.35,
-          fontWeight: 400,
-          color: "var(--ink-primary)",
-          maxWidth: "54ch",
-          paddingTop: 0,
-          opacity: 0,
-        }}
-      >
-        Design engineer building at the intersection of craft and systems thinking.
-      </p>
-
-      {/* ── Body ── */}
-      <p
-        data-reveal
-        className="font-body"
-        style={{
-          fontSize: 15,
-          lineHeight: 1.7,
-          color: "var(--ink-secondary)",
-          maxWidth: "54ch",
-          marginTop: 24,
-          opacity: 0,
-        }}
-      >
-        I care about type, motion, and the invisible details that make digital products feel considered.
-      </p>
-
-      <p
-        data-reveal
-        className="font-body"
-        style={{
-          fontSize: 15,
-          lineHeight: 1.7,
-          color: "var(--ink-secondary)",
-          maxWidth: "54ch",
-          marginTop: 0,
-          opacity: 0,
-        }}
-      >
-        Based in New York, working independently on projects that bridge design engineering and brand craft.
-      </p>
-
-      {/* ── Experience ── */}
-      <div style={{ marginTop: 48 }}>
-        <span
-          data-reveal
-          className="font-mono"
-          style={{
-            display: "block",
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            color: "var(--ink-muted)",
-            marginBottom: 24,
-            opacity: 0,
-          }}
-        >
-          [EXPERIENCE]
-        </span>
-
-        {[
-          ["[2024 \u2192 PRESENT]", "Independent, Design Engineering"],
-          ["[2023 \u2192 2024]", "Design Technologist"],
-          ["[2021 \u2192 2023]", "Frontend Developer"],
-        ].map(([period, role]) => (
-          <div
-            key={period}
-            data-reveal
-            style={{
-              display: "flex",
-              gap: 24,
-              padding: "10px 0",
-              borderBottom: "1px solid var(--ink-ghost)",
-              opacity: 0,
-            }}
-          >
-            <span
-              className="font-mono"
-              style={{
-                fontSize: 11,
-                fontVariantNumeric: "tabular-nums",
-                color: "var(--ink-muted)",
-                width: 130,
-                flexShrink: 0,
-              }}
-            >
-              {period}
-            </span>
-            <span
-              className="font-body"
-              style={{
-                fontSize: 15,
-                color: "var(--ink-primary)",
-              }}
-            >
-              {role}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Contact ── */}
-      <div style={{ marginTop: 48, paddingBottom: 72 }}>
-        <span
-          data-reveal
-          className="font-mono"
-          style={{
-            display: "block",
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            color: "var(--ink-muted)",
-            marginBottom: 24,
-            opacity: 0,
-          }}
-        >
-          [CONTACT]
-        </span>
-
-        <p
-          data-reveal
-          className="font-body"
-          style={{
-            fontSize: 15,
-            color: "var(--ink-primary)",
-            marginBottom: 16,
-            opacity: 0,
-          }}
-        >
-          For work inquiries, reach me at{" "}
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 3 }}
-          >
-            {CONTACT_EMAIL}
-          </a>
-        </p>
-
-        <div
-          data-reveal
-          style={{
-            display: "flex",
-            gap: 20,
-            flexWrap: "wrap",
-            opacity: 0,
-          }}
-        >
-          {SOCIALS.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono"
-              style={{
-                fontSize: 11,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                color: "var(--ink-muted)",
-                transition: "color 0.3s var(--ease-swift)",
-              }}
-            >
-              {s.label}
-            </a>
-          ))}
-        </div>
-      </div>
     </main>
   );
 }

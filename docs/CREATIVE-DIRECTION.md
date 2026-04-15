@@ -1,363 +1,147 @@
-# HKJ Portfolio — Creative Direction v2
+# HKJ Portfolio — Creative Framework
 
-> Simple. Deliberate. Beautiful.
-> Architecture builds with intention. Every proportion, every material, every silence is considered.
-> This portfolio is a building, not a performance.
-
----
-
-## The principle
-
-Architecture doesn't need effects to be powerful. A Tadao Ando building is concrete, light, and water. The power is in the proportion and the silence between elements.
-
-This portfolio is a clean vertical scroll. Content flows with considered pacing. Typography does the work. One signature interaction proves craft. Everything else is quiet.
+> Editorial product design for a solo design engineer.
+> Mathematical type, golden-ratio layout, atomic design methodology, ink-and-paper palette.
 
 ---
 
-## 1. What the visitor sees
+## 1. The Three Voices
 
-A dark page. Your name, large and precise. Below it, your projects — each given generous space, presented with a single image and minimal text. Scrolling feels weighted and smooth. Hovering a project shifts focus — everything else softens. Clicking enters a clean case study.
+Three typefaces, three roles, no overlap.
 
-There is no 3D scene, no particles, no panoramic pan. The craft lives in proportion, spacing, typography, motion timing, and one signature detail: the active state bloom on the element you're engaging with.
+| Role | Font | Purpose |
+|---|---|---|
+| **Expressive** | Newsreader (serif, italic available) | Project titles, hero statement, pull quotes — the human, warm voice |
+| **Definitive** | General Sans (sans) | Body copy, descriptions, paragraphs — the reading voice |
+| **Product** | Fragment Mono | Metadata, labels, numbers, roles, UI chrome — the strict, product-edge voice |
 
----
+Never mix: a paragraph is always sans. A label is always mono. A title is always serif.
 
-## 2. Layout architecture
+## 2. Modular Type Scale — Perfect Fourth (1.333)
 
-### The page is a single vertical scroll
+Every text size comes from this scale. No arbitrary values.
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                                                          │
-│  HKJ                                    About   Archive  │
-│                                                          │
-│                                                          │
-│                                                          │
-│                   Hyeon Jun                               │
-│                   Design Engineer                         │
-│                   New York                                │
-│                                                          │
-│                                                          │
-│                                                          │
-│  ─────────────────────────────────────────────────────── │
-│                                                          │
-│                                                          │
-│  01  GYEOL_                                              │
-│      Fragrance & e-commerce brand                        │
-│      rooted in Korean craft traditions                   │
-│                                                          │
-│      ┌─────────────────────────────────────────────┐     │
-│      │                                             │     │
-│      │              [PROJECT IMAGE]                │     │
-│      │                                             │     │
-│      └─────────────────────────────────────────────┘     │
-│                                                          │
-│      NEXT.JS  THREE.JS  GSAP              2026  SHIPPED  │
-│                                                          │
-│                                                          │
-│                                                          │
-│  02  SIFT_                                               │
-│      AI-powered tool for finding                         │
-│      what matters in your camera roll                    │
-│                                                          │
-│      ┌─────────────────────────────────────────────┐     │
-│      │                                             │     │
-│      │              [PROJECT IMAGE]                │     │
-│      │                                             │     │
-│      └─────────────────────────────────────────────┘     │
-│                                                          │
-│      REACT NATIVE  SUPABASE  GPT-4        2025  SHIPPED  │
-│                                                          │
-│                                                          │
-│  ...                                                     │
-│                                                          │
-│  ─────────────────────────────────────────────────────── │
-│                                                          │
-│  hyeonjunjun07@gmail.com                                 │
-│  LinkedIn  GitHub  Twitter                               │
-│                                                          │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
+--t-micro:   9px     (12 ÷ 1.333)
+--t-small:   12px    (base ÷ 1.333)
+--t-body:    16px    (base)
+--t-h4:      21px    (16 × 1.333)
+--t-h3:      28px    (21 × 1.333)
+--t-h2:      37px    (28 × 1.333)
+--t-h1:      50px    (37 × 1.333)
+--t-display: 67px    (50 × 1.333)
+--t-hero:    89px    (67 × 1.333)
 ```
 
-### Spacing rhythm
+Usage rules:
+- Body paragraphs: `t-body` (16px) sans, line-height 1.55
+- Project titles: `t-h2` or `t-h3` serif italic
+- Hero statement: `t-display` or `t-hero` serif
+- Metadata/labels: `t-small` or `t-micro` mono uppercase, letterspaced 0.08-0.12em
+- H1 (page titles): `t-h1` serif
 
-The page breathes with architectural spacing:
-- Hero section (name + role): 100vh or close to it. Your name sits in the space.
-- Between hero and first project: a single 1px divider line.
-- Each project block: generous vertical padding (clamp 80-120px between projects).
-- Footer: minimal, same quiet typographic treatment as nav.
+Line heights are inversely proportional to size: display 1.02, h1-h2 1.1, h3-h4 1.25, body 1.55.
 
-### Containment
+## 3. Ink and Paper Palette
 
-Content sits in a centered column, max-width 1000px, with generous side margins (clamp 24px to 80px). Images can break out to full-width or stay contained — your choice per project.
-
-NOT left-shifted. Centered. The symmetry is the architecture.
-
----
-
-## 3. Typography
-
-### Two voices only
-
-| Voice | Font | Role |
-|-------|------|------|
-| System | Fragment Mono | Nav, labels, metadata, project numbers, tech tags, footer. The structure. |
-| Human | General Sans (or DM Sans) | Your name, project descriptions, case study body text. The voice. |
-
-No serif. No display font. The monospace IS the display when set large. General Sans is the warm counterpart.
-
-### Scale
-
-| Element | Size | Weight | Font |
-|---------|------|--------|------|
-| Your name | clamp(36px, 5vw, 64px) | 400 | General Sans |
-| Role / location | 11px uppercase | 400 | Fragment Mono, letterspaced 0.1em |
-| Project number | clamp(48px, 6vw, 80px) | 300 | Fragment Mono |
-| Project title | 18-24px | 500 | General Sans |
-| Project description | 15px | 400 | General Sans, --ink-secondary |
-| Tech tags | 11px uppercase | 400 | Fragment Mono, letterspaced 0.08em |
-| Nav links | 12px | 400 | Fragment Mono |
-| Metadata (year, status) | 11px | 400 | Fragment Mono |
-
-### The trailing underscore
-
-All project titles in structured contexts use the trailing underscore: `GYEOL_`, `SIFT_`, `PROMPTINEER_`. Section labels in case studies: `PROBLEM_`, `DECISION_`, `RESULT_`. This is yours.
-
----
-
-## 4. Color
-
-### Custom gray scale with warm undertone
-
-Not default grays. Not pure neutral. Every gray has a slight amber warmth that ties to the gold accent:
+Lowered contrast. Warm off-black on cool newsprint. No pure black, no pure white.
 
 ```css
---surface:    #0C0C0B;           /* near-black with warm undertone */
---gray-950:   #141413;
---gray-900:   #1C1C1A;
---gray-800:   #2A2A27;
---gray-700:   #3D3D39;
---gray-600:   #5C5C56;
---gray-500:   #7A7A73;
---gray-400:   #9E9E96;
---gray-300:   #BFBFB8;
---gray-200:   #DEDED8;
---gray-100:   #F0F0EC;
---white:      #FAFAF7;           /* warm white */
-
---gold:       #C4A265;           /* the one accent */
+--paper:     #F7F7F5  /* cool off-white, newsprint */
+--paper-2:   #EFEFEC  /* panel background */
+--paper-3:   #E6E6E2  /* divider background */
+--ink:       #1C1C1A  /* deep warm black */
+--ink-2:     #5A5A56  /* muted text */
+--ink-3:     #92928E  /* faint text, tertiary */
+--ink-4:     #C6C6C2  /* ghost, dividers */
+--accent:    #C4A265  /* one accent — used rarely */
 ```
 
-The warmth in the grays (notice the slight yellow: `#0C0C0B` not `#0C0C0C`, `#F0F0EC` not `#F0F0F0`) creates cohesion with the gold accent without being visible as a "color."
+Ink hierarchy:
+- Primary text (body, titles): `--ink`
+- Secondary text (captions, descriptions): `--ink-2`
+- Metadata, labels: `--ink-3`
+- Dividers, strokes: `--ink-4`
 
-### Usage
+## 4. Golden Ratio Layout — 62/38
 
-- Surface: `--surface` (#0C0C0B)
-- Primary text: `--gray-100` at ~85% opacity
-- Secondary text: `--gray-400`
-- Muted text: `--gray-600`
-- Dividers: `--gray-800`
-- Accent (hover, active, one signature element): `--gold`
+Asymmetric composition. Content sits left-heavy or right-heavy, never centered.
 
----
+**Case study hero:**
+- Image/media: 62% column width
+- Text/narrative: 38% column width
+- Gap: 48px minimum
 
-## 5. One signature interaction: the active state bloom
+**Project tiles (masonry):**
+- Image: 62% of tile height
+- Caption block: 38% (counted with whitespace)
 
-The BloomNode component — the multi-line undulating soft border we've been building — appears in exactly ONE place on the homepage: the project you're currently hovering.
+**Page container:**
+- Max-width: 1280px
+- Horizontal padding: `clamp(24px, 4vw, 64px)`
+- Vertical spacing between major sections: 120-200px (asymmetric, not uniform)
 
-When you hover a project block:
-- That project's container gets the BloomNode active treatment (flowing multi-line border, soft particles)
-- Every OTHER project block fades to lower opacity (Cathy Dolle's technique)
-- The project image shifts from desaturated to full color
-- The gold accent appears in the BloomNode border
+## 5. Narrative Atomic Design — Case Study Structure
 
-When you're not hovering anything: all projects are at full opacity, no bloom anywhere. The page is quiet.
+Case studies are magazine features on a product. They treat the work as a system, not a screenshot.
 
-This single interaction proves: "this person can build complex things." But it's restrained to one moment, not smeared everywhere.
+Structure:
+1. **Cover spread** — metadata bar, pull-quote paradox, hero image (62/38 split)
+2. **Overview** — written narrative, 54ch column
+3. **Atoms** — exhibition-style display of color tokens, type scale, spacing values, buttons. Each atom has a label, a specimen, and a value.
+4. **Molecules** — small component combinations (form fields, nav items, cards)
+5. **Organisms** — full components in context (data tables, full navs, complex cards)
+6. **In context** — final product screens, full-bleed imagery
+7. **Next project** — a single link with the 62/38 preview
 
----
+Every atom/molecule/organism section has a monospace section label (`[ATOMS]`, `[MOLECULES]`, `[ORGANISMS]`), a serif section heading, and a sans body explanation.
 
-## 6. The hover depth-of-field (Cathy Dolle pattern)
+## 6. Motion Language
 
-When hovering ANY project:
-- The hovered project: full opacity, image goes full color, BloomNode border activates
-- All other projects: opacity drops to 0.3, images get `filter: blur(2px)`
-- Transition: 200ms, instant enough to feel responsive
+Simple, purposeful, never decorative.
 
-This is the "rack focus" camera effect. Your eye is drawn to the one project being explored. Everything else recedes.
+- **Reveal on mount**: opacity 0 → 1, y 16 → 0, 0.6s, ease `cubic-bezier(.4, 0, .2, 1)`, stagger 0.06s
+- **Reveal on scroll**: same values, ScrollTrigger at 85% viewport, once only
+- **Hover (tiles)**: image scale 1 → 1.015 over 0.5s; siblings opacity 1 → 0.4 over 0.3s
+- **Page transitions**: quiet opacity fade, 300ms exit + 500ms enter
+- **Reduced motion**: everything snaps to final state instantly
 
-Pure CSS implementation:
-```css
-.project-list:hover .project-item { opacity: 0.3; filter: blur(2px); }
-.project-list:hover .project-item:hover { opacity: 1; filter: blur(0); }
-```
+## 7. Personality
 
----
+The site has ONE living element to prove it's maintained:
 
-## 7. Film grain
+- A small green pulsing dot + kicker near the hero: `Available for select projects — 2026`
+- A `Currently` statement below the hero — dated, specific, human. Describes the CURRENT focus (creative direction + AI visual work).
+- Updated monthly. Proves the portfolio isn't a resume — it's a living document.
 
-A subtle animated noise texture overlaid on the entire page. This is the material quality — it makes the digital surface feel physical, like printed stock or film.
-
-Implementation: `grained.min.js` — a single lightweight script that generates an SVG noise pattern and applies it as a CSS background. Opacity 3-5%, enough to feel but not see.
-
-The grain ties the dark surface to the warm gray palette and creates the "considered material" quality that separates this from a default dark theme.
-
----
-
-## 8. Motion language
-
-### Lenis smooth scroll (already installed)
-
-The scroll has weight. `lerp: 0.1` — slightly smoother than native, creating a sense of mass.
-
-### Scroll-triggered reveals
-
-Each project block reveals as it enters the viewport:
-- `opacity: 0, y: 24` → `opacity: 1, y: 0`
-- Duration: 0.6s, ease: power3.out
-- Stagger: 0.08s between number, title, description, image, tags
-- GSAP ScrollTrigger, threshold 80%, once: true
-
-### Page transitions
-
-Navigate to case study:
-- Current page: opacity → 0, 300ms
-- New page: opacity 0 → 1, y: 16 → 0, 500ms
-- The transition is quiet. No circle expansion, no FLIP. Just a considered fade.
-
-### Hover timing
-
-- Project opacity shift: 200ms
-- BloomNode activation: 400ms (the border flow starts)
-- Image desaturation → color: 400ms
-- All use `--ease-swift: cubic-bezier(.23, .88, .26, .92)`
-
-### Reduced motion
-
-Everything works. Reveals are instant. Scroll is native. Hover states change without animation. BloomNode draws a static border.
-
----
-
-## 9. Project presentation
-
-Each project block:
-
-```
-[NUMBER]          [large, Fragment Mono, light opacity]
-
-[TITLE_]          [General Sans, 18-24px]
-[Description      [General Sans, 15px, secondary color]
- 2-3 lines max]
-
-[IMAGE            [full-width within container, or break out]
- ─────────────    [desaturated at rest, full color on hover]
- ─────────────    [subtle border-radius: 2-4px]
- ─────────────]
-
-[TECH TAGS]       [Fragment Mono, 11px, uppercase, muted]
-                  [YEAR  STATUS]
-```
-
-The number is the largest element — like a chapter marker in a book. It gives each project weight and sequence. Fragment Mono at 6vw creates the display moment without needing a display font.
-
-The image is presented clean. No viewfinder corners. No glass overlay. Just the work, given space. Desaturated at rest (filter: saturate(0.6)), full color on hover.
-
----
-
-## 10. Pages
+## 8. Applied Across Pages
 
 ### Homepage (`/`)
-
-The scroll: hero (name, role, location) → projects → footer. One page. No separate "work" route.
+- Fixed nav top (mix-blend-mode: difference over content)
+- Hero: micro availability kicker → expressive serif statement → body sans "Currently" paragraph
+- Masonry gallery: 2-3 columns responsive, varied aspect ratios, depth-of-field hover
+- Footer: email + copyright in mono
 
 ### Case study (`/work/[slug]`)
-
-The editorial layout from the current build, adapted:
-- Monospace metadata bar at top
-- Large paradox line (the question the project answers)
-- Body text in General Sans, max-width 54ch
-- Full-bleed images
-- PROBLEM_ / DECISION_ / RESULT_ section labels with trailing underscores
-- Next project link at bottom
-
-### Archive (`/archive`)
-
-A flat monospace list. NaughtyDuk-style: number, title, type, year, status. One row per project. No images. Fast, scannable.
+- Metadata bar (mono)
+- Paradox line (serif italic, large)
+- 62/38 hero split (image + stakes narrative)
+- Atomic design sections: Atoms / Molecules / Organisms
+- In-context screens
+- Next project link (62/38 mini-hero)
 
 ### About (`/about`)
+- Small intro kicker (mono)
+- Philosophy (serif italic, h2 scale)
+- Body paragraphs (sans, 54ch, 16px)
+- Experience timeline: [year → year] mono periods + sans role
+- Contact section
 
-Same quiet editorial. Name, philosophy, experience timeline, contact. No 3D, no scene. Typography and space.
+## 9. What We're NOT Doing
 
----
-
-## 11. What we're NOT doing
-
-- No 3D scene, no React Three Fiber, no objects floating in space
-- No AR panoramic, no mouse-driven pan, no hotspots
-- No particles, no volumetric light, no atmospheric fog
-- No custom cursor (Reticle component removed — default cursor is fine)
-- No bloom effects EVERYWHERE — only on the one hovered project
-- No dark-cinematic game UI aesthetic
-- No glass morphism HUD panels
-- No bracketed labels `[LIKE_THIS]` on everything — only the trailing underscore convention
-
-The restraint IS the design.
-
----
-
-## 12. What we ARE doing
-
-- Clean vertical scroll with architectural spacing
-- Two fonts: Fragment Mono (structure) + General Sans (voice)
-- Custom warm gray scale (10 steps with amber undertone)
-- One gold accent color, used sparingly
-- Film grain overlay for material quality
-- Lenis smooth scroll for weight
-- GSAP scroll-triggered reveals for each project
-- Cathy Dolle depth-of-field on hover (blur non-hovered projects)
-- BloomNode active state on the ONE hovered project (the signature craft moment)
-- Image desaturation → color on hover
-- Trailing underscore convention on titles and labels
-- Considered page transitions (quiet fade, not theatrical)
-
----
-
-## 13. Implementation approach
-
-### What to keep from current codebase
-- `globals.css` — rewrite with new gray scale
-- `layout.tsx` — keep fonts, SmoothScroll, PageTransition. Remove Reticle.
-- `useStore.ts` — simplify back to hoveredSlug only
-- `BloomNode.tsx` — keep and refine (multi-line undulation upgrade)
-- `CaseStudy.tsx` — adapt typography to new system
-- `about/page.tsx` — adapt typography
-- `pieces.ts`, `case-studies.ts`, `contact.ts` — keep
-- `motion.ts` — keep DUR/EASE tokens
-- `useReducedMotion.ts` — keep
-
-### What to replace
-- `page.tsx` — the homepage. Replace entirely with the new scroll layout.
-- `NavCoordinates.tsx` — simplify to just nav links, no instrumentation HUD
-
-### What to remove
-- `Reticle.tsx` — no custom cursor
-- `Bracket.tsx` — no bracketed labels
-- `ScrollProgress.tsx` — not needed on homepage scroll
-- `BloomBar.tsx`, `BloomPath.tsx` — already deleted
-- `bloom-test/page.tsx` — no longer needed as a separate demo
-
-### What to add
-- `grained.min.js` or equivalent grain overlay
-- New homepage component with project list + depth-of-field hover
-- Archive page (`/archive`)
-
----
-
-## 14. The feeling
-
-Someone lands on the site. They see your name in the dark. They scroll. Projects appear one by one, each with a large chapter number, a clear title, and a beautiful image. When they hover one, everything else softens and the hovered project's border comes alive with a subtle flowing light. They click. A clean case study opens.
-
-They think: "This person cares about details."
-
-That's the entire portfolio.
+- No 3D scene, no particles, no AR panoramic
+- No BloomNode glow effects — that component is retired for this direction
+- No aggressive animations
+- No dark theme (the framework is ink-on-paper, light)
+- No custom cursor
+- No bracketed labels `[LIKE_THIS]` everywhere — mono alone is the "product" signal

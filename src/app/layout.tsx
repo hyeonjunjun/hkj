@@ -6,6 +6,8 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
 import NavCoordinates from "@/components/NavCoordinates";
 import PageTransition from "@/components/PageTransition";
+import Reticle from "@/components/Reticle";
+import ScrollCoords from "@/components/ScrollCoords";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -35,11 +37,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
   title: { default: "HKJ", template: "%s — HKJ" },
   description:
-    "Design engineering at the intersection of craft and systems thinking.",
+    "HKJ is the studio of Hyeonjoon, design engineer based in New York.",
   openGraph: {
-    title: "HKJ",
+    title: "HKJ — Hyeonjoon, design engineer",
     description:
-      "Design engineering at the intersection of craft and systems thinking.",
+      "HKJ is the studio of Hyeonjoon, design engineer based in New York.",
     url: "https://hkjstudio.com",
     siteName: "HKJ",
     locale: "en_US",
@@ -47,9 +49,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "HKJ",
+    title: "HKJ — Hyeonjoon, design engineer",
     description:
-      "Design engineering at the intersection of craft and systems thinking.",
+      "HKJ is the studio of Hyeonjoon, design engineer based in New York.",
     creator: "@hyeonjunjun",
   },
 };
@@ -65,6 +67,8 @@ export default function RootLayout({
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />
+        <Reticle />
+        <ScrollCoords />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>

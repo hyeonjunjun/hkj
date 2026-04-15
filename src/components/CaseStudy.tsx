@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import AsciiFrame from "@/components/AsciiFrame";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -16,19 +17,18 @@ interface CaseStudyProps {
   piece: Piece;
 }
 
-// T1.8 — Bracket section labels
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <span
       className="font-mono uppercase block"
       style={{
         fontSize: 11,
-        letterSpacing: "0.06em",
+        letterSpacing: "0.08em",
         color: "var(--ink-muted)",
         marginBottom: 24,
       }}
     >
-      [{children}]
+      {children}
     </span>
   );
 }
@@ -50,20 +50,18 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     const blocks = containerRef.current.querySelectorAll("[data-reveal]");
 
     if (reducedMotion) {
-      // Show everything immediately — no animation
-      gsap.set(fixedEls, { opacity: 1, y: 0, filter: "blur(0px)" });
+      gsap.set(fixedEls, { opacity: 1, y: 0 });
       if (heroRef.current) gsap.set(heroRef.current, { opacity: 1, y: 0 });
-      gsap.set(blocks, { opacity: 1, y: 0, filter: "blur(0px)" });
+      gsap.set(blocks, { opacity: 1, y: 0 });
       return;
     }
 
     gsap.fromTo(
       fixedEls,
-      { opacity: 0, y: 24, filter: "blur(2px)" },
+      { opacity: 0, y: 24 },
       {
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
         duration: DUR.reveal,
         stagger: 0.07,
         ease: "power3.out",
@@ -94,11 +92,10 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     blocks.forEach((block) => {
       gsap.fromTo(
         block,
-        { opacity: 0, y: 32, filter: "blur(3px)" },
+        { opacity: 0, y: 32 },
         {
           opacity: 1,
           y: 0,
-          filter: "blur(0px)",
           duration: DUR.reveal,
           ease: "power3.out",
           scrollTrigger: {
@@ -175,23 +172,22 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
       {/* ── Hero header — 88vh opener ── */}
       <header className="case-study-hero">
         {/* ── 1. Metadata bar — top of header ── */}
-        {/* T1.8 — Bracketed metadata: [number] / TITLE / [year] / [SECTOR] */}
         <div data-entrance style={{ opacity: 0 }}>
           <span
-            className="font-mono uppercase"
+            className="font-mono"
             style={{
               fontSize: 11,
               letterSpacing: "0.06em",
               color: "var(--ink-muted)",
             }}
           >
-            [<span className="chrome-text">{piece.number}</span>]
+            {piece.number}
             {" / "}
-            {piece.title.toUpperCase()}
+            {piece.title}
             {" / "}
-            [{piece.status === "wip" ? "IN PROGRESS" : piece.year}]
+            {piece.status === "wip" ? "In progress" : piece.year}
             {" / "}
-            [{piece.sector.toUpperCase()}]
+            <span style={{ textTransform: "uppercase" }}>{piece.sector}</span>
           </span>
         </div>
 
@@ -219,9 +215,8 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
             <hr
               style={{
                 border: "none",
-                borderTop: `1px solid ${piece.accent || "rgba(196,162,101,0.3)"}`,
-                width: "120px",
-                opacity: 0.4,
+                borderTop: `1px solid ${piece.accent ? `${piece.accent}66` : "var(--ink-ghost)"}`,
+                width: "80px",
                 margin: "32px 0",
               }}
             />
@@ -251,18 +246,16 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
             opacity: 0,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={piece.image}
-            alt={piece.title}
-            className="image-treatment"
-            style={{
-              display: "block",
-              width: "100%",
-              height: "auto",
-              objectFit: "cover",
-            }}
-          />
+          <AsciiFrame
+            topLeft={`${piece.number} / ${piece.title.toUpperCase()}`}
+            topRight={String(piece.year)}
+            bottomLeft={piece.sector.toUpperCase()}
+            bottomRight={piece.status === "wip" ? "IN PROGRESS" : "SHIPPED"}
+            padding={0}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={piece.image} alt={piece.title} className="image-treatment" style={{ display: "block", width: "100%", height: "auto", objectFit: "cover" }} />
+          </AsciiFrame>
         </div>
       )}
 
@@ -446,11 +439,12 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
                 key={s}
                 className="font-mono uppercase"
                 style={{
-                  fontSize: 11,
-                  letterSpacing: "0.06em",
+                  fontSize: 10,
+                  letterSpacing: "0.08em",
                   color: "var(--ink-muted)",
-                  padding: "4px 8px",
+                  padding: "3px 10px",
                   border: "1px solid var(--ink-ghost)",
+                  borderRadius: 9999,
                 }}
               >
                 {s}
@@ -468,33 +462,27 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
           style={{ marginBottom: 64, opacity: 0 }}
         >
           <SectionLabel>Numbers</SectionLabel>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 40 }}>
-            {cs.statistics.map((stat) => (
-              <div key={stat.label}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
+            {cs.statistics.map((stat, i) => (
+              <AsciiFrame
+                key={stat.label}
+                topLeft={`${String(i + 1).padStart(2, "0")} / ${stat.label.toUpperCase()}`}
+                padding={16}
+              >
                 <span
-                  className="font-mono block"
+                  className="block"
                   style={{
-                    fontSize: 24,
+                    fontFamily: "var(--font-serif)",
+                    fontStyle: "italic",
+                    fontSize: "clamp(28px, 4vw, 44px)",
                     fontVariantNumeric: "tabular-nums",
-                    color: "var(--ink-primary)",
-                    letterSpacing: "-0.02em",
-                    lineHeight: 1.2,
-                    marginBottom: 4,
+                    color: "var(--ink)",
+                    lineHeight: 1,
                   }}
                 >
                   {stat.value}
                 </span>
-                <span
-                  className="font-mono uppercase block"
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.06em",
-                    color: "var(--ink-muted)",
-                  }}
-                >
-                  {stat.label}
-                </span>
-              </div>
+              </AsciiFrame>
             ))}
           </div>
         </div>
@@ -516,7 +504,14 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
             }}
           >
             {cs.videos.map((v, i) => (
-              <div key={i}>
+              <AsciiFrame
+                key={i}
+                topLeft={`MEDIA / ${String(i + 1).padStart(2, "0")}`}
+                topRight={v.caption || (v.aspect ? v.aspect.replace("/", " / ") : "16 / 9")}
+                bottomLeft="VIDEO LOOP"
+                bottomRight={`${piece.number} · ${piece.title}`}
+                padding={0}
+              >
                 <video
                   src={v.src}
                   poster={v.poster}
@@ -531,20 +526,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
                     objectFit: "cover",
                   }}
                 />
-                {v.caption && (
-                  <span
-                    className="font-mono block"
-                    style={{
-                      fontSize: 11,
-                      letterSpacing: "0.04em",
-                      color: "var(--ink-ghost)",
-                      marginTop: 8,
-                    }}
-                  >
-                    {v.caption}
-                  </span>
-                )}
-              </div>
+              </AsciiFrame>
             ))}
           </div>
         </div>
@@ -556,46 +538,55 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
           className="case-study-col"
           data-reveal
           style={{
-            borderTop: "1px solid var(--ink-ghost)",
             paddingTop: 48,
             paddingBottom: 72,
             opacity: 0,
           }}
         >
           <Link href={`/work/${nextPiece.slug}`} style={{ display: "block" }}>
-            <span
-              className="font-mono uppercase block"
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.06em",
-                color: "var(--ink-muted)",
-                marginBottom: 12,
-              }}
+            <AsciiFrame
+              topLeft="NEXT →"
+              topRight={String(nextPiece.year)}
+              bottomLeft={nextPiece.sector.toUpperCase()}
+              bottomRight={nextPiece.status === "wip" ? "IN PROGRESS" : "SHIPPED"}
+              padding={24}
             >
-              Next
-            </span>
-            <span
-              className="font-mono block"
-              style={{
-                fontSize: "clamp(18px, 2.5vw, 24px)",
-                fontWeight: 400,
-                lineHeight: 1.3,
-                color: "var(--ink-primary)",
-                marginBottom: 4,
-              }}
-            >
-              {nextPiece.title}
-            </span>
-            <span
-              className="font-mono uppercase block"
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.06em",
-                color: "var(--ink-muted)",
-              }}
-            >
-              {nextPiece.sector} · {nextPiece.year}
-            </span>
+              <span
+                className="font-mono uppercase block"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.06em",
+                  color: "var(--ink-muted)",
+                  marginBottom: 12,
+                }}
+              >
+                Next
+              </span>
+              <span
+                className="block"
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontStyle: "italic",
+                  fontWeight: 400,
+                  fontSize: "clamp(24px, 3vw, 36px)",
+                  lineHeight: 1.2,
+                  color: "var(--ink)",
+                  marginBottom: 8,
+                }}
+              >
+                {nextPiece.title}
+              </span>
+              <span
+                className="font-mono uppercase block"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.06em",
+                  color: "var(--ink-muted)",
+                }}
+              >
+                {nextPiece.sector} · {nextPiece.year}
+              </span>
+            </AsciiFrame>
           </Link>
         </div>
       )}

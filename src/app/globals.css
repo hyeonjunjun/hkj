@@ -1,39 +1,75 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  --bg: #f5f4f1;
-  --ink: #1a1a1a;
-  --ink-muted: #6b6b6b;
-  --ink-faint: #a8a8a8;
-  --ink-ghost: #d4d4d1;
-  --accent: #c4a265;
+  /* Ink-and-paper palette */
+  --paper:   #F7F7F5;
+  --paper-2: #EFEFEC;
+  --paper-3: #E6E6E2;
+  --ink:     #1C1C1A;
+  --ink-2:   #5A5A56;
+  --ink-3:   #92928E;
+  --ink-4:   #C6C6C2;
+  --accent:  #C4A265;
 
-  --font-body: var(--font-sans), "Helvetica Neue", system-ui, sans-serif;
-  --font-mono: var(--font-fragment), "SF Mono", "Consolas", monospace;
-  --font-serif: var(--font-serif-local), "Georgia", serif;
+  /* Semantic aliases — used throughout pages */
+  --ink-primary:   var(--ink);
+  --ink-secondary: var(--ink-2);
+  --ink-muted:     var(--ink-3);
+  --ink-faint:     var(--ink-4);
+  --ink-ghost:     rgba(28, 28, 26, 0.08);
+
+  /* Easing aliases */
+  --ease-swift: cubic-bezier(.4, 0, .2, 1);
+
+  /* Modular type scale — Perfect Fourth (1.333) */
+  --t-micro:   9px;
+  --t-small:   12px;
+  --t-body:    16px;
+  --t-h4:      21px;
+  --t-h3:      28px;
+  --t-h2:      37px;
+  --t-h1:      50px;
+  --t-display: 67px;
+  --t-hero:    89px;
+
+  /* Font stacks
+     layout.tsx injects on <body>: --font-sans (General Sans), --font-serif (Newsreader),
+     --font-fragment (Fragment Mono). These vars cascade down from body. */
+  --font-stack-serif: var(--font-serif, "Georgia"), serif;
+  --font-stack-sans:  var(--font-sans, "Helvetica Neue"), system-ui, sans-serif;
+  --font-stack-mono:  var(--font-fragment, "SF Mono"), "Consolas", monospace;
+
+  /* Easing */
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
 
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 *::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
 
+/* ─── Base ───────────────────────────────────────────────────────────────── */
 body {
-  background: var(--bg);
+  background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--font-stack-sans);
+  font-size: var(--t-body);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: none;
 }
 
-::selection { background: var(--ink); color: var(--bg); }
+body.cursor-reveal, body.cursor-reveal * { cursor: auto !important; }
+@media (pointer: coarse) { body { cursor: auto; } }
+
+::selection { background: var(--ink); color: var(--paper); }
 :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }
 
-/* Subtle grain for material warmth */
+/* ─── Grain texture — 3.5% opacity, multiply ─────────────────────────────── */
 body::before {
   content: "";
   position: fixed;
@@ -46,9 +82,56 @@ body::before {
   mix-blend-mode: multiply;
 }
 
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ─── Font utilities ─────────────────────────────────────────────────────── */
+.font-serif { font-family: var(--font-stack-serif); }
+.font-sans  { font-family: var(--font-stack-sans); }
+.font-mono  { font-family: var(--font-stack-mono); }
+
+/* ─── Skip link (a11y) — hidden until focused ────────────────────────────── */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-to-content:focus {
+  left: 24px;
+  top: 24px;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-stack-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 100;
+}
+
+/* ─── Label utilities ────────────────────────────────────────────────────── */
+.label-mono {
+  font-family: var(--font-stack-mono);
+  font-size: var(--t-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.label-micro {
+  font-family: var(--font-stack-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
 }
