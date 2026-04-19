@@ -41,6 +41,8 @@ export default function SystemBar() {
     };
   }, []);
 
+  if (pathname === "/") return null;
+
   return (
     <>
       <div className="system-bar" aria-hidden="true">

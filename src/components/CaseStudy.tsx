@@ -5,6 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import AsciiFrame from "@/components/AsciiFrame";
+import AnnotatedMedia from "@/components/Annotation";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -22,13 +23,13 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     <span
       className="font-mono uppercase block"
       style={{
-        fontSize: 11,
-        letterSpacing: "0.08em",
-        color: "var(--ink-muted)",
-        marginBottom: 24,
+        fontSize: 10,
+        letterSpacing: "0.14em",
+        color: "var(--ink-faint)",
+        marginBottom: 20,
       }}
     >
-      {children}
+      {"\u25B8 "}{children}
     </span>
   );
 }
@@ -253,8 +254,10 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
             bottomRight={piece.status === "wip" ? "IN PROGRESS" : "SHIPPED"}
             padding={0}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={piece.image} alt={piece.title} className="image-treatment" style={{ display: "block", width: "100%", height: "auto", objectFit: "cover" }} />
+            <AnnotatedMedia annotations={cs?.heroAnnotations?.map(a => ({ ...a, variant: "editorial" as const }))}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={piece.image} alt={piece.title} className="image-treatment" style={{ display: "block", width: "100%", height: "auto", objectFit: "cover" }} />
+            </AnnotatedMedia>
           </AsciiFrame>
         </div>
       )}
@@ -266,7 +269,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>{cs.editorial.heading}</SectionLabel>
           <p
@@ -288,7 +291,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>{cs.process.title}</SectionLabel>
           <p
@@ -310,7 +313,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>Process</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
@@ -366,7 +369,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>Key Details</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
@@ -418,7 +421,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>{cs.engineering.title}</SectionLabel>
           <p
@@ -459,7 +462,7 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
         <div
           className="case-study-col"
           data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
+          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
         >
           <SectionLabel>Numbers</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48 }}>

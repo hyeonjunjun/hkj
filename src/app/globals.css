@@ -41,6 +41,7 @@
   --font-stack-serif: var(--font-serif, "Georgia"), serif;
   --font-stack-sans:  var(--font-sans, "Helvetica Neue"), system-ui, sans-serif;
   --font-stack-mono:  var(--font-fragment, "SF Mono"), "Consolas", monospace;
+  --font-stack-hand:  var(--font-hand, "Comic Sans MS"), cursive;
 
   /* Easing */
   --ease: cubic-bezier(.4, 0, .2, 1);
@@ -83,6 +84,9 @@ body::before {
   background-size: 256px;
   mix-blend-mode: multiply;
 }
+
+/* Suppress paper grain on the viewfinder homepage */
+body:has(main.viewfinder)::before { display: none; }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 export default function NavCoordinates() {
   const pathname = usePathname();
+  if (pathname === "/") return null;
 
   return (
     <nav
@@ -47,6 +48,9 @@ export default function NavCoordinates() {
         </Link>
         <Link href="/" className={`nav-link${pathname === "/" ? " is-active" : ""}`}>
           <span className="nav-link-text">Work</span>
+        </Link>
+        <Link href="/shelf" className={`nav-link${pathname === "/shelf" ? " is-active" : ""}`}>
+          <span className="nav-link-text">Shelf</span>
         </Link>
         <a href="mailto:hyeonjunjun07@gmail.com" className="nav-link">
           <span className="nav-link-text">Contact</span>

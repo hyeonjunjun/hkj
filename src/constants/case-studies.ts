@@ -70,6 +70,12 @@ export interface CaseStudy {
     cardVideos?: string[];
     cardFormat?: "portrait" | "landscape";
     has3dInspector?: boolean;
+    heroAnnotations?: Array<{
+        brand?: string;
+        label: string;
+        anchorX: number; anchorY: number;
+        targetX: number; targetY: number;
+    }>;
 }
 
 export const CASE_STUDIES: Record<string, CaseStudy> = {
@@ -139,6 +145,11 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
             { title: "Feel Testing", copy: "Blind tests with designers and non-designers: can they identify the material just by watching it on screen? Success rate drove shader refinement." },
         ],
         has3dInspector: true,
+        heroAnnotations: [
+            { brand: "material", label: "hanji paper", anchorX: 75, anchorY: 30, targetX: 45, targetY: 40 },
+            { brand: "detail", label: "korean seal", anchorX: 25, anchorY: 55, targetX: 50, targetY: 52 },
+            { brand: "product", label: "display light", anchorX: 70, anchorY: 75, targetX: 55, targetY: 65 },
+        ],
         cardVideo: "/assets/gyeol-broll3.mp4",
         cardVideos: [
             "/assets/gyeol-broll1.mp4",

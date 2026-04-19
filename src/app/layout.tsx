@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Newsreader } from "next/font/google";
+import { Newsreader, Caveat } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -9,6 +9,7 @@ import PageTransition from "@/components/PageTransition";
 import Reticle from "@/components/Reticle";
 import SystemBar from "@/components/SystemBar";
 import ColophonOverlay from "@/components/ColophonOverlay";
+import Environment from "@/components/Environment";
 
 const generalSans = localFont({
   src: "../fonts/general-sans/GeneralSans-Variable.woff2",
@@ -32,6 +33,13 @@ const fragmentMono = localFont({
   weight: "400",
   display: "swap",
   preload: true,
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-hand",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -63,8 +71,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable}`}
+        className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable} ${caveat.variable}`}
       >
+        <Environment />
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />

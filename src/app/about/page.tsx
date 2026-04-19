@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import AsciiFrame from "@/components/AsciiFrame";
+import AnnotatedMedia from "@/components/Annotation";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DUR } from "@/lib/motion";
@@ -55,27 +56,32 @@ export default function AboutPage() {
             bottomRight="NEW YORK"
             padding={0}
           >
-            <div className="about-portrait__media">
-              <pre className="about-portrait__ascii">{`      ........
-    ..::::::::..
-   .::=====-:-::
-  .-==+***+==-::
-  :-=+#####+=-::
-  :=+#######+=-:
-  .-=+######+=-:
-   .-=+####+=-:
-     .-====-..
-       ::::
-      :::::
-     :::::::
-    :::::::::
-   :::::::::::
-  :::::::::::::
- :::::::::::::::`}</pre>
-              <span className="about-portrait__label">
-                SUBJECT · HYEONJOON · 2026
-              </span>
-            </div>
+            <AnnotatedMedia
+              aspectRatio="4 / 5"
+              annotations={[
+                { variant: "hand", label: "me \u2193", anchorX: 50, anchorY: 20, targetX: 50, targetY: 45, rotate: -3 },
+                { variant: "hand", label: "design engineer", anchorX: 80, anchorY: 55, targetX: 60, targetY: 55, rotate: 4 },
+                { variant: "hand", label: "ny, 2026", anchorX: 20, anchorY: 85, targetX: 35, targetY: 75, rotate: -6 },
+              ]}
+            >
+              <div style={{
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(180deg, #2a4a6e 0%, #4a6d92 40%, #6a8cb4 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+                {/* placeholder — replace with real <Image> when photo is available */}
+                <div style={{
+                  width: 80,
+                  height: 100,
+                  background: "rgba(0,0,0,0.3)",
+                  borderRadius: "50% 50% 46% 46% / 40% 40% 60% 60%",
+                  marginTop: 40,
+                }} />
+              </div>
+            </AnnotatedMedia>
           </AsciiFrame>
         </div>
 
@@ -98,65 +104,55 @@ export default function AboutPage() {
         </div>
 
         <div className="about-experience" data-reveal style={{ opacity: 0 }}>
-          <AsciiFrame
-            topLeft="EXPERIENCE / 03 ENTRIES"
-            topRight="2021 – 2026"
-            bottomLeft="INDEPENDENT PRACTICE · DESIGN ENGINEERING"
-            padding={0}
-          >
-            <div className="about-experience__inner">
-              {EXPERIENCE.map(([period, role], i) => (
-                <div
-                  key={period}
-                  className="about-experience__row"
-                  style={{
-                    borderBottom:
-                      i === EXPERIENCE.length - 1
-                        ? "none"
-                        : "1px solid var(--ink-ghost)",
-                  }}
-                >
-                  <span className="about-experience__period">{period}</span>
-                  <span className="about-experience__role">{role}</span>
-                </div>
-              ))}
-            </div>
-          </AsciiFrame>
+          <div className="about-section-label">
+            {"\u25B8 EXPERIENCE \u00B7 03 ENTRIES \u00B7 2021\u20132026"}
+          </div>
+          <div className="about-experience__inner">
+            {EXPERIENCE.map(([period, role], i) => (
+              <div
+                key={period}
+                className="about-experience__row"
+                style={{
+                  borderTop: i === 0 ? "1px solid var(--ink-ghost)" : "none",
+                  borderBottom: "1px solid var(--ink-ghost)",
+                }}
+              >
+                <span className="about-experience__period">{period}</span>
+                <span className="about-experience__role">{role}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="about-contact" data-reveal style={{ opacity: 0 }}>
-          <AsciiFrame
-            topLeft="CONTACT"
-            topRight="AVAILABLE 2026"
-            bottomRight="NEW YORK"
-            padding={0}
-          >
-            <div className="about-contact__inner">
-              <p className="about-contact__lede">
-                For work inquiries, freelance, or a quick hello — reach me at{" "}
+          <div className="about-section-label">
+            {"\u25B8 CONTACT \u00B7 AVAILABLE 2026 \u00B7 NEW YORK"}
+          </div>
+          <div className="about-contact__inner">
+            <p className="about-contact__lede">
+              For work inquiries, freelance, or a quick hello — reach me at{" "}
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="about-contact__mail"
+              >
+                {CONTACT_EMAIL}
+              </a>
+              .
+            </p>
+            <div className="about-contact__socials">
+              {SOCIALS.map((s) => (
                 <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="about-contact__mail"
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="about-contact__social"
                 >
-                  {CONTACT_EMAIL}
+                  {s.label}
                 </a>
-                .
-              </p>
-              <div className="about-contact__socials">
-                {SOCIALS.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="about-contact__social"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </div>
+              ))}
             </div>
-          </AsciiFrame>
+          </div>
         </div>
 
         <footer className="about-signoff" data-reveal style={{ opacity: 0 }}>
@@ -259,8 +255,16 @@ export default function AboutPage() {
           max-width: 54ch;
           margin: 0 0 20px 0;
         }
+        .about-section-label {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-faint);
+          margin-bottom: 24px;
+        }
         .about-experience__inner {
-          padding: clamp(24px, 3vw, 40px);
+          padding: 0;
         }
         .about-experience__row {
           display: flex;
@@ -283,7 +287,7 @@ export default function AboutPage() {
           color: var(--ink);
         }
         .about-contact__inner {
-          padding: clamp(24px, 3vw, 40px);
+          padding: 0;
         }
         .about-contact__lede {
           font-family: var(--font-sans);

@@ -16,6 +16,7 @@ const SITEMAP: SiteRow[] = [
   { idx: "04", path: "/work/sift", title: "SIFT", desc: "MOBILE / AI" },
   { idx: "05", path: "/work/pane", title: "PANE", desc: "AMBIENT COMPUTING" },
   { idx: "06", path: "/work/clouds-at-sea", title: "CLOUDS AT SEA", desc: "WEBGL / GENERATIVE" },
+  { idx: "07", path: "/shelf", title: "SHELF", desc: "OBJECTS · FIELD NOTES" },
 ];
 
 const TYPES: TypeRow[] = [
@@ -355,8 +356,14 @@ export default function ColophonOverlay() {
         }}
       >
         <div className="co-dots" aria-hidden="true" />
+        <div className="co-scanline" aria-hidden="true" />
         <div ref={panelRef} className="co-panel">
+          <span className="co-slate-corner co-slate-corner--tl" aria-hidden="true">┌</span>
+          <span className="co-slate-corner co-slate-corner--tr" aria-hidden="true">┐</span>
+          <span className="co-slate-corner co-slate-corner--bl" aria-hidden="true">└</span>
+          <span className="co-slate-corner co-slate-corner--br" aria-hidden="true">┘</span>
           <header className="co-header">
+            <span className="co-slate-indicator" aria-hidden="true" />
             <span className="co-h-left">COLOPHON / HYEONJOON &middot; OPERATIONS MANUAL</span>
             <span className="co-h-right">
               PATH {pathname || "/"} &middot; {clock} EST
@@ -456,8 +463,11 @@ export default function ColophonOverlay() {
                 </a>
               </span>
               <span className="co-hint">
-                <span className="co-key">[ ESC ]</span> TO CLOSE &middot;{" "}
-                <span className="co-key">[ ? ]</span> TO TOGGLE
+                <span className="co-key">ESC</span>
+                <span className="co-hint-sep">TO CLOSE</span>
+                &middot;{" "}
+                <span className="co-key">?</span>
+                <span className="co-hint-sep">TO TOGGLE</span>
               </span>
             </div>
           </section>
@@ -473,9 +483,10 @@ export default function ColophonOverlay() {
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background: var(--ink);
-          color: var(--paper);
-          border: 1px solid var(--ink);
+          background: rgba(28, 28, 26, 0.55);
+          backdrop-filter: blur(8px);
+          color: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(91, 137, 181, 0.4);
           font-family: var(--font-stack-mono);
           font-size: 18px;
           line-height: 1;
@@ -483,14 +494,16 @@ export default function ColophonOverlay() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: background 200ms var(--ease), transform 200ms var(--ease),
-            border-color 200ms var(--ease);
+          transition: background 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
           padding: 0;
           user-select: none;
         }
         .co-btn:hover {
-          background: var(--accent-deep);
-          border-color: var(--accent-deep);
+          background: rgba(91, 137, 181, 0.35);
+          border-color: var(--accent);
+          color: white;
           transform: scale(1.06);
         }
         .co-btn:focus-visible {
@@ -502,7 +515,7 @@ export default function ColophonOverlay() {
           position: fixed;
           inset: 0;
           z-index: 85;
-          background: var(--paper);
+          background: #F2F0EA;
           will-change: clip-path, opacity;
           overflow: auto;
         }
@@ -517,6 +530,19 @@ export default function ColophonOverlay() {
           background-size: 10px 10px;
           pointer-events: none;
         }
+        .co-scanline {
+          position: absolute;
+          inset: 0;
+          background-image: repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 3px,
+            rgba(28, 28, 26, 0.015) 3px,
+            rgba(28, 28, 26, 0.015) 4px
+          );
+          pointer-events: none;
+          mix-blend-mode: multiply;
+        }
         .co-panel {
           position: relative;
           max-width: 1200px;
@@ -526,19 +552,73 @@ export default function ColophonOverlay() {
           display: flex;
           flex-direction: column;
           gap: 40px;
+          background:
+            linear-gradient(
+              180deg,
+              rgba(91, 137, 181, 0.04) 0%,
+              transparent 30%,
+              transparent 70%,
+              rgba(91, 137, 181, 0.04) 100%
+            );
+          box-shadow:
+            inset 0 0 0 1px rgba(28, 28, 26, 0.06),
+            inset 0 2px 8px rgba(28, 28, 26, 0.03),
+            0 0 40px rgba(91, 137, 181, 0.05);
         }
+
+        .co-slate-corner {
+          position: absolute;
+          font-family: var(--font-stack-mono);
+          font-size: 18px;
+          color: var(--ink);
+          opacity: 0.5;
+          pointer-events: none;
+          user-select: none;
+          line-height: 1;
+        }
+        .co-slate-corner--tl { top: 24px; left: 24px; }
+        .co-slate-corner--tr { top: 24px; right: 24px; }
+        .co-slate-corner--bl { bottom: 24px; left: 24px; }
+        .co-slate-corner--br { bottom: 24px; right: 24px; }
 
         .co-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-bottom: 20px;
+          padding-bottom: 12px;
+          margin-bottom: 4px;
           border-bottom: 1px solid var(--ink-ghost);
           font-family: var(--font-stack-mono);
-          font-size: 11px;
+          font-size: 12px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
           gap: 16px;
+          position: relative;
+        }
+        .co-header::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -4px;
+          height: 1px;
+          background: var(--ink-ghost);
+          opacity: 0.4;
+        }
+        .co-slate-indicator {
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 6px rgba(91, 137, 181, 0.6);
+          margin-right: 10px;
+          flex-shrink: 0;
+          animation: co-slate-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes co-slate-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.45; }
         }
         .co-h-left { color: var(--ink); }
         .co-h-right { color: var(--ink-muted); text-align: right; }
@@ -655,8 +735,24 @@ export default function ColophonOverlay() {
           letter-spacing: 0.14em;
           text-transform: uppercase;
           color: var(--ink-faint);
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
         }
-        .co-key { color: var(--accent); }
+        .co-hint-sep { color: var(--ink-faint); }
+        .co-key {
+          display: inline-block;
+          padding: 2px 6px;
+          border: 1px solid var(--accent);
+          border-radius: 3px;
+          color: var(--accent);
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          background: rgba(91, 137, 181, 0.08);
+          margin: 0 2px;
+          line-height: 1.2;
+        }
 
         @media (max-width: 820px) {
           .co-block-sitemap,
