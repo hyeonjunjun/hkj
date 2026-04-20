@@ -158,11 +158,26 @@ export default function CreatureField({
 
     const getStardustColor = (alpha: number) => `rgba(245, 239, 227, ${alpha})`;
 
+    const drawStar = (cx: number, cy: number, rOuter: number, rInner: number) => {
+      const points = 5;
+      ctx.beginPath();
+      for (let i = 0; i < points * 2; i++) {
+        const r = i % 2 === 0 ? rOuter : rInner;
+        const ang = (i * Math.PI) / points - Math.PI / 2;
+        const px = cx + Math.cos(ang) * r;
+        const py = cy + Math.sin(ang) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+    };
+
     const drawCreature = (c: Creature, currentMode: Mode) => {
       const angle = Math.atan2(c.vy, c.vx);
       const isDark = themeRef.current === "dark";
       ctx.save();
-      ctx.translate(c.x, c.y);
+      const bob = reduced ? 0 : Math.sin(c.phase * 1.3 + c.x * 0.01) * 0.8;
+      ctx.translate(c.x, c.y + bob);
       ctx.rotate(angle);
       const a = c.alpha;
 
@@ -179,6 +194,12 @@ export default function CreatureField({
         ctx.lineTo(-L - 6 * c.size, -3.5 * c.size);
         ctx.lineTo(-L - 6 * c.size, 3.5 * c.size);
         ctx.closePath();
+        ctx.fill();
+        const hlAlpha = isDark ? 0.65 * a : 0.5 * a;
+        const hlColor = isDark ? `rgba(245, 239, 227, ${hlAlpha})` : `rgba(255, 255, 255, ${hlAlpha})`;
+        ctx.fillStyle = hlColor;
+        ctx.beginPath();
+        ctx.arc(-1 * c.size, -B * 0.5, B * 0.32, 0, Math.PI * 2);
         ctx.fill();
       } else if (currentMode === "land") {
         const beeAlpha = isDark ? 0.88 * a : 0.75 * a;
@@ -197,10 +218,16 @@ export default function CreatureField({
         ctx.beginPath();
         ctx.arc(1, -2 * c.size, 3.6 * c.size, Math.PI * 1.2, Math.PI * 2);
         ctx.stroke();
+        const hlAlpha = isDark ? 0.55 * a : 0.42 * a;
+        const hlColor = isDark ? `rgba(245, 239, 227, ${hlAlpha})` : `rgba(255, 255, 255, ${hlAlpha})`;
+        ctx.fillStyle = hlColor;
+        ctx.beginPath();
+        ctx.arc(-R * 0.35, -R * 0.35, R * 0.3, 0, Math.PI * 2);
+        ctx.fill();
       } else if (currentMode === "sky") {
         const birdAlpha = isDark ? 0.90 * a : 0.78 * a;
         ctx.strokeStyle = getInkColor(birdAlpha);
-        ctx.lineWidth = 1.6;
+        ctx.lineWidth = 1.8;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         const W = 10 * c.size;
@@ -210,27 +237,45 @@ export default function CreatureField({
         ctx.lineTo(0, -H * 0.4);
         ctx.lineTo(W, H);
         ctx.stroke();
+        const hlAlpha = isDark ? 0.55 * a : 0.4 * a;
+        const hlColor = isDark ? `rgba(245, 239, 227, ${hlAlpha})` : `rgba(255, 255, 255, ${hlAlpha})`;
+        ctx.fillStyle = hlColor;
+        ctx.beginPath();
+        ctx.arc(0, -H * 0.4, 1.2 * c.size, 0, Math.PI * 2);
+        ctx.fill();
       } else {
+        ctx.rotate(-angle);
+        const outerR = 4.2 * c.size;
+        const innerR = 1.8 * c.size;
         if (isDark) {
-          ctx.fillStyle = `rgba(245, 239, 227, ${0.92 * a})`;
+          ctx.fillStyle = `rgba(245, 239, 227, ${0.18 * a})`;
           ctx.beginPath();
-          ctx.arc(0, 0, 1.8 * c.size, 0, Math.PI * 2);
+          ctx.arc(0, 0, 5 * c.size, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = `rgba(245, 239, 227, ${0.22 * a})`;
+          ctx.fillStyle = `rgba(245, 239, 227, ${0.92 * a})`;
+          drawStar(0, 0, outerR, innerR);
+          ctx.fill();
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.55 * a})`;
           ctx.beginPath();
-          ctx.arc(0, 0, 3.8 * c.size, 0, Math.PI * 2);
+          ctx.arc(-outerR * 0.3, -outerR * 0.3, outerR * 0.22, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          ctx.strokeStyle = getInkColor(0.72 * a);
-          ctx.lineWidth = 1.2;
-          ctx.lineCap = "round";
-          const L = 3.6 * c.size;
+          ctx.fillStyle = `rgba(234, 208, 140, ${0.14 * a})`;
           ctx.beginPath();
-          ctx.moveTo(-L, 0);
-          ctx.lineTo(L, 0);
-          ctx.moveTo(0, -L);
-          ctx.lineTo(0, L);
+          ctx.arc(0, 0, 5 * c.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = `rgba(180, 150, 92, ${0.78 * a})`;
+          drawStar(0, 0, outerR, innerR);
+          ctx.fill();
+          ctx.strokeStyle = `rgba(100, 78, 40, ${0.35 * a})`;
+          ctx.lineWidth = 0.6;
+          ctx.lineJoin = "round";
+          drawStar(0, 0, outerR, innerR);
           ctx.stroke();
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.48 * a})`;
+          ctx.beginPath();
+          ctx.arc(-outerR * 0.3, -outerR * 0.3, outerR * 0.2, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
 
