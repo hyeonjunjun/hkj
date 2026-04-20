@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Newsreader, Caveat } from "next/font/google";
+import { Newsreader, Caveat, Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -42,6 +42,21 @@ const caveat = Caveat({
   display: "swap",
 });
 
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
   title: { default: "Hyeonjoon", template: "%s — Hyeonjoon" },
@@ -71,7 +86,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable} ${caveat.variable}`}
+        className={`${generalSans.variable} ${newsreader.variable} ${fragmentMono.variable} ${caveat.variable} ${instrumentSerif.variable} ${inter.variable}`}
       >
         <Environment />
         <RouteAnnouncer />

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Reticle() {
+  const pathname = usePathname();
   const [enabled, setEnabled] = useState(true);
   const [visible, setVisible] = useState(true);
   const [reduced, setReduced] = useState(false);
@@ -122,6 +124,7 @@ export default function Reticle() {
   }, [enabled, visible, reduced]);
 
   if (!enabled) return null;
+  if (pathname === "/writing") return null;
 
   return (
     <div

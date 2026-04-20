@@ -52,6 +52,9 @@ export default function NavCoordinates() {
         <Link href="/shelf" className={`nav-link${pathname === "/shelf" ? " is-active" : ""}`}>
           <span className="nav-link-text">Shelf</span>
         </Link>
+        <Link href="/writing" className={`nav-link${pathname === "/writing" ? " is-active" : ""}`}>
+          <span className="nav-link-text">Writing</span>
+        </Link>
         <a href="mailto:hyeonjunjun07@gmail.com" className="nav-link">
           <span className="nav-link-text">Contact</span>
         </a>

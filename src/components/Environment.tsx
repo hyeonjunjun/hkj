@@ -15,6 +15,8 @@ export default function Environment() {
   const tintColor = useMemo(() => timeTint(new Date().getHours()), []);
   const isHome = pathname === "/";
 
+  if (pathname === "/writing") return null;
+
   return (
     <>
       <div className="env-backdrop" aria-hidden>

@@ -68,6 +68,11 @@ body {
 body.cursor-reveal, body.cursor-reveal * { cursor: auto !important; }
 @media (pointer: coarse) { body { cursor: auto; } }
 
+/* Pretext hero owns its own cursor */
+body:has(.pretext-hero) { cursor: crosshair !important; }
+body:has(.pretext-hero) * { cursor: crosshair !important; }
+body:has(.pretext-hero) a { cursor: pointer !important; }
+
 ::selection { background: var(--ink); color: var(--paper); }
 :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }

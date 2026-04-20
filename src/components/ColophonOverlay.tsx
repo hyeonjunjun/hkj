@@ -17,6 +17,7 @@ const SITEMAP: SiteRow[] = [
   { idx: "05", path: "/work/pane", title: "PANE", desc: "AMBIENT COMPUTING" },
   { idx: "06", path: "/work/clouds-at-sea", title: "CLOUDS AT SEA", desc: "WEBGL / GENERATIVE" },
   { idx: "07", path: "/shelf", title: "SHELF", desc: "OBJECTS · FIELD NOTES" },
+  { idx: "08", path: "/writing", title: "WRITING", desc: "READING-FIRST ESSAYS" },
 ];
 
 const TYPES: TypeRow[] = [
