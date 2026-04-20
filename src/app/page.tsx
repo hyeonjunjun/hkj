@@ -2,9 +2,8 @@
 
 import dynamic from "next/dynamic";
 
-// Dynamically load the three.js scene so the ~700kb of webgl stack only
-// ships on the homepage route (not pre-fetched elsewhere).
-const CosmosScene = dynamic(() => import("@/components/CosmosScene"), {
+// Dynamic import keeps the canvas renderer out of the initial server bundle.
+const AsciiCosmos = dynamic(() => import("@/components/AsciiCosmos"), {
   ssr: false,
   loading: () => <div className="home-hero__placeholder" aria-hidden />,
 });
@@ -13,7 +12,7 @@ export default function Home() {
   return (
     <main id="main" className="home" data-theme-lock="dark">
       <section className="home-hero" aria-label="Hyeonjoon Jun — design engineer, New York">
-        <CosmosScene />
+        <AsciiCosmos />
         <div className="home-hero__byline" aria-hidden>
           <span className="home-hero__name">Hyeonjoon Jun</span>
           <span className="home-hero__sep"> · </span>
