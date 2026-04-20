@@ -25,7 +25,11 @@ export default function Home() {
 
       {/* Work list — quiet, numbered, mono */}
       <section className="home-work" aria-label="Selected work">
-        <h2 className="home-work__label">Selected work · 2024 — 2026</h2>
+        <div className="home-work__intro">
+          <span className="home-work__kicker">INDEX · 04 ENTRIES · 2024 — 2026</span>
+          <h2 className="home-work__label">Selected work.</h2>
+          <p className="home-work__lede">A small practice. Four projects made slowly.</p>
+        </div>
         <ol className="home-work__list">
           {ordered.map((p, i) => (
             <li key={p.slug} className="home-work__row">
@@ -66,10 +70,11 @@ export default function Home() {
         }
         .home-hero__controls {
           position: absolute;
+          right: clamp(24px, 4vw, 64px);
           bottom: clamp(32px, 5vh, 56px);
-          left: 50%;
-          transform: translateX(-50%);
           z-index: 2;
+          left: auto;
+          transform: none;
         }
         .home-work {
           max-width: 820px;
@@ -77,14 +82,36 @@ export default function Home() {
           padding: clamp(72px, 12vh, 144px) clamp(24px, 5vw, 64px);
           width: 100%;
         }
-        .home-work__label {
+        .home-work__intro {
+          margin-bottom: clamp(32px, 5vh, 56px);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .home-work__kicker {
           font-family: var(--font-stack-mono);
           font-size: 10px;
           letter-spacing: 0.24em;
           text-transform: uppercase;
-          color: var(--ink-muted);
-          margin: 0 0 clamp(24px, 4vh, 40px);
+          color: var(--ink-faint);
+        }
+        .home-work__label {
+          font-family: var(--font-stack-serif);
+          font-style: italic;
           font-weight: 400;
+          font-size: clamp(36px, 5vw, 56px);
+          line-height: 1.02;
+          letter-spacing: -0.025em;
+          color: var(--ink);
+          margin: 0;
+        }
+        .home-work__lede {
+          font-family: var(--font-stack-serif);
+          font-size: 15px;
+          line-height: 1.55;
+          color: var(--ink-muted);
+          margin: 0;
+          max-width: 32ch;
         }
         .home-work__list {
           list-style: none;
@@ -97,18 +124,24 @@ export default function Home() {
         }
         .home-work__link {
           display: grid;
-          grid-template-columns: 48px 1.6fr 1fr 72px 20px;
+          grid-template-columns: 48px 1.3fr 1.2fr 72px 20px;
           column-gap: clamp(12px, 2vw, 28px);
           align-items: baseline;
-          padding: clamp(14px, 2.4vh, 22px) 4px;
+          padding: clamp(18px, 3vh, 28px) 4px;
           font-family: var(--font-stack-mono);
           font-size: 13px;
           color: var(--ink);
           text-decoration: none;
-          transition: color 200ms var(--ease), padding-left 220ms var(--ease);
+          transition: color 200ms var(--ease);
         }
         .home-work__link:hover {
-          padding-left: 12px;
+          padding-left: 0;
+        }
+        .home-work__link:hover .home-work__title {
+          text-decoration: underline;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 5px;
+          text-decoration-color: var(--accent);
         }
         .home-work__num {
           color: var(--ink-faint);
@@ -116,6 +149,11 @@ export default function Home() {
         }
         .home-work__title {
           color: var(--ink);
+          font-family: var(--font-stack-serif);
+          font-style: italic;
+          font-size: 20px;
+          letter-spacing: -0.01em;
+          line-height: 1.15;
         }
         .home-work__sector {
           color: var(--ink-muted);
@@ -142,7 +180,7 @@ export default function Home() {
           transform: translateX(0);
         }
         .home-foot {
-          padding: clamp(48px, 8vh, 96px) clamp(24px, 5vw, 64px);
+          padding: clamp(64px, 12vh, 128px) clamp(24px, 5vw, 64px);
           font-family: var(--font-stack-mono);
           font-size: 10px;
           letter-spacing: 0.14em;
@@ -173,6 +211,11 @@ export default function Home() {
 
         @media (max-width: 640px) {
           .home-hero { height: 78vh; min-height: 480px; }
+          .home-hero__controls {
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+          }
           .home-work__link {
             grid-template-columns: 32px 1fr auto;
             grid-template-areas:

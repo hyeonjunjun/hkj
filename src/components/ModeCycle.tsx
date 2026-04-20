@@ -58,8 +58,18 @@ export default function ModeCycle({ mode, onSelect }: Props) {
           left: 2px;
           right: 2px;
           bottom: 0;
-          height: 1px;
+          height: 1.5px;
           background: var(--accent);
+          transform-origin: left;
+          animation: mode-pulse 360ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes mode-pulse {
+          0%   { background: var(--accent); box-shadow: 0 0 0 rgba(91,137,181,0); transform: scaleX(0.5); }
+          30%  { background: var(--accent-deep); box-shadow: 0 0 8px rgba(91,137,181,0.5); transform: scaleX(1); }
+          100% { background: var(--accent); box-shadow: 0 0 0 rgba(91,137,181,0); transform: scaleX(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .mode-cycle__label.is-active::after { animation: none; }
         }
         .mode-cycle__sep {
           color: var(--ink-faint);
