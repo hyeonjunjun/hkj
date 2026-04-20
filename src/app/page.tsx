@@ -11,7 +11,7 @@ const CosmosScene = dynamic(() => import("@/components/CosmosScene"), {
 
 export default function Home() {
   return (
-    <main id="main" className="home" data-theme-lock="dark">
+    <main id="main" className="home">
       <section className="home-hero" aria-label="Hyeonjoon Jun — design engineer, New York">
         <CosmosScene />
         <div className="home-hero__byline" aria-hidden>
@@ -27,7 +27,7 @@ export default function Home() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          background: #050710;
+          background: #F4F1EA;
         }
         .home-hero {
           position: relative;
@@ -37,13 +37,7 @@ export default function Home() {
         .home-hero__placeholder {
           position: absolute;
           inset: 0;
-          background: #050710;
-        }
-        /* Hero-scoped light overrides — the cosmos is always night regardless
-           of site theme, so nav + byline render in warm cream here. */
-        .home .home-hero__byline,
-        .home .home-hero {
-          color: #e8e2d4;
+          background: #F4F1EA;
         }
         .home-hero__byline {
           position: absolute;
@@ -55,17 +49,16 @@ export default function Home() {
           gap: 8px;
           pointer-events: none;
           user-select: none;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
         .home-hero__name {
           font-family: var(--font-stack-serif);
           font-style: italic;
           font-size: 14px;
           letter-spacing: -0.01em;
-          color: rgba(232, 226, 212, 0.95);
+          color: var(--ink);
         }
         .home-hero__sep {
-          color: rgba(232, 226, 212, 0.45);
+          color: var(--ink-faint);
           font-family: var(--font-stack-mono);
           font-size: 10px;
         }
@@ -74,7 +67,7 @@ export default function Home() {
           font-size: 10px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: rgba(232, 226, 212, 0.7);
+          color: var(--ink-muted);
         }
 
         @media (max-width: 640px) {
