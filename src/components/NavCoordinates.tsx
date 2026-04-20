@@ -6,10 +6,13 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function NavCoordinates() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
+  const wordmarkColor = isHome ? "rgba(232, 226, 212, 0.95)" : "var(--ink)";
 
   return (
     <nav
       aria-label="Primary"
+      className={isHome ? "nav-home" : ""}
       style={{
         position: "fixed",
         top: 24,
@@ -32,10 +35,11 @@ export default function NavCoordinates() {
           fontSize: 13,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: "var(--ink)",
+          color: wordmarkColor,
           textDecoration: "none",
           pointerEvents: "auto",
           transition: "opacity 0.15s var(--ease)",
+          textShadow: isHome ? "0 1px 2px rgba(0,0,0,0.5)" : "none",
         }}
         onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.6")}
         onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
@@ -81,6 +85,16 @@ export default function NavCoordinates() {
           text-decoration: underline;
           text-underline-offset: 4px;
           text-decoration-thickness: 1px;
+        }
+        :global(.nav-home) .nav-link {
+          color: rgba(232, 226, 212, 0.7);
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        :global(.nav-home) .nav-link:hover {
+          color: rgba(255, 255, 255, 1);
+        }
+        :global(.nav-home) .nav-link.is-active {
+          color: var(--accent);
         }
       `}</style>
     </nav>

@@ -11,7 +11,7 @@ const CosmosScene = dynamic(() => import("@/components/CosmosScene"), {
 
 export default function Home() {
   return (
-    <main id="main" className="home">
+    <main id="main" className="home" data-theme-lock="dark">
       <section className="home-hero" aria-label="Hyeonjoon Jun — design engineer, New York">
         <CosmosScene />
         <div className="home-hero__byline" aria-hidden>
@@ -27,7 +27,7 @@ export default function Home() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          background: #F4F1EA;
+          background: #030408;
         }
         .home-hero {
           position: relative;
@@ -37,7 +37,7 @@ export default function Home() {
         .home-hero__placeholder {
           position: absolute;
           inset: 0;
-          background: #F4F1EA;
+          background: #030408;
         }
         .home-hero__byline {
           position: absolute;
@@ -55,10 +55,10 @@ export default function Home() {
           font-style: italic;
           font-size: 14px;
           letter-spacing: -0.01em;
-          color: var(--ink);
+          color: rgba(232, 226, 212, 0.95);
         }
         .home-hero__sep {
-          color: var(--ink-faint);
+          color: rgba(232, 226, 212, 0.45);
           font-family: var(--font-stack-mono);
           font-size: 10px;
         }
@@ -67,7 +67,7 @@ export default function Home() {
           font-size: 10px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--ink-muted);
+          color: rgba(232, 226, 212, 0.7);
         }
 
         @media (max-width: 640px) {

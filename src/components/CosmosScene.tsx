@@ -6,12 +6,12 @@ import { BlendFunction } from "postprocessing";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
-/* ─── Starfield — distant ink pinpricks, ink-on-paper register ───────────── */
+/* ─── Starfield — distant bright pinpricks, additive ─────────────────────── */
 function Starfield() {
   const ref = useRef<THREE.Points>(null);
 
   const { geometry, material } = useMemo(() => {
-    const count = 1800;
+    const count = 2200;
     const positions = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     const alphas = new Float32Array(count);
@@ -24,8 +24,8 @@ function Starfield() {
       positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       positions[i * 3 + 2] = -Math.abs(r * Math.cos(phi)) * 0.9;
 
-      sizes[i] = Math.random() < 0.05 ? 0.16 : Math.random() < 0.3 ? 0.09 : 0.045;
-      alphas[i] = 0.15 + Math.random() * 0.35;
+      sizes[i] = Math.random() < 0.04 ? 0.18 : Math.random() < 0.25 ? 0.09 : 0.04;
+      alphas[i] = 0.35 + Math.random() * 0.55;
     }
 
     const geo = new THREE.BufferGeometry();
@@ -36,7 +36,7 @@ function Starfield() {
     const mat = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      blending: THREE.NormalBlending,
+      blending: THREE.AdditiveBlending,
       vertexShader: `
         attribute float size;
         attribute float alpha;
@@ -46,7 +46,7 @@ function Starfield() {
           vAlpha = alpha;
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mv;
-          float twinkle = 0.75 + 0.25 * sin(uTime * 1.1 + position.x * 11.0 + position.y * 7.0);
+          float twinkle = 0.7 + 0.3 * sin(uTime * 1.1 + position.x * 11.0 + position.y * 7.0);
           gl_PointSize = size * twinkle * (300.0 / -mv.z);
         }
       `,
@@ -56,7 +56,7 @@ function Starfield() {
           vec2 c = gl_PointCoord - 0.5;
           float d = length(c);
           float a = smoothstep(0.5, 0.0, d) * vAlpha;
-          gl_FragColor = vec4(0.11, 0.11, 0.10, a);
+          gl_FragColor = vec4(0.98, 0.96, 0.92, a);
         }
       `,
       uniforms: { uTime: { value: 0 } },
@@ -131,11 +131,11 @@ function DustCloud({
     geo.setAttribute("alpha", new THREE.BufferAttribute(alphas.slice(0, placed), 1));
     geo.setAttribute("size", new THREE.BufferAttribute(sizes.slice(0, placed), 1));
 
-    // Ink-on-paper — all dust is black, alpha drives density. Color prop is ignored.
+    // Dust — bright additive particles forming volumetric haze
     const mat = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      blending: THREE.NormalBlending,
+      blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
       },
@@ -159,8 +159,8 @@ function DustCloud({
         void main() {
           vec2 c = gl_PointCoord - 0.5;
           float d = length(c);
-          float a = pow(max(0.0, 1.0 - d * 2.0), 2.2) * vAlpha * 0.55;
-          gl_FragColor = vec4(0.11, 0.11, 0.10, a);
+          float a = pow(max(0.0, 1.0 - d * 2.0), 2.2) * vAlpha * 0.32;
+          gl_FragColor = vec4(0.92, 0.94, 0.98, a);
         }
       `,
     });
@@ -211,9 +211,10 @@ function Jet({
       const t = Math.pow(tRaw, 1.6);
       const axisDist = t * length;
 
-      const spread = 0.04 + t * 0.45;
+      // Tighter spread — jet reads as a focused beam, not a cone
+      const spread = 0.015 + t * 0.18;
       const radAngle = Math.random() * Math.PI * 2;
-      const radMag = Math.pow(Math.random(), 0.6) * spread;
+      const radMag = Math.pow(Math.random(), 0.8) * spread;
 
       const px =
         origin[0] + dir.x * axisDist +
@@ -232,9 +233,9 @@ function Jet({
       positions[i * 3 + 1] = py;
       positions[i * 3 + 2] = pz;
 
-      // Ink density — denser near core, sparser at tip
-      alphas[i] = Math.pow(1 - t, 0.6) * 0.6;
-      sizes[i] = 0.22 + (1 - t) * 0.5;
+      // Bright additive — denser near core, sparser at tip
+      alphas[i] = Math.pow(1 - t, 0.5) * 0.75;
+      sizes[i] = 0.18 + (1 - t) * 0.42;
     }
 
     const geo = new THREE.BufferGeometry();
@@ -245,7 +246,7 @@ function Jet({
     const mat = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      blending: THREE.NormalBlending,
+      blending: THREE.AdditiveBlending,
       uniforms: {
         uTime: { value: 0 },
         uDir: { value: new THREE.Vector3(...direction).normalize() },
@@ -270,7 +271,7 @@ function Jet({
           vec2 c = gl_PointCoord - 0.5;
           float d = length(c);
           float a = pow(max(0.0, 1.0 - d * 2.0), 1.6) * vAlpha;
-          gl_FragColor = vec4(0.11, 0.11, 0.10, a);
+          gl_FragColor = vec4(0.95, 0.96, 0.98, a);
         }
       `,
     });
@@ -286,9 +287,11 @@ function Jet({
   return <points geometry={geometry} material={material} />;
 }
 
-/* ─── Protostar core — intense central point + surrounding glow ──────────── */
+/* ─── Protostar core — intense central point + diffraction spikes ───────── */
 function Protostar() {
   const ref = useRef<THREE.Mesh>(null);
+  const spikeTex = useDiffractionSpikeTexture();
+  const glowTex = useRadialGradientTexture("#ffffff");
 
   useFrame((state) => {
     if (ref.current) {
@@ -299,35 +302,101 @@ function Protostar() {
 
   return (
     <>
-      {/* Dense ink knot — core of the composition as a dark dot */}
-      <mesh ref={ref} position={[0, 0, 0]}>
-        <circleGeometry args={[0.06, 32]} />
-        <meshBasicMaterial color="#1C1C1A" transparent opacity={0.9} toneMapped={false} />
+      {/* Outer diffuse halo */}
+      <sprite position={[0, 0, 0.01]} scale={[3.2, 3.2, 1]}>
+        <spriteMaterial
+          map={glowTex}
+          transparent
+          depthWrite={false}
+          opacity={0.4}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </sprite>
+      {/* Tight inner glow */}
+      <sprite position={[0, 0, 0.02]} scale={[0.7, 0.7, 1]}>
+        <spriteMaterial
+          map={glowTex}
+          transparent
+          depthWrite={false}
+          opacity={0.95}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </sprite>
+      {/* Diffraction spikes — the signature telescope-optical cross */}
+      <sprite position={[0, 0, 0.03]} scale={[6.0, 6.0, 1]}>
+        <spriteMaterial
+          map={spikeTex}
+          transparent
+          depthWrite={false}
+          opacity={0.85}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </sprite>
+      {/* Core bright point */}
+      <mesh ref={ref} position={[0, 0, 0.04]}>
+        <sphereGeometry args={[0.04, 16, 16]} />
+        <meshBasicMaterial color="#ffffff" toneMapped={false} />
       </mesh>
-      {/* Soft ink wash around the core — feels like ink bleeding into paper */}
-      <sprite position={[0, 0, 0.01]} scale={[1.0, 1.0, 1]}>
-        <spriteMaterial
-          map={useRadialGradientTexture("#1C1C1A")}
-          transparent
-          depthWrite={false}
-          opacity={0.35}
-          blending={THREE.NormalBlending}
-          toneMapped={false}
-        />
-      </sprite>
-      {/* Diffuse outer wash — larger, fainter ink haze */}
-      <sprite position={[0, 0, 0.02]} scale={[2.2, 2.2, 1]}>
-        <spriteMaterial
-          map={useRadialGradientTexture("#1C1C1A")}
-          transparent
-          depthWrite={false}
-          opacity={0.12}
-          blending={THREE.NormalBlending}
-          toneMapped={false}
-        />
-      </sprite>
     </>
   );
+}
+
+/* ─── Diffraction spike sprite — telescope-optical star pattern ──────────── */
+function useDiffractionSpikeTexture() {
+  return useMemo(() => {
+    const size = 512;
+    const c = document.createElement("canvas");
+    c.width = size;
+    c.height = size;
+    const ctx = c.getContext("2d");
+    if (!ctx) return new THREE.Texture();
+
+    ctx.clearRect(0, 0, size, size);
+    const cx = size / 2;
+    const cy = size / 2;
+
+    // Primary 4-point cross — thin long spikes (horiz + vert)
+    const drawSpike = (angleRad: number, len: number, thick: number, alpha: number) => {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angleRad);
+      // Gradient along the length
+      const g = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
+      g.addColorStop(0, `rgba(255,255,255,0)`);
+      g.addColorStop(0.45, `rgba(255,255,255,${alpha * 0.5})`);
+      g.addColorStop(0.5, `rgba(255,255,255,${alpha})`);
+      g.addColorStop(0.55, `rgba(255,255,255,${alpha * 0.5})`);
+      g.addColorStop(1, `rgba(255,255,255,0)`);
+      ctx.fillStyle = g;
+      // Soft elliptical brush along x-axis
+      ctx.beginPath();
+      ctx.ellipse(0, 0, len / 2, thick / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    // Main cross — horizontal + vertical (longer, thinner)
+    drawSpike(0, size * 0.92, size * 0.012, 1.0);           // horizontal
+    drawSpike(Math.PI / 2, size * 0.92, size * 0.012, 1.0); // vertical
+    // Diagonal spikes — shorter, thinner, lower alpha (typical Hubble pattern)
+    drawSpike(Math.PI / 4, size * 0.55, size * 0.008, 0.55);
+    drawSpike(-Math.PI / 4, size * 0.55, size * 0.008, 0.55);
+
+    // Central bright disk
+    const disk = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.08);
+    disk.addColorStop(0, "rgba(255,255,255,1)");
+    disk.addColorStop(0.4, "rgba(255,255,255,0.6)");
+    disk.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = disk;
+    ctx.fillRect(0, 0, size, size);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }, []);
 }
 
 /* ─── Radial gradient sprite helper ──────────────────────────────────────── */
@@ -369,9 +438,9 @@ function Scene() {
   const { camera, gl } = useThree();
   const mouseRef = useRef({ x: 0, y: 0 });
 
-  // Set clear color explicitly — with alpha:false the CSS bg doesn't show through
+  // Set clear color explicitly — pure near-black deep space
   useMemo(() => {
-    gl.setClearColor("#F4F1EA", 1);
+    gl.setClearColor("#030408", 1);
   }, [gl]);
 
   useFrame((state) => {
@@ -393,40 +462,41 @@ function Scene() {
       {/* Distant stars */}
       <Starfield />
 
-      {/* Main ink wash — upper-left nebulous smear */}
+      {/* Main dust haze — upper-left nebulous smear, bright bluish-white */}
       <DustCloud
         origin={[-1.4, 1.0, -0.5]}
-        count={650}
-        radius={1.8}
-        color="#1C1C1A"
+        count={700}
+        radius={1.9}
+        color="#e8eef8"
         density={1.0}
         stretch={[1.3, 1.0, 0.9]}
       />
 
-      {/* Tighter inner ink density around the core */}
+      {/* Tighter inner dust around the core */}
       <DustCloud
         origin={[0, 0, 0]}
-        count={280}
-        radius={0.5}
-        color="#1C1C1A"
-        density={1.2}
+        count={320}
+        radius={0.55}
+        color="#f0f2f8"
+        density={1.3}
         stretch={[1.1, 0.85, 0.9]}
       />
 
-      {/* Bipolar ink jets — both black, differentiated only by direction */}
+      {/* Bipolar jets — bright additive streams, grayscale */}
       <Jet
         direction={[1, -1.1, 0.1]}
-        count={480}
-        length={3.6}
-        color="#1C1C1A"
-        coreColor="#1C1C1A"
+        count={520}
+        length={3.8}
+        color="#ffffff"
+        coreColor="#ffffff"
       />
+      {/* Opposing jet — fainter, shorter (matches reference asymmetry) */}
       <Jet
         direction={[-1, 1.1, -0.1]}
-        count={480}
-        length={3.6}
-        color="#1C1C1A"
-        coreColor="#1C1C1A"
+        count={320}
+        length={2.4}
+        color="#d8dde8"
+        coreColor="#ffffff"
       />
 
       {/* Central protostar */}
@@ -447,13 +517,19 @@ export default function CosmosScene() {
           powerPreference: "high-performance",
           alpha: false,
         }}
-        style={{ background: "#F4F1EA" }}
+        style={{ background: "#030408" }}
       >
         <Scene />
         <EffectComposer>
-          {/* Subtle vignette — warm paper darkening at edges, no bloom */}
-          <Vignette offset={0.35} darkness={0.18} eskil={false} />
-          <Noise premultiply blendFunction={BlendFunction.MULTIPLY} opacity={0.14} />
+          {/* Subtle bloom — only blows out the central bright core + spikes */}
+          <Bloom
+            intensity={0.9}
+            luminanceThreshold={0.82}
+            luminanceSmoothing={0.92}
+            mipmapBlur
+          />
+          <Vignette offset={0.32} darkness={0.52} eskil={false} />
+          <Noise premultiply blendFunction={BlendFunction.OVERLAY} opacity={0.22} />
         </EffectComposer>
       </Canvas>
 
@@ -462,7 +538,7 @@ export default function CosmosScene() {
           position: absolute;
           inset: 0;
           overflow: hidden;
-          background: #F4F1EA;
+          background: #030408;
         }
         .cosmos-scene-wrap canvas {
           display: block;
