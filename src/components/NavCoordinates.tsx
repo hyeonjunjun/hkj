@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 export default function NavCoordinates() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
 
   return (
     <nav
@@ -42,7 +42,7 @@ export default function NavCoordinates() {
       >
         HYEONJOON
       </Link>
-      <div style={{ display: "flex", gap: 24, pointerEvents: "auto" }}>
+      <div style={{ display: "flex", gap: 24, alignItems: "baseline", pointerEvents: "auto" }}>
         <Link href="/about" className={`nav-link${pathname === "/about" ? " is-active" : ""}`}>
           <span className="nav-link-text">About</span>
         </Link>
@@ -58,6 +58,9 @@ export default function NavCoordinates() {
         <a href="mailto:hyeonjunjun07@gmail.com" className="nav-link">
           <span className="nav-link-text">Contact</span>
         </a>
+        <span style={{ marginLeft: 6, alignSelf: "center", color: "var(--ink-muted)" }}>
+          <ThemeToggle />
+        </span>
       </div>
       <style jsx>{`
         .nav-link {

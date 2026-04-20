@@ -16,6 +16,7 @@ export default function Environment() {
   const isHome = pathname === "/";
 
   if (pathname === "/writing") return null;
+  if (isHome) return null;
 
   return (
     <>

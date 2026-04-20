@@ -111,6 +111,8 @@ export default function Reticle() {
     document.addEventListener("focusout", () => checkActive());
     rafRef.current = window.requestAnimationFrame(tick);
 
+    document.body.classList.add("reticle-active");
+
     return () => {
       if (rafRef.current != null) window.cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -120,11 +122,12 @@ export default function Reticle() {
       document.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseout", onOut);
       document.body.classList.remove("cursor-reveal");
+      document.body.classList.remove("reticle-active");
     };
   }, [enabled, visible, reduced]);
 
   if (!enabled) return null;
-  if (pathname === "/writing") return null;
+  if (pathname === "/" || pathname === "/writing") return null;
 
   return (
     <div

@@ -47,6 +47,25 @@
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
 
+/* Dark theme — applied via [data-theme="dark"] on <html> (set by ThemeToggle) */
+[data-theme="dark"] {
+  --paper:   #0E1117;
+  --paper-2: #161B22;
+  --paper-3: #1E242D;
+  --ink:     #EAE2D4;
+  --ink-2:   #B8B0A0;
+  --ink-3:   #7A7266;
+  --ink-4:   #4A463E;
+  --accent:      #7FA6C4;  /* Hanada slightly lifted for dark bg */
+  --accent-soft: rgba(127, 166, 196, 0.14);
+  --accent-deep: #9FC0D8;
+  --ink-primary:   var(--ink);
+  --ink-secondary: var(--ink-2);
+  --ink-muted:     var(--ink-3);
+  --ink-faint:     var(--ink-4);
+  --ink-ghost:     rgba(234, 226, 212, 0.1);
+}
+
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
@@ -62,11 +81,14 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: none;
+  transition: background 400ms ease, color 400ms ease;
 }
 
+/* Reticle custom cursor — active only when body has .reticle-active class.
+   Added by Reticle on mount, removed on unmount (null-return routes). */
+body.reticle-active { cursor: none; }
 body.cursor-reveal, body.cursor-reveal * { cursor: auto !important; }
-@media (pointer: coarse) { body { cursor: auto; } }
+@media (pointer: coarse) { body.reticle-active { cursor: auto; } }
 
 /* Pretext hero owns its own cursor */
 body:has(.pretext-hero) { cursor: crosshair !important; }
