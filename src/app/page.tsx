@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 
-const AsciiCosmos = dynamic(() => import("@/components/AsciiCosmos"), {
+// Dynamic import keeps the WebGL stack out of the server bundle.
+const ProtostellarScene = dynamic(() => import("@/components/ProtostellarScene"), {
   ssr: false,
   loading: () => <div className="home-hero__placeholder" aria-hidden />,
 });
@@ -21,7 +22,7 @@ export default function Home() {
   return (
     <main id="main" className="home" data-theme-lock="dark">
       <section className="home-hero" aria-label="Hyeonjoon Jun — design engineer, New York">
-        <AsciiCosmos />
+        <ProtostellarScene />
 
         <header className="home-hero__ledger" aria-hidden>
           <div className="home-hero__ledger-row">
