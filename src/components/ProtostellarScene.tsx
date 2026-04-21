@@ -144,83 +144,6 @@ const JET_FRAG = /* glsl */ `
 `;
 
 // ─────────────────────────────────────────────────────────────────────────
-// Textures — canvas-generated for the protostar core
-// ─────────────────────────────────────────────────────────────────────────
-
-function useSpikeTexture() {
-  return useMemo(() => {
-    const size = 1024;
-    const c = document.createElement("canvas");
-    c.width = size;
-    c.height = size;
-    const ctx = c.getContext("2d");
-    if (!ctx) return new THREE.Texture();
-    const cx = size / 2;
-    const cy = size / 2;
-
-    // Dominant horizontal + vertical spikes (telescope lens-flare cross)
-    const drawSpike = (angleRad: number, length: number, thickness: number, alpha: number) => {
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(angleRad);
-      const g = ctx.createLinearGradient(-length / 2, 0, length / 2, 0);
-      g.addColorStop(0, "rgba(255,255,255,0)");
-      g.addColorStop(0.48, `rgba(255,255,255,${alpha * 0.45})`);
-      g.addColorStop(0.5, `rgba(255,255,255,${alpha})`);
-      g.addColorStop(0.52, `rgba(255,255,255,${alpha * 0.45})`);
-      g.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, length / 2, thickness / 2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    };
-    drawSpike(0, size * 0.96, size * 0.006, 1.0);
-    drawSpike(Math.PI / 2, size * 0.52, size * 0.008, 0.75);
-    // Subtle diagonals
-    drawSpike(Math.PI / 4, size * 0.40, size * 0.005, 0.30);
-    drawSpike(-Math.PI / 4, size * 0.40, size * 0.005, 0.30);
-
-    // Bright core disk
-    const disk = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.09);
-    disk.addColorStop(0, "rgba(255,255,255,1)");
-    disk.addColorStop(0.35, "rgba(255,255,255,0.8)");
-    disk.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = disk;
-    ctx.fillRect(0, 0, size, size);
-
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.needsUpdate = true;
-    return tex;
-  }, []);
-}
-
-function useHaloTexture() {
-  return useMemo(() => {
-    const size = 512;
-    const c = document.createElement("canvas");
-    c.width = size;
-    c.height = size;
-    const ctx = c.getContext("2d");
-    if (!ctx) return new THREE.Texture();
-    const cx = size / 2;
-    const cy = size / 2;
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size / 2);
-    g.addColorStop(0, "rgba(255,250,240,0.85)");
-    g.addColorStop(0.25, "rgba(255,240,220,0.35)");
-    g.addColorStop(0.6, "rgba(240,220,200,0.08)");
-    g.addColorStop(1, "rgba(240,220,200,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, size, size);
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.needsUpdate = true;
-    return tex;
-  }, []);
-}
-
-// ─────────────────────────────────────────────────────────────────────────
 // Subsystems
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -416,8 +339,6 @@ function Jet({ count }: { count: number }) {
 }
 
 function Protostar() {
-  const spikeTex = useSpikeTexture();
-  const haloTex = useHaloTexture();
   const coreRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
@@ -428,38 +349,13 @@ function Protostar() {
     }
   });
 
+  // No sprite, no texture — the particle jet's own density at origin
+  // forms the bright center. A tiny emissive core just feeds the bloom.
   return (
-    <group position={[0, 0, -1]}>
-      {/* Warm outer halo — subtle */}
-      <sprite scale={[1.6, 1.6, 1]}>
-        <spriteMaterial
-          map={haloTex}
-          transparent
-          opacity={0.42}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </sprite>
-
-      {/* Diffraction spike cross — the defining silhouette */}
-      <sprite scale={[4.8, 4.8, 1]}>
-        <spriteMaterial
-          map={spikeTex}
-          transparent
-          opacity={0.9}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </sprite>
-
-      {/* Bright core sphere — saturates bloom */}
-      <mesh ref={coreRef}>
-        <sphereGeometry args={[0.028, 20, 20]} />
-        <meshBasicMaterial color="#ffffff" toneMapped={false} />
-      </mesh>
-    </group>
+    <mesh ref={coreRef} position={[0, 0, -1]}>
+      <sphereGeometry args={[0.018, 20, 20]} />
+      <meshBasicMaterial color="#ffffff" toneMapped={false} />
+    </mesh>
   );
 }
 
