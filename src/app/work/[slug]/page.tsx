@@ -18,7 +18,7 @@ export default function WorkDetailPage() {
           <span>Not found</span>
         </p>
         <p className="work-404__body">
-          No plate at that address. <Link href="/work" className="work-404__link">Return to the index</Link>.
+          No plate at that address. <Link href="/" className="work-404__link">Return to the index</Link>.
         </p>
         <style>{`
           .work-404 {

@@ -18,8 +18,10 @@ export default function NavCoordinates() {
 
   return (
     <nav aria-label="Primary" className="nav">
-      <Link href="/" className="nav__mark" aria-label="Hyeonjoon Jun — home">
-        hyeonjoon jun
+      <Link href="/" className="nav__mark" aria-label="Hyeonjoon Jun — design engineer — home">
+        <span>hyeonjoon jun</span>
+        <span className="nav__mark-sep" aria-hidden>·</span>
+        <span className="nav__mark-role">design engineer</span>
       </Link>
 
       <ol className="nav__list">
@@ -65,6 +67,9 @@ export default function NavCoordinates() {
 
         .nav__mark {
           pointer-events: auto;
+          display: inline-flex;
+          align-items: baseline;
+          gap: 10px;
           font-family: var(--font-stack-mono);
           font-size: 10px;
           letter-spacing: 0.22em;
@@ -73,6 +78,12 @@ export default function NavCoordinates() {
           transition: opacity 180ms var(--ease);
         }
         .nav__mark:hover { opacity: 0.55; }
+        .nav__mark-sep { color: var(--ink-4); }
+        .nav__mark-role { color: var(--ink-3); }
+
+        @media (max-width: 520px) {
+          .nav__mark-sep, .nav__mark-role { display: none; }
+        }
 
         .nav__list {
           pointer-events: auto;
