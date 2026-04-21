@@ -18,8 +18,10 @@ export interface Piece {
   image?: string;
   /** Home catalog frame media. Leave undefined for the typographic placeholder. */
   cover?: CatalogCover;
-  /** "cover" fills the 16:9 frame; "center" lets portrait assets breathe on a paper field. */
+  /** "cover" fills the frame; "center" lets portrait assets breathe on a paper field. */
   coverFit?: "cover" | "center";
+  /** Aspect ratio string for the home strip frame (e.g. "16 / 9", "4 / 5", "1 / 1"). */
+  coverAspect?: string;
   tags: string[];
 }
 
@@ -35,6 +37,7 @@ export const PIECES: Piece[] = [
     status: "shipped",
     year: 2026,
     cover: { kind: "video", src: "/assets/cloudsatsea.mp4" },
+    coverAspect: "16 / 9",
     tags: ["webgl", "generative"],
   },
   {
@@ -53,6 +56,7 @@ export const PIECES: Piece[] = [
       src: "/assets/gyeol-broll-combined.mp4",
       poster: "/images/gyeol-spring.webp",
     },
+    coverAspect: "4 / 5",
     tags: ["brand", "ecommerce", "3d"],
   },
   {
@@ -66,6 +70,7 @@ export const PIECES: Piece[] = [
       "A Jarvis-like ambient dashboard — contextual telemetry, focused attention, quiet systems.",
     status: "wip",
     year: 2026,
+    coverAspect: "4 / 3",
     tags: ["dashboard", "ambient", "ai"],
   },
   {
@@ -81,6 +86,7 @@ export const PIECES: Piece[] = [
     image: "/images/sift-v2.webp",
     cover: { kind: "image", src: "/images/sift-v2.webp" },
     coverFit: "center",
+    coverAspect: "9 / 16",
     tags: ["mobile", "ai", "product"],
   },
   {
@@ -94,6 +100,7 @@ export const PIECES: Piece[] = [
       "Seasonal apothecary concept — tactile packaging, Korean materia medica, a ritual brand.",
     status: "wip",
     year: 2026,
+    coverAspect: "1 / 1",
     tags: ["brand", "packaging", "concept"],
   },
   {
@@ -107,6 +114,7 @@ export const PIECES: Piece[] = [
       "Micro-publication and reading society — a quiet typographic brand for slow thought.",
     status: "wip",
     year: 2026,
+    coverAspect: "3 / 4",
     tags: ["brand", "editorial", "concept"],
   },
   {
@@ -120,6 +128,7 @@ export const PIECES: Piece[] = [
       "Objects and scent — sculptural bottle system, minimal ingredient-led identity.",
     status: "wip",
     year: 2026,
+    coverAspect: "2 / 3",
     tags: ["brand", "fragrance", "concept"],
   },
   {
@@ -133,6 +142,7 @@ export const PIECES: Piece[] = [
       "Tea house identity and menu system — Hallasan heritage, ceramic-forward.",
     status: "wip",
     year: 2026,
+    coverAspect: "5 / 4",
     tags: ["brand", "hospitality", "concept"],
   },
 ];

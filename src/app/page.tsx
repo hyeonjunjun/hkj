@@ -81,11 +81,11 @@ export default function Home() {
       <style>{`
         /* ── Frame ────────────────────────────────────── */
         .home {
-          min-height: 100svh;
+          height: 100svh;
           background: var(--paper);
           color: var(--ink);
           position: relative;
-          overflow-x: hidden;
+          overflow: hidden;
         }
         .home__grain {
           position: fixed;
@@ -100,11 +100,11 @@ export default function Home() {
         .cd {
           position: relative;
           z-index: 2;
-          min-height: 100svh;
-          padding: clamp(88px, 12vh, 128px) clamp(16px, 2.5vw, 40px) clamp(32px, 5vh, 56px);
+          height: 100svh;
+          padding: clamp(72px, 10vh, 104px) clamp(16px, 2.5vw, 40px) clamp(24px, 4vh, 44px);
           display: grid;
           grid-template-rows: 1fr auto;
-          gap: clamp(24px, 4vh, 44px);
+          gap: clamp(20px, 3vh, 32px);
         }
 
         /* ── Stage: 3 columns (text · strip · text) ───── */
@@ -145,10 +145,10 @@ export default function Home() {
         }
         .cd__link--r { flex-direction: row-reverse; }
 
-        /* Focus/hover: :has() dims all siblings site-wide in the stage. */
-        .cd__stage:has(.cd__link:hover) .cd__link { opacity: 0.35; }
-        .cd__stage:has(.cd__link:hover) .cd__link:hover { opacity: 1; }
-        .cd__stage:has(.strip__link:hover) .cd__link { opacity: 0.35; }
+        /* Focus/hover: any anchor in the stage hovered → dim all others. */
+        .cd__stage a { transition: opacity 220ms var(--ease); }
+        .cd__stage:has(a:hover) a { opacity: 0.35; }
+        .cd__stage:has(a:hover) a:hover { opacity: 1; }
 
         .cd__num { color: var(--ink-3); }
         .cd__slash { color: var(--ink-4); }
