@@ -2,13 +2,48 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useState } from "react";
 
 const AsciiField = dynamic(() => import("@/components/AsciiField"), {
   ssr: false,
   loading: () => <div className="cover__plate-placeholder" aria-hidden />,
 });
 
+const EMAIL = "rykjun@gmail.com";
+const BUILD_HASH =
+  process.env.NEXT_PUBLIC_BUILD_HASH ?? "9106cae";
+
+type Entry = {
+  slug: string;
+  stamp: string;      // YYYY·MM
+  title: string;
+  sector: string;
+  status: "shipped" | "wip";
+};
+
+// Reverse-chronological dated ledger — the page's primary axis
+const ENTRIES: Entry[] = [
+  { slug: "clouds-at-sea", stamp: "2026·07", title: "Clouds at Sea", sector: "WebGL / Generative",  status: "shipped" },
+  { slug: "gyeol",         stamp: "2026·04", title: "Gyeol",         sector: "Material Science",    status: "shipped" },
+  { slug: "pane",          stamp: "2026·03", title: "Pane",          sector: "Ambient Computing",   status: "wip"     },
+  { slug: "sift",          stamp: "2025·11", title: "Sift",          sector: "Mobile / AI",         status: "shipped" },
+];
+
 export default function Home() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return;
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      window.location.href = `mailto:${EMAIL}`;
+    }
+  };
+
   return (
     <main id="main" className="home">
       <div className="home__grain" aria-hidden />
@@ -26,78 +61,85 @@ export default function Home() {
           </span>
           <span className="cover__top-item cover__top-item--right">
             <span className="cover__top-key">40°43′N 73°59′W</span>
-            <span className="cover__top-val tabular">2026·04·20</span>
+            <span className="cover__top-val tabular">2026·04·21</span>
           </span>
         </header>
 
-        {/* ── Masthead ────────────────────────────────── */}
-        <div className="cover__mast">
-          <h1 className="cover__name">An observation log.</h1>
-          <div className="cover__mast-rule" aria-hidden>
-            <span className="cover__rule" />
-            <span className="cover__mast-dot">●</span>
-            <span className="cover__rule" />
-          </div>
-          <p className="cover__role">
-            <span>Design engineer</span>
-            <span className="cover__role-sep">—</span>
-            <span>New York</span>
-            <span className="cover__role-sep">—</span>
-            <span className="tabular">MMXXVI</span>
-          </p>
+        {/* ── Manifesto frame (no serif masthead) ─────── */}
+        <p className="cover__manifesto">
+          A practice concerned with the invisible craft that makes software
+          feel intentional — typography, motion, material, and the warmth
+          of physical objects in digital form.
+        </p>
+
+        {/* ── Main split: plate left · ledger right ───── */}
+        <div className="main">
+          <aside className="main__plate">
+            <div className="cover__plate">
+              <AsciiField />
+              <div className="cover__marks" aria-hidden>
+                <span className="cover__mark cover__mark--tl">TIDE / FIELD</span>
+                <span className="cover__mark cover__mark--tr tabular">F / 4.2 — 1200s</span>
+                <span className="cover__mark cover__mark--bl">SUBJECT · TIDAL</span>
+                <span className="cover__mark cover__mark--br tabular">40.71° / −74.00°</span>
+              </div>
+              <span className="cover__tick cover__tick--t" aria-hidden />
+              <span className="cover__tick cover__tick--b" aria-hidden />
+              <span className="cover__tick cover__tick--l" aria-hidden />
+              <span className="cover__tick cover__tick--r" aria-hidden />
+            </div>
+            <p className="main__plate-caption">
+              <span>Plate №001 —</span>
+              <span className="tabular">Tidal atmosphere, 2026·04·20</span>
+            </p>
+          </aside>
+
+          <section className="ledger" aria-label="Selected work">
+            <header className="ledger__head">
+              <span className="ledger__label">Index</span>
+              <span className="ledger__count tabular">
+                {String(ENTRIES.length).padStart(2, "0")} Entries — 2025 — 2026
+              </span>
+            </header>
+
+            <ol className="ledger__list">
+              {ENTRIES.map((e) => (
+                <li key={e.slug} className="ledger__row">
+                  <Link href={`/work/${e.slug}`} className="ledger__link">
+                    <span className="ledger__stamp tabular">{e.stamp}</span>
+                    <span className="ledger__title">{e.title}</span>
+                    <span className="ledger__sector">{e.sector}</span>
+                    <span
+                      className={`ledger__status${e.status === "wip" ? " is-wip" : ""}`}
+                    >
+                      {e.status === "wip" ? "WIP" : "→"}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+
+            <footer className="ledger__notes">
+              <div className="ledger__note">
+                <span className="ledger__label">Correspondence</span>
+                <p className="ledger__note-body">
+                  Available for select engagements through 2026.
+                </p>
+                <a
+                  href={`mailto:${EMAIL}`}
+                  onClick={handleCopy}
+                  className="ledger__mail"
+                  data-copied={copied || undefined}
+                >
+                  <span className="ledger__mail-text">{EMAIL}</span>
+                  <span className="ledger__mail-toast" aria-live="polite">
+                    {copied ? "Copied" : "Copy"}
+                  </span>
+                </a>
+              </div>
+            </footer>
+          </section>
         </div>
-
-        {/* ── Plate (hero landscape) ──────────────────── */}
-        <div className="cover__plate">
-          <AsciiField />
-          <div className="cover__marks" aria-hidden>
-            <span className="cover__mark cover__mark--tl">TIDE / FIELD</span>
-            <span className="cover__mark cover__mark--tr tabular">F / 4.2 — 1200s</span>
-            <span className="cover__mark cover__mark--bl">SUBJECT · TIDAL ATMOSPHERE</span>
-            <span className="cover__mark cover__mark--br tabular">LAT 40.71° · LON −74.00°</span>
-          </div>
-          {/* registration ticks */}
-          <span className="cover__tick cover__tick--t" aria-hidden />
-          <span className="cover__tick cover__tick--b" aria-hidden />
-          <span className="cover__tick cover__tick--l" aria-hidden />
-          <span className="cover__tick cover__tick--r" aria-hidden />
-        </div>
-
-        {/* ── Editorial block (3 columns) ─────────────── */}
-        <section className="editorial">
-          <div className="editorial__col">
-            <span className="editorial__label">Subject</span>
-            <p className="editorial__body">
-              A practice concerned with the invisible craft that makes
-              software feel intentional — typography, motion, material, and
-              the warmth of physical objects in digital form.
-            </p>
-          </div>
-
-          <div className="editorial__col">
-            <span className="editorial__label">Recent Entries</span>
-            <p className="editorial__body">
-              <Link href="/work/gyeol" className="editorial__ref">Gyeol</Link>, a
-              fragrance brand rooted in Korean craft;{" "}
-              <Link href="/work/sift" className="editorial__ref">Sift</Link>, an
-              AI-assisted tool for finding what matters in a camera roll;{" "}
-              <Link href="/work/pane" className="editorial__ref">Pane</Link>, an
-              ambient dashboard for quiet systems; and{" "}
-              <Link href="/work/clouds-at-sea" className="editorial__ref">Clouds at Sea</Link>,
-              a generative horizon where water and sky dissolve.
-            </p>
-          </div>
-
-          <div className="editorial__col">
-            <span className="editorial__label">Correspondence</span>
-            <p className="editorial__body">
-              Available for select engagements through 2026.
-            </p>
-            <a href="mailto:rykjun@gmail.com" className="editorial__mail">
-              rykjun@gmail.com
-            </a>
-          </div>
-        </section>
 
         {/* ── Bottom register ─────────────────────────── */}
         <footer className="cover__bottom">
@@ -107,11 +149,11 @@ export default function Home() {
           </span>
           <span className="cover__bottom-item">
             <span className="cover__bottom-key">Edition</span>
-            <span className="cover__bottom-val tabular">Vol. 01 — Entry 001</span>
+            <span className="cover__bottom-val tabular">Vol. 01</span>
           </span>
           <span className="cover__bottom-item cover__bottom-item--right">
-            <span className="cover__bottom-key">Folio</span>
-            <span className="cover__bottom-val tabular">001 / 001</span>
+            <span className="cover__bottom-key">Build</span>
+            <span className="cover__bottom-val tabular">{BUILD_HASH}</span>
           </span>
         </footer>
       </article>
@@ -126,8 +168,6 @@ export default function Home() {
           position: relative;
           overflow-x: hidden;
         }
-
-        /* Fine paper grain — tasteful, not decorative */
         .home__grain {
           position: fixed;
           inset: 0;
@@ -137,12 +177,11 @@ export default function Home() {
           mix-blend-mode: multiply;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
-
         .cover {
           max-width: 1240px;
           margin: 0 auto;
           display: grid;
-          gap: clamp(28px, 4.5vh, 52px);
+          gap: clamp(32px, 5vh, 56px);
           position: relative;
           z-index: 2;
         }
@@ -165,9 +204,7 @@ export default function Home() {
           letter-spacing: 0.16em;
           text-transform: uppercase;
         }
-        .cover__top-item--right {
-          justify-content: flex-end;
-        }
+        .cover__top-item--right { justify-content: flex-end; }
         .cover__top-key { color: var(--ink-3); }
         .cover__top-val { color: var(--ink); }
 
@@ -185,90 +222,64 @@ export default function Home() {
           border-radius: 2px;
         }
         .cover__stamp-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: var(--ink);
-          display: inline-block;
+          width: 7px; height: 7px; border-radius: 50%;
+          background: var(--ink); display: inline-block;
         }
 
-        /* ── Masthead ─────────────────────────────────── */
-        .cover__mast {
-          display: grid;
-          gap: 18px;
-          justify-items: center;
-          text-align: center;
-          padding: clamp(12px, 2vh, 22px) 0;
-        }
-        .cover__name {
-          font-family: var(--font-stack-serif);
-          font-weight: 360;
-          font-size: clamp(56px, 9.5vw, 128px);
-          line-height: 0.92;
-          letter-spacing: -0.022em;
+        /* ── Manifesto frame ──────────────────────────── */
+        .cover__manifesto {
+          font-family: var(--font-stack-sans);
+          font-weight: 380;
+          font-size: clamp(18px, 1.9vw, 22px);
+          line-height: 1.45;
+          letter-spacing: -0.005em;
           color: var(--ink);
+          max-width: 46ch;
           margin: 0;
         }
-        .cover__mast-rule {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          gap: 16px;
-          width: min(420px, 70%);
-        }
-        .cover__rule {
-          height: 1px;
-          background: var(--ink-hair);
-        }
-        .cover__mast-dot {
-          font-size: 7px;
-          color: var(--ink-3);
-        }
-        .cover__role {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          align-items: baseline;
-          gap: 10px;
-          font-family: var(--font-stack-mono);
-          font-size: 10px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          margin: 0;
-        }
-        .cover__role-sep { color: var(--ink-4); }
 
-        /* ── Plate (hero landscape) ───────────────────── */
+        /* ── Main split ───────────────────────────────── */
+        .main {
+          display: grid;
+          grid-template-columns: minmax(300px, 400px) 1fr;
+          gap: clamp(40px, 6vw, 88px);
+          align-items: start;
+        }
+
+        /* ── Plate (demoted, portrait) ────────────────── */
+        .main__plate {
+          display: grid;
+          gap: 14px;
+          position: sticky;
+          top: 96px;
+        }
         .cover__plate {
           position: relative;
           width: 100%;
-          aspect-ratio: 16 / 9;
+          aspect-ratio: 4 / 5;
           background: color-mix(in oklab, var(--paper) 98%, var(--ink) 2%);
           overflow: hidden;
           box-shadow: inset 0 0 0 1px rgba(17, 17, 16, 0.08);
         }
         .cover__plate-placeholder {
-          position: absolute;
-          inset: 0;
+          position: absolute; inset: 0;
           background: color-mix(in oklab, var(--paper) 98%, var(--ink) 2%);
         }
         .cover__marks { position: absolute; inset: 0; pointer-events: none; }
         .cover__mark {
           position: absolute;
           font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.16em;
+          font-size: 8.5px;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: rgba(17, 17, 16, 0.42);
           mix-blend-mode: multiply;
         }
-        .cover__mark--tl { top: 14px; left: 18px; }
-        .cover__mark--tr { top: 14px; right: 18px; }
-        .cover__mark--bl { bottom: 14px; left: 18px; }
-        .cover__mark--br { bottom: 14px; right: 18px; }
+        .cover__mark--tl { top: 12px; left: 14px; }
+        .cover__mark--tr { top: 12px; right: 14px; }
+        .cover__mark--bl { bottom: 12px; left: 14px; }
+        .cover__mark--br { bottom: 12px; right: 14px; }
 
-        /* Printer registration ticks at plate midpoints */
         .cover__tick {
           position: absolute;
           pointer-events: none;
@@ -285,52 +296,154 @@ export default function Home() {
         .cover__tick--l { left: -10px; }
         .cover__tick--r { right: -10px; }
 
-        /* ── Editorial block ──────────────────────────── */
-        .editorial {
-          display: grid;
-          grid-template-columns: 1fr 1.25fr 1fr;
-          gap: clamp(32px, 4vw, 72px);
-          padding-top: clamp(8px, 1.5vh, 18px);
-        }
-        .editorial__col {
-          display: grid;
-          align-content: start;
-          gap: 14px;
-          border-top: 1px solid var(--ink-hair);
-          padding-top: 18px;
-        }
-        .editorial__label {
+        .main__plate-caption {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 12px;
           font-family: var(--font-stack-mono);
-          font-size: 9px;
+          font-size: 9.5px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin: 0;
+        }
+
+        /* ── Ledger (primary axis) ────────────────────── */
+        .ledger {
+          display: grid;
+          gap: clamp(24px, 3vh, 32px);
+        }
+        .ledger__head {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 12px;
+          padding-bottom: 14px;
+          border-bottom: 1px solid var(--ink);
+        }
+        .ledger__label {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
           letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: var(--ink);
+        }
+        .ledger__count {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
           color: var(--ink-3);
         }
-        .editorial__body {
-          font-family: var(--font-stack-serif);
-          font-weight: 380;
-          font-size: 15px;
-          line-height: 1.7;
-          color: var(--ink-2);
+
+        .ledger__list {
+          list-style: none;
           margin: 0;
-          max-width: 44ch;
+          padding: 0;
         }
-        .editorial__ref {
-          color: var(--ink);
+        .ledger__row {
           border-bottom: 1px solid var(--ink-hair);
-          transition: border-color 180ms var(--ease);
         }
-        .editorial__ref:hover { border-bottom-color: var(--ink); }
-        .editorial__mail {
+        .ledger__link {
+          display: grid;
+          grid-template-columns: 88px 1fr 1fr 36px;
+          align-items: baseline;
+          gap: 18px;
+          padding: 20px 0;
+          color: var(--ink);
+          transition: background 200ms var(--ease);
+        }
+        .ledger__link:hover { background: var(--ink-ghost); }
+        .ledger__stamp {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+        }
+        .ledger__title {
+          font-family: var(--font-stack-sans);
+          font-weight: 450;
+          font-size: 19px;
+          letter-spacing: -0.006em;
+          color: var(--ink);
+        }
+        .ledger__sector {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-2);
+        }
+        .ledger__status {
           font-family: var(--font-stack-mono);
           font-size: 12px;
-          letter-spacing: 0.08em;
-          color: var(--ink);
-          border-bottom: 1px solid var(--ink-hair);
-          align-self: start;
-          transition: border-color 180ms var(--ease);
+          color: var(--ink-3);
+          text-align: right;
+          transition: transform 200ms var(--ease), color 200ms var(--ease);
         }
-        .editorial__mail:hover { border-bottom-color: var(--ink); }
+        .ledger__status.is-wip {
+          font-size: 9px;
+          letter-spacing: 0.18em;
+          color: var(--ink-4);
+        }
+        .ledger__link:hover .ledger__status:not(.is-wip) {
+          color: var(--ink);
+          transform: translateX(4px);
+        }
+
+        /* ── Notes under ledger (marginalia) ──────────── */
+        .ledger__notes {
+          display: grid;
+          gap: 20px;
+          padding-top: 8px;
+        }
+        .ledger__note {
+          display: grid;
+          gap: 10px;
+          max-width: 52ch;
+        }
+        .ledger__note-body {
+          font-family: var(--font-stack-sans);
+          font-weight: 380;
+          font-size: 14px;
+          line-height: 1.65;
+          color: var(--ink-2);
+          margin: 0;
+        }
+
+        .ledger__mail {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 12px;
+          font-family: var(--font-stack-mono);
+          font-size: 12px;
+          letter-spacing: 0.06em;
+          color: var(--ink);
+          align-self: start;
+          padding: 4px 0;
+          border-bottom: 1px solid var(--ink-hair);
+          transition: border-color 180ms var(--ease);
+          cursor: pointer;
+        }
+        .ledger__mail:hover { border-bottom-color: var(--ink); }
+        .ledger__mail[data-copied] { border-bottom-color: var(--ink); }
+        .ledger__mail-toast {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          padding: 2px 6px;
+          border: 1px solid var(--ink-hair);
+          border-radius: 2px;
+          transition: color 180ms var(--ease), border-color 180ms var(--ease);
+        }
+        .ledger__mail[data-copied] .ledger__mail-toast {
+          color: var(--ink);
+          border-color: var(--ink);
+        }
 
         /* ── Bottom register ──────────────────────────── */
         .cover__bottom {
@@ -362,10 +475,16 @@ export default function Home() {
             gap: 18px;
           }
           .cover__stamp { display: none; }
-          .editorial {
+
+          .main {
             grid-template-columns: 1fr;
-            gap: 28px;
+            gap: 40px;
           }
+          .main__plate {
+            position: static;
+            max-width: 420px;
+          }
+
           .cover__bottom {
             grid-template-columns: 1fr 1fr;
             row-gap: 14px;
@@ -374,17 +493,19 @@ export default function Home() {
             grid-column: 1 / -1;
             justify-content: flex-start;
           }
-          .cover__plate { aspect-ratio: 4 / 3; }
         }
 
         @media (max-width: 640px) {
-          .cover__top-item--right {
-            justify-content: flex-start;
+          .cover__top-item--right { justify-content: flex-start; }
+          .ledger__link {
+            grid-template-columns: 68px 1fr 22px;
+            gap: 14px;
+            padding: 16px 0;
           }
-          .cover__mark { font-size: 8px; letter-spacing: 0.14em; }
+          .ledger__sector { display: none; }
+          .cover__mark { font-size: 8px; letter-spacing: 0.12em; }
           .cover__mark--tl, .cover__mark--tr { top: 10px; }
           .cover__mark--bl, .cover__mark--br { bottom: 10px; }
-          .cover__plate { aspect-ratio: 3 / 4; }
         }
       `}</style>
     </main>
