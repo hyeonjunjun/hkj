@@ -2,8 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
-import AsciiFrame from "@/components/AsciiFrame";
-import AnnotatedMedia from "@/components/Annotation";
 import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DUR } from "@/lib/motion";
@@ -48,42 +46,15 @@ export default function AboutPage() {
       style={{ position: "relative", zIndex: 1 }}
     >
       <div className="about-grid">
-        <div className="about-portrait" data-reveal style={{ opacity: 0 }}>
-          <AsciiFrame
-            topLeft="HYEONJOON / 결"
-            topRight="EST 2021"
-            bottomLeft="DESIGN ENGINEER"
-            bottomRight="NEW YORK"
-            padding={0}
-          >
-            <AnnotatedMedia
-              aspectRatio="4 / 5"
-              annotations={[
-                { variant: "hand", label: "me \u2193", anchorX: 50, anchorY: 20, targetX: 50, targetY: 45, rotate: -3 },
-                { variant: "hand", label: "design engineer", anchorX: 80, anchorY: 55, targetX: 60, targetY: 55, rotate: 4 },
-                { variant: "hand", label: "ny, 2026", anchorX: 20, anchorY: 85, targetX: 35, targetY: 75, rotate: -6 },
-              ]}
-            >
-              <div style={{
-                width: "100%",
-                height: "100%",
-                background: "linear-gradient(180deg, #2a4a6e 0%, #4a6d92 40%, #6a8cb4 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                {/* placeholder — replace with real <Image> when photo is available */}
-                <div style={{
-                  width: 80,
-                  height: 100,
-                  background: "rgba(0,0,0,0.3)",
-                  borderRadius: "50% 50% 46% 46% / 40% 40% 60% 60%",
-                  marginTop: 40,
-                }} />
-              </div>
-            </AnnotatedMedia>
-          </AsciiFrame>
-        </div>
+        <figure className="about-portrait" data-reveal style={{ opacity: 0 }}>
+          <div className="about-portrait__frame" aria-hidden>
+            <div className="about-portrait__placeholder" />
+          </div>
+          <figcaption className="about-portrait__caption">
+            <span>FIG. 00 — OBSERVER</span>
+            <span>NEW YORK / EST. 2021</span>
+          </figcaption>
+        </figure>
 
         <div className="about-philosophy" data-reveal style={{ opacity: 0 }}>
           <div className="about-kicker">ABOUT · HYEONJOON · 2026</div>
@@ -188,42 +159,33 @@ export default function AboutPage() {
           margin-top: clamp(80px, 12vh, 140px);
           margin-bottom: clamp(48px, 8vh, 96px);
         }
-        .about-portrait__media {
-          position: relative;
+        .about-portrait__frame {
           width: 100%;
           aspect-ratio: 4 / 5;
-          background-color: var(--paper-2);
-          background-image: radial-gradient(circle, rgba(28,28,26,0.1) 1px, transparent 1.5px);
-          background-size: 6px 6px;
+          border: 1px solid var(--ink-ghost);
+          background: var(--paper-2);
           display: flex;
           align-items: center;
           justify-content: center;
+          overflow: hidden;
         }
-        .about-portrait__ascii {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-family: var(--font-mono);
-          font-size: 8px;
-          line-height: 1;
-          color: var(--ink);
-          opacity: 0.7;
-          margin: 0;
-          white-space: pre;
-          text-align: center;
+        .about-portrait__placeholder {
+          width: 64%;
+          height: 76%;
+          background:
+            linear-gradient(180deg, #E8E8E4 0%, #C8C8C2 50%, #A8A8A2 100%);
+          border-radius: 2px;
         }
-        .about-portrait__label {
-          position: absolute;
-          bottom: 12px;
-          left: 50%;
-          transform: translateX(-50%);
+        .about-portrait__caption {
+          margin-top: 12px;
+          display: flex;
+          justify-content: space-between;
           font-family: var(--font-mono);
-          font-size: 9px;
+          font-size: 10px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--ink-faint);
-          white-space: nowrap;
+          color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
         .about-kicker {
           font-family: var(--font-mono);
@@ -234,18 +196,18 @@ export default function AboutPage() {
           margin-bottom: 32px;
         }
         .about-statement {
-          font-family: var(--font-serif);
-          font-style: italic;
-          font-size: clamp(28px, 3.2vw, 40px);
+          font-family: var(--font-sans);
+          font-weight: 500;
+          font-size: clamp(26px, 3vw, 38px);
           line-height: 1.25;
+          letter-spacing: -0.015em;
           color: var(--ink);
           max-width: 28ch;
           margin: 0 0 32px 0;
-          font-weight: 400;
         }
         .about-statement__em {
-          font-family: var(--font-serif);
-          font-style: italic;
+          font-family: var(--font-sans);
+          font-weight: 600;
         }
         .about-body {
           font-family: var(--font-sans);
@@ -320,8 +282,8 @@ export default function AboutPage() {
           color: var(--ink);
         }
         .about-signoff__name {
-          font-family: var(--font-serif);
-          font-style: italic;
+          font-family: var(--font-sans);
+          font-weight: 500;
           font-size: clamp(40px, 5vw, 72px);
           line-height: 1.1;
           letter-spacing: -0.02em;

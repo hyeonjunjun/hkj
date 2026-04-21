@@ -4,8 +4,6 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import AsciiFrame from "@/components/AsciiFrame";
-import AnnotatedMedia from "@/components/Annotation";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { CASE_STUDIES } from "@/constants/case-studies";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -18,19 +16,15 @@ interface CaseStudyProps {
   piece: Piece;
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function Section({ index, label, children }: { index: string; label: string; children: React.ReactNode }) {
   return (
-    <span
-      className="font-mono uppercase block"
-      style={{
-        fontSize: 10,
-        letterSpacing: "0.14em",
-        color: "var(--ink-faint)",
-        marginBottom: 20,
-      }}
-    >
-      {"\u25B8 "}{children}
-    </span>
+    <div className="cs-col" data-reveal>
+      <div className="cs-section-label">
+        <span className="cs-section-label__key">{index}</span>
+        <span>{label}</span>
+      </div>
+      <div className="cs-section-body">{children}</div>
+    </div>
   );
 }
 
@@ -43,10 +37,8 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
   const currentIdx = allPieces.findIndex((p) => p.slug === piece.slug);
   const nextPiece = allPieces[(currentIdx + 1) % allPieces.length];
 
-  // Fixed header elements (metadata, silence, paradox, stakes) — simple entrance
   useEffect(() => {
     if (!containerRef.current) return;
-
     const fixedEls = containerRef.current.querySelectorAll("[data-entrance]");
     const blocks = containerRef.current.querySelectorAll("[data-reveal]");
 
@@ -59,52 +51,23 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
 
     gsap.fromTo(
       fixedEls,
-      { opacity: 0, y: 24 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: DUR.reveal,
-        stagger: 0.07,
-        ease: "power3.out",
-        delay: 0.1,
-      }
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: DUR.reveal, stagger: 0.05, ease: "power3.out", delay: 0.08 }
     );
-
-    // Hero image reveal
     if (heroRef.current) {
       gsap.fromTo(
         heroRef.current,
-        { opacity: 0, y: 32 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: DUR.reveal,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top 85%",
-            once: true,
-          },
-        }
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: DUR.reveal, ease: "power3.out",
+          scrollTrigger: { trigger: heroRef.current, start: "top 85%", once: true } }
       );
     }
-
-    // Modular blocks — scroll-triggered reveals
     blocks.forEach((block) => {
       gsap.fromTo(
         block,
-        { opacity: 0, y: 32 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: DUR.reveal,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: block,
-            start: "top 85%",
-            once: true,
-          },
-        }
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: DUR.reveal, ease: "power3.out",
+          scrollTrigger: { trigger: block, start: "top 85%", once: true } }
       );
     });
 
@@ -113,415 +76,368 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
     };
   }, [piece.slug, reducedMotion]);
 
-  // Column layout is controlled via .case-study-col and .case-study-hero
-  // CSS classes defined in the <style> block below (responsive-friendly)
+  const sectionIndex = (n: number) => String(n).padStart(2, "0");
+
+  let secNo = 0;
+  const next = () => { secNo += 1; return sectionIndex(secNo); };
 
   return (
-    <div
-      ref={containerRef}
-      className="case-study-outer"
-      style={{ paddingBottom: 0 }}
-    >
+    <div ref={containerRef} className="cs-outer">
       <style>{`
-        .case-study-outer {
-          --col-max: 900px;
-          --col-offset: 8vw;
+        .cs-outer {
+          --col-max: 720px;
+          --col-offset: clamp(24px, 8vw, 128px);
+          padding-bottom: 0;
         }
-        .case-study-col {
+        .cs-col {
           max-width: var(--col-max);
           margin-left: var(--col-offset);
           margin-right: 0;
+          margin-bottom: clamp(72px, 11vh, 128px);
         }
-        /* Hero bleed: extend from column left to right viewport edge */
-        .case-study-bleed {
-          max-width: var(--col-max);
+        .cs-bleed {
           margin-left: var(--col-offset);
-          /* Break column to right edge */
-          margin-right: calc(-1 * (100vw - var(--col-max) - var(--col-offset)));
+          margin-right: clamp(24px, 4vw, 64px);
         }
-        .case-study-hero {
-          min-height: 88vh;
+        .cs-hero {
+          min-height: 92vh;
+          display: grid;
+          grid-template-rows: auto 1fr auto;
+          padding: clamp(112px, 18vh, 192px) clamp(24px, 5vw, 64px) clamp(56px, 8vh, 96px) var(--col-offset);
+          max-width: 960px;
+        }
+        .cs-ledger {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: clamp(24px, 4vw, 64px);
+          max-width: 640px;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+        .cs-ledger__key { display: block; color: var(--ink-4); margin-bottom: 6px; }
+        .cs-ledger__val { display: block; color: var(--ink-primary); font-variant-numeric: tabular-nums; }
+
+        .cs-title {
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: clamp(32px, 4.4vw, 56px);
+          line-height: 1.12;
+          letter-spacing: -0.02em;
+          color: var(--ink-primary);
+          max-width: 22ch;
+          align-self: center;
+          margin: 64px 0;
+        }
+        .cs-stakes {
+          font-size: 15px;
+          line-height: 1.65;
+          color: var(--ink-secondary);
+          max-width: 56ch;
+          padding-top: 24px;
+          border-top: 1px solid var(--ink-ghost);
+        }
+
+        .cs-section-label {
           display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding-top: clamp(96px, 15vh, 160px);
-          padding-bottom: clamp(48px, 8vh, 96px);
-          padding-left: 8vw;
-          padding-right: clamp(24px, 5vw, 64px);
-          max-width: 900px;
-          margin-left: 8vw;
+          gap: 16px;
+          align-items: baseline;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin-bottom: 24px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--ink-ghost);
         }
+        .cs-section-label__key {
+          color: var(--ink-4);
+          font-variant-numeric: tabular-nums;
+        }
+        .cs-section-body p {
+          font-size: 15px;
+          line-height: 1.7;
+          color: var(--ink-secondary);
+          max-width: 56ch;
+        }
+        .cs-section-body p + p { margin-top: 18px; }
+
+        .cs-steps { display: grid; gap: 36px; }
+        .cs-step { display: grid; grid-template-columns: 36px 1fr; gap: 20px; align-items: baseline; }
+        .cs-step__num {
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          color: var(--ink-4);
+          font-variant-numeric: tabular-nums;
+        }
+        .cs-step__title {
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: 17px;
+          color: var(--ink-primary);
+          margin-bottom: 8px;
+          letter-spacing: -0.005em;
+        }
+
+        .cs-highlights { display: grid; gap: 40px; }
+        .cs-highlight__title {
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: 18px;
+          color: var(--ink-primary);
+          margin-bottom: 8px;
+          letter-spacing: -0.005em;
+        }
+        .cs-highlight__caption {
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin-top: 10px;
+        }
+
+        .cs-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: clamp(32px, 5vw, 56px);
+        }
+        .cs-stat__label {
+          display: block;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-4);
+          margin-bottom: 12px;
+        }
+        .cs-stat__value {
+          display: block;
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: clamp(36px, 4.5vw, 56px);
+          line-height: 1;
+          color: var(--accent);
+          font-variant-numeric: tabular-nums;
+          letter-spacing: -0.03em;
+        }
+
+        .cs-signals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .cs-signals span {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          padding: 4px 10px;
+          border: 1px solid var(--ink-ghost);
+          border-radius: 999px;
+        }
+
+        .cs-media {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 12px;
+        }
+        .cs-media figure { margin: 0; }
+        .cs-media figcaption {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin-top: 8px;
+        }
+
+        .cs-hero-image {
+          margin-top: 64px;
+          margin-bottom: 96px;
+        }
+        .cs-hero-image figure { margin: 0; }
+        .cs-hero-image img {
+          display: block;
+          width: 100%;
+          height: auto;
+        }
+        .cs-hero-image figcaption {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin-top: 12px;
+          display: flex;
+          justify-content: space-between;
+          max-width: var(--col-max);
+        }
+
+        .cs-next {
+          padding: 32px var(--col-offset) 96px;
+          max-width: var(--col-max);
+          margin-left: 0;
+        }
+        .cs-next a {
+          display: block;
+          border-top: 1px solid var(--ink-ghost);
+          padding-top: 28px;
+        }
+        .cs-next__key {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          display: block;
+          margin-bottom: 14px;
+        }
+        .cs-next__title {
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: clamp(28px, 3.2vw, 40px);
+          line-height: 1.15;
+          letter-spacing: -0.015em;
+          color: var(--ink-primary);
+          display: block;
+          margin-bottom: 10px;
+        }
+        .cs-next__meta {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: var(--ink-4);
+          display: block;
+        }
+
         @media (max-width: 767px) {
-          .case-study-col,
-          .case-study-bleed {
-            max-width: none;
-            margin-left: 0;
-            margin-right: 0;
-            padding-inline: 24px;
-          }
-          .case-study-hero {
-            min-height: 80vh;
-            padding-left: 24px;
-            padding-right: 24px;
-            padding-top: clamp(72px, 12vh, 120px);
-            max-width: none;
-            margin-left: 0;
-          }
+          .cs-outer { --col-offset: 24px; }
+          .cs-hero { max-width: none; padding-top: 88px; padding-right: 24px; }
+          .cs-title { margin: 48px 0; font-size: clamp(28px, 7vw, 40px); }
+          .cs-ledger { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+          .cs-next { padding-left: 24px; padding-right: 24px; }
         }
       `}</style>
 
-      {/* ── Hero header — 88vh opener ── */}
-      <header className="case-study-hero">
-        {/* ── 1. Metadata bar — top of header ── */}
-        <div data-entrance style={{ opacity: 0 }}>
-          <span
-            className="font-mono"
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.06em",
-              color: "var(--ink-muted)",
-            }}
-          >
-            {piece.number}
-            {" / "}
-            {piece.title}
-            {" / "}
-            {piece.status === "wip" ? "In progress" : piece.year}
-            {" / "}
-            <span style={{ textTransform: "uppercase" }}>{piece.sector}</span>
-          </span>
+      <header className="cs-hero">
+        <div data-entrance className="cs-ledger" style={{ opacity: 0 }}>
+          <div>
+            <span className="cs-ledger__key">ENTRY</span>
+            <span className="cs-ledger__val">{piece.number}</span>
+          </div>
+          <div>
+            <span className="cs-ledger__key">SECTOR</span>
+            <span className="cs-ledger__val">{piece.sector.toUpperCase()}</span>
+          </div>
+          <div>
+            <span className="cs-ledger__key">YEAR</span>
+            <span className="cs-ledger__val">{piece.year}</span>
+          </div>
+          <div>
+            <span className="cs-ledger__key">STATUS</span>
+            <span className="cs-ledger__val">{piece.status === "wip" ? "IN PROGRESS" : "SHIPPED"}</span>
+          </div>
         </div>
 
-        {/* ── 3. Paradox line — grows to fill space ── */}
-        {cs?.paradox && (
-          <div data-entrance style={{ opacity: 0, flex: 1, display: "flex", alignItems: "center" }}>
-            <p
-              className="font-display italic"
-              style={{
-                fontSize: "clamp(32px, 4.2vw, 56px)",
-                lineHeight: 1.25,
-                fontWeight: 400,
-                color: "var(--ink-primary)",
-                maxWidth: "54ch",
-              }}
-            >
-              {cs.paradox}
-            </p>
-          </div>
-        )}
+        <h1 className="cs-title" data-entrance style={{ opacity: 0 }}>
+          {cs?.paradox ?? piece.title}
+        </h1>
 
-        {/* ── 5. Stakes paragraph — anchored at bottom ── */}
         {cs?.stakes && (
-          <div data-entrance style={{ opacity: 0 }}>
-            <hr
-              style={{
-                border: "none",
-                borderTop: `1px solid ${piece.accent ? `${piece.accent}66` : "var(--ink-ghost)"}`,
-                width: "80px",
-                margin: "32px 0",
-              }}
-            />
-            <p
-              className="font-body"
-              style={{
-                fontSize: 15,
-                lineHeight: 1.7,
-                color: "var(--ink-secondary)",
-                maxWidth: "54ch",
-              }}
-            >
-              {cs.stakes}
-            </p>
-          </div>
+          <p className="cs-stakes" data-entrance style={{ opacity: 0 }}>
+            {cs.stakes}
+          </p>
         )}
       </header>
 
-      {/* ── 6. Hero image — bleed right ── */}
       {piece.image && (
-        <div
-          ref={heroRef}
-          className="case-study-bleed"
-          style={{
-            marginTop: 64,
-            marginBottom: 80,
-            opacity: 0,
-          }}
-        >
-          <AsciiFrame
-            topLeft={`${piece.number} / ${piece.title.toUpperCase()}`}
-            topRight={String(piece.year)}
-            bottomLeft={piece.sector.toUpperCase()}
-            bottomRight={piece.status === "wip" ? "IN PROGRESS" : "SHIPPED"}
-            padding={0}
-          >
-            <AnnotatedMedia annotations={cs?.heroAnnotations?.map(a => ({ ...a, variant: "editorial" as const }))}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={piece.image} alt={piece.title} className="image-treatment" style={{ display: "block", width: "100%", height: "auto", objectFit: "cover" }} />
-            </AnnotatedMedia>
-          </AsciiFrame>
+        <div ref={heroRef} className="cs-hero-image cs-bleed" style={{ opacity: 0 }}>
+          <figure>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={piece.image} alt={piece.title} />
+            <figcaption>
+              <span>FIG. 01 — {piece.title}</span>
+              <span>{piece.sector.toUpperCase()} / {piece.year}</span>
+            </figcaption>
+          </figure>
         </div>
       )}
 
-      {/* ── Modular blocks ── */}
-
-      {/* TextBlock: editorial */}
       {cs?.editorial && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>{cs.editorial.heading}</SectionLabel>
-          <p
-            className="font-body"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--ink-secondary)",
-              maxWidth: "54ch",
-            }}
-          >
-            {cs.editorial.copy}
-          </p>
-        </div>
+        <Section index={next()} label={cs.editorial.heading}>
+          <p>{cs.editorial.copy}</p>
+        </Section>
       )}
 
-      {/* TextBlock: process */}
       {cs?.process && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>{cs.process.title}</SectionLabel>
-          <p
-            className="font-body"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--ink-secondary)",
-              maxWidth: "54ch",
-            }}
-          >
-            {cs.process.copy}
-          </p>
-        </div>
+        <Section index={next()} label={cs.process.title}>
+          <p>{cs.process.copy}</p>
+        </Section>
       )}
 
-      {/* StepsBlock: processSteps */}
       {cs?.processSteps && cs.processSteps.length > 0 && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>Process</SectionLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+        <Section index={next()} label="Process">
+          <div className="cs-steps">
             {cs.processSteps.map((step, i) => (
-              <div key={i} style={{ display: "flex", gap: 20 }}>
-                <span
-                  className="font-mono"
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.04em",
-                    fontVariantNumeric: "tabular-nums",
-                    color: "var(--ink-ghost)",
-                    flexShrink: 0,
-                    width: 24,
-                    paddingTop: 2,
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+              <div key={i} className="cs-step">
+                <span className="cs-step__num">{String(i + 1).padStart(2, "0")}</span>
                 <div>
-                  <h4
-                    className="font-display"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 400,
-                      lineHeight: 1.35,
-                      color: "var(--ink-primary)",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {step.title}
-                  </h4>
-                  <p
-                    className="font-body"
-                    style={{
-                      fontSize: 15,
-                      lineHeight: 1.7,
-                      color: "var(--ink-secondary)",
-                      maxWidth: "54ch",
-                    }}
-                  >
-                    {step.copy}
-                  </p>
+                  <h4 className="cs-step__title">{step.title}</h4>
+                  <p>{step.copy}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* HighlightsBlock */}
       {cs?.highlights && cs.highlights.length > 0 && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>Key Details</SectionLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+        <Section index={next()} label="Key details">
+          <div className="cs-highlights">
             {cs.highlights.map((h) => (
               <div key={h.id}>
-                <h4
-                  className="font-display"
-                  style={{
-                    fontSize: 16,
-                    fontWeight: 400,
-                    lineHeight: 1.35,
-                    color: "var(--ink-primary)",
-                    marginBottom: 8,
-                  }}
-                >
-                  {h.title}
-                </h4>
-                <p
-                  className="font-body"
-                  style={{
-                    fontSize: 15,
-                    lineHeight: 1.7,
-                    color: "var(--ink-secondary)",
-                    maxWidth: "54ch",
-                    marginBottom: 10,
-                  }}
-                >
-                  {h.description}
-                </p>
-                <p
-                  className="font-display italic"
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.5,
-                    color: "var(--ink-muted)",
-                    maxWidth: "54ch",
-                  }}
-                >
-                  {h.challenge}
-                </p>
+                <h4 className="cs-highlight__title">{h.title}</h4>
+                <p>{h.description}</p>
+                <p className="cs-highlight__caption">{h.challenge}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* SignalsBlock: engineering */}
       {cs?.engineering && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>{cs.engineering.title}</SectionLabel>
-          <p
-            className="font-body"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--ink-secondary)",
-              maxWidth: "54ch",
-              marginBottom: 20,
-            }}
-          >
-            {cs.engineering.copy}
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        <Section index={next()} label={cs.engineering.title}>
+          <p>{cs.engineering.copy}</p>
+          <div className="cs-signals">
             {cs.engineering.signals.map((s) => (
-              <span
-                key={s}
-                className="font-mono uppercase"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.08em",
-                  color: "var(--ink-muted)",
-                  padding: "3px 10px",
-                  border: "1px solid var(--ink-ghost)",
-                  borderRadius: 9999,
-                }}
-              >
-                {s}
-              </span>
+              <span key={s}>{s}</span>
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* StatsBlock */}
       {cs?.statistics && cs.statistics.length > 0 && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: "clamp(64px, 10vh, 120px)", opacity: 0 }}
-        >
-          <SectionLabel>Numbers</SectionLabel>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 48 }}>
+        <Section index={next()} label="Numbers">
+          <div className="cs-stats">
             {cs.statistics.map((stat, i) => (
               <div key={stat.label}>
-                <span
-                  className="font-mono uppercase block"
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.14em",
-                    color: "var(--ink-faint)",
-                    marginBottom: 12,
-                  }}
-                >
+                <span className="cs-stat__label">
                   {String(i + 1).padStart(2, "0")} / {stat.label}
                 </span>
-                <span
-                  className="block"
-                  style={{
-                    fontFamily: "var(--font-serif)",
-                    fontStyle: "italic",
-                    fontSize: "clamp(40px, 5vw, 72px)",
-                    fontVariantNumeric: "tabular-nums",
-                    color: "var(--accent)",
-                    lineHeight: 1,
-                  }}
-                >
-                  {stat.value}
-                </span>
+                <span className="cs-stat__value">{stat.value}</span>
               </div>
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* MediaBlock: videos */}
       {cs?.videos && cs.videos.length > 0 && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{ marginBottom: 64, opacity: 0 }}
-        >
-          <SectionLabel>Media</SectionLabel>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 16,
-            }}
-          >
+        <Section index={next()} label="Media">
+          <div className="cs-media">
             {cs.videos.map((v, i) => (
-              <AsciiFrame
-                key={i}
-                topLeft={`MEDIA / ${String(i + 1).padStart(2, "0")}`}
-                topRight={v.caption || (v.aspect ? v.aspect.replace("/", " / ") : "16 / 9")}
-                bottomLeft="VIDEO LOOP"
-                bottomRight={`${piece.number} · ${piece.title}`}
-                padding={0}
-              >
+              <figure key={i}>
                 <video
                   src={v.src}
                   poster={v.poster}
@@ -529,73 +445,23 @@ export default function CaseStudy({ piece }: CaseStudyProps) {
                   muted
                   loop
                   playsInline
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    aspectRatio: v.aspect || "16/9",
-                    objectFit: "cover",
-                  }}
+                  style={{ display: "block", width: "100%", aspectRatio: v.aspect || "16/9", objectFit: "cover" }}
                 />
-              </AsciiFrame>
+                <figcaption>
+                  FIG. {String(i + 2).padStart(2, "0")} — {v.caption ?? "Video loop"}
+                </figcaption>
+              </figure>
             ))}
           </div>
-        </div>
+        </Section>
       )}
 
-      {/* ── Next project ── */}
       {nextPiece && (
-        <div
-          className="case-study-col"
-          data-reveal
-          style={{
-            paddingTop: 48,
-            paddingBottom: 72,
-            opacity: 0,
-          }}
-        >
-          <Link
-            href={`/work/${nextPiece.slug}`}
-            style={{
-              display: "block",
-              borderTop: "1px solid var(--ink-ghost)",
-              paddingTop: 24,
-            }}
-          >
-            <span
-              className="font-mono uppercase block"
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.06em",
-                color: "var(--ink-muted)",
-                marginBottom: 12,
-              }}
-            >
-              NEXT →
-            </span>
-            <span
-              className="block"
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontStyle: "italic",
-                fontWeight: 400,
-                fontSize: "clamp(24px, 3vw, 36px)",
-                lineHeight: 1.2,
-                color: "var(--ink)",
-                marginBottom: 8,
-              }}
-            >
-              {nextPiece.title}
-            </span>
-            <span
-              className="font-mono uppercase block"
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.06em",
-                color: "var(--ink-muted)",
-              }}
-            >
-              {nextPiece.sector} · {nextPiece.year}
-            </span>
+        <div className="cs-next" data-reveal style={{ opacity: 0 }}>
+          <Link href={`/work/${nextPiece.slug}`}>
+            <span className="cs-next__key">NEXT ENTRY →</span>
+            <span className="cs-next__title">{nextPiece.title}</span>
+            <span className="cs-next__meta">{nextPiece.sector} / {nextPiece.year}</span>
           </Link>
         </div>
       )}

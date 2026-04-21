@@ -73,15 +73,15 @@ export default async function Image() {
           </svg>
           <div
             style={{
-              fontSize: 56,
-              fontFamily: "serif",
-              fontStyle: "italic",
-              color: "#1C1C1A",
+              fontSize: 52,
+              fontFamily: "sans-serif",
+              fontWeight: 500,
+              color: "#111110",
               marginTop: 40,
               letterSpacing: "-0.02em",
             }}
           >
-            Hyeonjoon, design engineer
+            Hyeonjoon Jun — design engineer
           </div>
         </div>
 

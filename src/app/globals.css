@@ -2,68 +2,58 @@
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Ink-and-paper palette */
-  --paper:   #F7F7F5;
-  --paper-2: #EFEFEC;
-  --paper-3: #E6E6E2;
-  --ink:     #1C1C1A;
-  --ink-2:   #5A5A56;
-  --ink-3:   #92928E;
-  --ink-4:   #C6C6C2;
-  --accent:      #5B89B5;  /* Hanada — twilight sky blue, signature accent */
-  --accent-soft: rgba(91, 137, 181, 0.12);  /* wash / live-indicator background */
-  --accent-deep: #3E6C98;  /* hover / pressed state */
+  /* Paper-and-ink palette — bias toward pure white */
+  --paper:   #FFFFFF;
+  --paper-2: #F4F4F2;
+  --paper-3: #E8E8E4;
+  --ink:     #111110;
+  --ink-2:   #55554F;
+  --ink-3:   #8E8E87;
+  --ink-4:   #C8C8C2;
 
-  /* Semantic aliases — used throughout pages */
+  --accent:      #2C4A6E;  /* deep Hanada — senior, restrained */
+  --accent-soft: rgba(44, 74, 110, 0.08);
+  --accent-deep: #1D3352;
+
   --ink-primary:   var(--ink);
   --ink-secondary: var(--ink-2);
   --ink-muted:     var(--ink-3);
   --ink-faint:     var(--ink-4);
-  --ink-ghost:     rgba(28, 28, 26, 0.08);
+  --ink-ghost:     rgba(17, 17, 16, 0.06);
 
-  /* Easing aliases */
-  --ease-swift: cubic-bezier(.4, 0, .2, 1);
-
-  /* Modular type scale — Perfect Fourth (1.333) */
+  /* Modular type scale — Perfect Fourth (1.333×) */
   --t-micro:   9px;
   --t-small:   12px;
-  --t-body:    16px;
-  --t-h4:      21px;
-  --t-h3:      28px;
-  --t-h2:      37px;
-  --t-h1:      50px;
-  --t-display: 67px;
-  --t-hero:    89px;
+  --t-body:    15px;
+  --t-h4:      20px;
+  --t-h3:      27px;
+  --t-h2:      36px;
+  --t-h1:      48px;
+  --t-display: 64px;
+  --t-hero:    88px;
 
-  /* Font stacks
-     layout.tsx injects on <body>: --font-sans (General Sans), --font-serif (Newsreader),
-     --font-fragment (Fragment Mono). These vars cascade down from body. */
-  --font-stack-serif: var(--font-serif, "Georgia"), serif;
-  --font-stack-sans:  var(--font-sans, "Helvetica Neue"), system-ui, sans-serif;
-  --font-stack-mono:  var(--font-fragment, "SF Mono"), "Consolas", monospace;
-  --font-stack-hand:  var(--font-hand, "Comic Sans MS"), cursive;
+  /* Font stacks — only two faces loaded. */
+  --font-stack-sans: var(--font-sans, "Helvetica Neue"), system-ui, sans-serif;
+  --font-stack-mono: var(--font-mono, "SF Mono"), "Consolas", monospace;
 
   /* Easing */
   --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-swift: cubic-bezier(.4, 0, .2, 1);
 }
 
-/* Dark theme — applied via [data-theme="dark"] on <html> (set by ThemeToggle) */
-[data-theme="dark"] {
-  --paper:   #0E1117;
-  --paper-2: #161B22;
-  --paper-3: #1E242D;
-  --ink:     #EAE2D4;
+/* Dark lock — applied per-route via <main data-theme-lock="dark">.
+   Scoped to descendants only; nav inherits paper unless we lift. */
+[data-theme-lock="dark"] {
+  --paper:   #030408;
+  --paper-2: #0B0E15;
+  --paper-3: #14181F;
+  --ink:     #F1ECE0;
   --ink-2:   #B8B0A0;
   --ink-3:   #7A7266;
-  --ink-4:   #4A463E;
-  --accent:      #7FA6C4;  /* Hanada slightly lifted for dark bg */
-  --accent-soft: rgba(127, 166, 196, 0.14);
-  --accent-deep: #9FC0D8;
-  --ink-primary:   var(--ink);
-  --ink-secondary: var(--ink-2);
-  --ink-muted:     var(--ink-3);
-  --ink-faint:     var(--ink-4);
-  --ink-ghost:     rgba(234, 226, 212, 0.1);
+  --ink-4:   #48443E;
+  --ink-ghost: rgba(241, 236, 224, 0.08);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
@@ -78,42 +68,21 @@ body {
   color: var(--ink);
   font-family: var(--font-stack-sans);
   font-size: var(--t-body);
-  line-height: 1.55;
+  line-height: 1.5;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv11", "tnum" 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 400ms ease, color 400ms ease;
 }
 
-/* Reticle custom cursor — active only when body has .reticle-active class.
-   Added by Reticle on mount, removed on unmount (null-return routes). */
-body.reticle-active { cursor: none; }
-body.cursor-reveal, body.cursor-reveal * { cursor: auto !important; }
-@media (pointer: coarse) { body.reticle-active { cursor: auto; } }
-
-/* Pretext hero owns its own cursor */
-body:has(.pretext-hero) { cursor: crosshair !important; }
-body:has(.pretext-hero) * { cursor: crosshair !important; }
-body:has(.pretext-hero) a { cursor: pointer !important; }
+/* Italics: globally suppressed. Use weight / tracking / caps as emphasis instead. */
+i, em, cite, q, address, var, dfn { font-style: normal; }
 
 ::selection { background: var(--ink); color: var(--paper); }
 :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }
 
-/* ─── Grain texture — 3.5% opacity, multiply ─────────────────────────────── */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 256px;
-  mix-blend-mode: multiply;
-}
-
-/* Suppress paper grain on the viewfinder homepage */
-body:has(main.viewfinder)::before { display: none; }
+/* Tabular numerics — metadata, coordinates, timestamps */
+.tabular { font-variant-numeric: tabular-nums; }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
@@ -124,11 +93,10 @@ body:has(main.viewfinder)::before { display: none; }
 }
 
 /* ─── Font utilities ─────────────────────────────────────────────────────── */
-.font-serif { font-family: var(--font-stack-serif); }
-.font-sans  { font-family: var(--font-stack-sans); }
-.font-mono  { font-family: var(--font-stack-mono); }
+.font-sans { font-family: var(--font-stack-sans); }
+.font-mono { font-family: var(--font-stack-mono); }
 
-/* ─── Skip link (a11y) — hidden until focused ────────────────────────────── */
+/* ─── Skip link (a11y) ───────────────────────────────────────────────────── */
 .skip-to-content {
   position: absolute;
   left: -9999px;
@@ -152,19 +120,19 @@ body:has(main.viewfinder)::before { display: none; }
   z-index: 100;
 }
 
-/* ─── Label utilities ────────────────────────────────────────────────────── */
-.label-mono {
+/* ─── Metadata labels — the house voice for coordinates/timestamps ───────── */
+.meta {
   font-family: var(--font-stack-mono);
-  font-size: var(--t-small);
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
 }
-
-.label-micro {
-  font-family: var(--font-stack-mono);
-  font-size: var(--t-micro);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
+.meta-key {
+  color: var(--ink-4);
+  margin-right: 6px;
+}
+.meta-val {
+  color: var(--ink-2);
 }

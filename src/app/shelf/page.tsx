@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AsciiGradient from "@/components/AsciiGradient";
 
 type ShelfItem = {
   id: string;
@@ -79,19 +78,17 @@ export default function ShelfPage() {
   return (
     <main id="main" className="shelf-main">
       <div className="shelf-wrap">
-        <AsciiGradient ramp=" ·-:=+*▒▓" stops={120} charSize={10} height={16} />
-
         <header className="shelf-head">
           <span className="shelf-head__left">THE SHELF</span>
           <span className="shelf-head__rule" aria-hidden="true" />
-          <span className="shelf-head__right">HYEONJOON · 2026</span>
+          <span className="shelf-head__right">HYEONJOON JUN · 2026</span>
         </header>
 
         <p className="shelf-intro">
           Objects I keep near while I work — books, tapes, zines, field notes. Each one changes the work in a small way.
         </p>
 
-        <AsciiGradient ramp=" ·-:=+*▒▓" stops={120} charSize={10} height={16} />
+        <hr className="shelf-divider" aria-hidden="true" />
 
         <section className="shelf-grid" aria-label="Shelf items">
           {SHELF.map((item) => (
@@ -154,6 +151,12 @@ export default function ShelfPage() {
           letter-spacing: 0.14em;
           text-transform: uppercase;
         }
+        .shelf-divider {
+          border: 0;
+          height: 1px;
+          background: var(--ink-ghost);
+          margin: 8px 0 20px;
+        }
         .shelf-head__left { color: var(--ink); }
         .shelf-head__right { color: var(--ink-muted); text-align: right; }
         .shelf-head__rule {
@@ -164,13 +167,13 @@ export default function ShelfPage() {
         }
 
         .shelf-intro {
-          font-family: var(--font-stack-serif);
-          font-style: italic;
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
           font-size: clamp(22px, 2.6vw, 32px);
           line-height: 1.35;
           max-width: 48ch;
           color: var(--ink);
-          letter-spacing: -0.01em;
+          letter-spacing: -0.015em;
         }
 
         .shelf-grid {
@@ -233,12 +236,11 @@ export default function ShelfPage() {
           flex-direction: column;
         }
         .shelf-item__title {
-          font-family: var(--font-stack-serif);
-          font-style: italic;
-          font-weight: 400;
-          font-size: 24px;
-          line-height: 1.15;
-          letter-spacing: -0.02em;
+          font-family: var(--font-stack-sans);
+          font-weight: 500;
+          font-size: 22px;
+          line-height: 1.2;
+          letter-spacing: -0.015em;
           color: var(--ink);
           margin: 0 0 4px 0;
         }
