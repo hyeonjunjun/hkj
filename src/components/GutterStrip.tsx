@@ -109,67 +109,54 @@ export default function GutterStrip({ pieces }: Props) {
       className="strip"
       aria-label="Project media, scrollable"
       data-reduced={reduced ? "" : undefined}
+      data-lenis-prevent
     >
       <ol className="strip__list">
-        {tripled.map((p, i) => {
-          const displayNum = (i % pieces.length) + 1;
-          return (
-            <li key={`${p.slug}-${i}`} className="strip__item">
-              <Link
-                href={`/work/${p.slug}`}
-                className="strip__link"
-                data-cursor-label="OPEN PROJECT"
-                aria-hidden={i >= pieces.length ? "true" : undefined}
-                tabIndex={i >= pieces.length ? -1 : undefined}
+        {tripled.map((p, i) => (
+          <li key={`${p.slug}-${i}`} className="strip__item">
+            <Link
+              href={`/work/${p.slug}`}
+              className="strip__link"
+              data-cursor-label="OPEN PROJECT"
+              aria-hidden={i >= pieces.length ? "true" : undefined}
+              tabIndex={i >= pieces.length ? -1 : undefined}
+            >
+              <div
+                className="strip__plate"
+                style={{ aspectRatio: p.coverAspect ?? "16 / 9" }}
               >
-                <div
-                  className="strip__plate"
-                  style={{ aspectRatio: p.coverAspect ?? "16 / 9" }}
-                >
-                  <div className="strip__media-wrap">
-                    {p.cover?.kind === "video" ? (
-                      <video
-                        src={p.cover.src}
-                        poster={p.cover.poster}
-                        muted
-                        loop
-                        playsInline
-                        autoPlay={!reduced}
-                        preload="metadata"
-                        className="strip__media"
-                        data-fit={p.coverFit ?? "cover"}
-                      />
-                    ) : p.cover?.kind === "image" ? (
-                      <Image
-                        src={p.cover.src}
-                        alt={p.title}
-                        fill
-                        sizes="(max-width: 900px) 100vw, 420px"
-                        className="strip__media"
-                        data-fit={p.coverFit ?? "cover"}
-                      />
-                    ) : (
-                      <span className="strip__placeholder">
-                        In development &nbsp;—&nbsp; {p.year}
-                      </span>
-                    )}
-                  </div>
+                <div className="strip__media-wrap">
+                  {p.cover?.kind === "video" ? (
+                    <video
+                      src={p.cover.src}
+                      poster={p.cover.poster}
+                      muted
+                      loop
+                      playsInline
+                      autoPlay={!reduced}
+                      preload="metadata"
+                      className="strip__media"
+                      data-fit={p.coverFit ?? "cover"}
+                    />
+                  ) : p.cover?.kind === "image" ? (
+                    <Image
+                      src={p.cover.src}
+                      alt={p.title}
+                      fill
+                      sizes="(max-width: 900px) 100vw, 420px"
+                      className="strip__media"
+                      data-fit={p.coverFit ?? "cover"}
+                    />
+                  ) : (
+                    <span className="strip__placeholder">
+                      In development &nbsp;—&nbsp; {p.year}
+                    </span>
+                  )}
                 </div>
-                <p className="strip__caption">
-                  <span className="tabular">
-                    {String(displayNum).padStart(2, "0")}
-                  </span>
-                  <span className="strip__slash" aria-hidden>/</span>
-                  <span>
-                    {p.title
-                      .replace(/:\s*[\u4E00-\u9FFF\uAC00-\uD7AF]+/, "")
-                      .toLowerCase()}
-                  </span>
-                </p>
-              </Link>
-            </li>
-          );
-        })}
+              </div>
+            </Link>
+          </li>
+        ))}
       </ol>
 
       <style>{`
@@ -201,9 +188,9 @@ export default function GutterStrip({ pieces }: Props) {
         .strip__list {
           list-style: none;
           margin: 0;
-          padding: 30% 0;
+          padding: 0;
           display: grid;
-          gap: clamp(28px, 4.5vh, 48px);
+          gap: 0;
         }
         .strip__item { margin: 0; }
 
@@ -254,21 +241,6 @@ export default function GutterStrip({ pieces }: Props) {
           color: var(--ink-4);
           white-space: nowrap;
         }
-
-        .strip__caption {
-          margin: 8px 0 0;
-          display: inline-flex;
-          align-items: baseline;
-          gap: 8px;
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          transition: color 180ms var(--ease);
-        }
-        .strip__link:hover .strip__caption { color: var(--ink); }
-        .strip__slash { color: var(--ink-4); }
 
         @media (prefers-reduced-motion: reduce) {
           .strip__media-wrap { transform: none !important; }
