@@ -202,6 +202,17 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
       <ol className="strip__list">
         {tripled.map((p, i) => {
           const isCanonical = i >= pieceCount && i < pieceCount * 2;
+
+          const pauseVideo = (el: HTMLElement | null) => {
+            const v = el?.querySelector<HTMLVideoElement>("video");
+            if (v && !v.paused) v.pause();
+          };
+          const resumeVideo = (el: HTMLElement | null) => {
+            if (reduced) return;
+            const v = el?.querySelector<HTMLVideoElement>("video");
+            if (v && v.paused) v.play().catch(() => {});
+          };
+
           return (
             <li
               key={`${p.slug}-${i}`}
@@ -213,6 +224,10 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
                 className="strip__link"
                 aria-hidden={!isCanonical ? "true" : undefined}
                 tabIndex={!isCanonical ? -1 : undefined}
+                onPointerEnter={(e) => pauseVideo(e.currentTarget)}
+                onPointerLeave={(e) => resumeVideo(e.currentTarget)}
+                onFocus={(e) => pauseVideo(e.currentTarget)}
+                onBlur={(e) => resumeVideo(e.currentTarget)}
               >
                 <div
                   className="strip__plate"
@@ -245,6 +260,14 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
                         In development &nbsp;—&nbsp; {p.year}
                       </span>
                     )}
+                  </div>
+
+                  {/* View-project overlay — fades in on hover/focus,
+                      arrow slides in with a short delay after the plate
+                      backdrop settles. */}
+                  <div className="strip__overlay" aria-hidden>
+                    <span className="strip__overlay-text">View project</span>
+                    <span className="strip__overlay-arrow">→</span>
                   </div>
                 </div>
               </Link>
@@ -296,13 +319,72 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
           width: 100%;
           background: color-mix(in oklab, var(--paper) 94%, var(--ink) 6%);
           overflow: hidden;
-          transition: transform 240ms var(--ease);
         }
-        .strip__link:hover .strip__plate { transform: scale(0.988); }
+
+        /* ── View-project overlay ────────────────────────────── */
+        .strip__overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
+          z-index: 2;
+          pointer-events: none;
+
+          /* paper-tone backdrop so the mono text reads over any media */
+          background: color-mix(in oklab, var(--paper) 68%, transparent);
+
+          opacity: 0;
+          transition: opacity 240ms var(--ease);
+
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0.26em;
+          text-transform: uppercase;
+          color: var(--ink);
+        }
+        .strip__link:hover .strip__overlay,
+        .strip__link:focus-visible .strip__overlay {
+          opacity: 1;
+        }
+
+        .strip__overlay-text {
+          /* text fades in first, slight upward drift */
+          transform: translateY(4px);
+          opacity: 0;
+          transition:
+            transform 280ms cubic-bezier(0.22, 1, 0.36, 1) 40ms,
+            opacity  260ms var(--ease) 40ms;
+        }
+        .strip__link:hover .strip__overlay-text,
+        .strip__link:focus-visible .strip__overlay-text {
+          transform: translateY(0);
+          opacity: 1;
+        }
+
+        .strip__overlay-arrow {
+          /* arrow slides in a beat after the text */
+          display: inline-block;
+          transform: translateX(-6px);
+          opacity: 0;
+          transition:
+            transform 340ms cubic-bezier(0.22, 1, 0.36, 1) 120ms,
+            opacity  260ms var(--ease) 120ms;
+        }
+        .strip__link:hover .strip__overlay-arrow,
+        .strip__link:focus-visible .strip__overlay-arrow {
+          transform: translateX(0);
+          opacity: 1;
+        }
 
         @media (prefers-reduced-motion: reduce) {
-          .strip__plate { transition: none; }
-          .strip__link:hover .strip__plate { transform: none; }
+          .strip__overlay,
+          .strip__overlay-text,
+          .strip__overlay-arrow {
+            transition: none;
+            transform: none;
+          }
         }
 
         /* Matched to parallax factor 0.08 — no leak, no waste */
