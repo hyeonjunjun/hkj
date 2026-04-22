@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type NavItem = { href: string; label: string; kind?: "mailto" };
-
-const EMAIL = "rykjun@gmail.com";
+type NavItem = { href: string; label: string };
 
 const ITEMS: NavItem[] = [
-  { href: "/about", label: "about" },
-  { href: "/shelf", label: "shelf" },
-  { href: `mailto:${EMAIL}`, label: "contact", kind: "mailto" },
+  { href: "/about",   label: "about" },
+  { href: "/shelf",   label: "shelf" },
+  { href: "/contact", label: "contact" },
 ];
 
 export default function NavCoordinates() {
@@ -26,27 +24,18 @@ export default function NavCoordinates() {
 
       <ol className="nav__list">
         {ITEMS.map((item) => {
-          const isInternal = item.kind !== "mailto";
-          const active =
-            isInternal && (pathname?.startsWith(item.href) ?? false);
-
+          const active = pathname?.startsWith(item.href) ?? false;
           const className = `nav__link${active ? " is-active" : ""}`;
 
           return (
             <li key={item.href} className="nav__item">
-              {isInternal ? (
-                <Link
-                  href={item.href}
-                  className={className}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <a href={item.href} className={className}>
-                  {item.label}
-                </a>
-              )}
+              <Link
+                href={item.href}
+                className={className}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
             </li>
           );
         })}
