@@ -324,10 +324,10 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
         }
 
         /* ── View-project overlay ─────────────────────────────
-           No backdrop. mix-blend-difference inverts the glyph +
-           caption against any media behind. Arrow appears first on
-           hover and rotates 360° while the caption reveals after a
-           short delay — the rotation carries the A→B transition. */
+           Single fade on hover; no rotation, no stagger, no slide.
+           mix-blend-difference inverts glyph + caption against any
+           media behind, no backdrop needed. Arrow stays → at rest
+           and at hover — affordance never compromised mid-animation. */
         .strip__overlay {
           position: absolute;
           inset: 0;
@@ -354,42 +354,14 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
           opacity: 1;
         }
 
-        /* Arrow glyph — visible with the overlay; rotates 360° on
-           hover, lands back where it started. */
         .strip__overlay-icon {
           display: inline-block;
           font-size: 13px;
           line-height: 1;
-          transform: rotate(0deg);
-          transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .strip__link:hover .strip__overlay-icon,
-        .strip__link:focus-visible .strip__overlay-icon {
-          transform: rotate(360deg);
-        }
-
-        /* Caption — delayed reveal so the arrow registers alone for
-           the first ~200ms, then text slides in from the left. */
-        .strip__overlay-text {
-          opacity: 0;
-          transform: translateX(-6px);
-          transition:
-            opacity 220ms var(--ease) 220ms,
-            transform 340ms cubic-bezier(0.22, 1, 0.36, 1) 220ms;
-        }
-        .strip__link:hover .strip__overlay-text,
-        .strip__link:focus-visible .strip__overlay-text {
-          opacity: 1;
-          transform: translateX(0);
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .strip__overlay,
-          .strip__overlay-icon,
-          .strip__overlay-text {
-            transition: none;
-            transform: none;
-          }
+          .strip__overlay { transition: none; }
         }
 
         /* Matched to parallax factor 0.08 — no leak, no waste */
