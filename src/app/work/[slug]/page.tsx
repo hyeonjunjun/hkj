@@ -29,7 +29,7 @@ export default function WorkDetailPage() {
             place-content: center;
           }
           .work-404__body {
-            font-family: var(--font-stack-serif);
+            font-family: var(--font-stack-mono);
             font-weight: 380;
             font-size: 17px;
             line-height: 1.6;

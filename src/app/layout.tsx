@@ -5,22 +5,6 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
 import NavCoordinates from "@/components/NavCoordinates";
 
-const generalSans = localFont({
-  src: "../fonts/general-sans/GeneralSans-Variable.woff2",
-  variable: "--font-sans",
-  weight: "200 700",
-  display: "swap",
-  preload: true,
-});
-
-const gambetta = localFont({
-  src: "../fonts/gambetta/Gambetta-Variable.woff2",
-  variable: "--font-serif",
-  weight: "300 800",
-  display: "swap",
-  preload: true,
-});
-
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
   variable: "--font-mono",
@@ -55,7 +39,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${generalSans.variable} ${gambetta.variable} ${fragmentMono.variable}`}>
+      <body className={fragmentMono.variable}>
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />

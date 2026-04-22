@@ -114,7 +114,7 @@ export default function AboutPage() {
 
         .about__head { display: grid; gap: 20px; }
         .about__title {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: clamp(24px, 2.8vw, 32px);
           line-height: 1.35;
@@ -125,7 +125,7 @@ export default function AboutPage() {
         }
 
         .about__prose {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: 15px;
           line-height: 1.8;
@@ -156,7 +156,7 @@ export default function AboutPage() {
           align-self: baseline;
         }
         .about__timeline-role {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 400;
           font-size: 15px;
           color: var(--ink);
@@ -165,7 +165,7 @@ export default function AboutPage() {
         .about__timeline-org { color: var(--ink-3); }
 
         .about__contact-lede {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: 15px;
           line-height: 1.8;

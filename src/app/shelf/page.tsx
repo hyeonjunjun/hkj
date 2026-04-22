@@ -68,7 +68,7 @@ export default function ShelfPage() {
 
         .shelf__head { display: grid; gap: 20px; }
         .shelf__title {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: clamp(28px, 3.2vw, 38px);
           line-height: 1.25;
@@ -78,7 +78,7 @@ export default function ShelfPage() {
           max-width: 22ch;
         }
         .shelf__lede {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: 15px;
           line-height: 1.7;
@@ -107,7 +107,7 @@ export default function ShelfPage() {
           gap: 12px;
         }
         .shelf-plate__title {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 400;
           font-size: 22px;
           line-height: 1.25;
@@ -124,7 +124,7 @@ export default function ShelfPage() {
           margin: 0;
         }
         .shelf-plate__body {
-          font-family: var(--font-stack-serif);
+          font-family: var(--font-stack-mono);
           font-weight: 380;
           font-size: 14px;
           line-height: 1.75;

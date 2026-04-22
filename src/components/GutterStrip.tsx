@@ -235,6 +235,10 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
                       className="strip__media"
                       data-fit={p.coverFit ?? "cover"}
                     />
+                  ) : p.placeholderAscii ? (
+                    <pre className="strip__ascii" aria-hidden>
+                      {p.placeholderAscii}
+                    </pre>
                   ) : (
                     <span className="strip__placeholder">
                       In development &nbsp;—&nbsp; {p.year}
@@ -330,6 +334,23 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
           text-transform: uppercase;
           color: var(--ink-4);
           white-space: nowrap;
+        }
+
+        .strip__ascii {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          font-family: var(--font-stack-mono);
+          font-size: clamp(8px, 0.9vw, 12px);
+          line-height: 1.15;
+          letter-spacing: 0;
+          color: var(--ink-2);
+          opacity: 0.78;
+          margin: 0;
+          padding: 8%;
+          white-space: pre;
+          text-align: center;
         }
 
         @media (prefers-reduced-motion: reduce) {

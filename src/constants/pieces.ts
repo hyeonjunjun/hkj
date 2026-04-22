@@ -24,6 +24,8 @@ export interface Piece {
   coverAspect?: string;
   /** Width as a percentage of the strip column (0–100). Defaults to 100. */
   coverWidth?: number;
+  /** Hand-composed ASCII to render inside the frame when no cover exists. */
+  placeholderAscii?: string;
   tags: string[];
 }
 
@@ -76,6 +78,13 @@ export const PIECES: Piece[] = [
     year: 2026,
     coverAspect: "16 / 10",
     coverWidth: 86,
+    placeholderAscii: `  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+───────────          ─────
+  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+      ╎╎╎╎╎               ╎╎╎╎
+  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
+──────          ───────          ───
+  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·  ·`,
     tags: ["dashboard", "ambient", "ai"],
   },
   {
@@ -108,6 +117,13 @@ export const PIECES: Piece[] = [
     year: 2026,
     coverAspect: "1 / 1",
     coverWidth: 64,
+    placeholderAscii: `     ┌─┐
+     │ │
+    ╭┴─┴╮
+    │   │
+    │ · │
+    │   │
+    ╰───╯`,
     tags: ["brand", "packaging", "concept"],
   },
   {
@@ -123,6 +139,19 @@ export const PIECES: Piece[] = [
     year: 2026,
     coverAspect: "2 / 3",
     coverWidth: 72,
+    placeholderAscii: `│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+───────────────
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+───────────────
+│ │ │ │ │ │ │ │
+│ │ │ │ │ │ │ │
+───────────────`,
     tags: ["brand", "editorial", "concept"],
   },
   {
@@ -138,6 +167,13 @@ export const PIECES: Piece[] = [
     year: 2026,
     coverAspect: "3 / 2",
     coverWidth: 92,
+    placeholderAscii: `    ·         ·         ·
+           ┌───┐
+   ┌─┐   ╭─┴───┴─╮   ┌─┐
+  ╭┴─┴╮  │   ·   │  ╭┴─┴╮
+  │ · │  │       │  │   │
+  │   │  │   ·   │  │ · │
+  ╰───╯  ╰───────╯  ╰───╯`,
     tags: ["brand", "fragrance", "concept"],
   },
   {
@@ -153,6 +189,17 @@ export const PIECES: Piece[] = [
     year: 2026,
     coverAspect: "4 / 5",
     coverWidth: 58,
+    placeholderAscii: `       ·
+      · ·
+     ·   ·
+    ╱     ╲
+   ╱       ╲
+  ╱    ·    ╲
+ ╱           ╲
+╱_____________╲
+
+~ ~ ~ ~ ~ ~ ~ ~
+   ~  ~  ~`,
     tags: ["brand", "hospitality", "concept"],
   },
 ];
