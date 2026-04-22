@@ -16,12 +16,14 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
  * Reduced-motion clients get a single paint, no rAF loop.
  */
 
-// Density ramp: space (sparsest — renders nothing) → @ (densest).
-const RAMP = " .,:;!lrLYU0@";
+// Density ramp, restrained — only light glyphs. Space sparsest → `r`
+// densest. No heavy black (`@`, `0`, `U`) because the ascii should
+// read as atmospheric texture, not a field of ink.
+const RAMP = " .,·:;lr";
 const CELL_FONT_PX = 11;
 const CELL_W = 9;
 const CELL_H = 14;
-const SPEED = 0.06;
+const SPEED = 0.05;
 
 export default function AmbientAscii() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -92,17 +94,20 @@ export default function AmbientAscii() {
         const y = r * CELL_H;
         for (let c = 0; c < cols; c++) {
           const v = field(c, r, t);
-          if (v <= 0.03) continue;
+          // Higher threshold — most cells stay empty. Coverage is
+          // restrained; only peaks in the noise field render.
+          if (v <= 0.32) continue;
 
           const idx = Math.min(
             RAMP.length - 1,
-            Math.max(0, Math.floor(v * RAMP.length))
+            Math.max(0, Math.floor((v - 0.32) / 0.68 * RAMP.length))
           );
           const ch = RAMP[idx];
           if (ch === " ") continue;
 
-          // Per-cell alpha climbs with density so denser glyphs hold.
-          const alpha = 0.30 + v * 0.55;
+          // Softer per-cell alpha — the eye should register texture,
+          // not punctuation.
+          const alpha = 0.18 + v * 0.38;
           ctx.fillStyle = `rgba(17, 17, 16, ${alpha.toFixed(3)})`;
           ctx.fillText(ch, c * CELL_W, y);
         }
@@ -129,7 +134,14 @@ export default function AmbientAscii() {
         inset: 0,
         pointerEvents: "none",
         zIndex: 2,
-        opacity: 0.32,
+        opacity: 0.45,
+        // Radial mask — ascii fades out in the center where content
+        // reads, holds at the edges as frame-texture. Content breathes;
+        // ascii lives at the margins.
+        maskImage:
+          "radial-gradient(ellipse 68% 60% at center, transparent 10%, black 92%)",
+        WebkitMaskImage:
+          "radial-gradient(ellipse 68% 60% at center, transparent 10%, black 92%)",
       }}
     />
   );
