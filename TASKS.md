@@ -25,6 +25,11 @@ paper grain + micro-typography, not in ambient motion.
 first-paint event, never on idle. 120–400ms windows. Respect
 `prefers-reduced-motion`.
 
+**Voice**: simple, minimalist, confident. The shelf title sets the
+register — *"A list of resources I refer to."* Same grammar across
+pages: an article, a noun, a first-person verb. Not poetic, not
+performative. No adjectives where a noun will do.
+
 ---
 
 ## Shipped — 2026-04-22 session
@@ -64,6 +69,42 @@ first-paint event, never on idle. 120–400ms windows. Respect
 
 ---
 
+## Retired this session (do not re-propose)
+
+Multiple ambient-motion directions were attempted and rejected. The
+eventual direction — static paper grain only, no idle animation — is
+load-bearing. Past attempts:
+
+- **AmbientAscii** — full-viewport canvas of drifting dot glyphs
+  (`·⋅∙∶∷∴`) rendered via sine field. Tried at opacities 0.07 → 0.11
+  → 0.22 → 0.32 with various densities, thresholds, blend modes, and
+  a radial center-mask. Always read as either invisible or too busy
+  depending on the dial. Cut for [PaperGrain.tsx](src/components/PaperGrain.tsx).
+- **Density-mapped ASCII landscape** — same canvas, but with a
+  character ramp (`.,:;!lrLYU0@`) zoned into sky / horizon / ground
+  bands. Rendered as real image-to-ASCII atmosphere but still felt
+  like decoration on top of content.
+- **AmbientGarden** — five finely-detailed natural elements anchored
+  at viewport corners (hanging branch, thin twig, flower on stem,
+  grass tuft, diagonally drifting leaf), each with its own CSS
+  keyframe sway on `transform-origin: top` or `bottom`. Genuinely
+  pretty; cut because it made the site feel like a botanical print,
+  not a studio catalog.
+- **MarqueeStrip** — thin (`14px`) fixed band at `bottom: 4px`
+  drifting an ASCII pattern sideways over 96s via CSS translate.
+  Read as a "live status ticker" which contradicted the studio
+  register.
+- **CornerStamp** — 120×120 canvas at home top-right, radial sine
+  field morphing box-drawing glyphs like a stamp being pressed.
+  Interesting; cut because the stamp read as signature gimmick.
+- **Running head** proposed but not built (still in backlog).
+
+Principle solidified: **no ambient motion.** Anything that moves on
+idle is cut. Motion is reserved for user-triggered micro-states
+(plate press, copy-email toast, wheel-snap on GutterStrip).
+
+---
+
 ## Backlog
 
 ### Microinteractions (proposed, not yet shipped)
@@ -96,9 +137,19 @@ first-paint event, never on idle. 120–400ms windows. Respect
 - [ ] Fill or remove `clouds-at-sea` in [case-studies.ts](src/constants/case-studies.ts).
 - [ ] Sift in [case-studies.ts](src/constants/case-studies.ts) is
   partially populated — bring to Gyeol parity or trim.
+- [ ] Rewrite Gyeol + Sift editorial copy in the new voice. Current
+  prose is hold-over from the observation-log era and reads
+  performative ("Sift elevates your digital consumption…"). Should
+  match the shelf register: *"A list of resources I refer to."*
 - [ ] Homepage body prose — currently absent by design. Decide if any
   copy belongs here or keep skeletal.
 - [ ] About page body — review three short paragraphs for final voice.
+
+### Dead code
+
+- [ ] [CatalogFrame.tsx](src/components/CatalogFrame.tsx) — old
+  vertical-stack catalog frame component, replaced by `GutterStrip`.
+  Nothing imports it. Delete.
 
 ### Open questions
 
