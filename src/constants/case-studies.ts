@@ -229,4 +229,32 @@ export const CASE_STUDIES: Record<string, CaseStudy> = {
         ],
         cardFormat: "landscape",
     },
+    pane: {
+        id: "pane",
+        client: "HKJ",
+        role: "Design & Engineering",
+        tags: ["Ambient", "Dashboard", "AI"],
+        editorial: {
+            heading: "A quiet dashboard.",
+            subhead: "Ambient telemetry. In development.",
+            copy: "Pane is a dashboard that earns attention by staying out of the way. A study in ambient systems — telemetry that lives at the edge of attention until it's needed, then recedes again.",
+        },
+        paradox: "What if a dashboard could disappear?",
+        stakes: "Most dashboards shout. Pane argues the opposite — the best ambient systems earn their place by staying quiet.",
+        cardFormat: "landscape",
+    },
+    "clouds-at-sea": {
+        id: "clouds-at-sea",
+        client: "HKJ",
+        role: "Design & Engineering",
+        tags: ["WebGL", "Generative", "Experiment"],
+        editorial: {
+            heading: "A generative horizon.",
+            subhead: "A shader study.",
+            copy: "A short generative piece that sits between water and sky. Volume noise for clouds, atmospheric scattering for the sky, one light. Built in a weekend. Meant to loop, unobserved.",
+        },
+        paradox: "What does software look like when it has no purpose?",
+        stakes: "Every shipped app solves a problem. This one doesn't.",
+        cardFormat: "landscape",
+    },
 };

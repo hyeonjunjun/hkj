@@ -4,6 +4,7 @@ import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
 import NavCoordinates from "@/components/NavCoordinates";
+import AmbientAscii from "@/components/AmbientAscii";
 
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
@@ -11,6 +12,16 @@ const fragmentMono = localFont({
   weight: "400",
   display: "swap",
   preload: true,
+});
+
+/** Gambetta — reserved for long-form case-study body prose only.
+ *  Everywhere else is mono. Reading faces need to breathe. */
+const gambetta = localFont({
+  src: "../fonts/gambetta/Gambetta-Variable.woff2",
+  variable: "--font-serif",
+  weight: "300 800",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -39,7 +50,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={fragmentMono.variable}>
+      <body className={`${fragmentMono.variable} ${gambetta.variable}`}>
+        <AmbientAscii />
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />

@@ -336,30 +336,35 @@ export default function CaseStudy({ piece }: Props) {
 
         .case__section { display: grid; gap: 16px; }
 
+        /* Body prose on case studies gets Gambetta — mono everywhere
+           else stays. Reading faces let long form breathe. */
         .case__prose {
-          font-family: var(--font-stack-mono);
+          font-family: var(--font-stack-serif);
           font-weight: 380;
-          font-size: 15px;
-          line-height: 1.8;
+          font-size: 17px;
+          line-height: 1.75;
+          letter-spacing: 0;
           color: var(--ink-2);
           max-width: 56ch;
           margin: 0;
         }
         .case__prose--lead {
-          font-size: 18px;
-          line-height: 1.65;
+          font-weight: 400;
+          font-size: 20px;
+          line-height: 1.55;
           color: var(--ink);
           max-width: 52ch;
         }
         .case__prose--question {
+          font-family: var(--font-stack-serif);
           font-weight: 400;
-          font-size: 22px;
-          line-height: 1.45;
+          font-size: 26px;
+          line-height: 1.35;
           letter-spacing: -0.005em;
           color: var(--ink);
-          max-width: 32ch;
+          max-width: 36ch;
         }
-        .case__prose--step { font-size: 14px; max-width: 52ch; }
+        .case__prose--step { font-size: 16px; max-width: 52ch; }
 
         .case__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; }
         .case__step {
@@ -400,9 +405,9 @@ export default function CaseStudy({ piece }: Props) {
           margin: 0;
         }
         .case__highlight-challenge {
-          font-family: var(--font-stack-mono);
+          font-family: var(--font-stack-serif);
           font-weight: 380;
-          font-size: 13px;
+          font-size: 15px;
           line-height: 1.7;
           color: var(--ink-3);
           max-width: 52ch;

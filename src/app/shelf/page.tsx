@@ -3,10 +3,10 @@
 import { SHELF, type ShelfKind } from "@/constants/shelf";
 
 const GROUPS: Array<{ kind: ShelfKind; label: string }> = [
-  { kind: "BOOK",       label: "Books" },
-  { kind: "PORTFOLIO",  label: "Portfolios" },
-  { kind: "ESSAY",      label: "Essays" },
-  { kind: "ARCHIVE",    label: "Archives" },
+  { kind: "BOOK", label: "Books" },
+  { kind: "PORTFOLIO", label: "Portfolios" },
+  { kind: "ESSAY", label: "Essays" },
+  { kind: "ARCHIVE", label: "Archives" },
 ];
 
 export default function ShelfPage() {
@@ -17,15 +17,11 @@ export default function ShelfPage() {
           <p className="eyebrow">
             <span>Shelf</span>
             <span className="eyebrow__sep">·</span>
-            <span>A working bibliography</span>
+            <span>My digital library</span>
             <span className="eyebrow__sep">·</span>
             <span className="tabular">2026</span>
           </p>
-          <h1 className="shelf__title">Things I return to when the work needs weight.</h1>
-          <p className="shelf__lede">
-            Books, essays, portfolios, and archives I keep close. Not a reading
-            list — a reference set actively consulted while designing and building.
-          </p>
+          <h1 className="shelf__title">A list of resources I refer to</h1>
         </header>
 
         {GROUPS.map((g) => {

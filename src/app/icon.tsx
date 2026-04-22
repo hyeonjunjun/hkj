@@ -3,6 +3,10 @@ import { ImageResponse } from "next/og";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
+/**
+ * Favicon — tiny h·j monogram on paper. Same mark used in OG and across
+ * the portfolio's identity surfaces. Monospace, letter-spaced slightly.
+ */
 export default function Icon() {
   return new ImageResponse(
     (
@@ -10,16 +14,18 @@ export default function Icon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#1C1C1A",
+          background: "#FBFAF6",
+          color: "#111110",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          fontSize: 16,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          fontWeight: 500,
+          letterSpacing: "0.03em",
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <line x1="10" y1="2" x2="10" y2="18" stroke="#F7F7F5" strokeWidth="1.5" />
-          <line x1="2" y1="10" x2="18" y2="10" stroke="#F7F7F5" strokeWidth="1.5" />
-        </svg>
+        h·j
       </div>
     ),
     { ...size }

@@ -2,61 +2,52 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Hyeonjoon — design engineer, New York";
-export const size = {
-  width: 1200,
-  height: 630,
-};
+export const alt = "Hyeonjoon Jun — design engineer, New York";
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+/**
+ * Open Graph image — the portfolio's identity card.
+ *
+ * ASCII monogram mark (3-line framed stamp) centered, with name and
+ * role below. Mono throughout. Paper-and-ink palette. Matches the
+ * /contact business-card composition's hierarchy.
+ */
 export default async function Image() {
+  const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
+
   return new ImageResponse(
     (
       <div
         style={{
-          height: "100%",
           width: "100%",
+          height: "100%",
+          background: "#FBFAF6",
+          color: "#111110",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#F7F7F5",
-          color: "#1C1C1A",
           padding: 56,
           position: "relative",
-          fontFamily: "monospace",
+          fontFamily: MONO,
         }}
       >
-        {/* Top row */}
+        {/* Top register — eyebrow */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
+            fontSize: 15,
+            letterSpacing: "0.26em",
+            textTransform: "uppercase",
+            color: "#8E8E87",
             width: "100%",
           }}
         >
-          <div
-            style={{
-              fontSize: 28,
-              fontFamily: "monospace",
-              letterSpacing: "0.14em",
-              color: "#1C1C1A",
-            }}
-          >
-            Hyeonjoon
-          </div>
-          <div
-            style={{
-              fontSize: 18,
-              fontFamily: "monospace",
-              letterSpacing: "0.1em",
-              color: "#5A5A56",
-            }}
-          >
-            STUDIO · NEW YORK · 2026
-          </div>
+          <span>Observation Log</span>
+          <span>New York · 2026</span>
         </div>
 
-        {/* Centered block */}
+        {/* Center — mark + name + role */}
         <div
           style={{
             flex: 1,
@@ -64,61 +55,72 @@ export default async function Image() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
+            gap: 24,
           }}
         >
-          <svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
-            <line x1="90" y1="10" x2="90" y2="170" stroke="#1C1C1A" strokeWidth="3" />
-            <line x1="10" y1="90" x2="170" y2="90" stroke="#1C1C1A" strokeWidth="3" />
-            <circle cx="90" cy="90" r="3" fill="#1C1C1A" />
-          </svg>
+          {/* ASCII logo mark — 3-line framed stamp */}
           <div
             style={{
-              fontSize: 52,
-              fontFamily: "sans-serif",
-              fontWeight: 500,
+              display: "flex",
+              flexDirection: "column",
+              fontSize: 72,
+              lineHeight: 1,
+              letterSpacing: "0.05em",
+              textAlign: "center",
+              whiteSpace: "pre",
               color: "#111110",
-              marginTop: 40,
-              letterSpacing: "-0.02em",
+              marginBottom: 32,
             }}
           >
-            Hyeonjoon Jun — design engineer
+            <div>·───·</div>
+            <div> h·j </div>
+            <div>·───·</div>
+          </div>
+
+          {/* Name */}
+          <div
+            style={{
+              fontSize: 44,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              color: "#111110",
+              display: "flex",
+            }}
+          >
+            Hyeonjoon Jun
+          </div>
+
+          {/* Role */}
+          <div
+            style={{
+              fontSize: 15,
+              letterSpacing: "0.26em",
+              textTransform: "uppercase",
+              color: "#55554F",
+              display: "flex",
+            }}
+          >
+            Design engineer
           </div>
         </div>
 
-        {/* Bottom row */}
+        {/* Bottom register */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-end",
+            fontSize: 13,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#8E8E87",
             width: "100%",
           }}
         >
-          <div
-            style={{
-              fontSize: 14,
-              fontFamily: "monospace",
-              letterSpacing: "0.1em",
-              color: "#5A5A56",
-            }}
-          >
-            HYEONJOON · N40.71° W74.00°
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              fontFamily: "monospace",
-              letterSpacing: "0.1em",
-              color: "#5A5A56",
-            }}
-          >
-            AVAILABLE 2026
-          </div>
+          <span>rykjun@gmail.com</span>
+          <span>40°43′N 73°59′W</span>
         </div>
       </div>
     ),
-    {
-      ...size,
-    }
+    { ...size }
   );
 }

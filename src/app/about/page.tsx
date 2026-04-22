@@ -1,11 +1,11 @@
 "use client";
 
-import { SOCIALS, CONTACT_EMAIL } from "@/constants/contact";
+import { CONTACT_EMAIL } from "@/constants/contact";
 
 const EXPERIENCE: Array<{ period: string; role: string; org: string }> = [
-  { period: "2024 — Present", role: "Independent",       org: "Design Engineering" },
-  { period: "2023 — 2024",    role: "Design Technologist", org: "" },
-  { period: "2021 — 2023",    role: "Frontend Developer",  org: "" },
+  { period: "2024 — Present", role: "Independent",            org: "Design engineering" },
+  { period: "2023 — 2024",    role: "Design technologist",    org: "" },
+  { period: "2021 — 2023",    role: "Frontend developer",     org: "" },
 ];
 
 export default function AboutPage() {
@@ -16,41 +16,38 @@ export default function AboutPage() {
           <p className="eyebrow">
             <span>About</span>
             <span className="eyebrow__sep">·</span>
-            <span>New York</span>
+            <span>A short account</span>
             <span className="eyebrow__sep">·</span>
             <span className="tabular">2026</span>
-            <span className="eyebrow__sep">·</span>
-            <span className="tabular">№002</span>
           </p>
-          <h1 className="about__title">
-            A design engineering practice concerned with the invisible craft
-            that makes software feel intentional.
-          </h1>
+          <h1 className="about__title">A design engineer, based in New York.</h1>
         </header>
 
         <section className="about__prose">
           <p>
-            Hyeonjoon Jun — Ryan — is a design engineer based in New York. He
-            works at the intersection of craft and systems thinking, caring
-            about typography, motion, and the small details that make digital
-            products feel considered. He treats AI as a collaborator — a force
-            multiplier, not a shortcut — and builds brands, interfaces, and
-            atmospheres for people who take care of the work.
+            I build for the web — brands, interfaces, and small experiments in
+            between. I care about typography, motion, and the parts that make
+            software feel made, not assembled.
           </p>
           <p>
-            He is available for full-time design engineering roles and
-            selected consulting through 2026.
+            I treat AI as a collaborator, not a shortcut.
+          </p>
+          <p>
+            Available for select engagements through 2026.{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="about__mail">
+              {CONTACT_EMAIL}
+            </a>
+            .
           </p>
         </section>
 
         <section className="about__section">
-          <p className="eyebrow">
-            <span>Experience</span>
-            <span className="eyebrow__sep">·</span>
-            <span className="tabular">03 Entries</span>
-            <span className="eyebrow__sep">·</span>
-            <span className="tabular">2021—2026</span>
-          </p>
+          <header className="about__section-head">
+            <span className="about__section-label">Where I&apos;ve worked</span>
+            <span className="about__section-count tabular">
+              {String(EXPERIENCE.length).padStart(2, "0")} Entries
+            </span>
+          </header>
           <dl className="about__timeline">
             {EXPERIENCE.map((e) => (
               <div key={e.period} className="about__timeline-row">
@@ -64,87 +61,93 @@ export default function AboutPage() {
           </dl>
         </section>
 
-        <section className="about__section">
-          <p className="eyebrow">
-            <span>Contact</span>
-            <span className="eyebrow__sep">·</span>
-            <span>Available 2026</span>
-          </p>
-          <p className="about__contact-lede">
-            For work inquiries, freelance, or a quiet hello — reach me at{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="about__mail">
-              {CONTACT_EMAIL}
-            </a>
-            .
-          </p>
-          <ul className="about__socials">
-            {SOCIALS.map((s) => (
-              <li key={s.label}>
-                <a
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="about__social"
-                >
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <footer className="about__signoff">
-          <span className="plate-mark">— Hyeonjoon Jun, New York, 2026</span>
+        <footer className="about__foot">
+          <span>Hyeonjoon Jun</span>
+          <span className="about__foot-dot" aria-hidden>·</span>
+          <span>New York</span>
+          <span className="about__foot-dot" aria-hidden>·</span>
+          <span className="tabular">2026</span>
         </footer>
       </article>
 
       <style>{`
         .about {
           min-height: 100svh;
-          padding: clamp(96px, 14vh, 160px) clamp(24px, 6vw, 72px) clamp(64px, 10vh, 120px);
+          padding: clamp(88px, 12vh, 128px) clamp(24px, 4vw, 72px) clamp(56px, 9vh, 96px);
           display: flex;
           justify-content: center;
+          color: var(--ink);
         }
         .about__inner {
           width: 100%;
-          max-width: 640px;
+          max-width: 680px;
           display: grid;
-          gap: clamp(56px, 8vh, 88px);
+          gap: clamp(48px, 7vh, 72px);
         }
 
-        .about__head { display: grid; gap: 20px; }
+        /* ── Head ─────────────────────────────────────── */
+        .about__head { display: grid; gap: 18px; }
         .about__title {
           font-family: var(--font-stack-mono);
-          font-weight: 380;
-          font-size: clamp(24px, 2.8vw, 32px);
+          font-weight: 400;
+          font-size: clamp(22px, 2.4vw, 30px);
           line-height: 1.35;
-          letter-spacing: -0.003em;
+          letter-spacing: -0.005em;
           color: var(--ink);
-          margin: 0;
-          max-width: 28ch;
+          margin: 6px 0 0;
+          max-width: 32ch;
         }
 
+        /* ── Prose ─────────────────────────────────────── */
         .about__prose {
+          display: grid;
+          gap: 1em;
           font-family: var(--font-stack-mono);
-          font-weight: 380;
-          font-size: 15px;
-          line-height: 1.8;
+          font-size: 13px;
+          line-height: 1.85;
+          letter-spacing: 0;
           color: var(--ink-2);
-          max-width: 52ch;
+          max-width: 54ch;
         }
-        .about__prose p + p { margin-top: 1em; }
-
-        .about__section { display: grid; gap: 20px; }
-
-        .about__timeline {
-          border-top: 1px solid var(--ink-hair);
-          margin: 0;
+        .about__prose p { margin: 0; }
+        .about__mail {
+          color: var(--ink);
+          border-bottom: 1px solid var(--ink-hair);
+          transition: border-color 180ms var(--ease);
         }
+        .about__mail:hover { border-bottom-color: var(--ink); }
+
+        /* ── Section ──────────────────────────────────── */
+        .about__section { display: grid; gap: 12px; }
+        .about__section-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding-bottom: 10px;
+          border-bottom: 1px solid var(--ink);
+        }
+        .about__section-label {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.26em;
+          text-transform: uppercase;
+          color: var(--ink);
+        }
+        .about__section-count {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+        }
+
+        /* ── Timeline ─────────────────────────────────── */
+        .about__timeline { margin: 0; }
         .about__timeline-row {
           display: grid;
-          grid-template-columns: 200px 1fr;
-          gap: 24px;
-          padding: 16px 0;
+          grid-template-columns: 180px 1fr;
+          gap: 20px;
+          padding: 14px 0;
           border-bottom: 1px solid var(--ink-hair);
         }
         .about__timeline-period {
@@ -152,54 +155,32 @@ export default function AboutPage() {
           font-size: 10px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--ink-3);
+          color: var(--ink-4);
           align-self: baseline;
         }
         .about__timeline-role {
           font-family: var(--font-stack-mono);
           font-weight: 400;
-          font-size: 15px;
+          font-size: 13px;
           color: var(--ink);
           margin: 0;
         }
         .about__timeline-org { color: var(--ink-3); }
 
-        .about__contact-lede {
-          font-family: var(--font-stack-mono);
-          font-weight: 380;
-          font-size: 15px;
-          line-height: 1.8;
-          color: var(--ink-2);
-          max-width: 52ch;
-        }
-        .about__mail {
-          color: var(--ink);
-          border-bottom: 1px solid var(--ink-hair);
-        }
-        .about__mail:hover { border-bottom-color: var(--ink); }
-
-        .about__socials {
-          list-style: none;
-          margin: 0;
-          padding: 0;
+        /* ── Foot ─────────────────────────────────────── */
+        .about__foot {
           display: flex;
-          gap: 22px;
-          flex-wrap: wrap;
-        }
-        .about__social {
+          align-items: baseline;
+          gap: 10px;
+          padding-top: 16px;
+          border-top: 1px solid var(--ink-hair);
           font-family: var(--font-stack-mono);
-          font-size: 10px;
-          letter-spacing: 0.14em;
+          font-size: 9px;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
           color: var(--ink-3);
-          transition: color 180ms var(--ease);
         }
-        .about__social:hover { color: var(--ink); }
-
-        .about__signoff {
-          padding-top: 24px;
-          border-top: 1px solid var(--ink-hair);
-        }
+        .about__foot-dot { color: var(--ink-4); }
 
         @media (max-width: 640px) {
           .about__timeline-row {

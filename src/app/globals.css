@@ -33,8 +33,10 @@
   --measure-narrow:  48ch;
   --measure-body:    62ch;
 
-  /* Mono-only site — Fragment Mono is the entire typographic system. */
-  --font-stack-mono: var(--font-mono, "SF Mono"), "Consolas", monospace;
+  /* Mono everywhere by default. Gambetta serif reserved for case-study
+     body prose only — reading faces need to breathe. */
+  --font-stack-mono:  var(--font-mono, "SF Mono"), "Consolas", monospace;
+  --font-stack-serif: var(--font-serif, "Iowan Old Style"), Georgia, "Times New Roman", serif;
 
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
