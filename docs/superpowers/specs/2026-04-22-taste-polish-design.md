@@ -126,50 +126,74 @@ considered transition in the 150–400 ms band.
 
 ### 1.1 Typographic micro-discipline (site-wide)
 
-Add `font-feature-settings` rules to globals.css:
+Add feature-settings rules **directly to selectors** in globals.css —
+no new root-level custom properties (brand coherence requires zero
+new tokens). Gambetta is a variable serif with documented OpenType
+features (`onum`, `lnum`, `tnum`). **Fragment Mono is a monospaced
+display font with limited OT coverage — verify `onum` support at
+implementation time; if unsupported, drop the `onum` declarations
+rather than substitute.**
 
 ```css
-:root {
-  --ft-prose:  "onum", "ss01";          /* old-style figures, stylistic set */
-  --ft-tabular: "tnum", "lnum";         /* tabular lining (for numerals in grids) */
+/* Old-style figures in prose (variable / serif body text only) */
+.case__prose,
+.case__prose--lead,
+.case__prose--step {
+  font-feature-settings: "onum" on;
+  hanging-punctuation: first last;
+  text-wrap: pretty;
 }
-body { font-feature-settings: var(--ft-prose); }
-.tabular { font-feature-settings: var(--ft-tabular); font-variant-numeric: tabular-nums; }
-.prose   { hanging-punctuation: first last; text-wrap: pretty; }
+
+/* Tabular lining in grids, ledgers, stats, dates */
+.tabular,
+.case__ledger-row,
+.case__stat-val,
+.shelf__row-year,
+.strip__caption .tabular {
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums lining-nums;
+}
 ```
 
 Audit content site-wide for:
 
-- **En-dashes** in date ranges: `2023 — 2024` → `2023 – 2024` (em
-  dashes stay for parenthetical asides; en-dashes are strictly for
-  ranges).
-- **True typographic quotes** where present (not necessary across
-  the mono-only surfaces, but required in any future prose).
-- **Hyphen vs. minus** in coordinates: `−74.00°` uses `−` (U+2212),
-  already correct in contact.tsx — verify.
+- **Tight en-dashes** in date ranges (no surrounding spaces): `2023 — 2024` → `2023–2024`. En-dash (U+2013) for ranges; em-dash (U+2014) reserved for parenthetical asides only — where em-dashes stay, keep them spaced (`line — line`).
+- **True typographic quotes** where any new prose is introduced (not retroactive across mono surfaces).
+- **Hyphen vs. minus** in coordinates: `−74.00°` uses `−` (U+2212), already correct in contact.tsx — verify.
 
 Touched files:
-- `src/app/globals.css` (add tokens)
-- `src/app/about/page.tsx` (timeline em → en dashes)
+- `src/app/globals.css` (add selector rules; no new tokens)
+- `src/app/about/page.tsx` (timeline em → en dashes, no spaces)
 - `src/constants/experience.ts` (same)
-- `src/constants/shelf.ts` (spot-check year ranges)
-- `src/components/CaseStudy.tsx` (`.case__prose` uses
-  `hanging-punctuation` + `text-wrap: pretty`)
+- `src/constants/shelf.ts` (spot-check year ranges → tight en-dash)
+- `src/components/CaseStudy.tsx` (`.case__prose` uses `hanging-punctuation` + `text-wrap: pretty`)
 
 ### 1.2 Unified hover vocabulary
 
-One grammar across all interactive text:
+One grammar across all interactive text. **Migration note**: the
+existing `.prose a { border-bottom: 1px solid var(--ink-hair); }`
+rule in globals.css must be **replaced** (not layered) so we don't
+stack two underline mechanisms. Audit all `border-bottom` hover
+patterns on anchors (`.about__mail`, `.card__handle`, `.cd__mail`)
+and consolidate to the single `text-decoration-color` mechanism
+below.
 
 ```css
 /* Underline-color fade — the default for any inline link */
-a.link, .prose a, .shelf__row-link {
+a.link, .prose a, .shelf__row-link,
+.about__mail, .card__handle,
+.cd__mail {
   text-decoration: underline;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   transition: text-decoration-color 180ms var(--ease);
+  /* remove any existing border-bottom from these selectors */
+  border-bottom: none;
 }
-a.link:hover, .prose a:hover, .shelf__row-link:hover {
+a.link:hover, .prose a:hover, .shelf__row-link:hover,
+.about__mail:hover, .card__handle:hover,
+.cd__mail:hover {
   text-decoration-color: currentColor;
 }
 
@@ -186,8 +210,15 @@ Apply to:
 - Shelf external links (`.shelf__row-link`)
 - Case-study "next entry" navigation
 - Contact card handles
-- Nav links (home mark + about/shelf/contact) — underline only on
-  the current-route item
+- About mail link
+- Homepage mail link
+- Nav links (home mark + about/shelf/contact) — underline only on the current-route item
+
+Files touched by the consolidation:
+- `src/app/globals.css` (remove `.prose a { border-bottom }`, add new rules)
+- `src/app/about/page.tsx` (remove local `.about__mail` border-bottom rule)
+- `src/app/contact/page.tsx` (remove local `.card__handle` border-bottom rule)
+- `src/app/page.tsx` (remove local `.cd__mail` border-bottom rule)
 
 ### 1.3 Nav hide-on-scroll-down, reveal-on-scroll-up
 
@@ -241,14 +272,31 @@ not substitute weight-swap or scale-transform. Restraint.
 New component: `src/components/Folio.tsx`. Renders mono microtype
 pinned to the top-right corner of every route, below the nav.
 
-Format per route:
-- `/` — `HKJ / §01 / 2026`
-- `/about` — `HKJ / §02 / 2026`
-- `/shelf` — `HKJ / §03 / 2026`
-- `/contact` — `HKJ / §04 / 2026`
-- `/notes` — `HKJ / §05 / 2026` (post Phase 3)
-- `/colophon` — `HKJ / §06 / 2026` (post Phase 3)
-- `/work/[slug]` — `HKJ / №{order} / 2026`
+**Format is a pure function** of the middle token. Folio owns the
+`HKJ / … / YYYY[.MM]` frame so a caller typo can't drift the brand
+mark or year. Callers pass only the middle token:
+
+```ts
+type FolioProps = {
+  token: string;       // middle segment only, e.g. "§02", "N-001", "№02"
+  month?: string;      // optional "04" — when present, appends ".04" to the year
+};
+// Renders: HKJ / <token> / <YYYY>[.<month>]
+```
+
+Usage per route (caller → rendered):
+- `/` — `token="§01"` → `HKJ / §01 / 2026`
+- `/about` — `token="§02"` → `HKJ / §02 / 2026`
+- `/shelf` — `token="§03"` → `HKJ / §03 / 2026`
+- `/contact` — `token="§04"` → `HKJ / §04 / 2026`
+- `/work/[slug]` — `token="№{order}"` → `HKJ / №02 / 2026`
+- `/colophon` — `token="§06"` → `HKJ / §06 / 2026` *(Phase 3a)*
+- `/notes` — `token="§05"` → `HKJ / §05 / 2026` *(Phase 3b)*
+- `/notes/[slug]` — `token="N-{num}" month="04"` →
+  `HKJ / N-001 / 2026.04` *(Phase 3b)*
+
+Section numbering is stable — About is always §02 because that's
+its nav position, even if new routes ship later.
 
 ```css
 .folio {
@@ -281,6 +329,18 @@ html { scroll-behavior: smooth; }    /* native, anchor-click only */
 
 No other substitute — native scroll carries.
 
+**Regression verification (required before merge)**:
+1. Load `/` — GutterStrip wheel-snap fires cleanly; 920 ms
+   ease-in-out-cubic animation unchanged; teleport loop still
+   silent.
+2. Load `/about`, `/shelf`, `/contact` — pages scroll with native
+   trackpad momentum; no stutter or double-buffer.
+3. Load `/work/gyeol` — scroll to footer and back; wheel events
+   outside the strip do NOT trigger the strip (GutterStrip is on
+   `/` only, but confirm no stray listeners leak).
+4. `⌘ ↑ / ↓` arrow keys on `/about`, `/shelf`, `/contact` — native
+   page scroll behavior restored.
+
 ---
 
 ## Phase 2 — Cross-route & structural transitions
@@ -296,28 +356,45 @@ on work routes specifically, not site-wide (keeps behavior explicit
 and opt-in).
 
 Shared element: the project title text (`CLOUDS AT SEA`, etc.)
-receives `view-transition-name: work-title-{slug}` on both the home
-strip and the case-study head. During navigation the browser
-automatically morphs the element from one position to the other.
+receives a **single static** `view-transition-name: work-title` on
+both the home strip row and the case-study head. Only one title
+animates per navigation (the one the user clicks), so a single name
+is correct — and a generated per-slug name would require runtime
+CSS, which we avoid. If two titles were to animate simultaneously
+it would be a UX bug, not a feature.
 
 ```css
+/* Root crossfade for any page transition */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 300ms;
   animation-timing-function: cubic-bezier(0.41, 0.1, 0.13, 1);
 }
 
+/* Shared-element title morph (home row title ↔ case-study title) */
 ::view-transition-old(work-title),
 ::view-transition-new(work-title) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* Reduced-motion: disable transitions explicitly.
+   Browsers do NOT auto-skip ::view-transition-* based on the
+   media query — the author must opt out. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(work-title),
+  ::view-transition-new(work-title) {
+    animation: none;
+  }
+}
 ```
 
-Graceful degradation: browsers without View Transitions (older
-Safari) fall back to the default Next.js page transition (no
-animation). Reduced-motion: the browser respects
-`prefers-reduced-motion` for `::view-transition-*` automatically.
+Graceful degradation: browsers without View Transitions API support
+(older Safari, Firefox without the flag) fall back to instant
+navigation — no animation, no JS error. Feature is progressive by
+nature.
 
 ### 2.2 Case-study line reveal on `§` sections
 
@@ -356,10 +433,19 @@ viewport. IntersectionObserver fires with `threshold: 0.1`,
 
 ## Phase 3 — Structural additions + content
 
-**Scope**: code + content. Requires writing + curation.
-**Estimated**: 1–2 days (code) + ongoing writing.
+Split into **two sub-passes** because the content-heavy items
+(`/notes` + `⌘K` palette theming) are tighter than originally
+budgeted.
 
-### 3.1 `/colophon` — typographic manifesto
+### Phase 3a — Colophon + shelf verticals *(~1 day)*
+Code-heavy, minimal new content.
+
+### Phase 3b — Notes + command palette *(~1.5 days)*
+Content + library theming.
+
+Both sub-passes follow the same brand-coherence rules as Phase 1–2.
+
+### 3.1 `/colophon` — typographic manifesto *(Phase 3a)*
 
 Route: `src/app/colophon/page.tsx`. Composed from the same
 primitives as `/about` and `/shelf`. Structure:
@@ -389,7 +475,7 @@ Footer signoff identical to `/about` and `/shelf`.
 No new hex values, no new fonts. Strictly composed from existing
 primitives. Reference: Tim Brown's `nicewebtype.com`.
 
-### 3.2 `/notes` — dated stream
+### 3.2 `/notes` — dated stream *(Phase 3b)*
 
 Route: `src/app/notes/page.tsx` + `src/app/notes/[slug]/page.tsx`.
 Data in `src/constants/notes.ts`.
@@ -423,7 +509,7 @@ not yet published` so the visible numbering can evolve naturally.
 
 Folio on `/notes/[slug]`: `HKJ / N-001 / 2026.04`.
 
-### 3.3 Shelf verticals
+### 3.3 Shelf verticals *(Phase 3a)*
 
 Extend `src/constants/shelf.ts` with a new `group` field:
 
@@ -445,32 +531,85 @@ group gets its own section header (shelf pattern), then rows inside.
 Content: bootstrap with existing shelf items under READ; add 2–3
 items each to WATCH / KEEP / VISIT at launch, then user curates.
 
-### 3.4 `⌘K` command palette via `cmdk`
+### 3.4 `⌘K` command palette via `cmdk` *(Phase 3b)*
 
-Install `cmdk` npm dependency. New component:
-`src/components/CommandPalette.tsx`. Mounted in `layout.tsx` behind
-`⌘K` / `⌃K` / `/` keyboard trigger.
+Install dependencies: `cmdk` + `vaul` (for mobile drawer). **Note**:
+`cmdk` ships unstyled primitives — every element (`[cmdk-input]`,
+`[cmdk-item][data-selected]`, `[cmdk-group-heading]`) needs an
+explicit rule below. Budget accordingly.
+
+New component: `src/components/CommandPalette.tsx`. Mounted in
+`layout.tsx` behind `⌘K` / `⌃K` / `/` keyboard trigger.
+
+**Discoverability**: since we cut the keyboard legend, add a single
+mono microtype hint in the site footer: `⌘K` (9 px, ink-4,
+0.24em tracking). One glyph, one key — no overlay, no explanation.
+The visitor either recognizes it or discovers by keyboard.
 
 Groups:
 - **Work** — Clouds at Sea, Gyeol, Pane, Sift (jumps to case study)
-- **Writing** — Notes index + recent entries (post Phase 3.2)
+- **Writing** — Notes index + recent entries (if notes shipped)
 - **Browse** — About, Shelf, Colophon, Contact
-- **Actions** — Copy email, Open LinkedIn, Open GitHub
+- **Actions** — Copy email, Open LinkedIn, Open Cosmos, Open X
 
-Styling: custom theme matching the site's design tokens.
-- Input: Fragment Mono, 14 px, `var(--paper)` background,
-  `var(--ink-hair)` border-bottom
-- Results: mono 11 px labels, uppercase, 0.22em tracking, same row
-  treatment as shelf
-- Backdrop: `var(--ink)` at 0.18 opacity (no blur; stays crisp)
-- Dialog: 540 px max-width, `var(--paper)` with 1 px `var(--ink-hair)`
-  inset shadow (mimics plate treatment)
+Styling requirements (explicit — cmdk has no defaults to override,
+only primitives to style from zero):
+
+```css
+[cmdk-root] {
+  background: var(--paper);
+  border: 1px solid var(--ink-hair);
+  width: 540px;
+  max-width: calc(100vw - 48px);
+}
+[cmdk-input] {
+  font-family: var(--font-stack-mono);
+  font-size: 14px;
+  padding: 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--ink-hair);
+  color: var(--ink);
+  width: 100%;
+}
+[cmdk-input]::placeholder { color: var(--ink-4); }
+[cmdk-group-heading] {
+  font-family: var(--font-stack-mono);
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 14px 16px 6px;
+}
+[cmdk-item] {
+  font-family: var(--font-stack-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  cursor: pointer;
+}
+[cmdk-item][data-selected="true"] {
+  background: var(--ink-ghost);
+  color: var(--ink);
+}
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.18);
+  /* No backdrop-filter — keeps it crisp, avoids blur on cheap GPUs */
+}
+```
+
 - No icons, no color accents — text-only
-- Mobile: opens as full-height Vaul drawer (same styling)
-
-Entrance: 150 ms opacity + 4 px Y translate. Exit: same, reversed.
-No auto-open on mount. No multi-select. No fuzzy-search highlights
-beyond a `font-weight: 500` bold on match.
+- Mobile: `vaul` drawer (full-height, same styling primitives)
+- Entrance: 150 ms opacity + 4 px Y translate. Exit: same, reversed
+- No auto-open on mount. No fuzzy-search highlight beyond
+  `[cmdk-item][data-selected="true"]` state
 
 ---
 
@@ -502,15 +641,19 @@ After implementation, end-to-end verification:
 - **Fragment Mono weight axis**: unknown if variable. If not,
   Phase 1.4 (wordmark weight nudge) is skipped entirely. No
   substitute.
-- **cmdk styling fidelity**: the library ships with its own default
-  styles; may require more override work than budgeted. Worst case
-  ship without palette in Phase 3; defer to a future spec.
+- **Fragment Mono OpenType coverage**: `onum` support unverified at
+  spec time. If missing, Phase 1.1 drops the `onum` declaration and
+  keeps only `tnum`/`lnum` (which are well-supported in mono faces).
+- **cmdk primitives are unstyled by default** (not "own default
+  styles" as we previously assumed). Phase 3b's CSS block covers
+  every primitive explicitly to prevent drift.
 - **Notes content burden**: spec ships a scaffold + 2–3 entries.
   Ongoing writing is the user's practice, not this spec's scope.
 - **Shelf verticals content**: spec ships the grouping + 2–3 items
   per new vertical. Deeper curation is out of scope.
 - **View Transitions** support varies. Safari 18+ supports;
-  older Safari falls back gracefully (no animation). No polyfill.
+  older Safari falls back gracefully (instant navigation, no error).
+  Firefox support is behind a flag as of early 2026 — no polyfill.
 
 ## Post-implementation TODO (out of scope)
 
