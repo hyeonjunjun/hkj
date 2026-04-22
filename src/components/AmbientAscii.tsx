@@ -17,10 +17,10 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const GLYPHS = "·⋅∙∶∷∴"; // tiny, off-center dot characters only — never letters
 const CELL_FONT_PX = 11;
-const CELL_W = 16;
-const CELL_H = 20;
-const DENSITY_THRESHOLD = 0.76; // top ~24% of noise values render — sparser than paint-noise, denser than before
-const SPEED = 0.06;             // phase drift per second — motion imperceptible as animation
+const CELL_W = 15;
+const CELL_H = 19;
+const DENSITY_THRESHOLD = 0.58; // top ~42% of noise values render — visibly present as texture
+const SPEED = 0.18;             // phase drift per second — motion is now legible as animation
 
 export default function AmbientAscii() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,7 +106,7 @@ export default function AmbientAscii() {
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        opacity: 0.11,
+        opacity: 0.22,
         mixBlendMode: "multiply",
       }}
     />

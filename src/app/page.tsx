@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import GutterStrip from "@/components/GutterStrip";
+import CornerStamp from "@/components/CornerStamp";
 import { PIECES } from "@/constants/pieces";
 
 const EMAIL = "rykjun@gmail.com";
@@ -28,6 +29,10 @@ export default function Home() {
 
   return (
     <main id="main" className="home">
+      <div className="home__stamp">
+        <CornerStamp />
+      </div>
+
       <section className="cd" aria-label="Selected work, 2025–2026">
         <div className="cd__stage">
           <ol className="cd__col cd__col--l" aria-label="Entries 1 to 2">
@@ -92,6 +97,16 @@ export default function Home() {
           color: var(--ink);
           position: relative;
           overflow: hidden;
+        }
+        .home__stamp {
+          position: absolute;
+          top: clamp(64px, 9vh, 88px);
+          right: clamp(20px, 3vw, 48px);
+          z-index: 2;
+          pointer-events: none;
+        }
+        @media (max-width: 640px) {
+          .home__stamp { display: none; }
         }
 
         .cd {
