@@ -17,10 +17,10 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 const GLYPHS = "·⋅∙∶∷∴"; // tiny, off-center dot characters only — never letters
 const CELL_FONT_PX = 11;
-const CELL_W = 15;
-const CELL_H = 19;
-const DENSITY_THRESHOLD = 0.58; // top ~42% of noise values render — visibly present as texture
-const SPEED = 0.18;             // phase drift per second — motion is now legible as animation
+const CELL_W = 17;
+const CELL_H = 22;
+const DENSITY_THRESHOLD = 0.78; // sparse — paper grain under the garden, not a field of its own
+const SPEED = 0.05;             // very slow drift; garden carries the motion now
 
 export default function AmbientAscii() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -106,7 +106,7 @@ export default function AmbientAscii() {
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        opacity: 0.22,
+        opacity: 0.10,
         mixBlendMode: "multiply",
       }}
     />

@@ -5,6 +5,7 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import SmoothScroll from "@/components/SmoothScroll";
 import NavCoordinates from "@/components/NavCoordinates";
 import AmbientAscii from "@/components/AmbientAscii";
+import AmbientGarden from "@/components/AmbientGarden";
 import MarqueeStrip from "@/components/MarqueeStrip";
 
 const fragmentMono = localFont({
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${fragmentMono.variable} ${gambetta.variable}`}>
         <AmbientAscii />
+        <AmbientGarden />
         <RouteAnnouncer />
         <SmoothScroll />
         <NavCoordinates />
