@@ -4,6 +4,7 @@ import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import NavCoordinates from "@/components/NavCoordinates";
 import PaperGrain from "@/components/PaperGrain";
+import CommandPalette from "@/components/CommandPalette";
 
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
@@ -53,6 +54,7 @@ export default function RootLayout({
         <PaperGrain />
         <RouteAnnouncer />
         <NavCoordinates />
+        <CommandPalette />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
