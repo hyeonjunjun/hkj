@@ -171,8 +171,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── Unified hover vocabulary ──────────────────────────────────────────── */
 
-/* Underline-color fade — default for inline links and meaningful handles */
-a.link, .prose a, .shelf__row-link,
+/* Underline-color fade — default for inline links and meaningful handles.
+   .shelf__row-link is omitted on purpose: it's a grid row whose real
+   hover signal is a ghost background, and underlining its text children
+   would stack an unintended line across the title column. */
+a.link, .prose a,
 .about__mail, .card__handle, .cd__mail {
   color: var(--ink);
   text-decoration: underline;
@@ -182,7 +185,7 @@ a.link, .prose a, .shelf__row-link,
   border-bottom: none;
   transition: text-decoration-color 180ms var(--ease);
 }
-a.link:hover, .prose a:hover, .shelf__row-link:hover,
+a.link:hover, .prose a:hover,
 .about__mail:hover, .card__handle:hover, .cd__mail:hover {
   text-decoration-color: currentColor;
 }

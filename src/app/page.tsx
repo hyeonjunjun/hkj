@@ -153,7 +153,7 @@ export default function Home() {
           text-transform: uppercase;
           color: var(--ink);
           opacity: 0.3;
-          transition: opacity 360ms cubic-bezier(0.4, 0, 0.2, 1);
+          transition: opacity 360ms var(--ease);
           padding: 6px 0;
         }
         .cd__link--r { flex-direction: row-reverse; }

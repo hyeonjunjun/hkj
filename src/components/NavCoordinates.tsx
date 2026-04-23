@@ -81,7 +81,7 @@ export default function NavCoordinates() {
           transform: translateY(0);
           transition: transform 200ms var(--ease);
         }
-        .nav[data-hidden] { transform: translateY(-200%); }
+        .nav[data-hidden] { transform: translateY(-100%); }
 
         @media (prefers-reduced-motion: reduce) {
           .nav { transition: none; }
