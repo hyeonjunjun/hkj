@@ -6,7 +6,7 @@ export interface ExperienceEntry {
 }
 
 export const EXPERIENCE: ExperienceEntry[] = [
-  { period: "2024 — Present", role: "Independent",         org: "Design engineering" },
-  { period: "2023 — 2024",    role: "Design technologist" },
-  { period: "2021 — 2023",    role: "Frontend developer" },
+  { period: "2024–Present", role: "Independent",         org: "Design engineering" },
+  { period: "2023–2024",    role: "Design technologist" },
+  { period: "2021–2023",    role: "Frontend developer" },
 ];
