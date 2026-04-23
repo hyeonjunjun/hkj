@@ -1,6 +1,7 @@
 "use client";
 
 import { SHELF, type ShelfKind } from "@/constants/shelf";
+import Folio from "@/components/Folio";
 
 const GROUPS: Array<{ kind: ShelfKind; label: string }> = [
   { kind: "BOOK", label: "Books" },
@@ -12,6 +13,7 @@ const GROUPS: Array<{ kind: ShelfKind; label: string }> = [
 export default function ShelfPage() {
   return (
     <main id="main" className="shelf">
+      <Folio token="§03" />
       <article className="shelf__inner">
         <header className="shelf__head">
           <p className="eyebrow">

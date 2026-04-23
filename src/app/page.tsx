@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import GutterStrip from "@/components/GutterStrip";
 import CopyEmailLink from "@/components/CopyEmailLink";
+import Folio from "@/components/Folio";
 import { PIECES } from "@/constants/pieces";
 
 /**
@@ -27,6 +28,7 @@ export default function Home() {
 
   return (
     <main id="main" className="home">
+      <Folio token="§01" />
       <section className="cd" aria-label="Selected work, 2025–2026">
         <div className="cd__stage">
           <ol className="cd__col cd__col--l" aria-label="Entries 1 to 2">

@@ -2,6 +2,7 @@
 
 import { NETWORKS } from "@/constants/contact";
 import CopyEmailLink from "@/components/CopyEmailLink";
+import Folio from "@/components/Folio";
 
 /**
  * Contact — business card as composition. Microtypography clusters in
@@ -12,6 +13,7 @@ import CopyEmailLink from "@/components/CopyEmailLink";
 export default function ContactPage() {
   return (
     <main id="main" className="contact">
+      <Folio token="§04" />
       <article className="card" aria-label="Hyeonjoon Jun — contact card">
         <header className="card__row card__row--top">
           <div className="card__cluster">

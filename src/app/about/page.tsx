@@ -2,10 +2,12 @@
 
 import { CONTACT_EMAIL } from "@/constants/contact";
 import { EXPERIENCE } from "@/constants/experience";
+import Folio from "@/components/Folio";
 
 export default function AboutPage() {
   return (
     <main id="main" className="about">
+      <Folio token="§02" />
       <article className="about__inner">
         <header className="about__head">
           <p className="eyebrow">
