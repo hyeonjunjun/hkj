@@ -29,7 +29,12 @@ export default function CaseStudy({ piece }: Props) {
           <span className="eyebrow__sep">·</span>
           <span className="tabular">№{String(piece.order).padStart(3, "0")}</span>
         </p>
-        <h1 className="case__title">{piece.title}</h1>
+        <h1
+          className="case__title"
+          style={{ viewTransitionName: "work-title" } as React.CSSProperties}
+        >
+          {piece.title}
+        </h1>
         <p className="case__sub">{piece.description}</p>
 
         <dl className="case__ledger">

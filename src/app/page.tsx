@@ -44,7 +44,16 @@ export default function Home() {
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="cd__slash" aria-hidden>/</span>
-                    <span className="cd__name">{displayTitle(p.title)}</span>
+                    <span
+                      className="cd__name"
+                      style={
+                        active
+                          ? ({ viewTransitionName: "work-title" } as React.CSSProperties)
+                          : undefined
+                      }
+                    >
+                      {displayTitle(p.title)}
+                    </span>
                   </Link>
                 </li>
               );
@@ -69,7 +78,16 @@ export default function Home() {
                       {String(globalIdx + 1).padStart(2, "0")}
                     </span>
                     <span className="cd__slash" aria-hidden>/</span>
-                    <span className="cd__name">{displayTitle(p.title)}</span>
+                    <span
+                      className="cd__name"
+                      style={
+                        active
+                          ? ({ viewTransitionName: "work-title" } as React.CSSProperties)
+                          : undefined
+                      }
+                    >
+                      {displayTitle(p.title)}
+                    </span>
                   </Link>
                 </li>
               );

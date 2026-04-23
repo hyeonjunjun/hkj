@@ -194,3 +194,28 @@ a.link:hover, .prose a:hover, .shelf__row-link:hover,
 }
 *:hover > .arrow-glyph,
 *:focus-visible > .arrow-glyph { transform: translateX(6px); }
+
+/* ─── View transitions ────────────────────────────────────────────────────
+   Browser-native shared-element crossfades on route change. Reduced-motion
+   explicitly overridden — browsers do not auto-skip view transitions. */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.41, 0.1, 0.13, 1);
+}
+
+::view-transition-old(work-title),
+::view-transition-new(work-title) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(work-title),
+  ::view-transition-new(work-title) {
+    animation: none;
+  }
+}
