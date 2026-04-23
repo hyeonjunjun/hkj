@@ -1,13 +1,13 @@
 "use client";
 
-import { SHELF, type ShelfKind } from "@/constants/shelf";
+import { SHELF, type ShelfGroup } from "@/constants/shelf";
 import Folio from "@/components/Folio";
 
-const GROUPS: Array<{ kind: ShelfKind; label: string }> = [
-  { kind: "BOOK", label: "Books" },
-  { kind: "PORTFOLIO", label: "Portfolios" },
-  { kind: "ESSAY", label: "Essays" },
-  { kind: "ARCHIVE", label: "Archives" },
+const GROUPS: Array<{ group: ShelfGroup; label: string }> = [
+  { group: "READ",  label: "Read"  },
+  { group: "WATCH", label: "Watch" },
+  { group: "KEEP",  label: "Keep"  },
+  { group: "VISIT", label: "Visit" },
 ];
 
 export default function ShelfPage() {
@@ -27,11 +27,11 @@ export default function ShelfPage() {
         </header>
 
         {GROUPS.map((g) => {
-          const items = SHELF.filter((s) => s.kind === g.kind);
+          const items = SHELF.filter((s) => s.group === g.group);
           if (items.length === 0) return null;
 
           return (
-            <section key={g.kind} className="shelf__group">
+            <section key={g.group} className="shelf__group">
               <header className="shelf__group-head">
                 <span className="shelf__group-label">{g.label}</span>
                 <span className="shelf__group-count tabular">
