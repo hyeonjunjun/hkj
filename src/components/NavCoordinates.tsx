@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,8 +15,33 @@ const ITEMS: NavItem[] = [
 export default function NavCoordinates() {
   const pathname = usePathname();
 
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let rafPending = false;
+    const update = () => {
+      rafPending = false;
+      const y = window.scrollY;
+      const scrollingDown = y > lastY;
+      const next = scrollingDown && y > 80;
+      setHidden((prev) => (prev === next ? prev : next));
+      lastY = y;
+    };
+    const onScroll = () => {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <nav aria-label="Primary" className="nav">
+    <nav
+      aria-label="Primary"
+      className="nav"
+      data-hidden={hidden ? "" : undefined}
+    >
       <Link href="/" className="nav__mark" aria-label="Hyeonjoon Jun — design engineer — home">
         <span>hyeonjoon jun</span>
         <span className="nav__mark-sep" aria-hidden>·</span>
@@ -52,6 +78,14 @@ export default function NavCoordinates() {
           align-items: baseline;
           justify-content: space-between;
           pointer-events: none;
+          transform: translateY(0);
+          transition: transform 200ms var(--ease);
+        }
+        .nav[data-hidden] { transform: translateY(-200%); }
+
+        @media (prefers-reduced-motion: reduce) {
+          .nav { transition: none; }
+          .nav[data-hidden] { transform: none; }
         }
 
         .nav__mark {
