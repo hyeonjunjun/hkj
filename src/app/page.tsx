@@ -99,6 +99,7 @@ export default function Home() {
           <CopyEmailLink className="cd__mail" />
           <span className="cd__foot-role">design engineer</span>
           <span className="cd__loc tabular">2026, new york</span>
+          <kbd className="cd__kbd" aria-label="Press Command K to open command palette">⌘K</kbd>
         </footer>
       </section>
 
@@ -174,7 +175,7 @@ export default function Home() {
 
         .cd__foot {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          grid-template-columns: 1fr auto 1fr auto;
           align-items: baseline;
           gap: 16px;
           padding: clamp(16px, 2.5vh, 24px) clamp(12px, 2vw, 32px) 0;
@@ -183,6 +184,17 @@ export default function Home() {
           font-size: 10px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
+        }
+        .cd__kbd {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.24em;
+          color: var(--ink-4);
+          padding: 0;
+          background: transparent;
+          border: none;
+          justify-self: end;
+          grid-column: 4;
         }
         .cd__mail { justify-self: start; }
         .cd__mail[data-copied] { color: var(--ink-3); }
@@ -198,6 +210,7 @@ export default function Home() {
             row-gap: 10px;
           }
           .cd__foot-role { grid-column: 1 / -1; justify-self: start; }
+          .cd__kbd { display: none; }
         }
 
         @media (max-width: 960px) {
