@@ -304,6 +304,8 @@ t = 1100ms+  sessionStorage.setItem('hkj.entered', '1');
 
 **Entrance-complete flag gates view-transitions.** The navigation-layer (CommandPalette, Link clicks) must check `window.__hkjEntranceComplete === true` before triggering a view-transition. If the user clicks a Link during the entrance (1.1s window), navigation is queued and fires immediately after the entrance resolves. Prevents the VT from firing against a page still mid-reveal.
 
+> The *mechanism* of click-queuing (captured document-level handler, Link component wrapper, or a lightweight router patch) is a **plan-level decision**, not a spec-level one. `writing-plans` picks an approach and the task includes the decision. Leaning: a captured handler on `document` that short-circuits navigation until the flag flips is the smallest surface.
+
 **Reduced-motion:** skip entirely. Overlay not mounted. `hkj.entered` set immediately on first paint.
 
 ### What's explicitly not being built
