@@ -41,6 +41,21 @@
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
 
+/* ─── Stage register tokens ──────────────────────────────────────────────── */
+:root {
+  --stage:     #0E0D09;
+  --stage-2:   #16150F;
+  --stage-3:   #24221A;
+  --glow:      #F8F5EC;
+  --glow-2:    rgba(248, 245, 236, 0.55);
+  --glow-hair: rgba(248, 245, 236, 0.10);
+  --palette-overlay: rgba(17, 17, 16, 0.18); /* Paper default */
+}
+
+html[data-register="stage"] {
+  --palette-overlay: rgba(248, 245, 236, 0.12);
+}
+
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -221,4 +236,17 @@ a.link:hover, .prose a:hover,
   ::view-transition-new(work-title) {
     animation: none;
   }
+}
+
+/* Stage register: longer root crossfade for cinematic beat */
+html[data-register="stage"] ::view-transition-old(root),
+html[data-register="stage"] ::view-transition-new(root) {
+  animation-duration: 420ms;
+}
+
+/* Cross-register: longer crossfade, no shared-element morphs.
+   The register shift IS the transition. */
+html[data-prev-register]:not([data-prev-register=""]) ::view-transition-old(root),
+html[data-prev-register]:not([data-prev-register=""]) ::view-transition-new(root) {
+  animation-duration: 420ms;
 }
