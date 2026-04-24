@@ -250,3 +250,24 @@ html[data-prev-register]:not([data-prev-register=""]) ::view-transition-old(root
 html[data-prev-register]:not([data-prev-register=""]) ::view-transition-new(root) {
   animation-duration: 420ms;
 }
+
+/* Stage: blur-in-transit on shared title morph. The title softens at
+   midpoint and resolves clean — reads as a camera push, not a crossfade. */
+@keyframes work-title-blur-out {
+  0%   { filter: blur(0); }
+  50%  { filter: blur(2px); }
+  100% { filter: blur(0); }
+}
+
+html[data-register="stage"] ::view-transition-old(work-title),
+html[data-register="stage"] ::view-transition-new(work-title) {
+  animation-duration: 480ms;
+  animation-name: work-title-blur-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-register="stage"] ::view-transition-old(work-title),
+  html[data-register="stage"] ::view-transition-new(work-title) {
+    animation: none;
+  }
+}
