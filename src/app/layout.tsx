@@ -7,6 +7,7 @@ import PaperGrain from "@/components/PaperGrain";
 import CommandPalette from "@/components/CommandPalette";
 import RegisterController from "@/components/RegisterController";
 import CinematicEntrance from "@/components/CinematicEntrance";
+import EntranceClickGate from "@/components/EntranceClickGate";
 
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
@@ -53,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fragmentMono.variable} ${gambetta.variable}`}>
+        <EntranceClickGate />
         <CinematicEntrance />
         <RegisterController />
         <PaperGrain />

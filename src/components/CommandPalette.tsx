@@ -33,6 +33,11 @@ export default function CommandPalette() {
 
   const go = (path: string) => {
     setOpen(false);
+    if (typeof window !== "undefined" && !window.__hkjEntranceComplete) {
+      const run = () => router.push(path);
+      window.addEventListener("hkj:entranceComplete", run, { once: true });
+      return;
+    }
     router.push(path);
   };
 
