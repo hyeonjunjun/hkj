@@ -334,6 +334,32 @@ export default function CaseStudy({ piece }: Props) {
           letter-spacing: -0.018em;
         }
 
+        /* Long-exposure smear on the hero plate arrival — stage only,
+           first paint, desktop+ only. The plate drifts in from the right
+           with a soft blur that resolves clean — cinematic arrival. */
+        @media (min-width: 768px) {
+          html[data-register="stage"] .case__plate,
+          html[data-register="stage"] .case__title {
+            animation: case-hero-smear 640ms cubic-bezier(0.22, 1, 0.36, 1) both;
+          }
+          @keyframes case-hero-smear {
+            0%   { filter: blur(2px); transform: translateX(6px); opacity: 0; }
+            30%  {                                                  opacity: 0.5; }
+            100% { filter: blur(0);   transform: translateX(0);    opacity: 1; }
+          }
+          html[data-register="stage"] .case__title { animation-delay: 80ms; }
+        }
+
+        @media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+          html[data-register="stage"] .case__plate,
+          html[data-register="stage"] .case__title {
+            animation: none;
+            filter: none;
+            transform: none;
+            opacity: 1;
+          }
+        }
+
         /* Data-annotation grammar above the plate — real metadata only */
         .case__annot {
           display: flex;
