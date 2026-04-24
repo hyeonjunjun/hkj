@@ -228,6 +228,30 @@ export default function Home() {
           .cd__col--l { order: 1; }
           .cd__col--r { order: 2; }
         }
+
+        /* ─── Stage register: home ───────────────────────────────────────── */
+        html[data-register="stage"] .home { background: var(--stage); color: var(--glow); }
+
+        html[data-register="stage"] .cd__link { color: var(--glow-2); opacity: 0.5; }
+        html[data-register="stage"] .cd__link.is-active { opacity: 1; color: var(--glow); }
+        html[data-register="stage"] .cd__link:hover { opacity: 1; color: var(--glow); }
+        html[data-register="stage"] .cd__stage:has(.cd__link:hover) .cd__link:not(:hover) { opacity: 0.5; }
+
+        html[data-register="stage"] .cd__num { color: var(--glow-hair); }
+        html[data-register="stage"] .cd__slash { color: var(--glow-hair); }
+        html[data-register="stage"] .cd__name { color: var(--glow); }
+
+        html[data-register="stage"] .cd__foot { border-top-color: var(--glow-hair); }
+        html[data-register="stage"] .cd__foot-role { color: var(--glow-2); }
+        html[data-register="stage"] .cd__loc { color: var(--glow-2); }
+        html[data-register="stage"] .cd__kbd { color: var(--glow-hair); }
+
+        html[data-register="stage"] .cd__mail {
+          color: var(--glow);
+          text-decoration-color: transparent;
+        }
+        html[data-register="stage"] .cd__mail:hover { text-decoration-color: var(--glow); }
+        html[data-register="stage"] .cd__mail[data-copied] { color: var(--glow-2); }
       `}</style>
     </main>
   );
