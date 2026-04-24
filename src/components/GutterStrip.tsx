@@ -404,6 +404,32 @@ export default function GutterStrip({ pieces, onActiveChange }: Props) {
         @media (prefers-reduced-motion: reduce) {
           .strip__media-wrap { transform: none !important; }
         }
+
+        /* Stage halation — the plate glows faintly against the stage ground.
+           box-shadow is hosted on the unclipped .strip__link so the outer
+           glow isn't cut by .strip__plate's overflow: hidden. */
+        html[data-register="stage"] .strip__link {
+          box-shadow:
+            0 32px 80px -40px rgba(248, 245, 236, 0.22),
+            0 4px 16px -6px rgba(248, 245, 236, 0.08);
+        }
+        html[data-register="stage"] .strip__plate {
+          background: var(--stage-2);
+          box-shadow: inset 0 0 0 1px var(--glow-hair);
+        }
+        html[data-register="stage"] .strip__plate::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background: radial-gradient(
+            ellipse at center,
+            transparent 60%,
+            rgba(14, 13, 9, 0.4) 100%
+          );
+        }
+        html[data-register="stage"] .strip__placeholder { color: var(--glow-hair); }
       `}</style>
     </div>
   );
