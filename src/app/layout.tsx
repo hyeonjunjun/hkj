@@ -5,6 +5,7 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import NavCoordinates from "@/components/NavCoordinates";
 import PaperGrain from "@/components/PaperGrain";
 import CommandPalette from "@/components/CommandPalette";
+import RegisterController from "@/components/RegisterController";
 
 const fragmentMono = localFont({
   src: "../fonts/fragment-mono/FragmentMono-Regular.woff2",
@@ -51,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fragmentMono.variable} ${gambetta.variable}`}>
+        <RegisterController />
         <PaperGrain />
         <RouteAnnouncer />
         <NavCoordinates />
