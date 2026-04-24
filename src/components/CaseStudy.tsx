@@ -26,11 +26,19 @@ export default function CaseStudy({ piece }: Props) {
           <span>Work</span>
           <span className="eyebrow__sep">·</span>
           <span>New York</span>
-          <span className="eyebrow__sep">·</span>
+          {/* ! moment for /work/gyeol: second separator carries the
+              project's namesake character as a grain of punctuation */}
+          <span className="eyebrow__sep">{piece.slug === "gyeol" ? "結" : "·"}</span>
           <span className="tabular">{piece.year}</span>
           <span className="eyebrow__sep">·</span>
           <span className="tabular">№{String(piece.order).padStart(3, "0")}</span>
         </p>
+        {piece.slug === "clouds-at-sea" && (
+          /* ! moment for /work/clouds-at-sea: the horizon's real coordinate */
+          <p className="case__coord tabular" aria-hidden>
+            40°43′N 73°59′W · horizon dissolve
+          </p>
+        )}
         <h1
           className="case__title"
           style={{ viewTransitionName: "work-title" } as React.CSSProperties}
@@ -358,6 +366,16 @@ export default function CaseStudy({ piece }: Props) {
             transform: none;
             opacity: 1;
           }
+        }
+
+        /* ! moment for /work/clouds-at-sea */
+        .case__coord {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--ink-4);
+          margin: -4px 0 0;
         }
 
         /* Data-annotation grammar above the plate — real metadata only */

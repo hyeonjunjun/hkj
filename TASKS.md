@@ -170,8 +170,9 @@ idle is cut. Motion is reserved for user-triggered micro-states
 ## Principles to hold against
 
 1. **No ambient motion.** Anything that moves on idle gets cut.
-2. **Mono-first.** Gambetta reserved for case-study prose only;
-   everything else is Fragment Mono.
+2. **Mono-first — with one exception.** Gambetta reserved for case-study
+   prose *and* Stage hero titles (variable, weight 700). Everything else
+   is Fragment Mono.
 3. **Documentary equality.** Every piece treated with the same editorial
    weight — no hero project, no demoted projects.
 4. **Tactility through paper, hairlines, and microtype** — not through
@@ -179,3 +180,45 @@ idle is cut. Motion is reserved for user-triggered micro-states
 5. **Trust the type system.** `.eyebrow`, `.plate-mark`, `.prose`, and
    `.meta` primitives in [globals.css](src/app/globals.css) do the
    compositional work; new pages should compose from these, not invent.
+6. **Two registers, never mixed within a page.** Stage (dark, luminous)
+   vs. Paper (editorial). Crossing is the tell. See
+   [2026-04-24-stage-and-paper-design.md](docs/superpowers/specs/2026-04-24-stage-and-paper-design.md).
+
+---
+
+## `!` Moments — one per page, do not remove casually
+
+Each hand-placed per
+[stage-and-paper spec §10](docs/superpowers/specs/2026-04-24-stage-and-paper-design.md#the--moment-practice).
+Discoverable to a careful reader, invisible to a scroller. Documenting
+here so refactors don't silently drop them.
+
+- `/` — the active row's `.cd__name` carries `translateY(-1px)` on stage.
+  Baseline nudge. Invisible systematically; felt on careful read.
+  ([src/app/page.tsx](src/app/page.tsx))
+- `/work/gyeol` — second eyebrow separator `·` becomes `結`. Project's
+  namesake character (Korean *gyeol* — texture/grain) used as one grain
+  of punctuation.
+  ([src/components/CaseStudy.tsx](src/components/CaseStudy.tsx))
+- `/work/clouds-at-sea` — `.case__coord` line reads
+  `40°43′N 73°59′W · horizon dissolve`. Real coordinate; the
+  long-exposure locus of the horizon.
+  ([src/components/CaseStudy.tsx](src/components/CaseStudy.tsx))
+- `/about` — one paragraph (the AI-as-collaborator line) receives a
+  Gambetta `::first-letter` drop cap. The argument paragraph.
+  ([src/app/about/page.tsx](src/app/about/page.tsx))
+- `/shelf` — Butterfly Stool year reads `"1954 –"` (open-ended range).
+  "Still present in my life."
+  ([src/constants/shelf.ts](src/constants/shelf.ts))
+- `/colophon` — Build SHA is live (`NEXT_PUBLIC_BUILD_SHA` from Vercel).
+  Rare piece of genuinely live typography.
+  ([src/app/colophon/page.tsx](src/app/colophon/page.tsx))
+- `/notes/[slug]` — running-head band shows a hand-picked essay keyword
+  at full ink alongside the title at ink-3. The word that carries the
+  essay. N-001 → *restraint*.
+  ([src/app/notes/[slug]/page.tsx](src/app/notes/[slug]/page.tsx),
+  [src/constants/notes.ts](src/constants/notes.ts))
+- `/contact` — **deferred.** Intentionally unplaced until a specific,
+  non-forced detail is identified. Candidates: a hand-drawn SVG tick for
+  the availability cluster, a micro-state change on email copy, a shift
+  in the cluster grammar. Left honest rather than filled with ceremony.

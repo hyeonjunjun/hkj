@@ -56,6 +56,13 @@ export default function NoteDetailPage() {
         <span>N-{note.number}</span>
         <span className="note__runhead-dot">·</span>
         <span>{note.title}</span>
+        {note.runheadKeyword && (
+          <>
+            <span className="note__runhead-dot">·</span>
+            {/* ! moment for /notes/[slug] — one keyword from the essay */}
+            <span className="note__runhead-kw">{note.runheadKeyword}</span>
+          </>
+        )}
       </div>
 
       <article className="note__inner">
@@ -121,6 +128,7 @@ export default function NoteDetailPage() {
           pointer-events: none;
         }
         .note__runhead-dot { color: var(--ink-4); }
+        .note__runhead-kw { color: var(--ink); }
 
         .note__head { display: grid; gap: 18px; }
         .note__title {

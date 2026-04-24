@@ -26,7 +26,7 @@ export default function AboutPage() {
             between. I care about typography, motion, and the parts that make
             software feel made, not assembled.
           </p>
-          <p>
+          <p className="about__prose-drop">
             I treat AI as a collaborator, not a shortcut.
           </p>
           <p>
@@ -107,6 +107,19 @@ export default function AboutPage() {
           max-width: 54ch;
         }
         .about__prose p { margin: 0; }
+
+        /* ! moment: the argument paragraph receives a Gambetta drop cap.
+           Invisible systematically — felt as "this paragraph is load-bearing." */
+        .about__prose-drop::first-letter {
+          font-family: var(--font-stack-serif);
+          font-weight: 500;
+          font-size: 1.6em;
+          line-height: 1;
+          float: left;
+          margin-right: 0.1em;
+          margin-top: 0.06em;
+          color: var(--ink);
+        }
 
         /* ── Section ──────────────────────────────────── */
         .about__section { display: grid; gap: 12px; }

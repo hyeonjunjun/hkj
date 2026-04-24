@@ -186,7 +186,8 @@ export const SHELF: ShelfItem[] = [
     group: "KEEP",
     title: "Butterfly Stool",
     attribution: "Sori Yanagi · Vitra",
-    year: "1954",
+    // ! moment for /shelf — open-ended range signals "still present in my life"
+    year: "1954 –",
     note: "Near my desk. A reminder that the best objects don't explain themselves.",
   },
 

@@ -277,6 +277,12 @@ export default function Home() {
             animation: none;
           }
         }
+
+        /* ! moment: active row title sits 1px proud of siblings. Baseline
+           nudge invisible systematically, felt on careful reading. */
+        html[data-register="stage"] .cd__link.is-active .cd__name {
+          transform: translateY(-1px);
+        }
       `}</style>
     </main>
   );

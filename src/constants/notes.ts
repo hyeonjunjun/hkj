@@ -8,6 +8,8 @@ export interface Note {
   excerpt: string;
   body: string;
   tags?: string[];
+  /** One load-bearing word from the essay, shown in the running head. */
+  runheadKeyword?: string;
 }
 
 export const NOTES: Note[] = [
@@ -25,5 +27,6 @@ export const NOTES: Note[] = [
       "I tried five different ambient ASCII directions. Flowers swaying. A drifting marquee. A morphing corner stamp. A density-mapped landscape. A field of dots at every opacity from 7% to 32%. None of them stayed.\n\n" +
       "The thing that finally worked was cutting them all. The site reads more like a studio catalog now and less like a portfolio template. Morrison's lesson about documentary equality — treat every object the same — applies to motion too. The absence of ambient motion is itself the restraint.",
     tags: ["process", "restraint"],
+    runheadKeyword: "restraint",
   },
 ];
