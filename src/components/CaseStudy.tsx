@@ -282,6 +282,24 @@ export default function CaseStudy({ piece }: Props) {
           gap: clamp(56px, 8vh, 88px);
         }
 
+        /* ─── Stage register: local token remap ─────────────────────────
+           Remaps ink/paper tokens inside the .case subtree so every
+           existing rule (prose, ledger, plates, stats, highlights, etc.)
+           shifts to the stage palette without per-selector overrides. */
+        html[data-register="stage"] .case {
+          --ink:       var(--glow);
+          --ink-2:     var(--glow-2);
+          --ink-3:     var(--glow-2);
+          --ink-4:     var(--glow-hair);
+          --ink-hair:  var(--glow-hair);
+          --paper:     var(--stage);
+          --paper-2:   var(--stage-2);
+          --paper-3:   var(--stage-3);
+          --ink-ghost: rgba(248, 245, 236, 0.06);
+          background: var(--stage);
+          color: var(--glow);
+        }
+
         .case__head { display: grid; gap: 20px; }
         .case__title {
           font-family: var(--font-stack-mono);

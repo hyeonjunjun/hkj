@@ -55,6 +55,10 @@
 html[data-register="stage"] {
   --palette-overlay: rgba(248, 245, 236, 0.12);
 }
+html[data-register="stage"] body {
+  background: var(--stage);
+  color: var(--glow);
+}
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
