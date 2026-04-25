@@ -159,7 +159,9 @@ All motion is user-triggered or first-paint. Nothing on idle. The approved easin
 
 **Case-study plate.** The existing `.case__plate` (cover image in an editorial frame with corner plate-marks + fig caption) stays — this is *exactly* the Lemercier-catalog presentation. Plate-marks (`HKJ / PL. №001`, `2026`) are marginalia, not chrome — they read as an archive print would. Keep untouched.
 
-**Home.** The existing cathydolle-mirror-index with `GutterStrip` in the middle stays as composition. No halation, no data scaffold, no arrival smear. The media in the strip renders on paper-2 ground with a `--ink-hair` edge. That's it.
+**Home.** Cathydolle-mirror-index + `GutterStrip` carousel **retired** (2026-04-25 update). The home is now a **scaling 2-column grid of uniform 4:5 media plates** — each piece's cover video or image at the same aspect, captioned below in mono microtype (number · title · sector). The grid grows `2 × n` as more pieces ship; sub-720px it collapses to a single column. Cover videos play only while in viewport (IntersectionObserver, threshold 0.35); reduced-motion clients see static posters. View-transition shared-element morph is named per-slug (`work-title-${slug}`) so multiple titles can coexist on the grid without collision.
+
+The wheel-snap carousel was a clever interaction the site no longer needs. The grid is what a contemporary monograph catalog actually does — plates given documentary equality, no mechanism to learn, mobile works without effort, the visual rhythm comes from the work's own dimensions cropped to a uniform editorial frame.
 
 ---
 
@@ -316,13 +318,15 @@ Each phase is verifiable, non-breaking for other surfaces, and committed indepen
 
 ---
 
-## Open questions
+## Open questions — all resolved (2026-04-25)
 
-Three left for user decision:
+1. ~~**Command palette — retire or keep?**~~ **Retired.** Mobile session deleted `CommandPalette.tsx` + `cmdk`/`vaul` deps. `⌘K` hint also removed.
+2. ~~**Optional Rauno additions — ship in the revert, or defer?**~~ **Hairline underline slide on `.prose a` shipped** (paper marking-up, sumi-e-adjacent gesture). **Stat-number tickers permanently dropped** — wrong register; SaaS pitch-deck vocabulary, not catalog vocabulary.
+3. ~~**Signature dialect — still committing to long-exposure photographs within 8 weeks?**~~ **Reframed as aspirational, no deadline.** Long-exposure photographs are the upgrade-as-they-arrive visual register; the portfolio ships excellent with existing media. ASCII fallback dropped — wrong register for paper monograph.
 
-1. **Command palette — retire or keep?** Spec recommends retire. If kept, this spec's Phase 4 is omitted and the `⌘K` hint stays.
-2. **Optional Rauno additions (hairline underline slide, stat-number tickers) — ship in the revert, or defer?** Spec recommends deferring both — they earn their place in a later polish round, not in the revert.
-3. **Signature dialect — still committing to long-exposure photographs within 8 weeks?** This was the contingency in stage-and-paper §7. The commitment doesn't change with the register shift — only the presentation does (paper, not dark). Confirm, or downgrade to ASCII-data-on-paper fallback (B).
+## Composition update — 2026-04-25
+
+The user critique landed: even with the studio-catalog register, the cathydolle mirror-gutter + GutterStrip carousel was over-engineered. Replaced with a simple **2-column grid of uniform 4:5 plates**, scaling 2 × n as more pieces ship. The `GutterStrip` and `CatalogFrame` components retired entirely (~580 lines of code removed). The `.case__annot` data-annotation row above case-study plates also removed — it duplicated data already shown in the eyebrow + ledger + plate-marks. Hara's subtraction principle held all the way.
 
 ---
 
