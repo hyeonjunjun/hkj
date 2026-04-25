@@ -328,6 +328,19 @@ Each phase is verifiable, non-breaking for other surfaces, and committed indepen
 
 The user critique landed: even with the studio-catalog register, the cathydolle mirror-gutter + GutterStrip carousel was over-engineered. Replaced with a simple **2-column grid of uniform 4:5 plates**, scaling 2 × n as more pieces ship. The `GutterStrip` and `CatalogFrame` components retired entirely (~580 lines of code removed). The `.case__annot` data-annotation row above case-study plates also removed — it duplicated data already shown in the eyebrow + ledger + plate-marks. Hara's subtraction principle held all the way.
 
+## Composition update II — 2026-04-25 (Asian-monograph refinement)
+
+After 4 parallel research surveys (Asian + Western masters, Asian + Western portfolios) converged on a finding: the 2-col 4:5 grid sat in the *least-defensible* compositional territory. Contemporary practice clusters at small-plate dense grids OR full-column single plates per scroll-stop; the middle reads as editorial template. The studio-catalog/monograph register pulls hard toward the small-plate side, especially in the Asian-portfolio set (nendo, Daikoku Design Institute, Wang Zhi-Hong, studio fnt).
+
+Changes:
+- **Home header (eyebrow + studio-name h1) removed entirely.** Folio + nav carry studio identity in the chrome. Catalog opens immediately — *the index IS the home* (nendo move).
+- **Plate aspect 4:5 → 1:1 (square).** Documentary equality across pieces; Daikoku/nendo tile rhythm.
+- **Container max-width 920 → 760px.** Plates now ~360px square at desktop — Wang Zhi-Hong's "deliberately small so caption typography can stand" register.
+- **Caption restructured to vertical stack.** Title on its own line above a meta row (number · sector · year).
+- **Row gap > column gap.** ~64px row vs ~28px column, so each row gets its own breath.
+
+Reference set the user studies: [daikoku.ndc.co.jp](https://daikoku.ndc.co.jp/), [wangzhihong.com](https://wangzhihong.com/), [nendo.jp/en](https://www.nendo.jp/en/), [joanielemercier.com](https://joanielemercier.com), [6a.co.uk](https://6a.co.uk).
+
 ---
 
 ## Verification criteria
