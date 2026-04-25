@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <main id="main" className="about">
       <Folio token="§02" />
-      <article className="about__inner">
+      <article className="about__inner" data-cascade>
         <header className="about__head">
           <p className="eyebrow">
             <span>About</span>

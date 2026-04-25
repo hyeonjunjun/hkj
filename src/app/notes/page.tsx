@@ -27,7 +27,7 @@ export default function NotesIndexPage() {
     <main id="main" className="notes">
       <Folio token="§05" />
 
-      <article className="notes__inner">
+      <article className="notes__inner" data-cascade>
         <header className="notes__head">
           <p className="eyebrow">
             <span>Notes</span>

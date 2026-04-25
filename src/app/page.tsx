@@ -31,9 +31,14 @@ function Tile({ piece }: { piece: Piece }) {
     return () => io.disconnect();
   }, [reduced]);
 
+  const coverVtName = `work-cover-${piece.slug}`;
+
   return (
     <Link href={`/work/${piece.slug}`} className="home__tile">
-      <div className="home__tile-frame">
+      <div
+        className="home__tile-frame"
+        style={{ viewTransitionName: coverVtName } as React.CSSProperties}
+      >
         {piece.cover?.kind === "video" ? (
           <video
             ref={videoRef}
@@ -92,7 +97,7 @@ function Tile({ piece }: { piece: Piece }) {
  */
 export default function Home() {
   return (
-    <main id="main" className="home">
+    <main id="main" className="home" data-cascade>
       <Folio token="§01" />
 
       <section className="home__grid" aria-label="Studio catalog">

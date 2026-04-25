@@ -77,7 +77,10 @@ export default function CaseStudy({ piece }: Props) {
 
       {piece.image && (
         <figure className="case__plate">
-          <div className="case__plate-frame">
+          <div
+            className="case__plate-frame"
+            style={{ viewTransitionName: `work-cover-${piece.slug}` } as React.CSSProperties}
+          >
             <Image
               src={piece.image}
               alt={`${piece.title} — cover plate`}

@@ -65,7 +65,7 @@ export default function NoteDetailPage() {
         )}
       </div>
 
-      <article className="note__inner">
+      <article className="note__inner" data-cascade>
         <header className="note__head">
           <p className="eyebrow">
             <span>Note</span>
