@@ -176,7 +176,7 @@ a { color: inherit; text-decoration: none; }
    hover signal is a ghost background, and underlining its text children
    would stack an unintended line across the title column. */
 a.link, .prose a,
-.about__mail, .card__handle, .cd__mail {
+.about__mail, .card__handle, .home__mail {
   color: var(--ink);
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -186,8 +186,29 @@ a.link, .prose a,
   transition: text-decoration-color 180ms var(--ease);
 }
 a.link:hover, .prose a:hover,
-.about__mail:hover, .card__handle:hover, .cd__mail:hover {
+.about__mail:hover, .card__handle:hover, .home__mail:hover {
   text-decoration-color: currentColor;
+}
+
+/* Hairline underline slide — editorial inline links draw a 1px line in
+   from the left on hover, paired with the color fade. Only on .prose a
+   so that nav, captions, and microtype are not affected. The brushstroke
+   register: a line completing itself, not a flash. */
+.prose a {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition:
+    text-decoration-color 180ms var(--ease),
+    background-size 220ms cubic-bezier(0.33, 0.12, 0.15, 1);
+}
+.prose a:hover {
+  background-size: 100% 1px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prose a { transition: none; background-size: 0% 1px; }
+  .prose a:hover { background-size: 100% 1px; }
 }
 
 /* Arrow-glyph slide — for "forward" action glyphs next to labels */
