@@ -274,21 +274,22 @@ a.link:hover, .prose a:hover,
 }
 
 /* Page-arrival cascade — direct children of any [data-cascade] container
-   stagger in over ~640ms total. Designed to coexist with the 300ms root
-   crossfade and 420ms title morph: by the time the view-transition
-   completes, the cascade is ~50% through, so the live page reveals
-   mid-arrival and settles a beat later. Composed feel, not flash. */
+   stagger in. Calibrated so the tail plays well *after* the 300ms root
+   view-transition completes — otherwise the cascade is invisible behind
+   the transition snapshot. Translate is 14px (clearly perceived but not
+   janky), duration 520ms per child, 120ms stagger. Last child of 5
+   children resolves around t=1000ms — composed arrival, never flash. */
 [data-cascade] > * {
   opacity: 0;
-  transform: translateY(8px);
-  animation: page-cascade-in 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform: translateY(14px);
+  animation: page-cascade-in 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 [data-cascade] > *:nth-child(1) { animation-delay: 0ms; }
-[data-cascade] > *:nth-child(2) { animation-delay: 80ms; }
-[data-cascade] > *:nth-child(3) { animation-delay: 160ms; }
-[data-cascade] > *:nth-child(4) { animation-delay: 240ms; }
-[data-cascade] > *:nth-child(5) { animation-delay: 320ms; }
-[data-cascade] > *:nth-child(n+6) { animation-delay: 320ms; }
+[data-cascade] > *:nth-child(2) { animation-delay: 120ms; }
+[data-cascade] > *:nth-child(3) { animation-delay: 240ms; }
+[data-cascade] > *:nth-child(4) { animation-delay: 360ms; }
+[data-cascade] > *:nth-child(5) { animation-delay: 480ms; }
+[data-cascade] > *:nth-child(n+6) { animation-delay: 480ms; }
 
 @keyframes page-cascade-in {
   to { opacity: 1; transform: none; }
