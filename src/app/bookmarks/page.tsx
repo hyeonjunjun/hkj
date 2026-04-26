@@ -30,13 +30,6 @@ export default function BookmarksPage() {
         </header>
 
         <section className="bookmarks__section">
-          <header className="bookmarks__section-head">
-            <span className="bookmarks__section-label">Read</span>
-            <span className="bookmarks__section-count tabular">
-              {String(items.length).padStart(2, "0")} Entries
-            </span>
-          </header>
-
           <ol className="bookmarks__list">
             {items.map((item) => {
               const rowBody = (
@@ -111,30 +104,14 @@ export default function BookmarksPage() {
           max-width: 32ch;
         }
 
-        .bookmarks__section { display: grid; gap: 12px; }
-        .bookmarks__section-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          padding-bottom: 10px;
-          border-bottom: 1px solid var(--ink);
-        }
-        .bookmarks__section-label {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.10em;
-          text-transform: uppercase;
-          color: var(--ink);
-        }
-        .bookmarks__section-count {
-          font-family: var(--font-stack-sans);
-          font-size: 9px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-        }
+        .bookmarks__section { display: grid; gap: 0; }
 
-        .bookmarks__list { list-style: none; margin: 0; padding: 0; }
+        .bookmarks__list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          border-top: 1px solid var(--ink);
+        }
         .bookmarks__row { border-bottom: 1px solid var(--ink-hair); }
         .bookmarks__row-link {
           display: grid;

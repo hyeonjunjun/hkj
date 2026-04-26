@@ -156,6 +156,20 @@ export default function NoteDetailPage() {
         }
         .note__body p { margin: 0; max-width: 56ch; }
 
+        /* Conventional editorial first-letter drop cap on the opening
+           paragraph. Marks "this is an essay" without adding chrome.
+           Distinct from /studio's mid-text drop cap (which signals "this
+           paragraph is load-bearing") — different intentions, both legible. */
+        .note__body p:first-child::first-letter {
+          font-family: var(--font-stack-serif);
+          font-weight: 600;
+          font-size: 3.4em;
+          line-height: 0.9;
+          float: left;
+          margin: 0.04em 0.08em 0 0;
+          color: var(--ink);
+        }
+
         .note__foot {
           padding-top: 24px;
           border-top: 1px solid var(--ink-hair);
