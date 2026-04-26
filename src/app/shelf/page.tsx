@@ -14,7 +14,7 @@ export default function ShelfPage() {
   return (
     <main id="main" className="shelf">
       <Folio token="§03" />
-      <article className="shelf__inner" data-cascade>
+      <article className="shelf__inner">
         <header className="shelf__head">
           <p className="eyebrow">
             <span>Shelf</span>

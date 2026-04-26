@@ -9,7 +9,7 @@ export default function ColophonPage() {
     <main id="main" className="colophon">
       <Folio token="§06" />
 
-      <article className="colophon__inner" data-cascade>
+      <article className="colophon__inner">
         <header className="colophon__head">
           <p className="eyebrow">
             <span>Colophon</span>

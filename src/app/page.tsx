@@ -8,9 +8,6 @@ import Folio from "@/components/Folio";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-const displayTitle = (t: string) =>
-  t.replace(/:\s*[一-鿿가-힯]+/, "").toLowerCase();
-
 function Tile({ piece }: { piece: Piece }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
@@ -56,7 +53,7 @@ function Tile({ piece }: { piece: Piece }) {
             src={piece.cover.src}
             alt={`${piece.title} — cover`}
             fill
-            sizes="(max-width: 720px) 100vw, 380px"
+            sizes="(max-width: 720px) 100vw, 290px"
             className="home__tile-media"
             style={{ objectFit: "cover" }}
           />
@@ -71,14 +68,10 @@ function Tile({ piece }: { piece: Piece }) {
           className="home__tile-name"
           style={{ viewTransitionName: `work-title-${piece.slug}` } as React.CSSProperties}
         >
-          {displayTitle(piece.title)}
+          {piece.title}.
         </span>
         <span className="home__tile-meta">
-          <span className="home__tile-num tabular">{piece.number}</span>
-          <span className="home__tile-sep" aria-hidden>·</span>
-          <span>{piece.sector.toLowerCase()}</span>
-          <span className="home__tile-sep" aria-hidden>·</span>
-          <span className="tabular">{piece.year}</span>
+          {piece.sector}. <span className="tabular">{piece.year}</span>.
         </span>
       </div>
     </Link>
@@ -86,18 +79,17 @@ function Tile({ piece }: { piece: Piece }) {
 }
 
 /**
- * Home — studio catalog. The index *is* the home: no eyebrow, no
- * masthead, no introduction. Folio + nav carry the studio identity in
- * the chrome; the catalog opens immediately. Plates are uniform 1:1
- * squares in a 2-column grid that scales to 2 × n as more pieces ship;
- * row gap > column gap so each row gets its own breath.
- *
- * Composition lineage: nendo (works index), Daikoku (contained plate
- * sizing), Wang Zhi-Hong (small plates so caption typography can stand).
+ * Home — studio catalog. Opens with substantial vertical void; the catalog
+ * arrives only after a real pause. Plates are uniform 1:1 squares in a
+ * 2-column grid scaling 2 × n as more pieces ship; container is 600px so
+ * each plate is ~290px (the "deliberately small so caption typography can
+ * stand" register from Wang Zhi-Hong / Daikoku). Captions read as museum
+ * labels — mixed case, sentence-shaped, period-terminated — not as data
+ * spec lines. The index IS the home (nendo move): no eyebrow, no h1.
  */
 export default function Home() {
   return (
-    <main id="main" className="home" data-cascade>
+    <main id="main" className="home">
       <Folio token="§01" />
 
       <section className="home__grid" aria-label="Studio catalog">
@@ -116,24 +108,24 @@ export default function Home() {
           min-height: 100svh;
           background: var(--paper);
           color: var(--ink);
-          padding: clamp(96px, 14vh, 144px) clamp(20px, 4vw, 48px) clamp(56px, 9vh, 88px);
+          padding: clamp(200px, 36vh, 360px) clamp(20px, 4vw, 56px) clamp(56px, 9vh, 88px);
           display: grid;
           gap: clamp(56px, 9vh, 96px);
         }
 
         .home__grid {
-          max-width: 760px;
+          max-width: 600px;
           margin-inline: auto;
           width: 100%;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          column-gap: clamp(20px, 3vw, 32px);
+          column-gap: clamp(20px, 3vw, 28px);
           row-gap: clamp(48px, 7vh, 72px);
         }
 
         .home__tile {
           display: grid;
-          gap: 16px;
+          gap: 14px;
           color: var(--ink);
         }
 
@@ -160,31 +152,23 @@ export default function Home() {
 
         .home__tile-cap {
           display: grid;
-          gap: 6px;
+          gap: 4px;
         }
         .home__tile-name {
           font-family: var(--font-stack-mono);
           font-size: 12px;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
+          letter-spacing: 0.005em;
           color: var(--ink);
         }
         .home__tile-meta {
           font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
+          font-size: 11px;
+          letter-spacing: 0.005em;
           color: var(--ink-3);
-          display: inline-flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          align-items: baseline;
         }
-        .home__tile-num { color: var(--ink-4); }
-        .home__tile-sep { color: var(--ink-4); }
 
         .home__foot {
-          max-width: 760px;
+          max-width: 600px;
           margin-inline: auto;
           width: 100%;
           display: flex;

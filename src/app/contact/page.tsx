@@ -14,7 +14,7 @@ export default function ContactPage() {
   return (
     <main id="main" className="contact">
       <Folio token="§04" />
-      <article className="card" aria-label="Hyeonjoon Jun — contact card" data-cascade>
+      <article className="card" aria-label="Hyeonjoon Jun — contact card">
         <header className="card__row card__row--top">
           <div className="card__cluster">
             <span className="card__key">Correspondent</span>
