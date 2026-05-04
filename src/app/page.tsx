@@ -55,9 +55,9 @@ export default function Home() {
             min-height: 100svh;
             background: var(--paper);
             color: var(--ink);
-            padding: clamp(140px, 26vh, 240px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
+            padding: clamp(80px, 14vh, 140px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
             display: grid;
-            gap: clamp(40px, 6vh, 72px);
+            gap: clamp(20px, 3vh, 36px);
           }
 
           /* 3-col catalog grid. aino-derived; max-width 1480px. Pieces fill

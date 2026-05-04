@@ -72,12 +72,31 @@ export default function WorkPlate({ piece, href }: Props) {
         background: var(--paper-2);
         overflow: hidden;
         isolation: isolate;
+        outline: 1px solid transparent;
+        outline-offset: -1px;
+        transition: outline-color 240ms var(--ease);
+      }
+      .plate:hover .plate__frame {
+        outline-color: var(--ink-hair);
       }
       .plate--placeholder .plate__frame {
-        border: 1px solid var(--ink-hair);
+        outline: 1px solid var(--ink-hair);
+        outline-offset: -1px;
       }
       .plate--placeholder {
         cursor: default;
+      }
+      .plate__cap-tail {
+        display: inline-block;
+        margin-inline-start: 6px;
+        opacity: 0;
+        transform: translateX(-2px);
+        transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+        color: var(--ink-3);
+      }
+      .plate:hover .plate__cap-tail {
+        opacity: 1;
+        transform: translateX(0);
       }
       .plate__media {
         width: 100%;
@@ -109,6 +128,11 @@ export default function WorkPlate({ piece, href }: Props) {
         font-size: 11px;
         letter-spacing: 0.02em;
         color: var(--ink-3);
+      }
+      .plate__title-row {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0;
       }
       .plate__title {
         font-family: var(--font-stack-sans);
@@ -172,7 +196,7 @@ export default function WorkPlate({ piece, href }: Props) {
         <div
           className="plate__frame"
           style={{
-            aspectRatio: piece.coverAspect ?? "4 / 5",
+            aspectRatio: "4 / 5",
             ["--cover-width" as string]: `${piece.coverWidth ?? 100}%`,
           } as React.CSSProperties}
         />
@@ -205,7 +229,7 @@ export default function WorkPlate({ piece, href }: Props) {
         className="plate__frame"
         style={{
           viewTransitionName: coverVtName,
-          aspectRatio: piece.coverAspect ?? "4 / 5",
+          aspectRatio: "4 / 5",
           ["--cover-width" as string]: `${piece.coverWidth ?? 100}%`,
         } as React.CSSProperties}
       >
@@ -239,16 +263,19 @@ export default function WorkPlate({ piece, href }: Props) {
 
       <div className="plate__cap">
         <span className="plate__index">
-          <span className="tabular">№{piece.number}</span>
-          {" / "}
+          <span className="tabular">{piece.number}</span>
+          {" — "}
           <span className="tabular">{piece.year}</span>
         </span>
-        <ScrambleText
-          text={piece.title}
-          count={2}
-          className="plate__title"
-          style={{ viewTransitionName: titleVtName } as React.CSSProperties}
-        />
+        <span className="plate__title-row">
+          <ScrambleText
+            text={piece.title}
+            count={2}
+            className="plate__title"
+            style={{ viewTransitionName: titleVtName } as React.CSSProperties}
+          />
+          <span className="plate__cap-tail" aria-hidden>→</span>
+        </span>
         <span className="plate__role">{piece.sector}</span>
         <span className="plate__desc">{piece.description}</span>
         {piece.meta && <span className="plate__meta">{piece.meta}</span>}

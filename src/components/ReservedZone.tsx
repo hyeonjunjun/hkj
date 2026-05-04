@@ -25,15 +25,15 @@ export default function ReservedZone() {
       <style>{`
         .reserved {
           display: grid;
-          align-items: end;
+          align-items: center;
           justify-items: end;
-          padding: clamp(20px, 3vh, 36px);
+          padding: 0;
           min-height: 0;
         }
         .reserved__cluster {
           display: inline-flex;
-          align-items: baseline;
-          gap: clamp(12px, 2vw, 20px);
+          align-items: center;
+          gap: clamp(14px, 2vw, 22px);
           font-family: var(--font-stack-sans);
           font-size: 11px;
           letter-spacing: var(--microtype-tracking);
