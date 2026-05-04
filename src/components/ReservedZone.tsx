@@ -1,6 +1,7 @@
 "use client";
 
 import ThemeToggle from "@/components/ThemeToggle";
+import ViewToggle from "@/components/ViewToggle";
 
 /**
  * ReservedZone — grid-cell-shaped container in the home hero.
@@ -18,6 +19,7 @@ export default function ReservedZone() {
     <aside className="reserved" aria-label="Settings">
       <div className="reserved__cluster">
         <ThemeToggle />
+        <ViewToggle />
       </div>
 
       <style>{`

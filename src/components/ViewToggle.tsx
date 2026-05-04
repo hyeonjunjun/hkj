@@ -65,18 +65,14 @@ export default function ViewToggle() {
 
       <style>{`
         .view-toggle {
-          position: fixed;
-          top: clamp(20px, 3vh, 36px);
-          right: clamp(20px, 4vw, 56px);
           display: inline-flex;
           align-items: baseline;
           gap: 0;
           font-family: var(--font-stack-sans);
           font-size: 11px;
-          letter-spacing: 0.08em;
+          letter-spacing: var(--microtype-tracking);
           text-transform: lowercase;
           color: var(--ink-3);
-          z-index: 5;
           background: transparent;
         }
         .view-toggle__btn {

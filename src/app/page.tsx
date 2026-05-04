@@ -2,7 +2,6 @@ import CopyEmailLink from "@/components/CopyEmailLink";
 import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
 import ReservedZone from "@/components/ReservedZone";
-import ViewToggle from "@/components/ViewToggle";
 import WorkPlate from "@/components/WorkPlate";
 import WorkList from "@/components/WorkList";
 import { PIECES } from "@/constants/pieces";
@@ -24,13 +23,17 @@ export default function Home() {
       <HomeViewInit />
       <main id="main" className="home">
         <Folio token="§01" />
-        <ViewToggle />
+
+        {/* ReservedZone is a sibling of both gallery and list — visible in both views.
+            Aligned to column 3 of the same 3-col grid template via .home__reserved-wrapper. */}
+        <div className="home__reserved-wrapper">
+          <ReservedZone />
+        </div>
 
         <section className="home__gallery" aria-label="Studio catalog (gallery)">
           {pieces.map((piece) => (
             <WorkPlate key={piece.slug} piece={piece} />
           ))}
-          <ReservedZone />
         </section>
 
         <section className="home__list" aria-label="Studio catalog (list)">
@@ -47,28 +50,48 @@ export default function Home() {
             min-height: 100svh;
             background: var(--paper);
             color: var(--ink);
-            padding: clamp(140px, 26vh, 240px) clamp(20px, 5vw, 80px) clamp(56px, 9vh, 88px);
+            padding: clamp(140px, 26vh, 240px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
             display: grid;
             gap: clamp(40px, 6vh, 72px);
           }
 
-          /* 2-column catalog grid. Lars Müller / aino register —
-             uniform plates compose a register, not a stack. Row gap
-             tightened to match aino's 24-32px vertical between tiles
-             — denser presence without losing warm-paper air. */
+          /* 3-col catalog grid. aino-derived; max-width 1480px. Pieces fill
+             cells in document order. Last row may have trailing empty cells —
+             those are breathing room. Mobile collapses to 1 col. */
           .home__gallery {
-            max-width: 1240px;
+            max-width: 1480px;
             margin-inline: auto;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: clamp(20px, 3vw, 48px);
-            row-gap: clamp(32px, 4.5vh, 64px);
+            grid-template-columns: 1fr 1fr 1fr;
+            column-gap: clamp(20px, 2vw, 36px);
+            row-gap: clamp(32px, 4vh, 56px);
+          }
+
+          /* ReservedZone sibling wrapper — same 3-col template aligns the
+             reserved zone to column 3 visually. Sibling (not child) of gallery
+             so it stays visible when list view hides .home__gallery. */
+          .home__reserved-wrapper {
+            max-width: 1480px;
+            margin-inline: auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            column-gap: clamp(20px, 2vw, 36px);
+          }
+          .home__reserved-wrapper > .reserved {
+            grid-column: 3;
           }
 
           @media (max-width: 720px) {
             .home__gallery {
               grid-template-columns: 1fr;
+            }
+            .home__reserved-wrapper {
+              grid-template-columns: 1fr;
+            }
+            .home__reserved-wrapper > .reserved {
+              grid-column: auto;
             }
           }
 
