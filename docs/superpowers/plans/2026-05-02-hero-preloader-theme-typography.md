@@ -565,24 +565,66 @@ before paint, eliminating theme flash for returning visitors."
 - [ ] **Step 1: Search for hardcoded hex values**
 
 ```bash
-grep -rnE "#FBFAF6|#F4F3EE|#E8E7E1|#111110|#55554F|#8E8E87|#BFBEB8" src/components/
+grep -irnE "#FBFAF6|#F4F3EE|#E8E7E1|#111110|#55554F|#8E8E87|#BFBEB8|#0E0D09|#16150F|#24221A|#F8F5EC|#C8C5BC|#8E8C85|#555349" src/components/
 ```
 
-Expected: any matches found should be changed to use the corresponding `var(--paper)` / `var(--paper-2)` / etc. tokens, so they respond to the dark theme.
+Expected: any matches found should be changed to use the corresponding `var(--paper)` / `var(--paper-2)` / `var(--ink-*)` etc. tokens, so they respond to the dark theme. Case-insensitive (`-i`) catches lowercase variants.
 
-- [ ] **Step 2: Test PaperGrain visibility on dark**
+- [ ] **Step 2: Make PaperGrain theme-aware**
 
-`PaperGrain` uses `mix-blend-mode: multiply` at 0.055 opacity. On dark backgrounds, multiply blend can disappear or invert. Open the page with `data-theme="dark"` in DevTools and inspect the `<svg>` for PaperGrain — is the grain visible at all? If not, the blend mode may need to switch to `screen` for dark mode. Apply a theme-aware fix:
+`PaperGrain` currently uses inline styles (`mixBlendMode: "multiply"`, `opacity: 0.055`). Inline styles win over external CSS without `!important`, so a theme-aware CSS rule can't override them. **Refactor `PaperGrain.tsx` to move blend-mode and opacity into a class** so theme-scoped CSS can override them.
+
+Edit `src/components/PaperGrain.tsx`:
+
+```tsx
+export default function PaperGrain() {
+  return (
+    <svg
+      aria-hidden
+      xmlns="http://www.w3.org/2000/svg"
+      className="paper-grain"
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
+      <filter id="paper-grain">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.9"
+          numOctaves="2"
+          seed="7"
+          stitchTiles="stitch"
+        />
+        <feColorMatrix
+          type="matrix"
+          values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0"
+        />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#paper-grain)" />
+    </svg>
+  );
+}
+```
+
+Then add the theme-aware rules to `globals.css` after the dark-token block:
 
 ```css
 .paper-grain {
   mix-blend-mode: multiply;
+  opacity: 0.055;
 }
 html[data-theme="dark"] .paper-grain {
   mix-blend-mode: screen;
   opacity: 0.04;
 }
 ```
+
+Test by toggling `data-theme="dark"` in DevTools — the grain should remain visible (now via `screen` blend) on the warm-near-black ground.
 
 - [ ] **Step 3: Run gates**
 
@@ -1001,7 +1043,7 @@ Switch the home gallery from 2-col to 3-col grid. Move `ViewToggle` into `Reserv
 - Modify: `src/components/ViewToggle.tsx`
 - Modify: `src/components/ReservedZone.tsx`
 
-- [ ] **Step 1: Strip `position: fixed` from ViewToggle**
+- [ ] **Step 1: Strip `position: fixed` from ViewToggle + adopt theme-responsive tracking**
 
 In `src/components/ViewToggle.tsx`, the existing CSS includes `position: fixed; top: ...; right: ...;` (mounted free-floating). Remove those properties so the toggle flows naturally inside its container.
 
@@ -1021,7 +1063,10 @@ Find the existing `.view-toggle` rule and replace with:
 }
 ```
 
-Remove the `position: fixed`, `top`, `right`, `z-index` properties that were positioning it free-floating.
+Two changes:
+
+1. **Remove the `position: fixed`, `top`, `right`, `z-index` properties** that were positioning it free-floating.
+2. **Replace the existing `letter-spacing: 0.08em` with `letter-spacing: var(--microtype-tracking)`** — adopts the theme-responsive tracking (0.12em light, 0.11em dark). This is a slight tracking *widening* from 0.08em → 0.12em, bringing the view toggle into the same microtype rhythm as the surrounding role rows. Visual change is small but deliberate; if the user prefers the prior tighter 0.08em specifically for the toggle, leave the existing value in place and note the deviation.
 
 - [ ] **Step 2: Mount ViewToggle inside ReservedZone**
 
@@ -1064,24 +1109,70 @@ Open `http://localhost:3000`. Verify:
 
 - [ ] **Step 4: Don't commit yet** — Task 4.2 commits the grid change together with this migration.
 
-### Task 4.2: Switch home gallery to 3-col grid
+### Task 4.2: Switch home gallery to 3-col grid (with sibling-wrapper for ReservedZone)
 
 **Files:**
 - Modify: `src/app/page.tsx`
 
+**Structural decision (locked, NOT a mid-task pivot):** the `ReservedZone` lives in a **sibling wrapper** above `.home__gallery` and `.home__list`, NOT inside `.home__gallery` as a grid cell. Reason: the existing CSS rule `html[data-home-view="list"] .home__gallery { display: none; }` would hide the reserved zone if it were a child of the gallery, but the reserved zone holds the theme toggle + view toggle — both must remain visible in list view. The sibling wrapper aligns the reserved zone to column 3 of the same 3-col grid template visually, so the *visual* result matches the spec's "row 1 col 3" intent even though the *DOM structure* differs.
+
+**Spec V8 reconciliation:** spec V8 reads "Reserved zone occupies row 1 col 3" of `.home__gallery`. The implementation puts the reserved zone in a sibling wrapper sharing the same grid template — visual parity, structural divergence. This is a deliberate clarification of the spec's intent rather than a violation. Document the divergence in the commit message; spec verification updates if needed during user review.
+
 - [ ] **Step 1: Read current `src/app/page.tsx`**
 
-Note the existing `.home__gallery` CSS (2-col grid, max-width 1240px). The reserved zone is currently mounted at the end of the gallery (transitional from Phase 2).
+Note the existing `.home__gallery` CSS (2-col grid, max-width 1240px). The reserved zone is currently mounted at the end of the gallery (transitional from Phase 2). It will be relocated to a sibling wrapper in this task.
 
-- [ ] **Step 2: Rewrite `.home__gallery` CSS to 3-col grid + flow rule**
+- [ ] **Step 2: Restructure JSX — move ReservedZone out of gallery into sibling wrapper**
 
-Replace the `.home__gallery` rule with:
+In `src/app/page.tsx`, change the JSX from:
+
+```tsx
+<main id="main" className="home">
+  <Folio token="§01" />
+
+  <section className="home__gallery" aria-label="Studio catalog (gallery)">
+    {pieces.map((piece) => (
+      <WorkPlate key={piece.slug} piece={piece} />
+    ))}
+    <ReservedZone />
+  </section>
+
+  <section className="home__list">{ ... }</section>
+  <footer className="home__foot">{ ... }</footer>
+</main>
+```
+
+to:
+
+```tsx
+<main id="main" className="home">
+  <Folio token="§01" />
+
+  {/* ReservedZone is a sibling of both gallery and list — visible in both views.
+      Aligned to column 3 of the same 3-col grid template via .home__reserved-wrapper. */}
+  <div className="home__reserved-wrapper">
+    <ReservedZone />
+  </div>
+
+  <section className="home__gallery" aria-label="Studio catalog (gallery)">
+    {pieces.map((piece) => (
+      <WorkPlate key={piece.slug} piece={piece} />
+    ))}
+  </section>
+
+  <section className="home__list">{ ... unchanged ... }</section>
+  <footer className="home__foot">{ ... unchanged ... }</footer>
+</main>
+```
+
+- [ ] **Step 3: Replace `.home__gallery` CSS with 3-col grid + add wrapper rules**
+
+Replace the existing `.home__gallery` rule with:
 
 ```css
-/* 3-col catalog grid. aino-derived; max-width 1480px. Reserved
-   zone always occupies row 1 col 3; pieces flow in document order
-   skipping that cell; trailing empty cells are breathing room.
-   Mobile collapses to 1 col with reserved zone moved to top. */
+/* 3-col catalog grid. aino-derived; max-width 1480px. Pieces fill
+   cells in document order. Last row may have trailing empty cells —
+   those are breathing room. Mobile collapses to 1 col. */
 .home__gallery {
   max-width: 1480px;
   margin-inline: auto;
@@ -1092,88 +1183,9 @@ Replace the `.home__gallery` rule with:
   row-gap: clamp(32px, 4vh, 56px);
 }
 
-/* Reserved zone is always row 1, col 3. Locked. */
-.home__gallery > .reserved {
-  grid-row: 1;
-  grid-column: 3;
-}
-
-/* Pieces flow document-order. Cells skip row 1 col 3 because the
-   reserved zone occupies it. CSS Grid's auto-placement with an
-   explicit row/col on .reserved handles this — pieces fill
-   remaining cells in document order. */
-
-@media (max-width: 720px) {
-  .home__gallery {
-    grid-template-columns: 1fr;
-  }
-  /* Reserved zone moves to top of gallery on mobile. */
-  .home__gallery > .reserved {
-    grid-row: auto;
-    grid-column: auto;
-    order: -1;
-  }
-}
-```
-
-The CSS Grid auto-placement algorithm handles the flow: when one cell has explicit `grid-row` and `grid-column`, other items auto-place into remaining cells in document order. So pieces fill cells skipping row 1 col 3, no extra logic needed.
-
-- [ ] **Step 3: Update `.home` and `.home__list` for the wider grid**
-
-In the same file, update padding to suit the wider 3-col layout:
-
-```css
-.home {
-  min-height: 100svh;
-  background: var(--paper);
-  color: var(--ink);
-  padding: clamp(140px, 26vh, 240px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
-  display: grid;
-  gap: clamp(40px, 6vh, 72px);
-}
-```
-
-The horizontal padding tightens slightly (max 64px instead of 80px) since the grid is now 1480px wide.
-
-The `.home__list` and `.home__foot` widths stay narrower (920px / 1240px) — list view reads better narrow.
-
-- [ ] **Step 4: Verify gates + smoke**
-
-```bash
-npx tsc --noEmit && npm run lint && npm run build
-npm run dev
-```
-
-Open `http://localhost:3000`. Verify:
-- Gallery view: 3-col grid renders. 7 pieces + reserved zone = 8 cells. Layout matches the spec diagram (row 1: piece №01, piece №02, reserved zone; row 2: pieces №03/04/05; row 3: pieces №06/07, then empty).
-- Reserved zone is in row 1 col 3 with theme toggle + view toggle inside.
-- Click each piece — `viewTransitionName` morph still works (cover + title).
-- Reduce viewport to 720px — gallery collapses to 1 col, reserved zone appears at top of gallery.
-- Toggle to list view — typeset row index renders, reserved zone still visible (it's on the gallery only — verify by reading `.home__list` rules).
-
-Wait — actually the reserved zone is INSIDE `.home__gallery`. When the user toggles to list view, `.home__gallery` is hidden via `html[data-home-view="list"] .home__gallery { display: none; }`, which would hide the reserved zone too. That's a problem — the toggles need to be visible in list view too.
-
-**Fix:** the `ReservedZone` should NOT live inside `.home__gallery`. It needs to be a sibling of both `.home__gallery` and `.home__list`, positioned independently. Restructure:
-
-```tsx
-<main id="main" className="home">
-  <Folio token="§01" />
-  
-  {/* Reserved zone is positioned independently of gallery/list views */}
-  <div className="home__reserved-wrapper">
-    <ReservedZone />
-  </div>
-  
-  <section className="home__gallery">{ ... pieces ... }</section>
-  <section className="home__list"><WorkList pieces={pieces} /></section>
-  
-  <footer className="home__foot">{ ... }</footer>
-</main>
-```
-
-And update CSS:
-
-```css
+/* ReservedZone sibling wrapper — same 3-col template aligns the
+   reserved zone to column 3 visually. Sibling (not child) of gallery
+   so it stays visible when list view hides .home__gallery. */
 .home__reserved-wrapper {
   max-width: 1480px;
   margin-inline: auto;
@@ -1187,77 +1199,9 @@ And update CSS:
 }
 
 @media (max-width: 720px) {
-  .home__reserved-wrapper {
-    grid-template-columns: 1fr;
-  }
-}
-```
-
-The wrapper aligns the reserved zone to the same grid as the gallery (so it sits in column 3 visually) but is structurally a sibling of both gallery and list — visible regardless of view.
-
-Update `.home__gallery` accordingly:
-
-```css
-.home__gallery {
-  max-width: 1480px;
-  margin-inline: auto;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: clamp(20px, 2vw, 36px);
-  row-gap: clamp(32px, 4vh, 56px);
-}
-
-@media (max-width: 720px) {
   .home__gallery {
     grid-template-columns: 1fr;
   }
-}
-```
-
-The reserved zone is no longer styled as a grid cell of `.home__gallery`. The visual effect (reserved zone in row 1 col 3 of the gallery) is achieved via the wrapper's grid and the reserved zone's `grid-column: 3`. Pieces flow naturally in `.home__gallery` 3-col with all cells available.
-
-Wait — this has a side-effect: the gallery now has a 1st row of pieces (3 cells) without the reserved zone. So 7 pieces fill rows 1–3 with last row having 1 piece. Layout:
-```
-Row 1: piece 01 | piece 02 | piece 03
-Row 2: piece 04 | piece 05 | piece 06
-Row 3: piece 07 | (empty) | (empty)
-```
-With the reserved zone visually overlaid at the same column position as col 3, but in its own row above the gallery.
-
-Actually the reserved zone wrapper is ABOVE the gallery (sibling), so it appears as a row of its own:
-
-```
-[reserved-wrapper row]:  (empty col 1) | (empty col 2) | reserved zone
-[gallery row 1]:          piece 01      | piece 02      | piece 03
-[gallery row 2]:          piece 04      | piece 05      | piece 06
-[gallery row 3]:          piece 07      | (empty)       | (empty)
-```
-
-Hmm, that's a wider hero with the reserved zone standalone above the pieces. Different from the spec's "row 1 col 3" mental model but functionally clearer.
-
-**Decision:** lock the wrapper-as-sibling pattern. The reserved zone's row appears above the gallery. The visual hierarchy is: nav → reserved zone → 3-col gallery. The reserved zone reads as a settings strip at the top of the catalog.
-
-If you want the reserved zone to appear *inside* the first gallery row (per the spec diagram), the alternative is to render the reserved zone twice — once for gallery (CSS visible only when gallery view) and once for list (CSS visible only when list view) — but that doubles the components. The wrapper-sibling approach is simpler.
-
-Update spec footnote (file edits only — don't change the spec doc itself; the design intent is preserved, just the layout structure is implementer-clarified).
-
-- [ ] **Step 5: Re-verify smoke after structural change**
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:3000`. Confirm:
-- Reserved zone appears at the top of the catalog area (above the 3-col gallery), aligned to column 3
-- Gallery view: 7 pieces in 3 cols, last row has piece 07 + 2 empty cells
-- List view: switches normally; reserved zone is still visible (sibling, not gallery-child)
-- Mobile: reserved zone moves to top via `order: -1` or by being a sibling above the gallery, both compatible
-
-Adjust mobile CSS if needed:
-
-```css
-@media (max-width: 720px) {
   .home__reserved-wrapper {
     grid-template-columns: 1fr;
   }
@@ -1266,6 +1210,39 @@ Adjust mobile CSS if needed:
   }
 }
 ```
+
+- [ ] **Step 4: Update `.home` padding for wider grid**
+
+```css
+.home {
+  min-height: 100svh;
+  background: var(--paper);
+  color: var(--ink);
+  padding: clamp(140px, 26vh, 240px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
+  display: grid;
+  gap: clamp(40px, 6vh, 72px);
+}
+```
+
+Horizontal padding tightens to 64px max (was 80px); the grid widens to 1480px so the visible canvas grows. The `.home__list` and `.home__foot` widths stay narrower (their existing values).
+
+- [ ] **Step 5: Verify gates + smoke**
+
+```bash
+npx tsc --noEmit && npm run lint && npm run build
+npm run dev
+```
+
+Open `http://localhost:3000`. Verify:
+
+- **Gallery view:**
+  - Reserved zone appears as its own row above the 3-col gallery, aligned to column 3 (theme toggle + view toggle visible in top-right of the catalog area)
+  - 7 pieces fill the 3-col gallery in document order: row 1 = pieces 01/02/03; row 2 = pieces 04/05/06; row 3 = piece 07 + 2 empty cells
+  - Click each piece — `viewTransitionName` morph still works (cover + title morph into the case study)
+
+- **List view:** toggle to list — `.home__gallery` hides via existing CSS; the typeset row index renders. The reserved zone wrapper stays visible (sibling, not child of gallery).
+
+- **Mobile (≤720px):** both grids collapse to 1 col. Reserved zone wrapper stacks above the gallery; toggles render inline at top.
 
 - [ ] **Step 6: Commit Task 4.1 + Task 4.2 together**
 
@@ -1335,6 +1312,10 @@ const ELIGIBLE_RE = /[A-Za-z0-9]/;
  * spaces) are never scrambled — they stay still.
  *
  * One-shot per hover-enter; does not recur while cursor stays in.
+ * Re-entry (mouseleave then mouseenter) clears any in-flight
+ * scramble and starts a new one. Unmount clears all intervals to
+ * prevent React unmounted-update warnings.
+ *
  * Reduced-motion: scramble disabled, hover does nothing visually.
  *
  * a11y: wrapper carries aria-label={text}; per-character spans are
@@ -1349,9 +1330,16 @@ export default function ScrambleText({
   style,
 }: Props) {
   const reduced = useReducedMotion();
-  const containerRef = useRef<HTMLSpanElement>(null);
-  const [, forceRender] = useState(0);
-  const scrambleStateRef = useRef<{ [index: number]: string }>({});
+  const [scrambleState, setScrambleState] = useState<Record<number, string>>({});
+  const intervalsRef = useRef<number[]>([]);
+
+  // Cleanup all intervals on unmount.
+  useEffect(() => {
+    return () => {
+      intervalsRef.current.forEach((id) => window.clearInterval(id));
+      intervalsRef.current = [];
+    };
+  }, []);
 
   // Indices eligible for scrambling
   const eligibleIndices = [...text].reduce<number[]>((acc, ch, i) => {
@@ -1359,9 +1347,18 @@ export default function ScrambleText({
     return acc;
   }, []);
 
+  function clearAllIntervals() {
+    intervalsRef.current.forEach((id) => window.clearInterval(id));
+    intervalsRef.current = [];
+  }
+
   function startScramble() {
     if (reduced) return;
     if (eligibleIndices.length === 0) return;
+
+    // Re-entry guard: clear any in-flight scramble before starting new.
+    clearAllIntervals();
+    setScrambleState({});
 
     // Pick min(count, eligible.length) random positions
     const k = Math.min(count, eligibleIndices.length);
@@ -1373,24 +1370,27 @@ export default function ScrambleText({
 
     picked.forEach((idx) => {
       let swapCount = 0;
-      const interval = setInterval(() => {
+      const intervalId = window.setInterval(() => {
         if (swapCount >= swapsPerChar) {
-          clearInterval(interval);
-          delete scrambleStateRef.current[idx];
-          forceRender((n) => n + 1);
+          window.clearInterval(intervalId);
+          intervalsRef.current = intervalsRef.current.filter((id) => id !== intervalId);
+          setScrambleState((prev) => {
+            const next = { ...prev };
+            delete next[idx];
+            return next;
+          });
           return;
         }
         const randomChar = pool[Math.floor(Math.random() * pool.length)];
-        scrambleStateRef.current[idx] = randomChar;
+        setScrambleState((prev) => ({ ...prev, [idx]: randomChar }));
         swapCount++;
-        forceRender((n) => n + 1);
       }, swapInterval);
+      intervalsRef.current.push(intervalId);
     });
   }
 
   return (
     <span
-      ref={containerRef}
       className={className}
       style={style}
       aria-label={text}
@@ -1398,7 +1398,7 @@ export default function ScrambleText({
     >
       {[...text].map((ch, i) => (
         <span key={i} aria-hidden="true">
-          {scrambleStateRef.current[i] ?? ch}
+          {scrambleState[i] ?? ch}
         </span>
       ))}
     </span>
@@ -1467,8 +1467,44 @@ describe("ScrambleText", () => {
     expect(spans).toHaveLength(4); // 결,:, ,結
     // No assertion on scramble — hover would no-op
   });
+
+  it("scrambles characters on mouseEnter (using fake timers)", async () => {
+    vi.useFakeTimers();
+    const { container } = render(<ScrambleText text="abcd" count={2} duration={160} />);
+    const wrapper = container.firstChild as HTMLElement;
+
+    // Trigger hover
+    wrapper.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    // Advance just past the first interval tick
+    vi.advanceTimersByTime(45);
+
+    // After one tick, at least 1 character should be from the random pool
+    // (not the original a/b/c/d). Hard to assert exact characters since
+    // they're random, but we can assert SOMETHING changed.
+    const spans = container.querySelectorAll("span span");
+    const renderedChars = Array.from(spans).map((s) => s.textContent ?? "");
+    const original = "abcd".split("");
+    const changedCount = renderedChars.reduce(
+      (n, c, i) => (c !== original[i] ? n + 1 : n),
+      0
+    );
+    expect(changedCount).toBeGreaterThan(0);
+
+    // Advance through full scramble duration
+    vi.advanceTimersByTime(200);
+
+    // After full duration, all characters should resolve back to original
+    const finalChars = Array.from(container.querySelectorAll("span span")).map(
+      (s) => s.textContent ?? ""
+    );
+    expect(finalChars).toEqual(original);
+
+    vi.useRealTimers();
+  });
 });
 ```
+
+Add `vi` import at the top of the test file: `import { describe, it, expect, vi } from "vitest";`
 
 - [ ] **Step 2: Run tests**
 
@@ -1616,7 +1652,16 @@ video, ~10s seamless loop. Static first-frame PNG for reduced-data
 and .webm-unsupported fallback."
 ```
 
-**If user defers asset generation:** the rest of Phase 6 can ship with placeholder asset paths; the preloader will render a broken video element until the assets land. The spec accepts this — the slot is wired ahead of content.
+**If user defers asset generation:** the rest of Phase 6 can ship with placeholder asset paths. Concretely, what the implementer sees:
+
+- The `<video>` element will render with broken `src` and `poster` attributes (404 in Network tab; visible as a black box where the ASCII would appear)
+- The source caption (`PHYLLOTAXIS · 137.508° · N=1597`) and dismiss hint (`click to enter →`) still render correctly
+- Click-to-dismiss still works (preloader fades out and dismisses normally)
+- The smoke test in Task 6.6 Step 3 needs adjustment: replace "verify ASCII video plays" with "verify the empty video frame is dismissable; layout is intact except for the missing media"
+
+Add a `// TODO: assets pending` comment near the `<video>` element in `Preloader.tsx` so future-Claude sees the gap clearly. The slot is wired; only the content awaits.
+
+The spec accepts this — content can land later via a single PR replacing the assets.
 
 ### Task 6.2: Build `usePreloaderState` hook
 
@@ -1954,6 +1999,13 @@ export default function Preloader() {
           .preloader--exiting { opacity: 0; }
         }
 
+        /* Note: prefers-reduced-data is currently NOT supported in
+           any stable browser (behind a flag in Chromium; not in Safari;
+           partial in Firefox). The rule below is a forward-compatible
+           fallback that will activate as browser support lands.
+           For most real users today, this query never matches —
+           the .webm always loads. Verify in DevTools by emulating
+           the media feature in the Rendering panel. */
         @media (prefers-reduced-data: reduce) {
           .preloader__video {
             display: none;
