@@ -405,7 +405,7 @@ Used initially on `WorkPlate.title` in the home grid. Available for `CaseStudy.t
 
 - `src/components/Preloader.tsx` (server component for SSR + inline init script)
 - `src/components/PreloaderClient.tsx` (client component for the dismissal handler + exit animation)
-- `src/hooks/usePreloaderState.ts` (manages sessionStorage + DOM attribute, `useSyncExternalStore` shape)
+- `src/hooks/usePreloaderState.ts` (manages localStorage by default — sessionStorage configurable via constant — and DOM attribute; `useSyncExternalStore` shape)
 - `src/components/ThemeToggle.tsx` (sun/moon glyph + click handler, lives in reserved zone)
 - `src/components/ThemeInit.tsx` (server component, inline init script for `<head>`)
 - `src/hooks/useTheme.ts` (manages localStorage + DOM attribute)
@@ -453,6 +453,8 @@ html[data-theme="dark"] {
 /* Font stack — value changes; name stays */
 --font-stack-sans: var(--font-pp-neue-montreal), -apple-system, "SF Pro Text", system-ui, sans-serif;
 ```
+
+The `--font-pp-neue-montreal` variable is exposed by the `next/font/local` declaration in `app/layout.tsx`. The `variable: '--font-pp-neue-montreal'` config option in that declaration must match the name referenced here.
 
 No new namespace tokens. No `--stage*`. No `--glow*`. The same `--paper` / `--ink-*` family carries both registers via re-binding.
 
