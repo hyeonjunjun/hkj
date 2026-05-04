@@ -1424,7 +1424,7 @@ Expected: clean.
 Create `src/components/__tests__/ScrambleText.test.tsx`:
 
 ```tsx
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 import ScrambleText from "../ScrambleText";
 
@@ -1504,7 +1504,7 @@ describe("ScrambleText", () => {
 });
 ```
 
-Add `vi` import at the top of the test file: `import { describe, it, expect, vi } from "vitest";`
+(The test file's import line at the top of this code block already includes `vi`.)
 
 - [ ] **Step 2: Run tests**
 
@@ -2041,7 +2041,6 @@ In `src/app/page.tsx`, add the imports and mounts. The order in JSX matters for 
 import CopyEmailLink from "@/components/CopyEmailLink";
 import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
-import ViewToggle from "@/components/ViewToggle";  // (still imported for ReservedZone)
 import WorkPlate from "@/components/WorkPlate";
 import WorkList from "@/components/WorkList";
 import ReservedZone from "@/components/ReservedZone";
