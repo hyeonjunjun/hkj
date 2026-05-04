@@ -1,6 +1,8 @@
 import CopyEmailLink from "@/components/CopyEmailLink";
 import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
+import Preloader from "@/components/Preloader";
+import PreloaderInit from "@/components/PreloaderInit";
 import ReservedZone from "@/components/ReservedZone";
 import WorkPlate from "@/components/WorkPlate";
 import WorkList from "@/components/WorkList";
@@ -20,7 +22,10 @@ export default function Home() {
 
   return (
     <>
+      {/* Order matters — inline scripts run in document order */}
       <HomeViewInit />
+      <PreloaderInit />
+      <Preloader />
       <main id="main" className="home">
         <Folio token="§01" />
 
