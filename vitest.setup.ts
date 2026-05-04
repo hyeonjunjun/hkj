@@ -47,4 +47,25 @@ if (typeof window !== "undefined") {
     configurable: true,
     get: () => memorySessionStorage,
   });
+
+  // jsdom doesn't implement window.matchMedia. Components that consult
+  // (prefers-reduced-motion) via useReducedMotion need a stub so they
+  // don't throw during render in tests. Default to "no preference" so
+  // motion-bearing code paths execute under test.
+  if (typeof window.matchMedia !== "function") {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string): MediaQueryList => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      } as unknown as MediaQueryList),
+    });
+  }
 }

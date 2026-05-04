@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { type Piece } from "@/constants/pieces";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import ScrambleText from "@/components/ScrambleText";
 
 type Props = {
   piece: Piece;
@@ -242,12 +243,12 @@ export default function WorkPlate({ piece, href }: Props) {
           {" / "}
           <span className="tabular">{piece.year}</span>
         </span>
-        <span
+        <ScrambleText
+          text={piece.title}
+          count={2}
           className="plate__title"
           style={{ viewTransitionName: titleVtName } as React.CSSProperties}
-        >
-          {piece.title}
-        </span>
+        />
         <span className="plate__role">{piece.sector}</span>
         <span className="plate__desc">{piece.description}</span>
         {piece.meta && <span className="plate__meta">{piece.meta}</span>}
