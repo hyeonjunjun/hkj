@@ -1,6 +1,7 @@
 import CopyEmailLink from "@/components/CopyEmailLink";
 import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
+import ReservedZone from "@/components/ReservedZone";
 import ViewToggle from "@/components/ViewToggle";
 import WorkPlate from "@/components/WorkPlate";
 import WorkList from "@/components/WorkList";
@@ -29,6 +30,7 @@ export default function Home() {
           {pieces.map((piece) => (
             <WorkPlate key={piece.slug} piece={piece} />
           ))}
+          <ReservedZone />
         </section>
 
         <section className="home__list" aria-label="Studio catalog (list)">
