@@ -63,6 +63,15 @@ html[data-theme="dark"] {
   --microtype-tracking: 0.11em;
 }
 
+.paper-grain {
+  mix-blend-mode: multiply;
+  opacity: 0.055;
+}
+html[data-theme="dark"] .paper-grain {
+  mix-blend-mode: screen;
+  opacity: 0.04;
+}
+
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }

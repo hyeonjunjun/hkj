@@ -9,12 +9,19 @@
  * enough variance to feel organic; opacity=0.055 → barely there.
  * Tweak the opacity (not the filter) if the paper feels too heavy or
  * too flat.
+ *
+ * Blend mode + opacity are applied via the .paper-grain class in
+ * globals.css so theme-aware overrides can win without !important
+ * (inline styles win over external CSS otherwise). Dark mode swaps
+ * to mix-blend-mode: screen so the grain stays visible on warm-near-
+ * black ground.
  */
 export default function PaperGrain() {
   return (
     <svg
       aria-hidden
       xmlns="http://www.w3.org/2000/svg"
+      className="paper-grain"
       style={{
         position: "fixed",
         inset: 0,
@@ -22,8 +29,6 @@ export default function PaperGrain() {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 1,
-        opacity: 0.055,
-        mixBlendMode: "multiply",
       }}
     >
       <filter id="paper-grain">
