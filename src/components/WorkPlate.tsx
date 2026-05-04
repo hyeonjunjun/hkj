@@ -124,7 +124,7 @@ export default function WorkPlate({ piece, href }: Props) {
       .plate__role {
         font-family: var(--font-stack-sans);
         font-size: 11px;
-        letter-spacing: 0.12em;
+        letter-spacing: var(--microtype-tracking);
         text-transform: uppercase;
         color: var(--ink-3);
       }
@@ -142,7 +142,7 @@ export default function WorkPlate({ piece, href }: Props) {
       .plate__meta {
         font-family: var(--font-stack-sans);
         font-size: 11px;
-        letter-spacing: 0.12em;
+        letter-spacing: var(--microtype-tracking);
         text-transform: uppercase;
         color: var(--ink-4);
       }

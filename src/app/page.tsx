@@ -94,7 +94,7 @@ export default function Home() {
             border-top: 1px solid var(--ink-hair);
             font-family: var(--font-stack-sans);
             font-size: 11px;
-            letter-spacing: 0.12em;
+            letter-spacing: var(--microtype-tracking);
             text-transform: uppercase;
           }
           .home__mail { color: var(--ink); }

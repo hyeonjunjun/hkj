@@ -91,14 +91,14 @@ export default function WorkList({ pieces }: Props) {
         .worklist__year {
           font-family: var(--font-stack-sans);
           font-size: 11px;
-          letter-spacing: 0.12em;
+          letter-spacing: var(--microtype-tracking);
           text-transform: uppercase;
           color: var(--ink-3);
         }
         .worklist__role {
           font-family: var(--font-stack-sans);
           font-size: 11px;
-          letter-spacing: 0.12em;
+          letter-spacing: var(--microtype-tracking);
           text-transform: uppercase;
           color: var(--ink-3);
         }
