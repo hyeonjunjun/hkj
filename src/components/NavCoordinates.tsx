@@ -49,9 +49,10 @@ export default function NavCoordinates() {
       </Link>
 
       <ol className="nav__list">
-        {ITEMS.map((item) => {
+        {ITEMS.map((item, i) => {
           const active = pathname?.startsWith(item.href) ?? false;
           const className = `nav__link${active ? " is-active" : ""}`;
+          const num = (i + 1).toString().padStart(2, "0");
 
           return (
             <li key={item.href} className="nav__item">
@@ -60,7 +61,8 @@ export default function NavCoordinates() {
                 className={className}
                 aria-current={active ? "page" : undefined}
               >
-                {item.label}
+                <span className="nav__num tabular" aria-hidden>{num}</span>
+                <span className="nav__label">{item.label}</span>
               </Link>
             </li>
           );
@@ -124,9 +126,18 @@ export default function NavCoordinates() {
         .nav__link {
           color: var(--ink-3);
           transition: color 180ms var(--ease);
+          display: inline-flex;
+          align-items: baseline;
+          gap: 6px;
         }
         .nav__link:hover { color: var(--ink); }
         .nav__link.is-active { color: var(--ink); }
+        .nav__num {
+          color: var(--ink-4);
+          transition: color 180ms var(--ease);
+        }
+        .nav__link:hover .nav__num,
+        .nav__link.is-active .nav__num { color: var(--ink-3); }
 
         @media (max-width: 640px) {
           .nav { top: 14px; left: 16px; right: 16px; }
