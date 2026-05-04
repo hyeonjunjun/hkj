@@ -18,6 +18,9 @@
   --ink-ghost:     rgba(17, 17, 16, 0.06);
   --ink-hair:      rgba(17, 17, 16, 0.10);
 
+  /* Microtype tracking — theme-responsive (overridden in dark mode) */
+  --microtype-tracking: 0.12em;
+
   /* Modular type scale — Perfect Fourth (1.333×) */
   --t-micro:   9px;
   --t-small:   12px;
@@ -42,6 +45,22 @@
   --font-stack-serif: var(--font-serif), "Iowan Old Style", Georgia, "Times New Roman", serif;
 
   --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Dark mode — re-binds semantic tokens. No --stage* / --glow*
+   namespace tokens; same --paper / --ink-* family carries both
+   registers. */
+html[data-theme="dark"] {
+  --paper:   #0E0D09;
+  --paper-2: #16150F;
+  --paper-3: #24221A;
+  --ink:     #F8F5EC;
+  --ink-2:   #C8C5BC;
+  --ink-3:   #8E8C85;
+  --ink-4:   #555349;
+  --ink-hair:  rgba(248, 245, 236, 0.10);
+  --ink-ghost: rgba(248, 245, 236, 0.06);
+  --microtype-tracking: 0.11em;
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
