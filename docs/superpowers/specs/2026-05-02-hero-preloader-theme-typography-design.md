@@ -33,9 +33,20 @@ The five changes ship together because they couple: the theme system needs the n
 
 ## §1 Preloader
 
+### Why this is not the retired cinematic entrance
+
+The prior Stage spec retired a 1.1s cinematic wordmark entrance. This preloader is a different primitive on four counts:
+
+1. **Real captioned source.** The ASCII renders a real dataset (phyllotaxis, vortex, attractor) named in microtype at the bottom-left. The retired entrance had no source — just a wordmark.
+2. **User-dismissed, not timer-dismissed.** Click anywhere ends it. No fixed timeline. The retired entrance ran on a 1.1s budget regardless of input.
+3. **Session-gated, not per-route.** Once dismissed, it stays dismissed for the whole session across every navigation. The retired entrance fired on first hit only via `sessionStorage('hkj.entered')` but conceptually was a per-app entrance with theatrics.
+4. **No wordmark, no register theatrics.** The preloader contains a dataset, not a logo. There is no "HKJ" or "Hyeonjoon Jun" reveal. The exit is a content fade, not a register handoff.
+
+This is a guarded entrance state (data + dismissal), not a cinematic entrance (theatre + timer).
+
 ### Purpose
 
-A single, captioned, dismissable ASCII state that establishes the site's register before the catalog is visible. Runs once per browser session.
+A single, captioned, dismissable ASCII state that establishes the site's register before the catalog is visible. Runs once per browser session (or per first-ever-visit — see Persistence below).
 
 ### Source content
 
@@ -57,17 +68,17 @@ A single, captioned, dismissable ASCII state that establishes the site's registe
    - **Frame sequence as JSON** — array of strings, JS rendering loop in canvas
    - **Single static frame + CSS transform animation** — cheapest; loses the temporal dimension
    
-   Recommendation: **pre-rendered `.webm`** for web playback. Asset size budget: ≤500KB for a 10s loop at 720p ASCII-density. Falls back to a static first-frame if `.webm` not supported.
+   Recommendation: **pre-rendered `.webm`** for web playback. Asset size budget: **≤1.5MB** for a 10s loop at 720p ASCII-density. (Initial 500KB target was optimistic; realistic compressed `.webm` of dense ASCII frames is 1–2MB.) Falls back to a static first-frame if `.webm` not supported, or under `prefers-reduced-data: reduce`.
 
-**Source caption:** rendered in microtype at the bottom-left corner of the preloader viewport. Format: `<DATASET-NAME> · <PARAMETERS> · <DATE>`. Example: `PHYLLOTAXIS · 137.508° · N=1597 · 2026-05-02`. The caption is the legitimization — the loop is data, not decoration, because the source is named.
+**Source caption:** rendered in microtype at the bottom-left corner of the preloader viewport. Format: `<DATASET-NAME> · <PARAMETERS>`. Example: `PHYLLOTAXIS · 137.508° · N=1597`. The caption is the legitimization — the loop is data, not decoration, because the source is named. (No date in the caption — the dataset is timeless; date adds noise without adding meaning.)
 
 ### Display
 
 - **Viewport:** full `100svh`, no scroll on the preloader page
-- **Background:** `--stage` (warm near-black, `#0E0D09`)
-- **ASCII:** `--glow` (warm off-white, `#F8F5EC`), centered horizontally, vertically centered or weighted slightly toward upper-third (avoid bottom-clipping on portrait viewports)
-- **Source caption:** bottom-left margin, PP Neue Montreal 11px, 0.12em tracking, uppercase, `--glow-3` (damped)
-- **Dismiss hint:** bottom-right margin, PP Neue Montreal 11px, 0.02em, lowercase, `--glow-3`. Text: `click to enter →` (the `→` arrow shares the existing `.arrow-glyph` slide micro-interaction on hover — but the dismiss hint itself is not the click target; clicking ANYWHERE dismisses)
+- **Color scoping:** the preloader renders dark **regardless of the resolved theme**. It does NOT use `--paper` / `--ink` (those would flip to light values for visitors whose stored theme is `light`). Instead, the preloader scopes its own colors via inline literals on a `.preloader` root: `background: #0E0D09` (warm near-black), `color: #F8F5EC` (warm off-white). When the preloader dismisses, `<main>` becomes visible and inherits the resolved `--paper` / `--ink` values normally. The preloader is always dark; the rest of the site is theme-aware.
+- **ASCII:** `#F8F5EC` warm off-white, centered horizontally, vertically centered or weighted slightly toward upper-third (avoid bottom-clipping on portrait viewports)
+- **Source caption:** bottom-left margin, PP Neue Montreal 11px, `var(--microtype-tracking)` tracking (effective `0.11em` since preloader is forced-dark), uppercase, color `rgba(248, 245, 236, 0.55)` (damped warm off-white inline literal — the preloader is theme-independent)
+- **Dismiss hint:** bottom-right margin, PP Neue Montreal 11px, 0.02em, lowercase, color `rgba(248, 245, 236, 0.55)`. Text: `click to enter →` (the `→` arrow shares the existing `.arrow-glyph` slide micro-interaction on hover — but the dismiss hint itself is not the click target; clicking ANYWHERE dismisses)
 
 ### Dismissal
 
@@ -85,16 +96,22 @@ A single, captioned, dismissable ASCII state that establishes the site's registe
 
 ### Persistence
 
-- `sessionStorage.setItem('hkj.preloader.dismissed', '1')` on dismissal
-- On any subsequent page load in the same browser session: do not render the preloader. Hero renders directly.
-- New session (browser tab closed and reopened, or tab loses sessionStorage): preloader returns
+**Default: `localStorage` (preloader fires once, ever).** A returning visitor who has dismissed the preloader does NOT see it again on subsequent sessions. Reasons:
+
+- Repeat visitors (recruiters re-checking a portfolio, friends sharing the URL) are higher-value than first-time visitors. Forcing them through the preloader on every fresh tab opens the same friction the prior cinematic-entrance retirement was rejecting.
+- The preloader's value is "establish the register on first contact"; that's a one-time intent.
+- A "reset" mechanism (clear localStorage, hard refresh) is available for the user themselves to re-experience the preloader during design iteration.
+
+Mechanism: `localStorage.setItem('hkj.preloader.dismissed', '1')` on dismissal. Init script reads localStorage and skips render if set.
+
+**Alternative: `sessionStorage`** — preloader fires once per browser session (every fresh tab). Available as a one-line config switch in the implementation if the user wants the more frequent ritual. NOT the default.
 
 ### Component shape
 
 - New component: `src/components/Preloader.tsx`
-- Server component renders the preloader DOM + an inline blocking `<script>` (theme-flash mitigation pattern, like `HomeViewInit`) that reads `sessionStorage` and sets `data-preloader-state="dismissed" | "active"` on `<html>` before paint
+- Server component renders the preloader DOM + an inline blocking `<script>` (theme-flash mitigation pattern, like `HomeViewInit`) that reads `localStorage` and sets `data-preloader-state="dismissed" | "active"` on `<html>` before paint
 - CSS gates visibility: `html[data-preloader-state="active"] .preloader { display: block; }` and `html[data-preloader-state="dismissed"] .preloader { display: none; }`
-- Client-side `Preloader` body listens for click/keypress, runs the exit animation, writes sessionStorage, sets the dismissed state
+- Client-side `PreloaderClient` body listens for click/keypress, runs the exit animation, writes localStorage, sets the dismissed state
 
 ### Mounted only on the home route
 
@@ -114,34 +131,40 @@ The preloader does NOT appear on `/work/[slug]`, `/studio`, `/bookmarks`, `/note
 
 ### Cell distribution
 
-7 pieces + reserved zone = 8 cells. Layout:
+7 pieces + 1 reserved zone + 1 empty cell = 9 cells, fitting a 3×3 grid. Layout:
 
 ```
 ┌────────┬────────┬────────┐
-│ 01     │ 02     │ Resvd  │   row 1
+│ 01     │ 02     │ Resvd  │   row 1 — pieces №01, №02, reserved zone
 │ Untitl │ Gyeol  │ (theme │
 │        │        │  togl) │
 ├────────┼────────┼────────┤
-│ 03     │ 04     │ 05     │   row 2
+│ 03     │ 04     │ 05     │   row 2 — pieces №03, №04, №05
 │ Untitl │ Sift   │ Untitl │
 ├────────┼────────┼────────┤
-│ 06     │ 07     │   ⌗    │   row 3 — empty cell or spacer
+│ 06     │ 07     │   ⌗    │   row 3 — pieces №06, №07, empty cell
 │ Untitl │ Untitl │        │
 └────────┴────────┴────────┘
 ```
 
-The reserved zone is the **top-right cell** (row 1, col 3). Reasons:
+**Layout rule (locked, scales with catalog):**
+
+- **Reserved zone is always row 1, col 3.** It does not move when the catalog grows or shrinks.
+- **Pieces flow in document order (`piece.order`)**, filling cells left-to-right, top-to-bottom, **skipping** the reserved cell at row 1 col 3.
+- **Trailing empty cells** in the final row are left empty (visual breathing room). When pieces fill the grid exactly, no empty trailing cell appears.
+
+Reasons for the row-1-col-3 placement:
 - aino's SETTINGS area is top-right; placing the theme toggle there is register-consistent
-- The gallery has top-right reserved real estate already (the `ViewToggle` lives there in the prior spec) — the reserved zone replaces or absorbs it
+- The gallery has top-right reserved real estate already (the `ViewToggle` lived there in the prior spec) — the reserved zone replaces or absorbs it
 - Visually balances the top row; piece №01 in row 1 col 1, piece №02 in row 1 col 2 (the most-attended cells), reserved zone in row 1 col 3 as a quieter element
 
 The `ViewToggle` (`gallery / list`) **moves into the reserved zone** as one of its primary occupants, alongside the new theme toggle. The reserved zone becomes a small UI cluster: theme toggle (sun/moon glyph) + view toggle (`gallery / list`) + (future) status indicators.
 
-The **bottom-right cell of row 3** (piece №08 slot) is left empty — visual breathing room. If/when an 8th piece ships, it occupies this cell naturally.
+**Future scaling note:** at small catalog counts (current: 7), the reserved zone's prominence is balanced. As the catalog grows past ~16 pieces (6 rows), the reserved zone becomes a tiny percentage of total grid real estate — at that point, future-spec territory: relocate to a sidebar, repeat at row N col 3, or absorb into the nav. Not in scope for this spec.
 
 ### Mobile collapse
 
-- Below 720px: grid collapses to **1 column**. Pieces stack in `order` sequence; reserved zone moves to top-of-page (above piece №01) or absorbs into the nav as a horizontal cluster.
+- Below 720px: grid collapses to **1 column**. Pieces stack in `order` sequence; **reserved zone moves to the top of the gallery, above piece №01**. The reserved zone becomes a small horizontal strip on mobile (theme toggle + view toggle inline-flex) rather than a cell. This is locked — the alternative (absorb into nav) was considered and rejected because the nav is fixed and adding the toggles there crowds the existing nav items.
 
 ### Tile rendering
 
@@ -155,11 +178,23 @@ The `gallery / list` toggle stays. List view of 7 pieces still renders as the ty
 
 ## §3 Theme system
 
+### Why this is not the retired Stage register
+
+The prior Stage spec retired a per-page register switch (Stage on `/`, Paper on `/studio`, cinematic motion grammar between them). This theme system is a different primitive on three counts:
+
+1. **Single global register, applied uniformly.** Theme is `data-theme` on `<html>` — every route inherits the same value. There is no Stage-on-this-page-Paper-on-that-page mechanism. Crossing within a session is opt-in (manual toggle) and re-paints the entire site, not just one page.
+2. **Color only — no motion or composition coupling.** The theme switch re-binds `--paper` / `--ink-*`. Path-blur, long-exposure smear, lateral drift, cinematic 1.1s entrance — all retired primitives — stay retired. The theme system carries zero motion grammar of its own.
+3. **User-controllable, not designer-imposed.** Time-of-day default exists for first visits; once the user toggles, their preference persists. The retired Stage register was a fixed designer choice with no user agency.
+
 ### Tokens
+
+**Light mode tokens are unchanged from current `globals.css`** — preserved verbatim. (Note: these values diverge slightly from the monograph spec doc's prescribed values; the *implemented* values are canonical.)
+
+**Dark mode tokens are net-new** — added as a `html[data-theme="dark"]` block that re-binds the same semantic names. No `--stage*` / `--glow*` namespace tokens; the same `--paper` / `--ink-*` family carries both registers.
 
 ```css
 :root {
-  /* Light mode (existing) */
+  /* Light mode — preserved from current globals.css */
   --paper:   #FBFAF6;
   --paper-2: #F4F3EE;
   --paper-3: #E8E7E1;
@@ -170,10 +205,11 @@ The `gallery / list` toggle stays. List view of 7 pieces still renders as the ty
   --ink-hair: rgba(17, 17, 16, 0.10);
   --ink-ghost: rgba(17, 17, 16, 0.06);
   
-  /* Microtype tracking — theme-responsive (overridden in dark mode) */
+  /* Microtype tracking — theme-responsive (overridden in dark mode). NEW token. */
   --microtype-tracking: 0.12em;
 }
 
+/* Dark mode — NEW. Re-binds semantic tokens; no namespace explosion. */
 html[data-theme="dark"] {
   --paper:   #0E0D09;
   --paper-2: #16150F;
@@ -190,21 +226,27 @@ html[data-theme="dark"] {
 }
 ```
 
+The `0.01em` microtype tracking delta (light → dark) is calibrated against the current Geist Sans rendering. Re-verify after PP Neue Montreal swap (Phase 3); may need a micro-adjustment if PPNM's rendering shifts the legibility threshold.
+
 **Discipline:** all components reference the semantic tokens (`--paper`, `--ink`, etc.), NOT specific hex values. The light/dark switch is purely a re-binding of those names. Existing CSS that already references `--paper` and `--ink-*` works unchanged. Components that currently inline-hardcode warm-paper hex values (none should remain after the prior taste-polish + monograph passes, but verify in implementation) get refactored to tokens.
 
 **No `--stage*` / `--glow*` tokens** — those were the prior Stage spec's separate-namespace tokens. This spec re-uses `--paper` / `--ink` semantically; the *values* swap based on `data-theme`. Simpler model, less name proliferation, only one set of CSS variables to touch in components.
 
 ### Switch mechanism
 
+**Source-of-truth model:** `document.documentElement.dataset.theme` (the DOM attribute) is the **single canonical source of truth at runtime**. `localStorage('hkj.theme')` is **write-only persistence** — read once by the init script before paint, then ignored at runtime. The `useTheme` hook subscribes to the DOM attribute (not localStorage); when the toggle fires, it writes both the DOM attribute (via dataset assignment) and localStorage (for next-visit init), then notifies subscribers.
+
+This pattern mirrors `useHomeView` and is hydration-safe: SSR doesn't know the resolved theme; the inline init script sets the attribute synchronously before paint; React hydrates and reads the attribute via `useSyncExternalStore`.
+
 1. **First visit (no `localStorage('hkj.theme')`):**
-   - An inline blocking `<script>` in `<head>` reads `new Date().getHours()`
+   - Inline blocking `<script>` (in `<head>`) reads `new Date().getHours()`
    - If hour is 7–18 (inclusive 7am, exclusive 7pm), set `data-theme="light"`; else `data-theme="dark"`
    - Applied to `<html>` before paint — no flash
 
-2. **Manual toggle in nav:**
-   - Sun ☀ glyph (visible in light mode) or moon ☾ glyph (visible in dark mode), positioned in the reserved zone of the hero
-   - Click → flips theme on `<html>` → writes `localStorage.setItem('hkj.theme', 'light' | 'dark')`
-   - Toggle uses `useSyncExternalStore` (same shape as `useHomeView` from the monograph spec)
+2. **Manual toggle in reserved zone:**
+   - Sun ☀ glyph (visible in light mode) or moon ☾ glyph (visible in dark mode)
+   - Click → `useTheme.setTheme(next)` → writes `document.documentElement.dataset.theme = next` AND `localStorage.setItem('hkj.theme', next)` AND notifies in-module pubsub subscribers
+   - All `useTheme` consumers re-read the DOM attribute via `useSyncExternalStore`
 
 3. **Returning visit (`localStorage('hkj.theme')` exists):**
    - Inline head-script reads localStorage first; sets `data-theme` accordingly
@@ -243,6 +285,18 @@ New component: `src/components/ThemeInit.tsx` — server component, renders an i
 
 Mounted in `app/layout.tsx` (root layout) so every page gets the theme attribute set before paint.
 
+### Inline blocking script ordering — locked
+
+By Phase 6, the home route renders three inline blocking scripts before paint:
+
+1. **`ThemeInit`** (in `<head>` via root `layout.tsx`) — runs first on every route. Sets `data-theme` on `<html>`. **Always-on**, app-global.
+2. **`HomeViewInit`** (rendered ahead of `<main>` via home `page.tsx`) — runs on the home route only. Sets `data-home-view` on `<html>`.
+3. **`PreloaderInit`** (rendered ahead of `<main>` via home `page.tsx`, after `HomeViewInit`) — runs on the home route only. Reads `localStorage('hkj.preloader.dismissed')`. Sets `data-preloader-state="dismissed"` if previously dismissed; otherwise sets `data-preloader-state="active"`.
+
+The order matters because subsequent scripts may need the attributes from earlier scripts (none currently do, but the discipline is locked: `ThemeInit` first, `HomeViewInit` second, `PreloaderInit` third). All three are tiny, synchronous, and execute in document order.
+
+`PreloaderInit` is structured the same way as `HomeViewInit` — a server component returning a plain `<script dangerouslySetInnerHTML>` tag, mounted in the home `page.tsx`. `next/script` with `strategy="beforeInteractive"` is NOT used (only valid in root layout).
+
 ---
 
 ## §4 Typography
@@ -250,8 +304,25 @@ Mounted in `app/layout.tsx` (root layout) so every page gets the theme attribute
 ### Faces
 
 - **PP Neue Montreal** (Pangram Pangram, free for personal/small-commercial license) — chrome face. Replaces Geist Sans across all UI text.
-- **Newsreader** (Google Fonts, variable optical-size) — body serif. Long-form prose only. Unchanged.
+- **Newsreader** — body serif. Long-form prose only. **Stays exactly as-is** — loaded via the existing `next/font/google` declaration unchanged. Only the chrome face swaps; the prose face is untouched.
 - **Mono** — stays retired. Tabular figures via PP Neue Montreal's OpenType `tnum` feature.
+
+### Geist removal — grep checklist
+
+After Phase 3 ships, verify Geist is fully removed:
+
+```bash
+grep -rnE "geist|Geist|GEIST" src/ app/ public/ globals.css 2>/dev/null
+grep -rnE "--font-geist|font-geist-sans|font-geist-mono" src/ 2>/dev/null
+grep -rn "next/font/google" src/app/layout.tsx
+```
+
+Expected:
+- First grep: no matches (or only matches inside comments referencing the prior face — which should also be removed if found)
+- Second grep: no matches
+- Third grep: should show only the Newsreader import, not Geist
+
+The `--font-stack-sans` CSS variable name **stays the same**; only its first value changes from `var(--font-geist-sans)` to `var(--font-pp-neue-montreal)`. Components reference `--font-stack-sans` and don't need to change. **However**, any direct references to `var(--font-geist-sans)` (if any exist) WILL silently break — the grep checklist catches them.
 
 ### Loading
 
@@ -298,11 +369,12 @@ PP Neue Montreal Medium (500) at 32–48px / -0.02em / line-height 1.05 — used
 
 On hover-enter of a tile title:
 
-1. The title's text is rendered as a sequence of `<span>` elements, one per character (split once on initial render, no per-frame DOM manipulation)
-2. Hover-enter event handler: randomly pick **2 character positions** from the alphanumeric subset of the title (positions whose original character is in `[A-Za-z0-9]`)
-3. Each picked character "scrambles" — cycles through 4 random alphanumeric glyphs at 40ms per swap (4 × 40ms = 160ms total), then resolves to the original character
-4. **One-shot:** the scramble fires once on hover-enter. While the cursor stays inside the tile, no further scramble. Re-enters the tile = re-fires the scramble.
-5. Korean characters, em-dashes, colons, and other non-alphanumeric glyphs in titles (`Gyeol: 결`) are **never** scrambled — they stay still during the effect. Only positions in the alphanumeric set are eligible.
+1. The title's text is rendered as a sequence of `<span>` elements, one per character (split once on initial render, no per-frame DOM manipulation). The wrapper carries `aria-label={text}` (full original string) and the per-character spans are `aria-hidden="true"` — screen readers read the title naturally; the spans are presentational only.
+2. Hover-enter event handler: randomly pick **2 eligible character positions** from the title.
+3. **Eligibility rule (locked):** a position is eligible iff its original character matches the regex `/[A-Za-z0-9]/` — **ASCII Latin alphanumeric only.** All other characters — including extended Latin (`é`, `ü`), CJK (`결`, `結`, `決`), Cyrillic, Greek, Arabic numerals in non-Latin scripts, fullwidth digits, em-dashes, colons, spaces, and any punctuation — are **never** scrambled. They stay still during the effect.
+4. **Edge case — fewer than `count` eligible positions:** if `eligible.length >= count`, scramble `count` random eligible positions. If `0 < eligible.length < count`, scramble all eligible positions. If `eligible.length === 0` (e.g., a title like `결: 結` has zero ASCII alphanumeric characters), the scramble no-ops — hover produces no visible change. Acceptable; titles with zero eligibility are rare and the silent no-op is the correct fallback.
+5. Each picked character "scrambles" — cycles through 4 random alphanumeric glyphs at 40ms per swap (4 × 40ms = 160ms total), then resolves to the original character.
+6. **One-shot:** the scramble fires once on hover-enter. While the cursor stays inside the tile, no further scramble. Re-enters the tile = re-fires the scramble.
 
 ### Restraint dial
 
@@ -393,18 +465,19 @@ Each phase ships independently. No phase regresses earlier phases.
 ### Phase 1 — Theme infrastructure
 
 - Add `html[data-theme="dark"]` token block to `globals.css`
-- Add `--microtype-tracking` variable + apply to `.plate__role`, `.worklist__role`, `.plate__meta`, etc.
-- Build `useTheme` hook (`useSyncExternalStore` pattern)
-- Build `ThemeInit` server component (inline head script)
+- Add `--microtype-tracking` variable + apply to `.plate__role`, `.worklist__role`, `.plate__meta`, footer microtype, nav microtype
+- Build `useTheme` hook (`useSyncExternalStore` pattern, DOM as canonical, localStorage write-only)
+- Build `ThemeInit` server component (inline head script per §3 Switch mechanism)
 - Mount `ThemeInit` in root `layout.tsx`
-- Verification: type check, lint, build clean. Site renders in light mode by default at all hours (manual override only); time-of-day rule confirmed working in browser; `localStorage('hkj.theme')` persists across reloads.
+- Verification: type check, lint, build clean. Site renders in light mode 7am–7pm local; dark otherwise (verify by clearing localStorage and reloading at different system clock times). `localStorage('hkj.theme')` persists across reloads — when set, overrides time-of-day. Manual toggle UI is NOT yet built (Phase 2); test by manually editing `data-theme` in devtools or running `document.documentElement.dataset.theme = 'dark'` in console.
 
-### Phase 2 — Theme toggle UI
+### Phase 2 — Theme toggle UI (skip free-floating intermediate)
 
 - Build `ThemeToggle` component (sun/moon glyph + rotate hover)
-- Build `ReservedZone` component (container for theme toggle + future content)
-- Mount `ReservedZone` in `src/app/page.tsx` (currently as a free-floating fixed top-right; will move into the grid in Phase 4)
-- Verification: toggle flips theme on `<html>`; persists to localStorage; reduced-motion respected.
+- Build `ReservedZone` component as a **grid-cell-shaped container** from the start — same shape it'll occupy in Phase 4. Internally positions itself absolutely or via CSS grid; externally it's a single component the home page mounts.
+- During Phase 2 only (before Phase 4's 3-col grid lands), the `ReservedZone` is mounted at the **end** of the existing 2-col `.home__gallery` grid as the next cell after the last piece — visually appears on the home page in the natural slot, doesn't require the 3-col layout yet.
+- The `ViewToggle` (currently fixed top-right via `position: fixed`) **stays fixed until Phase 4** — Phase 2 does NOT migrate it. Phase 4 collapses both into the grid cell together.
+- Verification: theme toggle renders in `ReservedZone` cell; flips theme on `<html>`; persists to localStorage; reduced-motion respected. `ViewToggle` continues to work in its current fixed-top-right position alongside the new theme toggle's reserved-zone position (briefly two top-right UI elements until Phase 4 unifies them).
 
 ### Phase 3 — PP Neue Montreal typography swap
 
@@ -431,7 +504,7 @@ Each phase ships independently. No phase regresses earlier phases.
 - Acquire ASCII video asset (generate + convert per source pipeline above); place in `public/assets/preloader-ascii.webm` (and a static first-frame PNG fallback at `public/assets/preloader-ascii-frame.png`)
 - Build `Preloader`, `PreloaderClient` components, `usePreloaderState` hook
 - Mount `<Preloader>` in `src/app/page.tsx` (home route only, NOT in `layout.tsx`)
-- Verification: preloader renders on first home-page visit; click anywhere dismisses with ~600ms staggered fade; sessionStorage persists; reload within session does not show preloader; new browser session does.
+- Verification: preloader renders on first home-page visit; click anywhere dismisses with ~600ms staggered fade; localStorage persists; reload after dismissal does not show preloader (within or across sessions). With DevTools `Save-Data: on` header set, verify `.webm` not requested — only the static PNG fallback loads.
 
 Each phase commits independently. Phases 1–4 can ship without Phases 5–6; Phases 5–6 are additive enhancements on top.
 
@@ -447,12 +520,12 @@ Each phase commits independently. Phases 1–4 can ship without Phases 5–6; Ph
 - **V6:** Microtype tracking is `var(--microtype-tracking)` (0.12em light, 0.11em dark) on `.plate__role`, `.worklist__role`, `.plate__meta`, footer microtype, nav microtype.
 - **V7:** `ScrambleText` produces a 2-character scramble on hover-enter of `.plate__title`. Disabled under reduced-motion. Skips non-alphanumeric characters (Korean, em-dash, colon).
 - **V8:** Home `.home__gallery` is `grid-template-columns: 1fr 1fr 1fr`. Reserved zone occupies row 1 col 3. Mobile (≤720px) collapses to 1 col.
-- **V9:** Preloader renders on first home-page visit per session. Dismisses via click anywhere. Exit animation is staggered character fade ~600ms. `sessionStorage('hkj.preloader.dismissed')` prevents re-render in same session. Reduced-motion = instant dismiss.
+- **V9:** Preloader renders on first home-page visit ever (localStorage default). Dismisses via click anywhere. Exit animation is staggered character fade ~600ms. `localStorage('hkj.preloader.dismissed')` prevents re-render across sessions. Reduced-motion = instant dismiss. (Optional: configurable to `sessionStorage` via a one-line constant if the more frequent ritual is wanted.)
 - **V10:** Preloader does NOT appear on `/work/[slug]`, `/studio`, `/bookmarks`, `/notes`.
 - **V11:** All Paper routes still render correctly in both light and dark modes — no hardcoded warm-paper hex values in components.
-- **V12:** `prefers-reduced-data: reduce` skips loading the preloader `.webm` (uses static PNG fallback). Skips non-essential ScrambleText (already disabled by reduced-motion).
+- **V12:** `prefers-reduced-data: reduce` skips loading the preloader `.webm` (uses static PNG fallback). ScrambleText is gated on `prefers-reduced-motion`, NOT on `prefers-reduced-data` — the scramble has no asset cost (CPU only) so reduced-data does not apply to it.
 - **V13:** Core Web Vitals: LCP not regressed by preloader (preloader is dismissed before LCP candidate paints — verify in real-user testing). INP unaffected.
-- **V14:** Source caption renders on the preloader: `PHYLLOTAXIS · 137.508° · N=1597 · 2026-05-02` (or whichever real source dataset is chosen).
+- **V14:** Source caption renders on the preloader: `PHYLLOTAXIS · 137.508° · N=1597` (or whichever real source dataset is chosen). No date in the caption.
 
 ---
 
@@ -478,7 +551,7 @@ The spec locks most decisions. These are the genuine remaining content/scope dec
 
 1. **ASCII source dataset.** Spec lists candidates (phyllotaxis, vortex, Lorenz, sunflower seed packing, galactic rotation, mitosis). Which one — or do you want to evaluate by producing one or two and choosing? If undecided, default = phyllotaxis (most aligned with "foundation of life" + visually beautiful + algorithmically clean).
 
-2. **Preloader sessionStorage vs localStorage.** Spec defaults to `sessionStorage` (preloader returns each new browser session). If you want it to appear *only on the very first ever visit* (and never again), it's a one-line change to `localStorage`. The trade-off is between "mood-establishing every session" vs "respect-the-visitor-after-first-meeting."
+2. **Preloader localStorage vs sessionStorage.** Spec defaults to **`localStorage`** (preloader fires once, ever — returning visitors skip it). If you want the more frequent ritual ("mood-establishing every fresh tab"), it's a one-line config switch to `sessionStorage`. The default favors visitor respect; the alternative favors atmosphere.
 
 3. **Reserved zone content.** Spec puts theme toggle + view toggle there. Future content is open: a live time/coordinate (`19:42 NY`)? A "now" line? The build SHA from the colophon? Status feed? Not blocking for this spec — the zone is built; you fill it later.
 
@@ -492,6 +565,6 @@ The spec locks most decisions. These are the genuine remaining content/scope dec
 - Time-of-day default (7am–7pm light, else dark) on first visits; `localStorage` override otherwise
 - PP Neue Montreal replaces Geist; Newsreader stays; mono retired
 - ScrambleText: 2 characters default, alphanumeric pool, 160ms scramble, one-shot per hover-enter
-- Preloader: full-viewport ASCII, real captioned source, click-anywhere dismiss, 600ms staggered fade exit, sessionStorage-gated, home route only
+- Preloader: full-viewport ASCII, real captioned source, click-anywhere dismiss, 600ms staggered fade exit, **localStorage-gated** (one-time-ever; configurable to sessionStorage), home route only, theme-independent (always dark via inline literals)
 
 ---
