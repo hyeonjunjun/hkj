@@ -5,6 +5,7 @@ import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import NavCoordinates from "@/components/NavCoordinates";
 import PaperGrain from "@/components/PaperGrain";
+import ThemeInit from "@/components/ThemeInit";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${GeistSans.variable} ${newsreader.variable}`}>
+        <ThemeInit />
         <PaperGrain />
         <RouteAnnouncer />
         <NavCoordinates />
