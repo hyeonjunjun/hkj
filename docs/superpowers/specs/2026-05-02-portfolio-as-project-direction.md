@@ -96,9 +96,17 @@ The monograph spec ([2026-05-02-monograph-direction-design.md](./2026-05-02-mono
 - The Stage register
 - Path-blur / long-exposure-smear motion grammar
 
-This direction conditionally reinstates the first two — ASCII and ambient motion — under the strict conditions stated above. The Stage register, cinematic entrance, and path-blur grammar **stay retired**.
+This direction conditionally reinstates the first two — ASCII and ambient motion — under the strict conditions stated above. The path-blur / long-exposure-smear motion grammar **stays retired**.
 
-The monograph composition (single warm paper register, 2-column grid, microtype captions, list/gallery toggle) **stays**. The 2026-05-02-monograph-direction-design.md remains the operative implementation spec for the catalog itself; this direction extends it with two new ingredients (ASCII data fields and ambient settling motion) that were previously off the table.
+**Amendment 2026-05-02 (post-da88371):** the next-spec brainstorm for the home hero surfaced two further narrow exceptions to retired primitives, both of which earn their place against the direction's "real material or honest emptiness" rule:
+
+1. **A one-time-per-session preloader.** A full-viewport ASCII state with a real captioned source dataset (spiral / circular / mathematical / foundation-of-life motion — phyllotaxis, vortex, attractor, etc.). Plays until the user dismisses with a click anywhere on the page. Defined exit animation (~600ms staggered character fade). `sessionStorage`-gated so it does not return for the same browser session. **This is not the cinematic 1.1s wordmark entrance** the prior specs retired — that was theatrical chrome with no source caption and no dismissal mechanism. This is a captioned data state with explicit user dismissal, which the direction's ASCII rule already permits in spirit; the amendment makes the temporal pattern (looping until interaction) explicit.
+
+2. **Dark register on the full site.** Theme system with light/dark, time-of-day default (light 7am–7pm local; dark otherwise), manual toggle in the nav SETTINGS slot, persistent override via `localStorage`. The site is no longer single-warm-paper. **This is not the prior Stage register** — that was a per-page register switch (Stage on `/`, Paper on `/studio`) that crossed within a session and drove a cinematic motion grammar. This is a single global theme that applies uniformly to every page; both ground tones share the same composition, the same microtype, the same component shapes. Crossing within a page is impossible (theme is `<html>`-scoped); crossing within a session is opt-in (manual toggle).
+
+The monograph composition (2-column grid, microtype captions, list/gallery toggle) **stays** — but the home page composition itself is being revisited as a 3-up tile grid for the hero state per the next spec. The catalog mechanic and caption rigor are unchanged; the grid shape is.
+
+The 2026-05-02-monograph-direction-design.md remains the operative implementation reference for caption discipline, view-toggle persistence, and motion grammar. The next spec (`2026-05-02-hero-preloader-theme-typography-design.md`) extends it with the preloader, theme system, 3-up hero composition, typography pass (PP Neue Montreal), and aino-style character-scramble hover effect.
 
 ---
 
@@ -119,9 +127,10 @@ These are next-spec questions, not direction questions.
 
 - The portfolio is the project. The framing is the substance.
 - Five-way synthesis: aino (discipline) + Hara (emptiness) + ASCII (data) + ambient (settling) + media-focused (substance).
-- Single warm paper register stays. Stage / dark / cinematic stays retired.
-- ASCII reinstated **only as captioned real-data typographic fields**.
-- Ambient motion reinstated **only as triggered motion that resolves to stillness ≤ 480ms**.
-- The same four-easing-curve catalog. The same Geist Sans + Newsreader two-face discipline. The same `--paper` and `--ink-*` tokens. No new system-level primitives without a follow-up spec.
+- ASCII reinstated **as captioned real-data typographic fields** AND **as a one-time-per-session preloader with click-dismiss + exit animation** (amendment, post-da88371).
+- Ambient motion reinstated **as triggered motion that resolves to stillness ≤ 480ms**.
+- **Dark register reinstated as a global theme** (amendment) — theme system with light/dark, time-of-day default, manual toggle, `localStorage` persistence. Path-blur / long-exposure / cinematic-1.1s-entrance grammar stays retired.
+- Typography evolves: **PP Neue Montreal** (Pangram Pangram, free for personal) replaces Geist Sans as the chrome face. Newsreader stays for body prose.
+- The same four-easing-curve catalog. No new system-level primitives without a follow-up spec.
 
 ---
