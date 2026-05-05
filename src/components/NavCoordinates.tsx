@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
+import ViewToggle from "@/components/ViewToggle";
 
 type NavItem = { href: string; label: string };
 
@@ -14,6 +16,7 @@ const ITEMS: NavItem[] = [
 
 export default function NavCoordinates() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
 
   const [hidden, setHidden] = useState(false);
   useEffect(() => {
@@ -69,6 +72,11 @@ export default function NavCoordinates() {
         })}
       </ol>
 
+      <div className="nav__utility">
+        {isHome && <ViewToggle />}
+        <ThemeToggle />
+      </div>
+
       <style>{`
         .nav {
           position: fixed;
@@ -76,9 +84,10 @@ export default function NavCoordinates() {
           left: 24px;
           right: 24px;
           z-index: 50;
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          column-gap: clamp(20px, 4vw, 56px);
           pointer-events: none;
           transform: translateY(0);
           transition: transform 200ms var(--ease);
@@ -114,8 +123,9 @@ export default function NavCoordinates() {
           pointer-events: auto;
           list-style: none;
           display: flex;
-          gap: 22px;
+          gap: clamp(18px, 2.5vw, 32px);
           align-items: baseline;
+          justify-content: center;
           font-family: var(--font-stack-sans);
           font-size: 10px;
           letter-spacing: 0.06em;
@@ -139,8 +149,16 @@ export default function NavCoordinates() {
         .nav__link:hover .nav__num,
         .nav__link.is-active .nav__num { color: var(--ink-3); }
 
+        .nav__utility {
+          pointer-events: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: clamp(14px, 2vw, 22px);
+          justify-self: end;
+        }
+
         @media (max-width: 640px) {
-          .nav { top: 14px; left: 16px; right: 16px; }
+          .nav { top: 14px; left: 16px; right: 16px; column-gap: 16px; }
           .nav__mark { font-size: 9px; letter-spacing: 0.06em; }
           .nav__list { gap: 14px; font-size: 9px; letter-spacing: 0.06em; }
         }

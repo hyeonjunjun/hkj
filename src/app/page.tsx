@@ -3,7 +3,6 @@ import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
 import Preloader from "@/components/Preloader";
 import PreloaderInit from "@/components/PreloaderInit";
-import ReservedZone from "@/components/ReservedZone";
 import WorkPlate from "@/components/WorkPlate";
 import WorkList from "@/components/WorkList";
 import { PIECES } from "@/constants/pieces";
@@ -29,18 +28,11 @@ export default function Home() {
       <main id="main" className="home">
         <Folio token="§01" />
 
-        {/* Hero block — aino-coded eyebrow locator distributed across the top,
-            HS68-coded display statement, microtype operator line. */}
+        {/* Hero block — HS68-coded display statement + microtype sub.
+            Locator info (HKJ STUDIO · NEW YORK · numbered sections ·
+            theme/view toggles) all lives in the nav row above; no
+            duplicated eyebrow inside the page content. */}
         <section className="home__intro" aria-label="Studio statement">
-          <div className="home__eyebrow">
-            <span className="home__eyebrow-anchor">HKJ Studio</span>
-            <span className="home__eyebrow-sep" aria-hidden>·</span>
-            <span className="home__eyebrow-loc">New York</span>
-            <span className="home__eyebrow-sep" aria-hidden>·</span>
-            <span className="home__eyebrow-year tabular">2026 —</span>
-            <span className="home__eyebrow-sep home__eyebrow-sep--push" aria-hidden>·</span>
-            <span className="home__eyebrow-section tabular">Index №01</span>
-          </div>
           <p className="home__statement">
             A studio practice in design and engineering.
           </p>
@@ -52,14 +44,8 @@ export default function Home() {
         {/* Section header — aino-coded data-spec rhythm above the catalog. */}
         <header className="home__catalog-head">
           <span className="home__catalog-eyebrow">Index / 2026</span>
-          <span className="home__catalog-count tabular">{`${pieces.length.toString().padStart(2, "0")} plates · gallery`}</span>
+          <span className="home__catalog-count tabular">{`${pieces.length.toString().padStart(2, "0")} plates`}</span>
         </header>
-
-        {/* ReservedZone is a sibling of both gallery and list — visible in both views.
-            Aligned to column 3 of the same 3-col grid template via .home__reserved-wrapper. */}
-        <div className="home__reserved-wrapper">
-          <ReservedZone />
-        </div>
 
         <section className="home__gallery" aria-label="Studio catalog (gallery)">
           {pieces.map((piece) => (
@@ -90,37 +76,15 @@ export default function Home() {
           }
 
           /* Hero block — aligned to gallery max-width.
-             Eyebrow row distributed at top (aino locator pattern);
-             display statement at scale (HS68 shape);
-             microtype operator line below. */
+             Display statement at scale (HS68 shape);
+             microtype operator line below. Locator info (brand,
+             section, links, toggles) lives in the nav row above. */
           .home__intro {
             max-width: 1480px;
             margin-inline: auto;
             width: 100%;
             display: grid;
-            gap: clamp(20px, 2.5vh, 32px);
-          }
-          .home__eyebrow {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            gap: 10px;
-            font-family: var(--font-stack-sans);
-            font-size: 11px;
-            letter-spacing: var(--microtype-tracking);
-            text-transform: uppercase;
-            color: var(--ink-3);
-            padding-block-end: clamp(8px, 1.2vh, 14px);
-            border-bottom: 1px solid var(--ink-hair);
-          }
-          .home__eyebrow-anchor { color: var(--ink); }
-          .home__eyebrow-sep { color: var(--ink-4); }
-          .home__eyebrow-sep--push { margin-inline-start: auto; }
-          .home__eyebrow-loc,
-          .home__eyebrow-year,
-          .home__eyebrow-section { color: var(--ink-3); }
-          @media (max-width: 720px) {
-            .home__eyebrow-sep--push { margin-inline-start: 0; }
+            gap: clamp(16px, 2vh, 24px);
           }
           .home__statement {
             font-family: var(--font-stack-sans);
@@ -175,30 +139,9 @@ export default function Home() {
             row-gap: clamp(32px, 4vh, 56px);
           }
 
-          /* ReservedZone sibling wrapper — same 3-col template aligns the
-             reserved zone to column 3 visually. Sibling (not child) of gallery
-             so it stays visible when list view hides .home__gallery. */
-          .home__reserved-wrapper {
-            max-width: 1480px;
-            margin-inline: auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            column-gap: clamp(20px, 2vw, 36px);
-          }
-          .home__reserved-wrapper > .reserved {
-            grid-column: 3;
-          }
-
           @media (max-width: 720px) {
             .home__gallery {
               grid-template-columns: 1fr;
-            }
-            .home__reserved-wrapper {
-              grid-template-columns: 1fr;
-            }
-            .home__reserved-wrapper > .reserved {
-              grid-column: auto;
             }
           }
 
