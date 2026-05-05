@@ -415,6 +415,20 @@ The localStorage key migrates from `hkj.preloader.dismissed` → `hkj_os.booted`
 
 **Total budget:** 1.4s.
 
+**Boot ↔ URL hydration sequencing.** On boot completion, run URL hydration **before** falling back to Finder auto-open. Logic:
+
+```
+on boot complete:
+  pathname = window.location.pathname
+  if pathname matches a deep-link pattern (/work/[slug], /notes/[slug], etc.):
+    open the corresponding window (ProjectWindow, Notes, etc.)
+    do NOT auto-open Finder
+  else:
+    auto-open Finder centered
+```
+
+This ensures shared deep links (`/work/gyeol`) land cleanly on their target window without flashing through Finder first.
+
 **Persistence:**
 - `localStorage('hkj_os.booted')` set on boot completion
 - Subsequent visits in the same browser skip the boot sequence; desktop appears immediately
@@ -466,6 +480,7 @@ if (onHome && (coarse && narrow)) {
 - **Laptop with touchscreen** (coarse-pointer + wide viewport): stays on `/` (OS). Both signals required for client redirect.
 - **iPad landscape** (>720px + coarse-pointer): stays on `/` (OS). The viewport check protects this.
 - **iPad portrait** (≤720px + coarse-pointer): redirects to `/classic`. Correct.
+- **iPad-portrait flash mitigation:** an iPad UA may not match the middleware's mobile regex (Apple ships "iPad" UA without "Mobile"). In that case Layer 1 passes the request to `/`, the OS HTML begins rendering, and Layer 2's client redirect fires — producing a brief flash. Mitigation: extend the middleware UA regex to include `iPad` explicitly. As a backstop, the OS root container renders at `opacity: 0` for the first 50ms after hydration; if Layer 2 redirects within that window, no flash is perceived.
 - **Crawlers / bots** (UA not matching mobile patterns): served `/` HTML by middleware, but `/` is JS-heavy. SEO-critical content lives at `/classic` URLs (`/classic/work/gyeol`, etc.) which are server-rendered — sitemap points to those.
 
 ### User overrides
@@ -477,10 +492,11 @@ Query string overrides for debugging and user choice:
 
 ### Deep-linked URLs
 
-Routes work on both surfaces:
-- `/work/[slug]` — on `/`, opens as `ProjectWindow` (URL becomes `/?app=project&slug={slug}` after hydration); on `/classic`, renders as full page
-- `/notes/[slug]` — same pattern, opens in `Notes` app on `/`, full page on `/classic`
-- The OS surface hydrates window state from URL query string on first load (deep-link → window opens)
+Routes work on both surfaces. **URLs stay path-style on both — no query-string rewriting:**
+
+- `/work/[slug]` — on `/`, the path stays `/work/[slug]` and the OS hydrates the desktop with the corresponding `ProjectWindow` open; on `/classic/work/[slug]`, it renders as a full page
+- `/notes/[slug]` — on `/`, hydrates `Notes` app with that essay selected; on `/classic/notes/[slug]`, full page
+- The OS surface hydrates window state from `window.location.pathname` on first load (deep-link → window opens). Path-style URLs are clean, shareable, and let `<link rel="canonical" href="/classic{path}">` work without rewriting.
 
 This means **all prior implementation work has a home**. The OS direction doesn't waste any of it.
 
@@ -601,9 +617,9 @@ Windowed UI has accessibility implications the spec must address explicitly.
 
 - **Tab** moves focus between interactive elements within the focused window (standard behavior)
 - **Shift+Tab** reverse-focus (standard)
-- **Esc** closes the focused window (in addition to clicking the `×` button)
+- **Esc** closes the focused window (the only close-binding besides clicking the `×` button)
 - **Cmd+`** (or **Ctrl+`** on non-Mac) cycles focus between open windows in `lastFocusedAt` order
-- **Cmd+W** (or **Ctrl+W**) closes the focused window — same as Esc
+- **Cmd+W is intentionally NOT bound.** The browser owns Cmd+W (close tab) and reliably refuses to let pages capture it. Users have strong muscle memory for the browser meaning. Esc is the close affordance.
 - Arrow keys: nothing global; let individual app components define behavior (e.g., Finder uses arrows to navigate file rows)
 
 ### Screen reader semantics
@@ -636,7 +652,7 @@ Already covered in §Cloudscape and §Boot sequence. Confirm:
 - **V4:** No window resizing. Each app has fixed dimensions.
 - **V5:** No more than 5 simultaneous windows.
 - **V6:** Cloudscape wallpaper loads only on viewports >720px AND with `prefers-reduced-data` not set; otherwise poster fallback.
-- **V7:** Mobile (≤720px or `pointer: coarse`) redirects to `/classic`.
+- **V7:** Mobile redirects to `/classic`. Trigger: known mobile UA via edge middleware (Layer 1) **OR** `pointer: coarse` AND viewport ≤720px via client-side check (Layer 2). Laptop touchscreens (coarse-pointer + wide viewport) stay on `/`.
 - **V8:** `/classic` route preserves the aino+hs68 editorial framework with `WorkPlate`/`WorkList`/`ViewToggle` etc.
 - **V9:** Boot sequence runs only on first session-load; subsequent visits go straight to desktop.
 - **V10:** Window state persists in `localStorage('hkj_os.windows')`. Reload restores positions + open apps.
