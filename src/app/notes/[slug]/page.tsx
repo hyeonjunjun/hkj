@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import Folio from "@/components/Folio";
 import { NOTES } from "@/constants/notes";
 
 export default function NoteDetailPage() {
@@ -19,8 +18,8 @@ export default function NoteDetailPage() {
         </p>
         <p className="note-404__body">
           No entry at that address.{" "}
-          <Link href="/notes" className="note-404__link">
-            Back to the index
+          <Link href="/shelf" className="note-404__link">
+            Back to the shelf
           </Link>
           .
         </p>
@@ -50,8 +49,6 @@ export default function NoteDetailPage() {
 
   return (
     <main id="main" className="note">
-      <Folio token={`N-${note.number}`} month={note.month} />
-
       <div className="note__runhead" aria-hidden>
         <span>N-{note.number}</span>
         <span className="note__runhead-dot">·</span>

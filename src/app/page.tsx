@@ -1,205 +1,82 @@
-import CopyEmailLink from "@/components/CopyEmailLink";
-import HomeViewInit from "@/components/HomeViewInit";
-import PixelMark from "@/components/PixelMark";
-import Preloader from "@/components/Preloader";
-import PreloaderInit from "@/components/PreloaderInit";
+"use client";
+
 import WorkPlate from "@/components/WorkPlate";
-import WorkList from "@/components/WorkList";
 import { PIECES } from "@/constants/pieces";
 
 /**
- * Home — monograph register. Single warm-paper ground. The catalog
- * is one composition with two views: a vertical sequence of
- * full-width plates (gallery, default) or a typeset row index
- * (list). The toggle is the home `!` moment per the monograph spec
- * §11 — discoverable, unannounced. View persistence is governed by
- * data-home-view on <html>, set before paint by HomeViewInit.
+ * Home — hello-stake. One body-sized statement, two featured plates.
+ * The frame surrounds (TL: Ryan Jun, TR: nav, BR: email); the
+ * document inside is short. Everything else lives behind a nav item.
  */
 export default function Home() {
-  // PIECES is authored in display order; render directly.
-  const pieces = PIECES;
+  // Featured = first two real pieces (skip placeholders).
+  const featured = PIECES.filter((p) => !p.placeholder).slice(0, 2);
 
   return (
-    <>
-      {/* Order matters — inline scripts run in document order */}
-      <HomeViewInit />
-      <PreloaderInit />
-      <Preloader />
-      <main id="main" className="home">
-        {/* Hero block — pixel HKJ wordmark at scale + display statement
-            + microtype sub. Wordmark gives the page a brand presence
-            (aino's "Sweet SKTBS®" scale move). Locator info lives in
-            the nav row above; live status microtype in the top-right
-            corner; no duplicated eyebrow inside the page content. */}
-        <section className="home__intro" aria-label="Studio statement">
-          <PixelMark cell={14} className="home__mark" />
-          <p className="home__statement">
-            A studio practice in design and engineering.
-          </p>
-          <p className="home__sub">
-            Plates and writing. Considered code, slow rhythm.
-          </p>
-        </section>
+    <main id="main" className="home">
+      <section className="home__stake" aria-label="Introduction">
+        <p className="home__lede">
+          Ryan Jun is a designer and engineer in New York,
+          building interfaces, brands, and the small things between them.
+        </p>
+        <p className="home__location tabular">2026 — New York</p>
+      </section>
 
-        {/* Section header — aino-coded data-spec rhythm above the catalog. */}
-        <header className="home__catalog-head">
-          <span className="home__catalog-eyebrow">Index / 2026</span>
-          <span className="home__catalog-count tabular">{`${pieces.length.toString().padStart(2, "0")} plates`}</span>
-        </header>
-
-        <section className="home__gallery" aria-label="Studio catalog (gallery)">
-          {pieces.map((piece) => (
+      {featured.length > 0 && (
+        <section className="home__featured" aria-label="Featured work">
+          {featured.map((piece) => (
             <WorkPlate key={piece.slug} piece={piece} />
           ))}
         </section>
+      )}
 
-        <section className="home__list" aria-label="Studio catalog (list)">
-          <WorkList pieces={pieces} />
-        </section>
-
-        <footer className="home__foot">
-          <CopyEmailLink className="home__mail" />
-          <span className="home__loc tabular">40°43′N · 73°59′W · NYC</span>
-          <span className="home__build tabular">
-            Build {process.env.NEXT_PUBLIC_BUILD_SHA?.slice(0, 7) ?? "local"}
-          </span>
-        </footer>
-
-        <style>{`
-          .home {
-            min-height: 100svh;
-            background: var(--paper);
-            color: var(--ink);
-            padding: clamp(96px, 16vh, 160px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
-            display: grid;
-            gap: clamp(40px, 6vh, 72px);
+      <style>{`
+        .home {
+          min-height: 100svh;
+          padding: clamp(140px, 24vh, 220px) clamp(24px, 4vw, 56px) clamp(80px, 12vh, 120px);
+          display: grid;
+          gap: clamp(64px, 12vh, 120px);
+          align-content: start;
+        }
+        .home__stake {
+          max-width: 760px;
+          margin-inline: auto;
+          width: 100%;
+          display: grid;
+          gap: 14px;
+        }
+        .home__lede {
+          font-family: var(--font-stack-sans);
+          font-size: clamp(16px, 1.5vw, 19px);
+          line-height: 1.5;
+          letter-spacing: 0;
+          color: var(--ink);
+          margin: 0;
+          max-width: 38ch;
+        }
+        .home__location {
+          font-family: var(--font-stack-sans);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          margin: 0;
+        }
+        .home__featured {
+          max-width: 1240px;
+          margin-inline: auto;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: clamp(20px, 3vw, 48px);
+        }
+        @media (max-width: 720px) {
+          .home__featured {
+            grid-template-columns: 1fr;
+            row-gap: clamp(32px, 5vh, 56px);
           }
-
-          /* Hero block — aligned to gallery max-width.
-             Pixel HKJ wordmark at scale (aino brand-presence move),
-             display statement (HS68 shape), microtype operator line.
-             Locator info lives in the nav row above. */
-          .home__intro {
-            max-width: 1480px;
-            margin-inline: auto;
-            width: 100%;
-            display: grid;
-            gap: clamp(20px, 2.8vh, 32px);
-          }
-          .home__mark {
-            color: var(--ink);
-            margin-block-end: clamp(8px, 1vh, 14px);
-          }
-          @media (max-width: 720px) {
-            .home__mark {
-              transform: scale(0.6);
-              transform-origin: left top;
-            }
-          }
-          .home__statement {
-            font-family: var(--font-stack-sans);
-            font-size: clamp(28px, 4vw, 48px);
-            font-weight: 400;
-            letter-spacing: -0.018em;
-            line-height: 1.15;
-            color: var(--ink);
-            max-width: 24ch;
-            margin: 0;
-          }
-          .home__sub {
-            font-family: var(--font-stack-sans);
-            font-size: 14px;
-            line-height: 1.5;
-            color: var(--ink-2);
-            max-width: 44ch;
-            margin: 0;
-          }
-
-          /* Catalog header — eyebrow + count, aino-coded.
-             Two columns: section identifier left, count right. */
-          .home__catalog-head {
-            max-width: 1480px;
-            margin-inline: auto;
-            width: 100%;
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            padding-block-start: clamp(16px, 2.5vh, 28px);
-            border-top: 1px solid var(--ink-hair);
-          }
-          .home__catalog-eyebrow,
-          .home__catalog-count {
-            font-family: var(--font-stack-sans);
-            font-size: 11px;
-            letter-spacing: var(--microtype-tracking);
-            text-transform: uppercase;
-            color: var(--ink-3);
-          }
-
-          /* 3-col catalog grid. aino-derived; max-width 1480px. Pieces fill
-             cells in document order. Last row may have trailing empty cells —
-             those are breathing room. Mobile collapses to 1 col. */
-          .home__gallery {
-            max-width: 1480px;
-            margin-inline: auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            column-gap: clamp(20px, 2vw, 36px);
-            row-gap: clamp(32px, 4vh, 56px);
-          }
-
-          @media (max-width: 720px) {
-            .home__gallery {
-              grid-template-columns: 1fr;
-            }
-          }
-
-          .home__list {
-            display: grid;
-            width: 100%;
-          }
-
-          /* Visibility governed by data-home-view on <html>, set by
-             HomeViewInit before paint. */
-          html[data-home-view="gallery"] .home__list { display: none; }
-          html[data-home-view="list"] .home__gallery { display: none; }
-          /* Fallback when the attribute hasn't been set yet (script
-             blocked, JS off): show gallery only. */
-          html:not([data-home-view]) .home__list { display: none; }
-
-          .home__foot {
-            max-width: 1480px;
-            margin-inline: auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            align-items: baseline;
-            padding-top: clamp(16px, 2.5vh, 24px);
-            border-top: 1px solid var(--ink-hair);
-            font-family: var(--font-stack-sans);
-            font-size: 11px;
-            letter-spacing: var(--microtype-tracking);
-            text-transform: uppercase;
-          }
-          .home__mail { color: var(--ink); justify-self: start; }
-          .home__mail[data-copied] { color: var(--ink-3); }
-          .home__loc { color: var(--ink-3); justify-self: center; }
-          .home__build { color: var(--ink-3); justify-self: end; }
-
-          @media (max-width: 720px) {
-            .home__foot {
-              grid-template-columns: 1fr;
-              gap: 8px;
-            }
-            .home__mail,
-            .home__loc,
-            .home__build {
-              justify-self: start;
-            }
-          }
-        `}</style>
-      </main>
-    </>
+        }
+      `}</style>
+    </main>
   );
 }

@@ -3,11 +3,9 @@ import { GeistSans } from "geist/font/sans";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import NavCoordinates from "@/components/NavCoordinates";
+import Frame from "@/components/Frame";
 import PaperGrain from "@/components/PaperGrain";
 import ThemeInit from "@/components/ThemeInit";
-import CursorReadout from "@/components/CursorReadout";
-import StatusReadout from "@/components/StatusReadout";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -18,21 +16,20 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
-  title: { default: "Hyeonjoon Jun", template: "%s / Hyeonjoon Jun" },
-  description:
-    "Hyeonjoon Jun — design engineer, New York. Work from the studio.",
+  title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
+  description: "Ryan Jun — designer and engineer, New York.",
   openGraph: {
-    title: "Hyeonjoon Jun — design engineer, New York",
-    description: "Work from the studio.",
+    title: "Ryan Jun",
+    description: "Designer and engineer, New York.",
     url: "https://hkjstudio.com",
-    siteName: "Hyeonjoon Jun",
+    siteName: "Ryan Jun",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hyeonjoon Jun — design engineer, New York",
-    description: "Work from the studio.",
+    title: "Ryan Jun",
+    description: "Designer and engineer, New York.",
     creator: "@hyeonjunjun",
   },
 };
@@ -46,9 +43,7 @@ export default function RootLayout({
         <ThemeInit />
         <PaperGrain />
         <RouteAnnouncer />
-        <NavCoordinates />
-        <StatusReadout />
-        <CursorReadout />
+        <Frame />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>

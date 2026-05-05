@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import CaseStudy from "@/components/CaseStudy";
-import Folio from "@/components/Folio";
 import { PIECES } from "@/constants/pieces";
 
 export default function WorkDetailPage() {
@@ -46,7 +45,6 @@ export default function WorkDetailPage() {
 
   return (
     <main id="main">
-      <Folio token={`№${String(piece.order).padStart(2, "0")}`} />
       <CaseStudy piece={piece} />
     </main>
   );
