@@ -144,14 +144,21 @@ System default. No custom pixel cursor. The earlier `CursorReadout` component st
 
 ### Cloudscape wallpaper
 
-Fixed-position `<video>` (or `<picture>` with poster fallback) element at z-index 0, behind all OS content.
+Fixed-position `<video>` (with poster fallback `<picture>`) element at z-index 0, behind all OS content.
 
+**Real asset (Phase 6):**
 - Source: long-exposure cloudscape video, ~10s seamless loop, ≤2MB compressed `.webm`
+- Origin: real footage (user-shot or licensed stock)
 - Treatment: full-bleed cover, slight `filter: saturate(0.85) contrast(0.95)` for restraint
-- Overlay: `var(--paper)` at 30–40% opacity layered on top so the cloudscape reads as ambient atmosphere, not foreground
-- Theme-responsive: same video, but the overlay color flips per theme (warm paper overlay in light mode; warm dark overlay in dark mode)
+- Overlay: `var(--paper)` at 30–40% opacity so the cloudscape reads as ambient atmosphere, not foreground
+- Theme-responsive: same video; overlay color flips per theme (warm paper overlay in light; warm dark in dark)
 - `prefers-reduced-motion`: video pauses on first frame
-- `prefers-reduced-data`: video not loaded; static poster only
+- `prefers-reduced-data`: video not loaded; poster only
+
+**Placeholder asset (Phases 1–5, before real footage lands):**
+- A static `public/assets/cloudscape-placeholder.jpg` — low-res cloudscape JPEG, ~50KB. License a quick stock photo or use any cloud reference image. The implementer ships the placeholder JPEG in Phase 1 so the desktop renders as intended even before real footage is available.
+- Renders identically to the final asset's poster fallback — `<img>` with `object-fit: cover` + the same theme-responsive overlay
+- Phase 6 swaps the JPEG for the real `.webm` + poster pair; nothing else in the implementation changes
 
 The cloudscape is the SINGLE most distinctive visual choice. It's what makes HKJ_OS feel like HKJ_OS and not just any custom-OS portfolio.
 
@@ -163,11 +170,11 @@ The cloudscape is the SINGLE most distinctive visual choice. It's what makes HKJ
 
 | Component | Path | Responsibility |
 |---|---|---|
-| `<BootSequence>` | `src/components/os/BootSequence.tsx` | Renders on first session-load. ASCII text loader, then fades to desktop. Uses existing `usePreloaderState` hook (renamed conceptually to "boot state"). |
+| `<BootSequence>` | `src/components/os/BootSequence.tsx` | Renders on first session-load. ASCII text loader, then fades to desktop. **Reuses existing `usePreloaderState` hook unchanged** — file and exported symbol stay; we treat the existing `"active" / "dismissed"` states as `"booting" / "booted"` semantically. The localStorage key changes from `hkj.preloader.dismissed` to `hkj_os.booted` (per the persistence-keys table below). |
 | `<Desktop>` | `src/components/os/Desktop.tsx` | Top-level container. Renders cloudscape wallpaper, menu bar, dock, and active windows. |
 | `<CloudscapeWallpaper>` | `src/components/os/CloudscapeWallpaper.tsx` | Fixed-position video/poster element. Theme-aware overlay. |
 | `<MenuBar>` | `src/components/os/MenuBar.tsx` | Top fixed bar. Brand mark left, live time + theme toggle right. |
-| `<Dock>` | `src/components/os/Dock.tsx` | Left or bottom (desktop choice TBD per Phase 1 prototype). Renders app glyphs as launchers. |
+| `<Dock>` | `src/components/os/Dock.tsx` | **Left side, vertical** (locked). Renders app glyphs as launchers. |
 | `<Window>` | `src/components/os/Window.tsx` | Base window primitive. Title bar + body slot + close button + drag handler. Receives `app` config. |
 | `<Finder>` | `src/components/os/apps/Finder.tsx` | The default-open app. File browser of work pieces. Each piece is a "file" — double-click opens its Project Window. |
 | `<ProjectWindow>` | `src/components/os/apps/ProjectWindow.tsx` | Renders a case study inside a window. Wraps existing `<CaseStudy>` content. |
@@ -249,6 +256,18 @@ Opens when a `.proj` file is double-clicked in Finder. Renders the case study co
 - Photographs slot from Phase 5 case-study spec preserved
 - Editorial sections render inside the window with internal scroll
 
+**Placeholder pieces** (`piece.placeholder === true`, e.g. `untitled-01`, `untitled-03`, `untitled-05–07`): a `ProjectWindow` opens but its body renders a stub:
+
+```
+P{NN} — Untitled
+Coming.
+
+[microtype: this piece is in development; check back later
+ or browse other work in the Finder.]
+```
+
+No CaseStudy content; just the stub. Window dimensions unchanged. Avoids the empty-window failure mode and keeps the file-system metaphor honest (every file opens to *something*).
+
 ### Notes
 
 Window title: `✎ NOTES`.
@@ -296,57 +315,94 @@ Optional. Power-user feature. Ship in Phase 5+ once core is solid.
 
 ## Window manager — state machine
 
-`useWindowManager` hook governs all window state.
+`useWindowManager` hook governs all window state. Built on `useSyncExternalStore` like the project's other hooks (`useTheme`, `useHomeView`, `usePreloaderState`) — DOM-or-store-canonical, localStorage write-only persistence.
 
-**State shape:**
+### State shape
+
 ```ts
 type WindowId = "finder" | "notes" | "bookmarks" | "studio" | "terminal" | `project-${string}`;
 
 type WindowState = {
   id: WindowId;
-  position: { x: number; y: number };
+  position: { x: number; y: number };  // top-left in viewport pixels
   zIndex: number;
   isFocused: boolean;
+  openedAt: number;        // Date.now() when first opened this session
+  lastFocusedAt: number;   // Date.now() when most recently focused
 };
 
 type WindowManagerState = {
   windows: Record<WindowId, WindowState>;
-  zCounter: number;  // monotonic increment for z-stack
+  zCounter: number;  // monotonic, unbounded — see Z-stack note
   focusedId: WindowId | null;
 };
 ```
 
-**Operations:**
-- `openWindow(id, openerPosition?)` — adds a window if not present; brings to front; focuses
+### Operations
+
+- `openWindow(id, openerPosition?)` — adds a window if not present; brings to front; focuses; sets `openedAt = lastFocusedAt = Date.now()`
 - `closeWindow(id)` — removes from open list
-- `focusWindow(id)` — brings to front; updates focus
-- `moveWindow(id, position)` — updates position during drag
+- `focusWindow(id)` — brings to front; updates `lastFocusedAt = Date.now()`; assigns next z-counter
+- `moveWindow(id, position)` — updates position during drag (transform-based render; see Drag mechanic below)
 - `reset()` — closes all windows, returns to bare desktop
 
-**Persistence:**
-- Window state persisted to `localStorage('hkj_os.windows')` on every state change (debounced 200ms)
-- On boot, init script reads localStorage and restores the prior session's open windows + positions
-- "Reset" command (or query string `?reset=1`) clears the persisted state
+### Drag mechanic — locked
 
-**Initial state on first-ever visit:**
-- Boot sequence runs (~1.5s)
-- Boot ends → Finder opens centered automatically
+Pointer-based dragging on title bars. The flow:
+
+1. `pointerdown` on title bar (excluding the close button hit area):
+   - Capture pointer (`element.setPointerCapture(e.pointerId)`)
+   - Record drag offset: `offsetX = e.clientX - position.x`, `offsetY = e.clientY - position.y`
+   - Set window data attribute `data-dragging="true"`
+   - Focus the window (brings to front)
+2. `pointermove` (only when `dragging` is set):
+   - Compute new position: `nextX = e.clientX - offsetX`, `nextY = e.clientY - offsetY`
+   - Constrain to viewport bounds (window must remain ≥40px visible on each axis)
+   - Update via rAF-throttled state update
+3. `pointerup` / `pointercancel`:
+   - Release pointer capture
+   - Clear `data-dragging`
+   - Final state commits to `useWindowManager`; persistence debounce (200ms) flushes
+
+**Render strategy:** windows position via `transform: translate(var(--x), var(--y))`, where `--x` and `--y` are CSS variables set inline from state. Avoids reflow on every drag frame.
+
+**Cursor states:** `cursor: grab` on title bar default; `cursor: grabbing` while dragging; `cursor: pointer` on close button.
+
+### Persistence
+
+- Window state persisted to `localStorage("hkj_os.windows")` on every state change (debounced 200ms)
+- On boot, init script reads localStorage and restores the prior session's open windows + positions
+- Query string `?reset=1` or Terminal `reset` command clears the persisted state and reloads to a bare boot
+
+### Initial state on first-ever visit
+
+- Boot sequence runs (~1.4s)
+- Boot ends → Finder opens centered automatically (locked behavior — was Open Q2)
 - No other windows open
 
-**Z-stack:**
-- Most recently focused window has highest z-index
-- Click any window's title bar = brings to front
-- z-counter monotonically increments to avoid collisions
+### Z-stack
 
-**Stop rule:**
-- Maximum 5 simultaneous windows. Opening a 6th = oldest is closed automatically.
-- Prevents the desktop from becoming a graveyard of forgotten windows.
+- Most recently focused window has highest z-index
+- Click any window's title bar = brings to front, updates `lastFocusedAt`
+- `zCounter` increments by 1 each focus operation; assigned to the focused window's `zIndex`
+- **No normalization needed.** `Number.MAX_SAFE_INTEGER ≈ 9 × 10^15` — even at 100 focus operations per second for 10 years continuous, won't overflow. Counter is intentionally unbounded.
+
+### 5-window cap
+
+Maximum 5 simultaneous windows. Opening a 6th window closes the **least-recently-focused** window automatically (using `lastFocusedAt` field). Rationale: a window the user has been ignoring for the longest is the least valuable to keep alive. This is deterministic — never ambiguous about which window closes.
+
+Prevents the desktop from becoming a graveyard of forgotten windows.
 
 ---
 
 ## Boot sequence
 
-Reuses Phase 6 preloader infrastructure. Renamed conceptually to "boot."
+Reuses the existing `usePreloaderState` hook + `Preloader` / `PreloaderClient` / `PreloaderInit` files **without renaming them**. The `<BootSequence>` component is a new component that consumes the same hook. Conceptual mapping:
+
+- `usePreloaderState().state === "active"` → "booting" (BootSequence visible)
+- `usePreloaderState().state === "dismissed"` → "booted" (Desktop visible)
+
+The localStorage key migrates from `hkj.preloader.dismissed` → `hkj_os.booted`. The hook's STORAGE_KEY constant updates; the rest of the hook is unchanged. Existing `usePreloaderState` tests carry forward; only the storage-key assertion updates.
 
 **Visual:**
 - t=0: black screen (or warm-paper / warm-dark depending on theme)
@@ -372,22 +428,59 @@ Reuses Phase 6 preloader infrastructure. Renamed conceptually to "boot."
 
 ## Mobile fallback — `/classic`
 
-Viewports ≤720px (touch devices) cannot reasonably operate windowed UI. Strategy:
+Viewports ≤720px (touch devices) cannot reasonably operate windowed UI. Two-layer redirect strategy:
 
-1. The aino+hs68 editorial framework lives at the route `/classic`
-2. A middleware redirect: if request is from a touch device OR viewport-width ≤720px, redirect `/` → `/classic`
-3. Deep-linked URLs (`/work/[slug]`, `/notes/[slug]`, etc.) work on both — they render the same content; OS wraps them in a window, classic renders them as full pages
-4. The `/classic` route uses ALL the prior components: `WorkPlate`, `WorkList`, `ViewToggle`, etc. They survive there.
+### Layer 1 — Edge middleware (Next.js `middleware.ts`)
 
-**Detection logic** (init script in root layout):
-```js
-const isTouch = window.matchMedia("(pointer: coarse)").matches;
-const isNarrow = window.innerWidth <= 720;
-if (isTouch || isNarrow) {
-  // already on /classic? do nothing.
-  // on /? redirect to /classic.
+Cheap, no flash. Sniffs `User-Agent` for known mobile patterns (`iPhone`, `Android`, `Mobile`). If matched and request path is `/`, rewrites to `/classic`. This catches the bulk of mobile traffic at the edge before any HTML is generated.
+
+```ts
+// middleware.ts (sketch — implementer to refine the UA list)
+export function middleware(req: NextRequest) {
+  const ua = req.headers.get("user-agent") ?? "";
+  const isMobileUA = /iPhone|Android.*Mobile|Mobile/i.test(ua);
+  const path = req.nextUrl.pathname;
+  if (isMobileUA && path === "/") {
+    return NextResponse.rewrite(new URL("/classic", req.url));
+  }
 }
 ```
+
+### Layer 2 — Client-side detection fallback
+
+For ambiguous cases the UA can't catch (laptops with touchscreens, iPad in desktop mode, Surface devices). An init script in root layout:
+
+```js
+const coarse = window.matchMedia("(pointer: coarse)").matches;
+const narrow = window.innerWidth <= 720;
+const onHome = window.location.pathname === "/";
+if (onHome && (coarse && narrow)) {
+  // Both signals required — coarse-pointer alone (laptop touchscreen)
+  // does NOT redirect; need narrow viewport too.
+  window.location.replace("/classic");
+}
+```
+
+### Edge cases handled
+
+- **Laptop with touchscreen** (coarse-pointer + wide viewport): stays on `/` (OS). Both signals required for client redirect.
+- **iPad landscape** (>720px + coarse-pointer): stays on `/` (OS). The viewport check protects this.
+- **iPad portrait** (≤720px + coarse-pointer): redirects to `/classic`. Correct.
+- **Crawlers / bots** (UA not matching mobile patterns): served `/` HTML by middleware, but `/` is JS-heavy. SEO-critical content lives at `/classic` URLs (`/classic/work/gyeol`, etc.) which are server-rendered — sitemap points to those.
+
+### User overrides
+
+Query string overrides for debugging and user choice:
+- `?force=os` on `/classic` → redirect to `/` with cookie `hkj_force=os` (bypasses both layers)
+- `?force=classic` on `/` → redirect to `/classic` with cookie `hkj_force=classic`
+- Cookies last 30 days; user can clear cookies to reset
+
+### Deep-linked URLs
+
+Routes work on both surfaces:
+- `/work/[slug]` — on `/`, opens as `ProjectWindow` (URL becomes `/?app=project&slug={slug}` after hydration); on `/classic`, renders as full page
+- `/notes/[slug]` — same pattern, opens in `Notes` app on `/`, full page on `/classic`
+- The OS surface hydrates window state from URL query string on first load (deep-link → window opens)
 
 This means **all prior implementation work has a home**. The OS direction doesn't waste any of it.
 
@@ -397,15 +490,38 @@ This means **all prior implementation work has a home**. The OS direction doesn'
 
 Each phase ships independently. Earlier phases must remain working when later phases land.
 
-### Phase 1 — Desktop foundation
+**Implementation note: this spec decomposes into three plans, not one.** A single 12-component / 6-phase implementation plan is too large for the writing-plans skill to produce a usable document. The phases group into three discrete plans:
+
+1. **Plan A — Foundation + classic split** (Phase 1): desktop chrome + middleware + `/classic` route migration. Self-contained, ships a working but minimal site.
+2. **Plan B — Window primitive + apps** (Phases 2 + 3): `<Window>`, `useWindowManager`, all 5 apps. Depends on A's surfaces; delivers all interactive apps.
+3. **Plan C — Boot + polish + cloudscape** (Phases 4 + 5 + 6): boot sequence, animations, Terminal (deferred), real asset acquisition. Depends on B; mostly polish.
+
+Each plan goes through the standard write → review → user-approve → execute cycle independently. Plan B does not start until Plan A is shipped to disk (not necessarily live, but committed). Plan C similarly waits on B.
+
+
+### Phase 1 — Desktop foundation (non-interactive shippable state)
+
+**Deliverable:** the desktop visually renders with all chrome but no apps function. This is an intentionally non-interactive shippable state — it answers "does the visual register land?" before investing in window machinery.
 
 - Create `src/app/page.tsx` rewrite: server-renders `<Desktop>` only (no apps yet)
-- Build `<CloudscapeWallpaper>` (placeholder asset accepted)
+- Build `<CloudscapeWallpaper>` consuming the placeholder JPEG (`public/assets/cloudscape-placeholder.jpg`)
 - Build `<MenuBar>` with brand mark + theme toggle + live time
-- Build `<Dock>` with all 5 app glyphs, no functional click handlers yet
-- Move existing aino+hs68 home to `/classic`
-- Add middleware redirect for touch/mobile
-- Verify: desktop renders with wallpaper + menu bar + dock; clicking dock items does nothing yet (or alert)
+- Build `<Dock>` with all 5 app glyphs (no functional click handlers — clicks are no-op or log to console)
+- Move existing aino+hs68 home to `/classic` (full implementation of the framework doc)
+- Build edge middleware (`middleware.ts`) for mobile UA redirect to `/classic`
+- Build client-side fallback redirect (init script) for ambiguous devices
+- Add `?force=os` / `?force=classic` query-string overrides + cookie machinery
+
+**Verify:**
+- Desktop renders with cloudscape + menu bar + dock visible
+- Theme toggle in menu bar flips theme on `<html>` (existing `useTheme` behavior)
+- Live time in menu bar ticks each second
+- `/classic` renders the aino+hs68 framework correctly
+- Mobile UA → `/classic` redirect works (test with curl + UA spoofing)
+- Mobile viewport (<720px) + coarse-pointer → `/classic` redirect works (test in DevTools device emulation)
+- Laptop with simulated touchscreen (coarse-pointer + wide viewport) stays on `/`
+- Force overrides work both directions
+- Type check, lint, build, all tests pass (count unchanged from prior baseline)
 
 ### Phase 2 — Window primitive + Finder
 
@@ -447,6 +563,71 @@ Each phase ships independently. Earlier phases must remain working when later ph
 
 ---
 
+## Persistence keys
+
+Single namespace table for all localStorage keys.
+
+| Key | Set by | Purpose | Migration note |
+|---|---|---|---|
+| `hkj.theme` | `useTheme` (existing) | Theme preference (`"light" \| "dark"`) | Predates OS rollout — kept un-namespaced for continuity with `/classic` |
+| `hkj_os.booted` | `usePreloaderState` (renamed key) | Boot sequence completed flag | Migrated from `hkj.preloader.dismissed`; old key deleted on first OS load if found |
+| `hkj_os.windows` | `useWindowManager` | Open windows + positions + z-stack | New key |
+| `hkj_force` | Cookie set by `?force=os/classic` overrides | User-pinned route preference, 30-day expiry | New key, cookie not localStorage |
+
+The split between `hkj.*` (theme — predates OS) and `hkj_os.*` (OS-specific) is intentional. Theme preference is shared between `/` and `/classic`; OS-specific state belongs only to `/`.
+
+## Routing table
+
+Deep-link behavior on both surfaces.
+
+| URL | `/` (OS) | `/classic` (editorial) |
+|---|---|---|
+| `/` | Desktop with Finder auto-open (first visit), or restored window state (return visit) | Redirected here from mobile / forced |
+| `/classic` | (n/a) | Editorial home (aino+hs68 framework) |
+| `/work/[slug]` | Hydrates desktop + auto-opens that piece's `ProjectWindow` | Renders the case study as a full page |
+| `/notes/[slug]` | Hydrates desktop + auto-opens `Notes` app with that essay selected | Renders essay as a full page |
+| `/studio` | Hydrates desktop + auto-opens `Studio` app | Renders studio page directly |
+| `/bookmarks` | Hydrates desktop + auto-opens `Bookmarks` app | Renders shelf as a full page |
+
+URL → window-state hydration on `/`: an init script reads `window.location.pathname`. If it matches `/work/[slug]` etc., the window manager's initial state opens the corresponding window pre-positioned at center, in addition to (or instead of) Finder auto-open.
+
+Crawlers and SEO: sitemap.xml lists `/classic/*` URLs as canonical for content. `/` is the visual experience; `/classic` is the indexable surface. `<link rel="canonical" href="/classic/work/gyeol">` on the OS surface points crawlers to the editorial version.
+
+## Accessibility
+
+Windowed UI has accessibility implications the spec must address explicitly.
+
+### Keyboard
+
+- **Tab** moves focus between interactive elements within the focused window (standard behavior)
+- **Shift+Tab** reverse-focus (standard)
+- **Esc** closes the focused window (in addition to clicking the `×` button)
+- **Cmd+`** (or **Ctrl+`** on non-Mac) cycles focus between open windows in `lastFocusedAt` order
+- **Cmd+W** (or **Ctrl+W**) closes the focused window — same as Esc
+- Arrow keys: nothing global; let individual app components define behavior (e.g., Finder uses arrows to navigate file rows)
+
+### Screen reader semantics
+
+- Each window: `role="dialog"` with `aria-labelledby` pointing to the title-bar text element
+- Title bar text is the accessible name; the close button has `aria-label="Close {appName}"`
+- Dock is a `<nav aria-label="Apps">`; each item is a `<button>` (not a link) since opening an app is a state change, not navigation
+- Menu bar is a `<header>` with brand link + utility `<nav aria-label="System">`
+- Cloudscape wallpaper is `<div aria-hidden="true">` — purely decorative
+- Active window has `aria-modal="false"` (not modal — the user can interact with other open windows)
+
+### Focus management
+
+- Opening a new window moves keyboard focus into that window (the body, or first focusable element)
+- Closing a window returns focus to the dock item that opened it (or the previously-focused window if open)
+- Dragging does NOT change focus (only `pointerdown` on the title bar focuses)
+- `focus-visible` outlines on all interactive elements at `1px var(--ink)` with `outline-offset: 2px`
+
+### Reduced motion / data
+
+Already covered in §Cloudscape and §Boot sequence. Confirm:
+- `prefers-reduced-motion: reduce` → instant boot, no window-open/close animations, video paused on first frame
+- `prefers-reduced-data: reduce` → no `.webm` request, poster image only
+
 ## Verification criteria
 
 - **V1:** No new design tokens. `--paper`, `--ink-*`, `--microtype-tracking` carry forward.
@@ -462,7 +643,13 @@ Each phase ships independently. Earlier phases must remain working when later ph
 - **V11:** Reduced motion: instant boot, no window-open animations, video wallpaper paused on first frame.
 - **V12:** Reduced data: wallpaper static poster only, no `.webm` request.
 - **V13:** Theme toggle in MenuBar flips theme; persisted in `localStorage('hkj.theme')` (existing behavior).
-- **V14:** All 19 existing unit tests pass; new `useWindowManager` tests added (target 5+).
+- **V14:** Existing unit tests pass with adjustments. The 19 tests baseline shifts as components migrate:
+  - `useTheme` (5 tests) — carry forward unchanged
+  - `useHomeView` (5 tests) — moves to `/classic` route; tests still pass against the components there
+  - `usePreloaderState` (3 tests) — carry forward; one test updated for new storage key (`hkj_os.booted`)
+  - `ScrambleText` (6 tests) — carry forward unchanged
+  - **New tests target ≥5** for `useWindowManager` (open/close, focus, drag-position update, 5-window cap eviction, persistence round-trip)
+  - **Total target after Phase 2:** ≥24 tests passing
 
 ---
 
@@ -484,23 +671,24 @@ Each phase ships independently. Earlier phases must remain working when later ph
 
 ---
 
-## Open questions for user
+## Open question for user
 
-These are content/scope decisions only the user can make.
+One genuinely open decision remains.
 
-1. **Dock position — left side or bottom?** Both are valid. Bottom = Mac-coded, left = Windows/Linux-coded. Since we're avoiding direct OS mimicry, the choice becomes purely aesthetic. Recommendation: **left**, vertical, because it mirrors aino's left-aligned brand mark and gives the desktop more horizontal real estate for windows.
+**Cloudscape video source — three options:**
 
-2. **First-open default — Finder or empty desktop?** When boot completes, does Finder auto-open (showing work immediately) or does the user see an empty desktop with the dock visible (must click to enter)? Recommendation: **Finder auto-opens** — visitors should see work, not be made to click first.
+- **(A)** User shoots / supplies real long-exposure footage (best fit, takes time)
+- **(B)** License from a stock library (~$200, ships sooner)
+- **(C)** AI-generate via Runway/Sora (free or low-cost, but generative cloud loops can look uncanny)
 
-3. **Cloudscape video source.** Three options:
-   - **(A)** User shoots / supplies real long-exposure footage (best fit, takes time)
-   - **(B)** License from a stock library (~$200, ships sooner)
-   - **(C)** AI-generate via Runway/Sora (free or low-cost, but generative cloud loops can look uncanny)
-   Recommendation: **A** if the user has time; **B** otherwise. Avoid C for the home wallpaper — too important to feel synthetic.
+Recommendation: **A** if the user has time; **B** otherwise. Avoid C for the home wallpaper — too important to feel synthetic. This is the only decision the implementation cannot proceed without — the placeholder JPEG ships in Phase 1 and the real asset swaps in Phase 6.
 
-4. **Terminal app — Phase 5 or skip entirely?** Adds power-user appeal but real maintenance cost (commands need to actually work). If skipped, the Terminal glyph is removed from the dock. Recommendation: **skip in v1**; add later if desired.
+### Resolved (lifted from prior open questions)
 
-5. **Project Window for placeholders.** Untitled placeholders (`untitled-01` etc.) — when double-clicked in Finder, do they open a "Coming soon" stub window or do nothing? Recommendation: **stub window** with a coming-soon message and the placeholder microtype.
+- **Dock position:** locked to **left, vertical**. Mirrors aino's left-aligned brand mark, gives the desktop more horizontal real estate for windows.
+- **First-open default:** locked to **Finder auto-opens** after boot. Visitors see work immediately; no make-them-click-first friction.
+- **Terminal app:** locked to **skip in v1**. Removed from initial Dock. Can be added in a later phase if desired without disrupting the rest.
+- **Placeholder behavior:** locked to **stub `ProjectWindow`** with "Coming." message — see §Apps / ProjectWindow.
 
 ---
 
