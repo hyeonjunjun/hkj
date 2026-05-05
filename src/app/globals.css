@@ -36,13 +36,27 @@
   --measure-narrow:  48ch;
   --measure-body:    62ch;
 
-  /* Type system. Geist Sans is the chrome face — proportional humanist
-     sans, calibrated for both microtype (9px) and reading (15px). The
-     mono register retired entirely; tabular figures come from Geist's
-     OpenType tnum feature where alignment is needed. Newsreader is the
-     body serif — variable weight + optical-size, screen-optimized. */
+  /* Type system — Aino-discipline applied to Geist's matched pair.
+       Geist Sans  → reading: body prose, page titles, descriptions.
+       Geist Mono  → chrome: frame, eyebrows, plate marks, registry
+                    data — anything that functions as data lookup,
+                    not reading.
+       Newsreader  → long-form essay body only (case-study editorial,
+                    notes detail prose).
+     The role of any text is legible from which face it's set in. */
   --font-stack-sans:  var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --font-stack-mono:  var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
   --font-stack-serif: var(--font-serif), "Iowan Old Style", Georgia, "Times New Roman", serif;
+
+  /* Tracking calibration — by tier, not by face.
+     Display sizes get negative tracking (optical tightening at scale);
+     body neutral; microtype gets a small positive bump on proportional
+     ALL CAPS, ~zero on mono (mono is naturally tracked). */
+  --track-display:  -0.022em;   /* 28px+ */
+  --track-heading:  -0.012em;   /* 18–28px */
+  --track-body:      0;         /* 13–17px */
+  --track-caps-sans: 0.08em;    /* proportional ALL CAPS small */
+  --track-caps-mono: 0.02em;    /* mono ALL CAPS small */
 
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
@@ -85,8 +99,13 @@ body {
   font-family: var(--font-stack-sans);
   font-size: var(--t-body);
   line-height: 1.5;
+  letter-spacing: var(--track-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Kerning + contextual alternates on by default. Geist's kern table
+     does the work; explicit declaration documents the intent. */
+  font-kerning: normal;
+  font-feature-settings: "kern" 1, "calt" 1;
 }
 
 /* Italics globally suppressed. Use weight / tracking / caps as emphasis. */
@@ -138,28 +157,29 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── House voice primitives ─────────────────────────────────────────────── */
 
-/* Eyebrow — the section header grammar used on every page.
-   Tracking calibrated for proportional sans uppercased: 0.08em is the
-   sweet spot. (Was 0.16em for mono — proportional needs about half.) */
+/* Eyebrow — page header microtype. Mono register: data lookup
+   (section · year · counter), not reading. The Aino move. */
 .eyebrow {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  font-family: var(--font-stack-sans);
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-stack-mono);
+  font-size: 11px;
+  letter-spacing: var(--track-caps-mono);
   text-transform: uppercase;
   color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
 }
 .eyebrow__sep { color: var(--ink-4); }
 
-/* Plate corner microtype */
+/* Plate corner microtype — same register as eyebrow, smaller. */
 .plate-mark {
-  font-family: var(--font-stack-sans);
-  font-size: 9px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-stack-mono);
+  font-size: 10px;
+  letter-spacing: var(--track-caps-mono);
   text-transform: uppercase;
   color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Sans prose — narrow measure, generous line-height for readability */
@@ -173,11 +193,11 @@ a { color: inherit; text-decoration: none; }
 }
 .prose p + p { margin-top: 1em; }
 
-/* Metadata labels */
+/* Metadata labels — mono register, registry data. */
 .meta {
-  font-family: var(--font-stack-sans);
+  font-family: var(--font-stack-mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-caps-mono);
   text-transform: uppercase;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;

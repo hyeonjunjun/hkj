@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { type Piece } from "@/constants/pieces";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import ScrambleText from "@/components/ScrambleText";
 
 type Props = {
   piece: Piece;
@@ -14,19 +13,24 @@ type Props = {
 };
 
 /**
- * WorkPlate — single full-width image + caption block. Used on the
- * home page (gallery view) and inside case studies for embedded
- * photographs. Caption block carries the four mandatory metadata
- * fields per the monograph spec §6: number · title · year+role ·
- * description, plus optional `meta` line for EXIF / coordinate /
- * source. Hover (desktop only) swaps to coverAlt if present, falls
- * back to a 1.012 scale otherwise. Preserves per-slug
- * viewTransitionName wiring on cover and title.
+ * WorkPlate — Aino-format tile. Full-bleed media frame with a single
+ * label overlaid at bottom-left in mono uppercase: `R{NNN} {NAME}`.
  *
- * Placeholder mode: when `piece.placeholder === true`, the plate is
- * rendered as a static reserved cell (no link, no cover, no view
- * transition) so the home grid keeps its rhythm before real content
- * lands.
+ * The overlay IS the caption — no separate caption block below.
+ * Supporting metadata (role, year, description, EXIF) lives on the
+ * detail page, not the tile. Aino's home format applied:
+ *
+ *   ┌──────────────────────────────────┐
+ *   │                                  │
+ *   │      [full-bleed media]          │
+ *   │                                  │
+ *   │                                  │
+ *   │  R002 GYEOL: 결                  │
+ *   └──────────────────────────────────┘
+ *
+ * Hover: image swap to coverAlt if provided, else 1.012 scale.
+ * Placeholder mode: paper-2 fill, ink-3 label, no link, no scrim.
+ * View transitions preserved per-slug on cover and label.
  */
 export default function WorkPlate({ piece, href }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -53,205 +57,27 @@ export default function WorkPlate({ piece, href }: Props) {
   const coverVtName = `work-cover-${piece.slug}`;
   const titleVtName = `work-title-${piece.slug}`;
 
+  // Aino-format label: single brand-letter + 3-digit padded number,
+  // space, then UPPERCASE title. e.g. "R002 GYEOL: 결".
+  const code = `R${piece.number.padStart(3, "0")}`;
+  const labelText = `${code} ${piece.title.toUpperCase()}`;
+
   // Hover-swap source: prefer coverAlt when present + hovered + not reduced.
   const showAlt = hovered && !reduced && !!piece.coverAlt;
   const activeCover = showAlt ? piece.coverAlt! : piece.cover;
 
-  const styles = (
-    <style>{`
-      .plate {
-        display: grid;
-        gap: clamp(16px, 2.5vh, 24px);
-        color: var(--ink);
-        padding-block-end: 0;
-      }
-      .plate__frame {
-        position: relative;
-        width: 100%;
-        margin-inline: 0;
-        background: var(--paper-2);
-        overflow: hidden;
-        isolation: isolate;
-        outline: 1px solid transparent;
-        outline-offset: -1px;
-        transition: outline-color 240ms var(--ease);
-      }
-      .plate:hover .plate__frame {
-        outline-color: var(--ink-hair);
-      }
-      .plate--placeholder .plate__frame {
-        outline: 1px solid var(--ink-hair);
-        outline-offset: -1px;
-      }
-      .plate--placeholder {
-        cursor: default;
-      }
-      /* Crosshair markers — aino-coded ▪ at all four frame corners,
-         sitting on top of the media at the inside corners. Subtle
-         registration-mark feel without breaking the frame's overflow
-         clipping. Damped color on light ground; flips on dark via
-         var(--ink-4) which already adapts. */
-      .plate__crosshairs {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 2;
-      }
-      .plate__crosshairs::before,
-      .plate__crosshairs::after,
-      .plate__crosshairs > span::before,
-      .plate__crosshairs > span::after {
-        content: "";
-        position: absolute;
-        width: 5px;
-        height: 5px;
-        background: var(--ink-4);
-      }
-      .plate__crosshairs::before { top: 6px; left: 6px; }
-      .plate__crosshairs::after  { top: 6px; right: 6px; }
-      .plate__crosshairs > span {
-        position: absolute;
-        inset: 0;
-        display: block;
-      }
-      .plate__crosshairs > span::before { bottom: 6px; left: 6px; }
-      .plate__crosshairs > span::after  { bottom: 6px; right: 6px; }
-      /* On placeholders the crosshair markers stand out more clearly
-         against the empty paper-2 fill. */
-      .plate--placeholder .plate__crosshairs::before,
-      .plate--placeholder .plate__crosshairs::after,
-      .plate--placeholder .plate__crosshairs > span::before,
-      .plate--placeholder .plate__crosshairs > span::after {
-        background: var(--ink-3);
-      }
-      /* Project code overlay — aino's bottom-corner microtype on the
-         media itself. Subtle; appears on hover only for link plates. */
-      .plate__code {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        font-family: var(--font-stack-sans);
-        font-size: 10px;
-        letter-spacing: var(--microtype-tracking);
-        text-transform: uppercase;
-        color: rgba(248, 245, 236, 0.85);
-        background: rgba(14, 13, 9, 0.45);
-        padding: 4px 6px;
-        backdrop-filter: blur(4px);
-        opacity: 0;
-        transition: opacity 240ms var(--ease);
-        pointer-events: none;
-      }
-      .plate:hover .plate__code {
-        opacity: 1;
-      }
-      .plate__cap-tail {
-        display: inline-block;
-        margin-inline-start: 6px;
-        opacity: 0;
-        transform: translateX(-2px);
-        transition: opacity 200ms var(--ease), transform 200ms var(--ease);
-        color: var(--ink-3);
-      }
-      .plate:hover .plate__cap-tail {
-        opacity: 1;
-        transform: translateX(0);
-      }
-      .plate__media {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        transition: opacity 320ms var(--ease), transform 280ms var(--ease);
-      }
-      .plate[data-has-alt="false"]:hover .plate__media {
-        transform: scale(1.012);
-      }
-      .plate__placeholder {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-      .plate__cap {
-        display: grid;
-        gap: 12px;
-        max-width: 60ch;
-      }
-      .plate--placeholder .plate__cap {
-        color: var(--ink-3);
-      }
-      .plate__index {
-        font-family: var(--font-stack-sans);
-        font-size: 11px;
-        letter-spacing: 0.02em;
-        color: var(--ink-3);
-      }
-      .plate__title-row {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 0;
-      }
-      .plate__title {
-        font-family: var(--font-stack-sans);
-        font-size: 19px;
-        font-weight: 400;
-        letter-spacing: -0.012em;
-        line-height: 1.2;
-        color: var(--ink);
-        margin-block-start: 0;
-      }
-      .plate--placeholder .plate__title {
-        color: var(--ink-3);
-      }
-      .plate__role {
-        font-family: var(--font-stack-sans);
-        font-size: 11px;
-        letter-spacing: var(--microtype-tracking);
-        text-transform: uppercase;
-        color: var(--ink-3);
-      }
-      .plate__desc {
-        font-family: var(--font-stack-sans);
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--ink-2);
-        max-width: 44ch;
-        margin-block-start: 2px;
-      }
-      .plate--placeholder .plate__desc {
-        color: var(--ink-3);
-      }
-      .plate__meta {
-        font-family: var(--font-stack-sans);
-        font-size: 11px;
-        letter-spacing: var(--microtype-tracking);
-        text-transform: uppercase;
-        color: var(--ink-4);
-      }
-
-      @media (max-width: 720px) {
-        .plate__frame {
-          width: var(--cover-width, 100%);
-          margin-inline: auto;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .plate__media { transition: none; }
-        .plate[data-has-alt="false"]:hover .plate__media { transform: none; }
-      }
-
-      @media (hover: none), (pointer: coarse) {
-        .plate[data-has-alt="false"]:hover .plate__media { transform: none; }
-      }
-    `}</style>
+  const label = (
+    <span
+      className="plate__label"
+      style={{ viewTransitionName: titleVtName } as React.CSSProperties}
+    >
+      {labelText}
+    </span>
   );
 
   if (piece.placeholder) {
     return (
-      <article className="plate plate--placeholder">
+      <article className="plate plate--placeholder" aria-label={labelText}>
         <div
           className="plate__frame"
           style={{
@@ -262,20 +88,9 @@ export default function WorkPlate({ piece, href }: Props) {
           <span className="plate__crosshairs" aria-hidden>
             <span />
           </span>
+          {label}
         </div>
-
-        <div className="plate__cap">
-          <span className="plate__index">
-            <span className="tabular">P{piece.number}</span>
-            {" — "}
-            <span className="tabular">{piece.year}</span>
-          </span>
-          <span className="plate__title">{piece.title}</span>
-          <span className="plate__role">{piece.sector}</span>
-          <span className="plate__desc">{piece.description}</span>
-        </div>
-
-        {styles}
+        <PlateStyle />
       </article>
     );
   }
@@ -287,6 +102,7 @@ export default function WorkPlate({ piece, href }: Props) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       data-has-alt={piece.coverAlt ? "true" : "false"}
+      aria-label={labelText}
     >
       <div
         className="plate__frame"
@@ -322,31 +138,150 @@ export default function WorkPlate({ piece, href }: Props) {
             <span className="plate-mark">In development · {piece.year}</span>
           </div>
         )}
-        <span className="plate__crosshairs" aria-hidden />
-        <span className="plate__code tabular" aria-hidden>{`P${piece.number} / ${piece.year}`}</span>
-      </div>
-
-      <div className="plate__cap">
-        <span className="plate__index">
-          <span className="tabular">P{piece.number}</span>
-          {" — "}
-          <span className="tabular">{piece.year}</span>
+        <span className="plate__crosshairs" aria-hidden>
+          <span />
         </span>
-        <span className="plate__title-row">
-          <ScrambleText
-            text={piece.title}
-            count={2}
-            className="plate__title"
-            style={{ viewTransitionName: titleVtName } as React.CSSProperties}
-          />
-          <span className="plate__cap-tail" aria-hidden>→</span>
-        </span>
-        <span className="plate__role">{piece.sector}</span>
-        <span className="plate__desc">{piece.description}</span>
-        {piece.meta && <span className="plate__meta">{piece.meta}</span>}
+        {label}
       </div>
-
-      {styles}
+      <PlateStyle />
     </Link>
+  );
+}
+
+function PlateStyle() {
+  return (
+    <style>{`
+      .plate {
+        display: block;
+        color: var(--ink);
+      }
+      .plate--placeholder { cursor: default; }
+
+      .plate__frame {
+        position: relative;
+        width: 100%;
+        background: var(--paper-2);
+        overflow: hidden;
+        isolation: isolate;
+        outline: 1px solid transparent;
+        outline-offset: -1px;
+        transition: outline-color 240ms var(--ease);
+      }
+      .plate:hover .plate__frame { outline-color: var(--ink-hair); }
+      .plate--placeholder .plate__frame { outline-color: var(--ink-hair); }
+
+      /* Bottom scrim — light gradient so the white label reads against
+         any media. Suppressed on placeholders (no media to wash). */
+      .plate__frame::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 32%;
+        background: linear-gradient(
+          to top,
+          rgba(14, 13, 9, 0.45) 0%,
+          rgba(14, 13, 9, 0) 100%
+        );
+        pointer-events: none;
+        z-index: 1;
+      }
+      .plate--placeholder .plate__frame::after { display: none; }
+
+      /* Crosshair registration marks at all four inner corners. */
+      .plate__crosshairs {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .plate__crosshairs::before,
+      .plate__crosshairs::after,
+      .plate__crosshairs > span::before,
+      .plate__crosshairs > span::after {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background: var(--ink-4);
+      }
+      .plate__crosshairs::before { top: 6px; left: 6px; }
+      .plate__crosshairs::after  { top: 6px; right: 6px; }
+      .plate__crosshairs > span {
+        position: absolute;
+        inset: 0;
+        display: block;
+      }
+      .plate__crosshairs > span::before { bottom: 6px; left: 6px; }
+      .plate__crosshairs > span::after  { bottom: 6px; right: 6px; }
+      .plate--placeholder .plate__crosshairs::before,
+      .plate--placeholder .plate__crosshairs::after,
+      .plate--placeholder .plate__crosshairs > span::before,
+      .plate--placeholder .plate__crosshairs > span::after {
+        background: var(--ink-3);
+      }
+
+      /* The label — Aino format: code + UPPERCASE name, mono, always
+         visible. Bottom-left of the frame. White on media (over the
+         scrim), ink-3 on placeholders. */
+      .plate__label {
+        position: absolute;
+        bottom: clamp(10px, 1.5vw, 16px);
+        left: clamp(10px, 1.5vw, 16px);
+        right: clamp(10px, 1.5vw, 16px);
+        font-family: var(--font-stack-mono);
+        font-size: clamp(10px, 0.95vw, 12px);
+        letter-spacing: var(--track-caps-mono);
+        text-transform: uppercase;
+        color: rgba(248, 245, 236, 0.96);
+        font-variant-numeric: tabular-nums;
+        pointer-events: none;
+        z-index: 3;
+        text-shadow: 0 1px 2px rgba(14, 13, 9, 0.35);
+        /* Single line; truncate with ellipsis if title is unusually long */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .plate--placeholder .plate__label {
+        color: var(--ink-3);
+        text-shadow: none;
+      }
+
+      .plate__media {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: opacity 320ms var(--ease), transform 280ms var(--ease);
+      }
+      .plate[data-has-alt="false"]:hover .plate__media {
+        transform: scale(1.012);
+      }
+      .plate__placeholder {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      @media (max-width: 720px) {
+        .plate__frame {
+          width: var(--cover-width, 100%);
+          margin-inline: auto;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .plate__media { transition: none; }
+        .plate[data-has-alt="false"]:hover .plate__media { transform: none; }
+      }
+
+      @media (hover: none), (pointer: coarse) {
+        .plate[data-has-alt="false"]:hover .plate__media { transform: none; }
+      }
+    `}</style>
   );
 }

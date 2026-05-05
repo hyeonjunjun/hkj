@@ -37,10 +37,10 @@ export default function GardenPage() {
         .garden__head { display: grid; gap: 18px; }
         .garden__title {
           font-family: var(--font-stack-sans);
-          font-weight: 400;
+          font-weight: 500;
           font-size: clamp(22px, 2.4vw, 30px);
-          line-height: 1.35;
-          letter-spacing: -0.005em;
+          line-height: 1.25;
+          letter-spacing: var(--track-heading);
           color: var(--ink);
           margin: 6px 0 0;
           max-width: 32ch;

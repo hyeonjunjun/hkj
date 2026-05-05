@@ -73,14 +73,19 @@ export default function Frame() {
       </div>
 
       <style>{`
+        /* Frame chrome runs on Geist Mono — Aino-discipline.
+           The chrome is registry data (identity, nav, action), not
+           reading. Mono carries that role naturally; tracking sits at
+           the mono natural rhythm with a tiny positive bump. */
         .frame__mark,
         .frame__nav,
         .frame__br {
           position: fixed;
           z-index: 50;
-          font-family: var(--font-stack-sans);
-          font-size: 13px;
-          letter-spacing: 0.005em;
+          font-family: var(--font-stack-mono);
+          font-size: 12px;
+          letter-spacing: 0;
+          font-variant-numeric: tabular-nums;
           pointer-events: auto;
         }
 
@@ -122,7 +127,7 @@ export default function Frame() {
 
         @media (max-width: 640px) {
           .frame__mark, .frame__nav, .frame__br {
-            font-size: 12px;
+            font-size: 11px;
           }
           .frame__nav { gap: 14px; }
         }

@@ -110,10 +110,10 @@ export default function ShelfPage() {
         .shelf__head { display: grid; gap: 18px; }
         .shelf__title {
           font-family: var(--font-stack-sans);
-          font-weight: 400;
+          font-weight: 500;
           font-size: clamp(22px, 2.4vw, 30px);
-          line-height: 1.35;
-          letter-spacing: -0.005em;
+          line-height: 1.25;
+          letter-spacing: var(--track-heading);
           color: var(--ink);
           margin: 6px 0 0;
           max-width: 32ch;
@@ -128,18 +128,19 @@ export default function ShelfPage() {
           border-bottom: 1px solid var(--ink);
         }
         .shelf__section-label {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.10em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink);
         }
         .shelf__section-count {
-          font-family: var(--font-stack-sans);
-          font-size: 9px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
 
         .shelf__list { list-style: none; margin: 0; padding: 0; }
@@ -158,17 +159,19 @@ export default function ShelfPage() {
 
         /* Notes section */
         .shelf__row-num {
-          font-family: var(--font-stack-sans);
-          font-size: 9px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-4);
+          font-variant-numeric: tabular-nums;
         }
         .shelf__row-date {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.04em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0;
           color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
         .shelf__row-arrow {
           font-family: var(--font-stack-sans);
@@ -182,10 +185,11 @@ export default function ShelfPage() {
           grid-template-columns: 64px minmax(180px, 1.3fr) 1fr;
         }
         .shelf__row-year {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.04em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0;
           color: var(--ink-4);
+          font-variant-numeric: tabular-nums;
         }
         .shelf__row-title {
           font-family: var(--font-stack-sans);
@@ -194,9 +198,9 @@ export default function ShelfPage() {
           color: var(--ink);
         }
         .shelf__row-attribution {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
           text-align: right;

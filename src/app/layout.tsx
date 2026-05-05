@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
@@ -39,7 +40,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${newsreader.variable}`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} ${newsreader.variable}`}>
         <ThemeInit />
         <PaperGrain />
         <RouteAnnouncer />

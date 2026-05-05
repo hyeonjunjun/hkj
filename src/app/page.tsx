@@ -47,20 +47,22 @@ export default function Home() {
         }
         .home__lede {
           font-family: var(--font-stack-sans);
+          font-weight: 400;
           font-size: clamp(16px, 1.5vw, 19px);
           line-height: 1.5;
-          letter-spacing: 0;
+          letter-spacing: var(--track-heading);
           color: var(--ink);
           margin: 0;
           max-width: 38ch;
         }
         .home__location {
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           font-size: 11px;
-          letter-spacing: 0.06em;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
           margin: 0;
+          font-variant-numeric: tabular-nums;
         }
         .home__featured {
           max-width: 1240px;

@@ -136,10 +136,10 @@ export default function AboutPage() {
         .about__head { display: grid; gap: 18px; }
         .about__title {
           font-family: var(--font-stack-sans);
-          font-weight: 400;
+          font-weight: 500;
           font-size: clamp(22px, 2.4vw, 30px);
-          line-height: 1.35;
-          letter-spacing: -0.005em;
+          line-height: 1.25;
+          letter-spacing: var(--track-heading);
           color: var(--ink);
           margin: 0;
         }
@@ -162,18 +162,19 @@ export default function AboutPage() {
           border-bottom: 1px solid var(--ink);
         }
         .about__section-label {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.10em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink);
         }
         .about__section-count {
-          font-family: var(--font-stack-sans);
-          font-size: 9px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
 
         .about__prose {
@@ -207,11 +208,12 @@ export default function AboutPage() {
           align-items: baseline;
         }
         .about__timeline-period {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
         .about__timeline-role {
           font-family: var(--font-stack-sans);
@@ -231,9 +233,9 @@ export default function AboutPage() {
           align-items: baseline;
         }
         .about__contact-key {
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
         }
@@ -251,11 +253,12 @@ export default function AboutPage() {
           padding-top: clamp(24px, 4vh, 48px);
           margin-top: clamp(48px, 8vh, 96px);
           border-top: 1px solid var(--ink-hair);
-          font-family: var(--font-stack-sans);
-          font-size: 10px;
-          letter-spacing: 0.06em;
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
         }
 
         @media (max-width: 640px) {
