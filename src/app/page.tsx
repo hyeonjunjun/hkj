@@ -1,6 +1,6 @@
 import CopyEmailLink from "@/components/CopyEmailLink";
-import Folio from "@/components/Folio";
 import HomeViewInit from "@/components/HomeViewInit";
+import PixelMark from "@/components/PixelMark";
 import Preloader from "@/components/Preloader";
 import PreloaderInit from "@/components/PreloaderInit";
 import WorkPlate from "@/components/WorkPlate";
@@ -26,13 +26,13 @@ export default function Home() {
       <PreloaderInit />
       <Preloader />
       <main id="main" className="home">
-        <Folio token="§01" />
-
-        {/* Hero block — HS68-coded display statement + microtype sub.
-            Locator info (HKJ STUDIO · NEW YORK · numbered sections ·
-            theme/view toggles) all lives in the nav row above; no
-            duplicated eyebrow inside the page content. */}
+        {/* Hero block — pixel HKJ wordmark at scale + display statement
+            + microtype sub. Wordmark gives the page a brand presence
+            (aino's "Sweet SKTBS®" scale move). Locator info lives in
+            the nav row above; live status microtype in the top-right
+            corner; no duplicated eyebrow inside the page content. */}
         <section className="home__intro" aria-label="Studio statement">
+          <PixelMark cell={14} className="home__mark" />
           <p className="home__statement">
             A studio practice in design and engineering.
           </p>
@@ -70,21 +70,31 @@ export default function Home() {
             min-height: 100svh;
             background: var(--paper);
             color: var(--ink);
-            padding: clamp(80px, 14vh, 140px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
+            padding: clamp(96px, 16vh, 160px) clamp(20px, 4vw, 64px) clamp(56px, 9vh, 88px);
             display: grid;
-            gap: clamp(28px, 4vh, 48px);
+            gap: clamp(40px, 6vh, 72px);
           }
 
           /* Hero block — aligned to gallery max-width.
-             Display statement at scale (HS68 shape);
-             microtype operator line below. Locator info (brand,
-             section, links, toggles) lives in the nav row above. */
+             Pixel HKJ wordmark at scale (aino brand-presence move),
+             display statement (HS68 shape), microtype operator line.
+             Locator info lives in the nav row above. */
           .home__intro {
             max-width: 1480px;
             margin-inline: auto;
             width: 100%;
             display: grid;
-            gap: clamp(16px, 2vh, 24px);
+            gap: clamp(20px, 2.8vh, 32px);
+          }
+          .home__mark {
+            color: var(--ink);
+            margin-block-end: clamp(8px, 1vh, 14px);
+          }
+          @media (max-width: 720px) {
+            .home__mark {
+              transform: scale(0.6);
+              transform-origin: left top;
+            }
           }
           .home__statement {
             font-family: var(--font-stack-sans);

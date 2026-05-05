@@ -6,6 +6,8 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import NavCoordinates from "@/components/NavCoordinates";
 import PaperGrain from "@/components/PaperGrain";
 import ThemeInit from "@/components/ThemeInit";
+import CursorReadout from "@/components/CursorReadout";
+import StatusReadout from "@/components/StatusReadout";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -45,6 +47,8 @@ export default function RootLayout({
         <PaperGrain />
         <RouteAnnouncer />
         <NavCoordinates />
+        <StatusReadout />
+        <CursorReadout />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
