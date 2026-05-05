@@ -121,16 +121,26 @@ Expected: all clean. Test count should be 11 (5 useTheme + 6 ScrambleText). If a
 mkdir -p src/components/os
 ```
 
-- [ ] **Step 2: Write the component**
+- [ ] **Step 2: Write the component (client component, pathname-guarded from the start)**
 
 Write `src/components/os/CloudscapeWallpaper.tsx` with this exact content:
 
 ```tsx
+"use client";
+
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+
 /**
  * CloudscapeWallpaper — fixed-position image element behind all
  * OS content. Renders the placeholder JPEG until Plan C's real
- * .webm asset lands (then this component will gain a <video>
- * branch with the same overlay treatment).
+ * .webm asset lands (then this component gains a <video> branch
+ * with the same overlay treatment).
+ *
+ * Suppressed on /classic routes (mobile fallback shows editorial
+ * chrome only — no cloudscape). The pathname guard is in place
+ * from the start; its effect is exercised once /classic exists
+ * in Chunk 3.
  *
  * Layered behind <Frame> chrome and <Dock> via z-index. Theme-
  * responsive overlay — warm-paper overlay in light, warm-dark
@@ -140,12 +150,13 @@ Write `src/components/os/CloudscapeWallpaper.tsx` with this exact content:
  * prefers-reduced-data: rendered identically (single static JPEG
  * is already minimal data — no .webm to skip yet).
  *
- * Server component. No interactivity. The image loads via Next.js
- * <Image> with `priority` and `fill` for responsive cover.
+ * Client component because pathname checking requires runtime
+ * access. The Image element itself is statically renderable.
  */
-import Image from "next/image";
-
 export default function CloudscapeWallpaper() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/classic")) return null;
+
   return (
     <div className="cloudscape" aria-hidden>
       <Image
@@ -195,7 +206,7 @@ export default function CloudscapeWallpaper() {
 npx tsc --noEmit
 ```
 
-Expected: clean. The component is server-rendered (no `"use client"`), uses `next/image`, and has no hooks or state.
+Expected: clean.
 
 - [ ] **Step 4: Don't commit yet** — Task 1.2 mounts and commits.
 
@@ -605,98 +616,33 @@ npx tsc --noEmit
 
 Expected: clean.
 
-- [ ] **Step 4: Smoke test**
+- [ ] **Step 4: Smoke test the page renders correctly**
 
 Visit `http://localhost:3000/classic` in a browser. Should render:
 - Frame chrome (TL identity, TR nav, BR email)
-- The hello-stake paragraph + location line
+- Hello-stake paragraph + location line
 - 2 featured plates (Gyeol + Sift) below
-- NO Dock visible (pathname starts with /classic — early return in Dock)
-- NO CloudscapeWallpaper... wait, the wallpaper IS rendered in layout. We need to suppress it on /classic too.
+- **No Dock** visible (the Dock's pathname guard suppresses it on /classic)
+- **No CloudscapeWallpaper** (its pathname guard, set in Task 1.1, suppresses it on /classic)
 
-Hmm — the spec says cloudscape only on `/`. The `<CloudscapeWallpaper>` doesn't currently have a pathname guard. We need to add one.
+- [ ] **Step 5: Verify SSR-side suppression (not just client hydration)**
 
-- [ ] **Step 5: Add pathname guard to CloudscapeWallpaper**
+Pathname is available during SSR via App Router context, so the server-rendered HTML for `/classic` should already exclude both elements — no flash of wallpaper or dock on first paint.
 
-The CloudscapeWallpaper is currently a server component. To check pathname we need to either (a) make it client and use `usePathname`, or (b) move it to a client wrapper, or (c) leave it visible on `/classic` and accept that.
-
-Option (c) is fine actually — a cloudscape behind the editorial mobile fallback is harmless and consistent (same visual register, just different content layout). But let's match the spec: cloud only on `/`.
-
-Convert `src/components/os/CloudscapeWallpaper.tsx` to a client component with a pathname guard:
-
-Edit `src/components/os/CloudscapeWallpaper.tsx`:
-
-```tsx
-"use client";
-
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-
-/**
- * CloudscapeWallpaper — fixed-position image element behind all
- * OS content. Renders only on the OS surface (/), not /classic.
- *
- * Theme-responsive paper overlay. Plan C will swap the JPEG for
- * real .webm footage and add a video branch.
- */
-export default function CloudscapeWallpaper() {
-  const pathname = usePathname();
-  if (pathname?.startsWith("/classic")) return null;
-
-  return (
-    <div className="cloudscape" aria-hidden>
-      <Image
-        src="/assets/cloudscape-placeholder.jpg"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="cloudscape__media"
-        style={{ objectFit: "cover" }}
-      />
-      <div className="cloudscape__overlay" />
-
-      <style>{`
-        .cloudscape {
-          position: fixed;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-        }
-        .cloudscape__media {
-          filter: saturate(0.85) contrast(0.95);
-        }
-        .cloudscape__overlay {
-          position: absolute;
-          inset: 0;
-          background: var(--paper);
-          opacity: 0.35;
-          transition: background-color 200ms var(--ease),
-                      opacity 200ms var(--ease);
-        }
-        html[data-theme="dark"] .cloudscape__overlay {
-          opacity: 0.55;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .cloudscape__overlay { transition: none; }
-        }
-      `}</style>
-    </div>
-  );
-}
+```bash
+curl -s http://localhost:3000/classic | grep -c "class=\"cloudscape\""
+curl -s http://localhost:3000/classic | grep -c "class=\"dock\""
 ```
 
-- [ ] **Step 6: Verify**
+Both should return `0`. If either returns ≥1, the SSR suppression isn't working — investigate before continuing.
+
+- [ ] **Step 6: Verify gates**
 
 ```bash
 npx tsc --noEmit && npm run lint && npm run build
 ```
 
 Expected: clean.
-
-Browser smoke:
-- `/` shows cloudscape + dock + frame
-- `/classic` shows frame + hello-stake content; NO cloudscape, NO dock
 
 - [ ] **Step 7: Don't commit yet** — Task 3.2 ships the middleware together.
 
@@ -730,9 +676,16 @@ import { NextRequest, NextResponse } from "next/server";
  * window state machinery.
  */
 
-// Matches: iPhone, Android Mobile, iPad, generic Mobile, Opera Mobi.
+// Matches: iPhone, iPad, iPod, Android Mobile, generic Mobile, Opera Mobi.
 // Excludes desktop Chrome on Linux that has "Mobile" in some
 // extension UA strings — the regex requires explicit mobile context.
+//
+// Known coverage gap (accepted in Plan A): Android tablets without
+// "Mobile" in their UA (e.g. Samsung Galaxy Tab default mode) will
+// pass through to / and hit the OS surface. Plan B's Layer-2
+// client-side check (matchMedia coarse-pointer + viewport ≤720px)
+// will catch them. Until Plan B ships, this is a known gap; do not
+// extend the regex here unilaterally.
 const MOBILE_UA = /iPhone|iPad|iPod|Android.*Mobile|Mobile.*(Safari|Firefox)|Opera Mobi/i;
 
 export function middleware(req: NextRequest) {
@@ -966,7 +919,7 @@ If smoke surfaces issues, fix and commit. Otherwise Plan A is complete.
 
 ---
 
-## Done
+## Done — Plan B starts from this state
 
 Plan A ships:
 
@@ -974,6 +927,18 @@ Plan A ships:
 - **Dock** at left-center vertical with 4 app glyphs (visual furniture only — clicks no-op in Plan A)
 - **/classic route** preserves the editorial hello-stake home; mobile UAs auto-redirect there via edge middleware
 - **/ desktop surface** thin and ready for window machinery in Plan B
+
+### Plan A → Plan B output contract
+
+Plan B can be authored against this exact state:
+
+1. `<CloudscapeWallpaper>` mounted in root layout, client component, pathname-guarded (suppressed on `/classic`).
+2. `<Dock>` mounted in root layout after `<Frame>`, client component, pathname-guarded (suppressed on `/classic` and viewports ≤720px). All 4 buttons rendered with `aria-disabled="true"` and no-op click handlers — Plan B replaces handlers with `openWindow(...)` calls.
+3. `middleware.ts` at project root rewrites `/` → `/classic` for known mobile UAs (iPhone, iPad, iPod, Android Mobile, Opera Mobi). Layer-2 client-side check is the named TODO for Plan B.
+4. `/classic` route renders the editorial hello-stake page. Frame chrome inherits via root layout. No Dock, no CloudscapeWallpaper.
+5. `/` renders an empty `<main className="desktop">` landmark — Plan B's `<WindowManager>` mounts inside this landmark.
+6. Test count remains 11 (5 useTheme + 6 ScrambleText). Plan B introduces `useWindowManager` tests (target ≥5) bringing the total to ≥16.
+7. Build adds ~250KB total (cloudscape JPEG + new component code + middleware). Plan B should keep its delta under 300KB to avoid first-load JS regression.
 
 What's deferred to Plan B:
 - Window primitive + `useWindowManager` hook
