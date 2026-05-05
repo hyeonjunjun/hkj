@@ -7,6 +7,7 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import Frame from "@/components/Frame";
 import PaperGrain from "@/components/PaperGrain";
 import ThemeInit from "@/components/ThemeInit";
+import CloudscapeWallpaper from "@/components/os/CloudscapeWallpaper";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body className={`${GeistSans.variable} ${GeistMono.variable} ${newsreader.variable}`}>
         <ThemeInit />
         <PaperGrain />
+        <CloudscapeWallpaper />
         <RouteAnnouncer />
         <Frame />
         <a href="#main" className="skip-to-content">
