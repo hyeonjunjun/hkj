@@ -86,6 +86,65 @@ export default function WorkPlate({ piece, href }: Props) {
       .plate--placeholder {
         cursor: default;
       }
+      /* Crosshair markers — aino-coded ▪ at all four frame corners,
+         sitting on top of the media at the inside corners. Subtle
+         registration-mark feel without breaking the frame's overflow
+         clipping. Damped color on light ground; flips on dark via
+         var(--ink-4) which already adapts. */
+      .plate__crosshairs {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .plate__crosshairs::before,
+      .plate__crosshairs::after,
+      .plate__crosshairs > span::before,
+      .plate__crosshairs > span::after {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        background: var(--ink-4);
+      }
+      .plate__crosshairs::before { top: 6px; left: 6px; }
+      .plate__crosshairs::after  { top: 6px; right: 6px; }
+      .plate__crosshairs > span {
+        position: absolute;
+        inset: 0;
+        display: block;
+      }
+      .plate__crosshairs > span::before { bottom: 6px; left: 6px; }
+      .plate__crosshairs > span::after  { bottom: 6px; right: 6px; }
+      /* On placeholders the crosshair markers stand out more clearly
+         against the empty paper-2 fill. */
+      .plate--placeholder .plate__crosshairs::before,
+      .plate--placeholder .plate__crosshairs::after,
+      .plate--placeholder .plate__crosshairs > span::before,
+      .plate--placeholder .plate__crosshairs > span::after {
+        background: var(--ink-3);
+      }
+      /* Project code overlay — aino's bottom-corner microtype on the
+         media itself. Subtle; appears on hover only for link plates. */
+      .plate__code {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        font-family: var(--font-stack-sans);
+        font-size: 10px;
+        letter-spacing: var(--microtype-tracking);
+        text-transform: uppercase;
+        color: rgba(248, 245, 236, 0.85);
+        background: rgba(14, 13, 9, 0.45);
+        padding: 4px 6px;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 240ms var(--ease);
+        pointer-events: none;
+      }
+      .plate:hover .plate__code {
+        opacity: 1;
+      }
       .plate__cap-tail {
         display: inline-block;
         margin-inline-start: 6px;
@@ -199,11 +258,15 @@ export default function WorkPlate({ piece, href }: Props) {
             aspectRatio: "4 / 5",
             ["--cover-width" as string]: `${piece.coverWidth ?? 100}%`,
           } as React.CSSProperties}
-        />
+        >
+          <span className="plate__crosshairs" aria-hidden>
+            <span />
+          </span>
+        </div>
 
         <div className="plate__cap">
           <span className="plate__index">
-            <span className="tabular">{piece.number}</span>
+            <span className="tabular">P{piece.number}</span>
             {" — "}
             <span className="tabular">{piece.year}</span>
           </span>
@@ -259,11 +322,13 @@ export default function WorkPlate({ piece, href }: Props) {
             <span className="plate-mark">In development · {piece.year}</span>
           </div>
         )}
+        <span className="plate__crosshairs" aria-hidden />
+        <span className="plate__code tabular" aria-hidden>{`P${piece.number} / ${piece.year}`}</span>
       </div>
 
       <div className="plate__cap">
         <span className="plate__index">
-          <span className="tabular">{piece.number}</span>
+          <span className="tabular">P{piece.number}</span>
           {" — "}
           <span className="tabular">{piece.year}</span>
         </span>
