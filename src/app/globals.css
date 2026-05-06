@@ -285,14 +285,37 @@ a.link:hover, .prose a:hover,
 *:hover > .arrow-glyph,
 *:focus-visible > .arrow-glyph { transform: translateX(6px); }
 
+/* ─── §10 — active state, focus, entrance ─────────────────────────────── */
+
+/* Active state — 0.97 scale on press for any clickable */
+button:active:not([aria-disabled="true"]),
+a:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  button:active:not([aria-disabled="true"]),
+  a:active { transform: none; }
+}
+
 /* ─── View transitions ────────────────────────────────────────────────────
    Browser-native shared-element crossfades on route change. Reduced-motion
-   explicitly overridden — browsers do not auto-skip view transitions. */
+   explicitly overridden — browsers do not auto-skip view transitions.
+   Spec §10 route timing: out 200ms · paper hold 80ms · in 350ms. */
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 300ms;
   animation-timing-function: cubic-bezier(0.41, 0.1, 0.13, 1);
+}
+::view-transition-old(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-in;
+}
+::view-transition-new(root) {
+  animation-duration: 350ms;
+  animation-delay: 80ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 ::view-transition-old(work-title),
