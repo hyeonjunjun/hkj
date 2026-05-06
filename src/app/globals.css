@@ -32,6 +32,26 @@
   --t-display: 64px;
   --t-hero:    88px;
 
+  /* HKJ portfolio spec tokens — §02 Typography */
+  --type-nav:        11px;
+  --type-number:     11px;
+  --type-title:      clamp(15px, 1.2vw, 18px);
+  --type-meta:       10px;
+  --type-body:       clamp(14px, 1vw, 16px);
+  --type-prose:      clamp(15px, 1.04vw, 17px);
+  --type-statement:  clamp(20px, 2.5vw, 32px);
+  --type-display:    clamp(28px, 3.8vw, 48px);
+  --type-folio:      9px;
+
+  /* HKJ portfolio spec tokens — §04 Spacing */
+  --margin-page:     clamp(20px, 4vw, 64px);
+  --space-void:      clamp(120px, 24vh, 280px);
+  --space-row:       clamp(64px, 8vw, 120px);
+  --space-section:   clamp(48px, 6vw, 96px);
+  --space-caption:   12px;
+  --space-grid-gap:  clamp(12px, 1.5vw, 20px);
+  --gap-plates:      clamp(12px, 1.5vw, 20px);
+
   /* Measure — narrow for editorial reading */
   --measure-narrow:  48ch;
   --measure-body:    62ch;

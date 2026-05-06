@@ -5,9 +5,9 @@ import { Newsreader } from "next/font/google";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import Frame from "@/components/Frame";
+import FolioStamp from "@/components/FolioStamp";
 import PaperGrain from "@/components/PaperGrain";
 import ThemeInit from "@/components/ThemeInit";
-import CloudscapeWallpaper from "@/components/os/CloudscapeWallpaper";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -18,20 +18,20 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hkjstudio.com"),
-  title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
-  description: "Ryan Jun — designer and engineer, New York.",
+  title: { default: "Hyeonjoon Jun", template: "%s / Hyeonjoon Jun" },
+  description: "Hyeonjoon Jun — design engineer, New York.",
   openGraph: {
-    title: "Ryan Jun",
-    description: "Designer and engineer, New York.",
+    title: "Hyeonjoon Jun",
+    description: "Design engineer, New York.",
     url: "https://hkjstudio.com",
-    siteName: "Ryan Jun",
+    siteName: "Hyeonjoon Jun",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ryan Jun",
-    description: "Designer and engineer, New York.",
+    title: "Hyeonjoon Jun",
+    description: "Design engineer, New York.",
     creator: "@hyeonjunjun",
   },
 };
@@ -44,9 +44,9 @@ export default function RootLayout({
       <body className={`${GeistSans.variable} ${GeistMono.variable} ${newsreader.variable}`}>
         <ThemeInit />
         <PaperGrain />
-        <CloudscapeWallpaper />
         <RouteAnnouncer />
         <Frame />
+        <FolioStamp />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
