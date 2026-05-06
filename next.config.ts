@@ -14,16 +14,15 @@ const nextConfig: NextConfig = {
       { source: "/lab", destination: "/work", permanent: true },
       { source: "/lab/:slug", destination: "/work/:slug", permanent: true },
 
-      // Frame restructure 2026-05-04:
-      // /studio → /about (consolidated bio + contact + colophon)
-      // /bookmarks → /shelf (notes + bookmarks combined)
-      // /notes (index) → /shelf (notes section lives there)
-      { source: "/studio", destination: "/about", permanent: true },
-      { source: "/contact", destination: "/about", permanent: true },
-      { source: "/colophon", destination: "/about", permanent: true },
-      { source: "/bookmarks", destination: "/shelf", permanent: true },
-      { source: "/notes", destination: "/shelf", permanent: true },
-      { source: "/journal", destination: "/shelf", permanent: true },
+      // 2026-05-06 spec rename: about/shelf/garden → studio/bookmarks/notes.
+      // The old paths are kept as 308 aliases so any external link still
+      // resolves; canonical path is the new one.
+      { source: "/about", destination: "/studio", permanent: true },
+      { source: "/contact", destination: "/studio", permanent: true },
+      { source: "/colophon", destination: "/studio", permanent: true },
+      { source: "/shelf", destination: "/bookmarks", permanent: true },
+      { source: "/garden", destination: "/notes", permanent: true },
+      { source: "/journal", destination: "/notes", permanent: true },
       { source: "/journal/:slug", destination: "/notes/:slug", permanent: true },
     ];
   },

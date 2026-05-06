@@ -18,8 +18,8 @@ export default function NoteDetailPage() {
         </p>
         <p className="note-404__body">
           No entry at that address.{" "}
-          <Link href="/shelf" className="note-404__link">
-            Back to the shelf
+          <Link href="/notes" className="note-404__link">
+            Back to notes
           </Link>
           .
         </p>
