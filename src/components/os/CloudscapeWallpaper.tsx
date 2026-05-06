@@ -4,26 +4,18 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 /**
- * CloudscapeWallpaper — fixed-position image element behind all
- * OS content. Renders the placeholder JPEG until Plan C's real
- * .webm asset lands (then this component gains a <video> branch
- * with the same overlay treatment).
+ * CloudscapeWallpaper — fixed-position photographic ground beneath
+ * all OS content. Real cumulus + distant mountain photography sets
+ * the mood; chrome and windows layer typographic notation over it.
  *
- * Suppressed on /classic routes (mobile fallback shows editorial
- * chrome only — no cloudscape). The pathname guard is in place
- * from the start; its effect is exercised once /classic exists
- * in Chunk 3.
+ * Suppressed on /classic routes (the editorial fallback uses paper
+ * tone only). Layered at z-index 0 with a warm-paper overlay that
+ * unifies the photograph with the ink palette in both themes.
  *
- * Layered behind <Frame> chrome and <Dock> via z-index. Theme-
- * responsive overlay — warm-paper overlay in light, warm-dark
- * overlay in dark. The cloud reads as ambient atmosphere, not
- * foreground.
+ * Plan C will swap the JPEG for long-exposure .webm footage and
+ * add a <video> branch here.
  *
- * prefers-reduced-data: rendered identically (single static JPEG
- * is already minimal data — no .webm to skip yet).
- *
- * Client component because pathname checking requires runtime
- * access. The Image element itself is statically renderable.
+ * Client component — pathname check requires runtime context.
  */
 export default function CloudscapeWallpaper() {
   const pathname = usePathname();
@@ -32,7 +24,7 @@ export default function CloudscapeWallpaper() {
   return (
     <div className="cloudscape" aria-hidden>
       <Image
-        src="/assets/cloudscape-placeholder.jpg"
+        src="/assets/cloudscape-hero.jpg"
         alt=""
         fill
         priority
@@ -49,19 +41,16 @@ export default function CloudscapeWallpaper() {
           z-index: 0;
           pointer-events: none;
         }
-        .cloudscape__media {
-          filter: saturate(0.85) contrast(0.95);
-        }
         .cloudscape__overlay {
           position: absolute;
           inset: 0;
           background: var(--paper);
-          opacity: 0.35;
+          opacity: 0.32;
           transition: background-color 200ms var(--ease),
                       opacity 200ms var(--ease);
         }
         html[data-theme="dark"] .cloudscape__overlay {
-          opacity: 0.55;
+          opacity: 0.62;
         }
         @media (prefers-reduced-motion: reduce) {
           .cloudscape__overlay { transition: none; }

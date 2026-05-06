@@ -23,10 +23,10 @@ import CopyEmailLink from "@/components/CopyEmailLink";
 type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
-  { href: "/work",   label: "work" },
-  { href: "/garden", label: "garden" },
-  { href: "/shelf",  label: "shelf" },
-  { href: "/about",  label: "about" },
+  { href: "/work",   label: "Work" },
+  { href: "/garden", label: "Garden" },
+  { href: "/shelf",  label: "Shelf" },
+  { href: "/about",  label: "About" },
 ];
 
 function isActive(pathname: string | null, href: string): boolean {
@@ -49,6 +49,7 @@ export default function Frame() {
     <>
       <Link href="/" className="frame__mark" aria-label="Ryan Jun — home">
         Ryan Jun
+        <span className="frame__mark-suffix" aria-hidden> · Studio</span>
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">
@@ -73,38 +74,61 @@ export default function Frame() {
       </div>
 
       <style>{`
-        /* Frame chrome runs on Geist Mono — Aino-discipline.
-           The chrome is registry data (identity, nav, action), not
-           reading. Mono carries that role naturally; tracking sits at
-           the mono natural rhythm with a tiny positive bump. */
+        /* Frame chrome — Geist Mono, ALL CAPS, microtype-tracked.
+           Identity carries weight 500; nav and action stay 400. The
+           chrome is registry data, not reading: mono + caps + tracking
+           reads as system signage against the photographic ground. */
         .frame__mark,
         .frame__nav,
         .frame__br {
           position: fixed;
           z-index: 50;
           font-family: var(--font-stack-mono);
-          font-size: 12px;
-          letter-spacing: 0;
+          font-size: 11px;
+          line-height: 1;
+          letter-spacing: var(--microtype-tracking);
+          text-transform: uppercase;
           font-variant-numeric: tabular-nums;
           pointer-events: auto;
+        }
+
+        /* Halo so type reads against any tonal patch of the cloud.
+           Light theme: warm-paper glow. Dark theme: deep-ink glow. */
+        .frame__mark,
+        .frame__link,
+        .frame__action {
+          text-shadow: 0 0 6px rgba(248, 245, 236, 0.55);
+        }
+        html[data-theme="dark"] .frame__mark,
+        html[data-theme="dark"] .frame__link,
+        html[data-theme="dark"] .frame__action {
+          text-shadow: 0 0 6px rgba(14, 13, 9, 0.55);
         }
 
         .frame__mark {
           top: clamp(20px, 3vh, 36px);
           left: clamp(20px, 4vw, 56px);
           color: var(--ink);
+          font-weight: 500;
+          display: inline-flex;
+          align-items: baseline;
+          gap: 0.5em;
           transition: opacity 180ms var(--ease);
         }
-        .frame__mark:hover { opacity: 0.6; }
+        .frame__mark-suffix {
+          color: var(--ink-3);
+          font-weight: 400;
+        }
+        .frame__mark:hover { opacity: 0.7; }
 
         .frame__nav {
           top: clamp(20px, 3vh, 36px);
           right: clamp(20px, 4vw, 56px);
           display: flex;
-          gap: clamp(14px, 2.4vw, 28px);
+          gap: clamp(16px, 2.6vw, 32px);
         }
         .frame__link {
-          color: var(--ink-3);
+          color: var(--ink-2);
           transition: color 180ms var(--ease);
         }
         .frame__link:hover { color: var(--ink); }
@@ -126,10 +150,13 @@ export default function Frame() {
         }
 
         @media (max-width: 640px) {
-          .frame__mark, .frame__nav, .frame__br {
-            font-size: 11px;
+          .frame__mark,
+          .frame__nav,
+          .frame__br {
+            font-size: 10px;
           }
           .frame__nav { gap: 14px; }
+          .frame__mark-suffix { display: none; }
         }
       `}</style>
     </>

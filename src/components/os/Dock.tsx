@@ -68,27 +68,36 @@ export default function Dock() {
           cursor: pointer;
           color: inherit;
           display: grid;
-          gap: 6px;
+          gap: 7px;
           justify-items: center;
           line-height: 1;
         }
         .dock__item[aria-disabled="true"] {
           cursor: default;
-          opacity: 0.65;
+          opacity: 0.7;
         }
         .dock__glyph {
           font-family: var(--font-stack-sans);
           font-size: 18px;
+          font-weight: 400;
           color: var(--ink);
+          text-shadow: 0 0 8px rgba(248, 245, 236, 0.55);
           transition: color 200ms var(--ease), transform 200ms var(--ease);
+        }
+        html[data-theme="dark"] .dock__glyph {
+          text-shadow: 0 0 8px rgba(14, 13, 9, 0.55);
         }
         .dock__label {
           font-family: var(--font-stack-mono);
           font-size: 9px;
-          letter-spacing: 0.10em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: var(--ink-3);
+          color: var(--ink-2);
+          text-shadow: 0 0 6px rgba(248, 245, 236, 0.55);
           transition: color 200ms var(--ease);
+        }
+        html[data-theme="dark"] .dock__label {
+          text-shadow: 0 0 6px rgba(14, 13, 9, 0.55);
         }
         .dock__item:not([aria-disabled="true"]):hover .dock__glyph {
           color: var(--ink-2);
