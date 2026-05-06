@@ -8,7 +8,6 @@ import Frame from "@/components/Frame";
 import PaperGrain from "@/components/PaperGrain";
 import ThemeInit from "@/components/ThemeInit";
 import CloudscapeWallpaper from "@/components/os/CloudscapeWallpaper";
-import Dock from "@/components/os/Dock";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -48,7 +47,6 @@ export default function RootLayout({
         <CloudscapeWallpaper />
         <RouteAnnouncer />
         <Frame />
-        <Dock />
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>

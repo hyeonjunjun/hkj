@@ -14,6 +14,8 @@ export interface Piece {
   description: string;
   status: "shipped" | "wip";
   year: number;
+  /** YYYY-MM stamp — when work began. Used in archive ledger row. */
+  started: string;
   /** Hero asset for the /work/[slug] CaseStudy page. */
   image?: string;
   /** Home catalog frame media. Leave undefined for the typographic fallback. */
@@ -59,6 +61,7 @@ export const PIECES: Piece[] = [
     description: "Coming.",
     status: "wip",
     year: 2026,
+    started: "2026-05",
     tags: [],
     placeholder: true,
   },
@@ -72,6 +75,7 @@ export const PIECES: Piece[] = [
     description: "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",
     status: "shipped",
     year: 2026,
+    started: "2026-02",
     image: "/images/gyeol-display-hanji.webp",
     cover: {
       kind: "video",
@@ -92,6 +96,7 @@ export const PIECES: Piece[] = [
     description: "Coming.",
     status: "wip",
     year: 2026,
+    started: "2026-04",
     tags: [],
     placeholder: true,
   },
@@ -105,6 +110,7 @@ export const PIECES: Piece[] = [
     description: "An AI tool that surfaces what matters in your camera roll.",
     status: "shipped",
     year: 2025,
+    started: "2025-09",
     image: "/images/sift-v2.webp",
     cover: { kind: "image", src: "/images/sift-v2.webp" },
     coverFit: "center",
@@ -122,6 +128,7 @@ export const PIECES: Piece[] = [
     description: "Coming.",
     status: "wip",
     year: 2026,
+    started: "2026-03",
     tags: [],
     placeholder: true,
   },
@@ -135,6 +142,7 @@ export const PIECES: Piece[] = [
     description: "Coming.",
     status: "wip",
     year: 2026,
+    started: "2026-01",
     tags: [],
     placeholder: true,
   },
@@ -148,6 +156,7 @@ export const PIECES: Piece[] = [
     description: "Coming.",
     status: "wip",
     year: 2026,
+    started: "2025-12",
     tags: [],
     placeholder: true,
   },

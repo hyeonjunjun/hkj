@@ -45,12 +45,12 @@ export default function CloudscapeWallpaper() {
           position: absolute;
           inset: 0;
           background: var(--paper);
-          opacity: 0.32;
+          opacity: 0.55;
           transition: background-color 200ms var(--ease),
                       opacity 200ms var(--ease);
         }
         html[data-theme="dark"] .cloudscape__overlay {
-          opacity: 0.62;
+          opacity: 0.78;
         }
         @media (prefers-reduced-motion: reduce) {
           .cloudscape__overlay { transition: none; }
