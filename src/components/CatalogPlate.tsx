@@ -139,19 +139,8 @@ function PlateStyle() {
       .cat-plate-link:hover .cat-plate__frame {
         outline-color: var(--ink-3);
       }
-      .cat-plate[data-placeholder] .cat-plate__frame::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-          45deg,
-          transparent 0,
-          transparent 14px,
-          var(--ink-hair) 14px,
-          var(--ink-hair) 15px
-        );
-        opacity: 0.6;
-        pointer-events: none;
+      .cat-plate[data-placeholder] .cat-plate__frame {
+        background: var(--paper-2);
       }
       .cat-plate__media {
         width: 100%;

@@ -2,7 +2,8 @@
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Paper-and-ink palette — pure white through warm ink */
+  /* Paper-and-ink palette — single register, light only.
+     Both reference sites (hs68.la, aino.agency) operate light-only. */
   --paper:   #FBFAF6;
   --paper-2: #F4F3EE;
   --paper-3: #E8E7E1;
@@ -11,99 +12,33 @@
   --ink-3:   #8E8E87;
   --ink-4:   #BFBEB8;
 
-  --ink-primary:   var(--ink);
-  --ink-secondary: var(--ink-2);
-  --ink-muted:     var(--ink-3);
-  --ink-faint:     var(--ink-4);
-  --ink-ghost:     rgba(17, 17, 16, 0.06);
-  --ink-hair:      rgba(17, 17, 16, 0.10);
+  --ink-hair:  rgba(17, 17, 16, 0.08);
+  --ink-ghost: rgba(17, 17, 16, 0.03);
 
-  /* Microtype tracking — theme-responsive (overridden in dark mode) */
-  --microtype-tracking: 0.12em;
+  /* Type system — sans-only. The references (hs68, aino) ship with a
+     single sans family. Mono is reserved for project numbers + folio. */
+  --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --font-stack-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
 
-  /* Modular type scale — Perfect Fourth (1.333×) */
-  --t-micro:   9px;
-  --t-small:   12px;
-  --t-body:    15px;
-  --t-h4:      20px;
-  --t-h3:      27px;
-  --t-h2:      36px;
-  --t-h1:      48px;
-  --t-display: 64px;
-  --t-hero:    88px;
-
-  /* HKJ portfolio spec tokens — §02 Typography */
+  /* Type scale — extracted from spec §02 */
   --type-nav:        11px;
   --type-number:     11px;
   --type-title:      clamp(15px, 1.2vw, 18px);
   --type-meta:       10px;
   --type-body:       clamp(14px, 1vw, 16px);
-  --type-prose:      clamp(15px, 1.04vw, 17px);
   --type-statement:  clamp(20px, 2.5vw, 32px);
   --type-display:    clamp(28px, 3.8vw, 48px);
   --type-folio:      9px;
 
-  /* HKJ portfolio spec tokens — §04 Spacing */
-  --margin-page:     clamp(20px, 4vw, 64px);
-  --space-void:      clamp(120px, 24vh, 280px);
-  --space-row:       clamp(64px, 8vw, 120px);
-  --space-section:   clamp(48px, 6vw, 96px);
-  --space-caption:   12px;
-  --space-grid-gap:  clamp(12px, 1.5vw, 20px);
-  --gap-plates:      clamp(12px, 1.5vw, 20px);
-
-  /* Measure — narrow for editorial reading */
-  --measure-narrow:  48ch;
-  --measure-body:    62ch;
-
-  /* Type system — Aino-discipline applied to Geist's matched pair.
-       Geist Sans  → reading: body prose, page titles, descriptions.
-       Geist Mono  → chrome: frame, eyebrows, plate marks, registry
-                    data — anything that functions as data lookup,
-                    not reading.
-       Newsreader  → long-form essay body only (case-study editorial,
-                    notes detail prose).
-     The role of any text is legible from which face it's set in. */
-  --font-stack-sans:  var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
-  --font-stack-mono:  var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
-  --font-stack-serif: var(--font-serif), "Iowan Old Style", Georgia, "Times New Roman", serif;
-
-  /* Tracking calibration — by tier, not by face.
-     Display sizes get negative tracking (optical tightening at scale);
-     body neutral; microtype gets a small positive bump on proportional
-     ALL CAPS, ~zero on mono (mono is naturally tracked). */
-  --track-display:  -0.022em;   /* 28px+ */
-  --track-heading:  -0.012em;   /* 18–28px */
-  --track-body:      0;         /* 13–17px */
-  --track-caps-sans: 0.08em;    /* proportional ALL CAPS small */
-  --track-caps-mono: 0.02em;    /* mono ALL CAPS small */
+  /* Spacing — spec §04 */
+  --margin-page:    clamp(20px, 4vw, 64px);
+  --space-void:     clamp(120px, 24vh, 280px);
+  --space-row:      clamp(64px, 8vw, 120px);
+  --space-section:  clamp(48px, 6vw, 96px);
+  --space-caption:  12px;
+  --gap-plates:     clamp(12px, 1.5vw, 20px);
 
   --ease: cubic-bezier(.4, 0, .2, 1);
-}
-
-/* Dark mode — re-binds semantic tokens. No --stage* / --glow*
-   namespace tokens; same --paper / --ink-* family carries both
-   registers. */
-html[data-theme="dark"] {
-  --paper:   #0E0D09;
-  --paper-2: #16150F;
-  --paper-3: #24221A;
-  --ink:     #F8F5EC;
-  --ink-2:   #C8C5BC;
-  --ink-3:   #8E8C85;
-  --ink-4:   #555349;
-  --ink-hair:  rgba(248, 245, 236, 0.10);
-  --ink-ghost: rgba(248, 245, 236, 0.06);
-  --microtype-tracking: 0.11em;
-}
-
-.paper-grain {
-  mix-blend-mode: multiply;
-  opacity: 0.055;
-}
-html[data-theme="dark"] .paper-grain {
-  mix-blend-mode: screen;
-  opacity: 0.04;
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
@@ -117,28 +52,20 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-stack-sans);
-  font-size: var(--t-body);
+  font-size: var(--type-body);
   line-height: 1.5;
-  letter-spacing: var(--track-body);
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Kerning + contextual alternates on by default. Geist's kern table
-     does the work; explicit declaration documents the intent. */
   font-kerning: normal;
   font-feature-settings: "kern" 1, "calt" 1;
 }
-
-/* Italics globally suppressed. Use weight / tracking / caps as emphasis. */
-i, em, cite, q, address, var, dfn { font-style: normal; }
 
 ::selection { background: var(--ink); color: var(--paper); }
 :focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }
 
-.tabular,
-.case__ledger-row,
-.case__stat-val,
-.bookmarks__row-year {
+.tabular {
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums lining-nums;
 }
@@ -175,119 +102,7 @@ a { color: inherit; text-decoration: none; }
   z-index: 100;
 }
 
-/* ─── House voice primitives ─────────────────────────────────────────────── */
-
-/* Eyebrow — page header microtype. Mono register: data lookup
-   (section · year · counter), not reading. The Aino move. */
-.eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-family: var(--font-stack-mono);
-  font-size: 11px;
-  letter-spacing: var(--track-caps-mono);
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
-.eyebrow__sep { color: var(--ink-4); }
-
-/* Plate corner microtype — same register as eyebrow, smaller. */
-.plate-mark {
-  font-family: var(--font-stack-mono);
-  font-size: 10px;
-  letter-spacing: var(--track-caps-mono);
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Sans prose — narrow measure, generous line-height for readability */
-.prose {
-  font-family: var(--font-stack-sans);
-  font-size: 14px;
-  line-height: 1.7;
-  letter-spacing: 0;
-  color: var(--ink-2);
-  max-width: var(--measure-narrow);
-}
-.prose p + p { margin-top: 1em; }
-
-/* Metadata labels — mono register, registry data. */
-.meta {
-  font-family: var(--font-stack-mono);
-  font-size: 10px;
-  letter-spacing: var(--track-caps-mono);
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
-.meta-key { color: var(--ink-4); margin-right: 6px; }
-.meta-val { color: var(--ink-2); }
-
-/* ─── OpenType discipline ────────────────────────────────────────────────── */
-
-/* Old-style figures in serif prose (Newsreader — case-study body, notes detail) */
-.case__prose,
-.case__prose--lead,
-.case__prose--step {
-  font-feature-settings: "onum" on;
-  hanging-punctuation: first last;
-  text-wrap: pretty;
-}
-
-/* ─── Unified hover vocabulary ──────────────────────────────────────────── */
-
-/* Underline-color fade — default for inline links and meaningful handles.
-   .bookmarks__row-link is omitted on purpose: it's a grid row whose real
-   hover signal is a ghost background, and underlining its text children
-   would stack an unintended line across the title column. */
-a.link, .prose a,
-.studio__mail, .studio__handle, .home__mail {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  border-bottom: none;
-  transition: text-decoration-color 180ms var(--ease);
-}
-a.link:hover, .prose a:hover,
-.studio__mail:hover, .studio__handle:hover, .home__mail:hover {
-  text-decoration-color: currentColor;
-}
-
-/* Hairline underline slide — editorial inline links draw a 1px line in
-   from the left on hover, paired with the color fade. Only on .prose a
-   so that nav, captions, and microtype are not affected. */
-.prose a {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  background-size: 0% 1px;
-  transition:
-    text-decoration-color 180ms var(--ease),
-    background-size 220ms cubic-bezier(0.33, 0.12, 0.15, 1);
-}
-.prose a:hover {
-  background-size: 100% 1px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .prose a { transition: none; background-size: 0% 1px; }
-  .prose a:hover { background-size: 100% 1px; }
-}
-
-/* Arrow-glyph slide — for "forward" action glyphs next to labels */
-.arrow-glyph {
-  display: inline-block;
-  transition: transform 200ms cubic-bezier(0.33, 0.12, 0.15, 1);
-}
-*:hover > .arrow-glyph,
-*:focus-visible > .arrow-glyph { transform: translateX(6px); }
-
-/* ─── §10 — active state, focus, entrance ─────────────────────────────── */
-
-/* Active state — 0.97 scale on press for any clickable */
+/* ─── §10 active state — 0.97 scale on press ─────────────────────────────── */
 button:active:not([aria-disabled="true"]),
 a:active {
   transform: scale(0.97);
@@ -299,15 +114,8 @@ a:active {
 }
 
 /* ─── View transitions ────────────────────────────────────────────────────
-   Browser-native shared-element crossfades on route change. Reduced-motion
-   explicitly overridden — browsers do not auto-skip view transitions.
-   Spec §10 route timing: out 200ms · paper hold 80ms · in 350ms. */
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 300ms;
-  animation-timing-function: cubic-bezier(0.41, 0.1, 0.13, 1);
-}
+   Browser-native crossfade on route change. Spec §10 timing:
+   out 200ms · paper hold 80ms · in 350ms. */
 ::view-transition-old(root) {
   animation-duration: 200ms;
   animation-timing-function: ease-in;
@@ -317,45 +125,7 @@ a:active {
   animation-delay: 80ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
-
-::view-transition-old(work-title),
-::view-transition-new(work-title) {
-  animation-duration: 420ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
-  ::view-transition-new(root),
-  ::view-transition-old(work-title),
-  ::view-transition-new(work-title) {
-    animation: none;
-  }
-}
-
-/* Cover morph: the home tile cover image continues into the case-study
-   hero plate position via shared-element view-transition. Per-slug names
-   prevent collision on the home grid where multiple covers coexist. */
-::view-transition-group(work-cover-clouds-at-sea),
-::view-transition-group(work-cover-gyeol),
-::view-transition-group(work-cover-pane),
-::view-transition-group(work-cover-sift) {
-  animation-duration: 480ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-::view-transition-image-pair(work-cover-clouds-at-sea),
-::view-transition-image-pair(work-cover-gyeol),
-::view-transition-image-pair(work-cover-pane),
-::view-transition-image-pair(work-cover-sift) {
-  animation-duration: 480ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(work-cover-clouds-at-sea),
-  ::view-transition-group(work-cover-gyeol),
-  ::view-transition-group(work-cover-pane),
-  ::view-transition-group(work-cover-sift) {
-    animation: none;
-  }
+  ::view-transition-new(root) { animation: none; }
 }

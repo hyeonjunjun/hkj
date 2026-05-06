@@ -10,20 +10,21 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       // Legacy work-index aliases
-      { source: "/works", destination: "/work", permanent: true },
-      { source: "/lab", destination: "/work", permanent: true },
-      { source: "/lab/:slug", destination: "/work/:slug", permanent: true },
+      { source: "/works",      destination: "/work",    permanent: true },
+      { source: "/lab",        destination: "/work",    permanent: true },
+      { source: "/lab/:slug",  destination: "/work/:slug", permanent: true },
 
-      // 2026-05-06 spec rename: about/shelf/garden → studio/bookmarks/notes.
-      // The old paths are kept as 308 aliases so any external link still
-      // resolves; canonical path is the new one.
-      { source: "/about", destination: "/studio", permanent: true },
-      { source: "/contact", destination: "/studio", permanent: true },
-      { source: "/colophon", destination: "/studio", permanent: true },
-      { source: "/shelf", destination: "/bookmarks", permanent: true },
-      { source: "/garden", destination: "/notes", permanent: true },
-      { source: "/journal", destination: "/notes", permanent: true },
-      { source: "/journal/:slug", destination: "/notes/:slug", permanent: true },
+      // Old route names retained as 308 aliases for any external links.
+      { source: "/about",      destination: "/studio",  permanent: true },
+      { source: "/colophon",   destination: "/studio",  permanent: true },
+      { source: "/shelf",      destination: "/studio",  permanent: true },
+      { source: "/bookmarks",  destination: "/studio",  permanent: true },
+      { source: "/garden",     destination: "/work",    permanent: true },
+      { source: "/notes",      destination: "/work",    permanent: true },
+      { source: "/notes/:slug", destination: "/work",    permanent: true },
+      { source: "/journal",    destination: "/work",    permanent: true },
+      { source: "/journal/:slug", destination: "/work", permanent: true },
+      { source: "/classic",    destination: "/",        permanent: true },
     ];
   },
 };
