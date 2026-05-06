@@ -1,228 +1,285 @@
-"use client";
+import type { Metadata } from "next";
+import Footer from "@/components/Footer";
+import { SHELF, type ShelfGroup, type ShelfItem } from "@/constants/shelf";
 
-import Link from "next/link";
-import { NOTES } from "@/constants/notes";
-import { SHELF } from "@/constants/shelf";
+export const metadata: Metadata = {
+  title: "Bookmarks",
+  description: "A working bibliography — references actively consulted.",
+};
+
+const GROUP_ORDER: ShelfGroup[] = ["READ", "WATCH", "KEEP", "VISIT"];
+
+const GROUP_LABEL: Record<ShelfGroup, string> = {
+  READ: "Read",
+  WATCH: "Watch",
+  KEEP: "Keep",
+  VISIT: "Visit",
+};
 
 /**
- * /shelf — combined notes + bookmarks. Two sub-sections inside one
- * document: what I've written (top), what I keep (bottom). Notes
- * carry an N-NNN registry; bookmarks carry year + attribution.
+ * /bookmarks — list page sourced from SHELF (spec §08, §03 in folio).
  *
- * Detail pages for individual notes still live at /notes/[slug].
+ * Numbered rows grouped by ShelfGroup. Each row has index, title,
+ * attribution/year, and a small kind tag. Linked rows reveal an
+ * arrow on hover; non-linked rows render as plain rows.
  */
-export default function ShelfPage() {
-  const notes = [...NOTES].sort((a, b) => b.date.localeCompare(a.date));
-  const bookmarks = SHELF.filter((s) => s.group === "READ");
+type IndexedItem = ShelfItem & { indexLabel: string };
+
+export default function BookmarksPage() {
+  // Continuous numbering across groups, computed once before render
+  // via reduce to avoid mutable counters (lint: react-hooks/immutability).
+  const groups = GROUP_ORDER.reduce<
+    { acc: { group: ShelfGroup; items: IndexedItem[] }[]; offset: number }
+  >(
+    ({ acc, offset }, group) => {
+      const raw = SHELF.filter((s) => s.group === group);
+      const items: IndexedItem[] = raw.map((it, i) => ({
+        ...it,
+        indexLabel: String(offset + i + 1).padStart(2, "0"),
+      }));
+      if (items.length === 0) return { acc, offset };
+      return {
+        acc: [...acc, { group, items }],
+        offset: offset + items.length,
+      };
+    },
+    { acc: [], offset: 0 },
+  ).acc;
 
   return (
-    <main id="main" className="shelf">
-      <article className="shelf__inner">
-        <header className="shelf__head">
-          <p className="eyebrow">
-            <span>Shelf</span>
-            <span className="eyebrow__sep">·</span>
-            <span className="tabular">2026</span>
+    <main id="main" className="bookmarks">
+      <div className="bookmarks__void" aria-hidden />
+
+      <article className="bookmarks__inner">
+        <header className="bookmarks__head">
+          <p className="bookmarks__eyebrow">
+            <span>Bookmarks</span>
+            <span className="bookmarks__eyebrow-sep" aria-hidden>
+              ·
+            </span>
+            <span className="tabular">§03</span>
           </p>
-          <h1 className="shelf__title">
-            Notes I write, references I keep.
-          </h1>
+          <h1 className="bookmarks__title">Bookmarks</h1>
+          <p className="bookmarks__lede">
+            A working bibliography — books, portfolios, essays, and
+            archives I return to when the work needs weight.
+          </p>
         </header>
 
-        <section className="shelf__section">
-          <header className="shelf__section-head">
-            <span className="shelf__section-label">Notes</span>
-            <span className="shelf__section-count tabular">
-              {String(notes.length).padStart(2, "0")} Entries
-            </span>
-          </header>
-          <ol className="shelf__list">
-            {notes.map((n) => (
-              <li key={n.slug} className="shelf__row">
-                <Link href={`/notes/${n.slug}`} className="shelf__row-link">
-                  <span className="shelf__row-num tabular">N-{n.number}</span>
-                  <span className="shelf__row-date tabular">{n.dateLabel}</span>
-                  <span className="shelf__row-title">{n.title}</span>
-                  <span className="shelf__row-arrow" aria-hidden>→</span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </section>
+        {groups.map(({ group, items }) => (
+          <section key={group} className="bookmarks__section" aria-label={GROUP_LABEL[group]}>
+            <header className="bookmarks__section-head">
+              <span className="bookmarks__section-label">
+                {GROUP_LABEL[group]}
+              </span>
+              <span className="bookmarks__section-count tabular">
+                {String(items.length).padStart(2, "0")} Entries
+              </span>
+            </header>
+            <ol className="bookmarks__list">
+              {items.map((item) => {
+                const meta = [item.attribution, item.year]
+                  .filter(Boolean)
+                  .join(" · ");
 
-        <section className="shelf__section">
-          <header className="shelf__section-head">
-            <span className="shelf__section-label">Bookmarks</span>
-            <span className="shelf__section-count tabular">
-              {String(bookmarks.length).padStart(2, "0")} Entries
-            </span>
-          </header>
-          <ol className="shelf__list">
-            {bookmarks.map((item) => {
-              const body = (
-                <>
-                  <span className="shelf__row-year tabular">
-                    {item.year ?? ""}
-                  </span>
-                  <span className="shelf__row-title">{item.title}</span>
-                  <span className="shelf__row-attribution">
-                    {item.attribution ?? ""}
-                  </span>
-                </>
-              );
-              return (
-                <li key={item.id} className="shelf__row">
-                  {item.href ? (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="shelf__row-link"
-                    >
-                      {body}
-                    </a>
-                  ) : (
-                    <div className="shelf__row-link shelf__row-link--static">
-                      {body}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </section>
+                const inner = (
+                  <>
+                    <span className="bookmarks__row-num tabular">
+                      {item.indexLabel}
+                    </span>
+                    <span className="bookmarks__row-title">{item.title}</span>
+                    <span className="bookmarks__row-meta">{meta}</span>
+                    <span className="bookmarks__row-kind">{item.kind}</span>
+                    {item.href ? (
+                      <span className="bookmarks__row-arrow" aria-hidden>
+                        →
+                      </span>
+                    ) : (
+                      <span className="bookmarks__row-arrow" aria-hidden />
+                    )}
+                  </>
+                );
+
+                return (
+                  <li key={item.id} className="bookmarks__row">
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bookmarks__row-link"
+                      >
+                        {inner}
+                      </a>
+                    ) : (
+                      <div className="bookmarks__row-link bookmarks__row-link--static">
+                        {inner}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        ))}
       </article>
 
+      <Footer />
+
       <style>{`
-        .shelf {
-          min-height: 100svh;
-          padding: clamp(120px, 18vh, 200px) clamp(24px, 4vw, 72px) clamp(80px, 12vh, 120px);
-          display: flex;
-          justify-content: center;
-        }
-        .shelf__inner {
-          width: 100%;
-          max-width: 820px;
-          display: grid;
-          gap: clamp(48px, 7vh, 72px);
-        }
-
-        .shelf__head { display: grid; gap: 18px; }
-        .shelf__title {
-          font-family: var(--font-stack-sans);
-          font-weight: 500;
-          font-size: clamp(22px, 2.4vw, 30px);
-          line-height: 1.25;
-          letter-spacing: var(--track-heading);
+        .bookmarks {
+          padding: 0 var(--margin-page);
+          max-width: 1280px;
+          margin-inline: auto;
           color: var(--ink);
-          margin: 6px 0 0;
-          max-width: 32ch;
+        }
+        .bookmarks__void { height: var(--space-void); }
+        .bookmarks__inner {
+          display: grid;
+          gap: var(--space-section);
         }
 
-        .shelf__section { display: grid; gap: 12px; }
-        .shelf__section-head {
+        /* ─── Head ─────────────────────────────────────────────────── */
+        .bookmarks__head { display: grid; gap: 18px; max-width: 720px; }
+        .bookmarks__eyebrow {
+          display: flex;
+          gap: 10px;
+          font-family: var(--font-stack-sans);
+          font-size: var(--type-nav);
+          line-height: 1;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
+        }
+        .bookmarks__eyebrow-sep { color: var(--ink-4); }
+        .bookmarks__title {
+          font-family: var(--font-stack-sans);
+          font-weight: 380;
+          font-size: var(--type-display);
+          line-height: 1.05;
+          letter-spacing: var(--track-display);
+          color: var(--ink);
+          margin: 0;
+        }
+        .bookmarks__lede {
+          font-family: var(--font-stack-sans);
+          font-size: var(--type-body);
+          line-height: 1.55;
+          color: var(--ink-2);
+          max-width: 56ch;
+          margin: 0;
+        }
+
+        /* ─── Sections ─────────────────────────────────────────────── */
+        .bookmarks__section { display: grid; gap: 12px; }
+        .bookmarks__section-head {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
           padding-bottom: 10px;
           border-bottom: 1px solid var(--ink);
         }
-        .shelf__section-label {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: var(--track-caps-mono);
+        .bookmarks__section-label {
+          font-family: var(--font-stack-sans);
+          font-size: var(--type-nav);
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--ink);
         }
-        .shelf__section-count {
+        .bookmarks__section-count {
           font-family: var(--font-stack-mono);
-          font-size: 10px;
+          font-size: var(--type-meta);
           letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-3);
           font-variant-numeric: tabular-nums;
         }
 
-        .shelf__list { list-style: none; margin: 0; padding: 0; }
-        .shelf__row { border-bottom: 1px solid var(--ink-hair); }
-        .shelf__row-link {
+        /* ─── List ─────────────────────────────────────────────────── */
+        .bookmarks__list { list-style: none; margin: 0; padding: 0; }
+        .bookmarks__row { border-bottom: 1px solid var(--ink-hair); }
+        .bookmarks__row-link {
           display: grid;
-          grid-template-columns: 64px 110px 1fr 22px;
+          grid-template-columns: 56px minmax(180px, 2fr) minmax(160px, 1.6fr) 96px 22px;
           gap: 20px;
           align-items: baseline;
-          padding: 14px 0;
+          padding: 14px 8px;
+          margin: 0 -8px;
           color: var(--ink);
-          transition: background 200ms var(--ease);
+          transition: background 380ms var(--ease);
         }
-        .shelf__row-link:hover { background: var(--ink-ghost); }
-        .shelf__row-link--static { cursor: default; }
+        .bookmarks__row-link:hover {
+          background: var(--ink-ghost);
+        }
+        .bookmarks__row-link--static { cursor: default; }
 
-        /* Notes section */
-        .shelf__row-num {
+        .bookmarks__row-num {
           font-family: var(--font-stack-mono);
-          font-size: 10px;
+          font-size: var(--type-number);
+          letter-spacing: var(--track-caps-mono);
+          text-transform: uppercase;
+          color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
+        }
+        .bookmarks__row-title {
+          font-family: var(--font-stack-sans);
+          font-size: var(--type-title);
+          color: var(--ink);
+          line-height: 1.35;
+        }
+        .bookmarks__row-meta {
+          font-family: var(--font-stack-sans);
+          font-size: var(--type-meta);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          font-variant-numeric: tabular-nums;
+          line-height: 1.4;
+        }
+        .bookmarks__row-kind {
+          font-family: var(--font-stack-mono);
+          font-size: var(--type-meta);
           letter-spacing: var(--track-caps-mono);
           text-transform: uppercase;
           color: var(--ink-4);
           font-variant-numeric: tabular-nums;
+          text-align: right;
         }
-        .shelf__row-date {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: 0;
-          color: var(--ink-3);
-          font-variant-numeric: tabular-nums;
-        }
-        .shelf__row-arrow {
+        .bookmarks__row-arrow {
           font-family: var(--font-stack-sans);
           font-size: 12px;
           color: var(--ink-3);
           text-align: right;
+          opacity: 0;
+          transform: translateX(0);
+          transition: opacity 200ms var(--ease), transform 200ms cubic-bezier(0.33, 0.12, 0.15, 1);
+        }
+        a.bookmarks__row-link:hover .bookmarks__row-arrow {
+          opacity: 1;
+          transform: translateX(6px);
         }
 
-        /* Bookmarks section — different grid columns */
-        .shelf__section:nth-of-type(2) .shelf__row-link {
-          grid-template-columns: 64px minmax(180px, 1.3fr) 1fr;
-        }
-        .shelf__row-year {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: 0;
-          color: var(--ink-4);
-          font-variant-numeric: tabular-nums;
-        }
-        .shelf__row-title {
-          font-family: var(--font-stack-sans);
-          font-size: 13px;
-          letter-spacing: 0;
-          color: var(--ink);
-        }
-        .shelf__row-attribution {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: var(--track-caps-mono);
-          text-transform: uppercase;
-          color: var(--ink-3);
-          text-align: right;
-        }
-
-        @media (max-width: 640px) {
-          .shelf__row-link {
-            grid-template-columns: 56px 1fr 18px;
-            gap: 12px 14px;
+        /* ─── Mobile ──────────────────────────────────────────────── */
+        @media (max-width: 760px) {
+          .bookmarks__row-link {
+            grid-template-columns: 40px 1fr;
+            row-gap: 4px;
+            column-gap: 12px;
           }
-          .shelf__row-date { display: none; }
-          .shelf__section:nth-of-type(2) .shelf__row-link {
-            grid-template-columns: 52px 1fr;
+          .bookmarks__row-meta {
+            grid-column: 2;
           }
-          .shelf__row-attribution {
+          .bookmarks__row-kind {
             grid-column: 2;
             text-align: left;
           }
+          .bookmarks__row-arrow { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .shelf__row-link { transition: none; }
+          .bookmarks__row-link,
+          .bookmarks__row-arrow { transition: none; }
         }
       `}</style>
     </main>
