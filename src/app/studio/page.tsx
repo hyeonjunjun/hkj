@@ -41,6 +41,11 @@ export default function StudioPage() {
           never in color-shift or theatrical framing. Restraint is the
           position, not the absence of one.
         </Note>
+        <Note heading="Stray Studio.">
+          A creative agency and design studio, in development. The work
+          shown here is the seed; Stray will be the studio&apos;s mature
+          shape — same hands, same register, room for collaborators.
+        </Note>
       </section>
 
       <p className="studio__facts tabular" aria-label="Facts">

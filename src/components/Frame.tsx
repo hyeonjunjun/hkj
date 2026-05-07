@@ -7,8 +7,12 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Frame — sticky horizontal top nav.
  *
- *   ┌─ stray ─────────────────────────── Work  Studio  Contact ─┐
+ *   ┌─ ryan jun ─────────────────────── Work  Studio  Contact ─┐
  *   ├────────────────────────────────────────────────────────────┤
+ *
+ * Personal portfolio masthead. The wordmark is the user's name, not
+ * the studio name (Stray Studio is mentioned editorially on /studio
+ * as a forthcoming entity, not as the site's owner).
  *
  * Plain text labels in Aino's masthead register — no numbered prefix,
  * no separators. Hides on scroll-down past 80px, reveals on scroll-up.
@@ -63,8 +67,8 @@ export default function Frame() {
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <Link href="/" className="frame__mark" aria-label="stray — home">
-        stray
+      <Link href="/" className="frame__mark" aria-label="ryan jun — home">
+        ryan jun
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">

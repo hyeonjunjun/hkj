@@ -1,9 +1,18 @@
-# STRAY — Portfolio Creative Direction
+# Ryan Jun — Portfolio Creative Direction
 ## The Art Direction Bible
 
 > Last updated 2026-05-06. Supersedes the 2026-04-24 studio-catalog direction.
-> The portfolio ships as Stray. Wordmark, masthead, folio, OG card, and
-> favicon all carry the rename.
+>
+> **Brand structure.** The website is a personal portfolio under
+> *Ryan Jun*. The masthead, OG card, favicon, and metadata all carry
+> the personal mark. *Stray Studio* is a forthcoming creative agency
+> and design studio — mentioned editorially on `/studio` as part of
+> the practice notes, not promoted as the site's owner. The document
+> below was originally drafted around "Stray" as the brand; the
+> language has been kept where it speaks to the editorial register
+> that holds across the portfolio (the monograph metaphor, the
+> strays, the four tests). Where it would mislead about the site's
+> ownership, it's been corrected.
 
 ---
 

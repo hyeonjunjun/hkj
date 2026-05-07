@@ -2,19 +2,29 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Stray — design engineering studio, New York";
+export const alt = "Ryan Jun — design engineer, New York";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Open Graph image — the studio's identity card.
+ * Open Graph image — the portfolio's identity card.
  *
- * Stray wordmark centered on the warm paper ground, with role line
- * below. Mono throughout, paper-and-ink palette. Matches the
- * portfolio's masthead and footer registers.
+ * Pixelated cloud monogram centered, wordmark below, role line below
+ * that. Same 8×5 silhouette as the favicon, scaled up to OG-card size
+ * (~14px per pixel). Mono throughout. Stray Studio is not promoted
+ * here — that lives only on /studio as editorial copy.
  */
+const CLOUD: ReadonlyArray<ReadonlyArray<0 | 1>> = [
+  [0, 0, 1, 1, 1, 1, 0, 0],
+  [0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+];
+
 export default async function Image() {
   const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
+  const PX = 14;
 
   return new ImageResponse(
     (
@@ -43,11 +53,11 @@ export default async function Image() {
             width: "100%",
           }}
         >
-          <span>Studio · 2026</span>
+          <span>Portfolio · 2026</span>
           <span>New York</span>
         </div>
 
-        {/* Center — wordmark + role */}
+        {/* Center — cloud monogram + wordmark + role */}
         <div
           style={{
             flex: 1,
@@ -55,12 +65,31 @@ export default async function Image() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: 24,
+            gap: 36,
           }}
         >
+          {/* Pixelated cloud */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {CLOUD.map((row, ri) => (
+              <div key={ri} style={{ display: "flex" }}>
+                {row.map((cell, ci) => (
+                  <div
+                    key={ci}
+                    style={{
+                      width: PX,
+                      height: PX,
+                      background: cell ? "#000000" : "transparent",
+                    }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Wordmark */}
           <div
             style={{
-              fontSize: 96,
+              fontSize: 72,
               lineHeight: 1,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
@@ -68,7 +97,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            stray
+            ryan jun
           </div>
 
           <div
@@ -80,7 +109,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            Design engineering studio
+            Design engineer
           </div>
         </div>
 
@@ -101,6 +130,6 @@ export default async function Image() {
         </div>
       </div>
     ),
-    { ...size }
+    { ...size },
   );
 }
