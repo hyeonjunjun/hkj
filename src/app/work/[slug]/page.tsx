@@ -143,9 +143,9 @@ function NotFound() {
           place-content: center;
         }
         .work-404__eyebrow {
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
-          letter-spacing: 0.12em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink-3);
           display: inline-flex;
@@ -202,10 +202,10 @@ function PageStyle() {
         display: inline-flex;
         flex-wrap: wrap;
         gap: 10px;
-        font-family: var(--font-stack-sans);
+        font-family: var(--font-stack-mono);
         font-size: var(--type-nav);
         line-height: 1;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--ink-3);
         font-variant-numeric: tabular-nums;
@@ -248,10 +248,10 @@ function PageStyle() {
         align-content: start;
       }
       .case__ledger-key {
-        font-family: var(--font-stack-sans);
+        font-family: var(--font-stack-mono);
         font-size: var(--type-nav);
         line-height: 1;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--ink-3);
         margin: 0;
@@ -295,10 +295,10 @@ function PageStyle() {
         color: var(--ink);
       }
       .case__next-label {
-        font-family: var(--font-stack-sans);
+        font-family: var(--font-stack-mono);
         font-size: var(--type-nav);
         line-height: 1;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--ink-3);
       }

@@ -3,32 +3,42 @@
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
   /* Paper-and-ink palette — single register, light only.
-     Both reference sites (hs68.la, aino.agency) operate light-only. */
+     Paper keeps the warm off-white signature (HS68 line). Ink moves to
+     Aino's pure-black system: titles & primary at #000000; body, chrome,
+     and faint accents step down via rgba opacity instead of separate
+     grey values. The opacity steps inherit the underlying paper warmth,
+     so type reads as ink soaked into the paper rather than as flat
+     greys overlaid on top. */
   --paper:   #FBFAF6;
   --paper-2: #F4F3EE;
   --paper-3: #E8E7E1;
-  --ink:     #111110;
-  --ink-2:   #55554F;
-  --ink-3:   #8E8E87;
-  --ink-4:   #BFBEB8;
 
-  --ink-hair:  rgba(17, 17, 16, 0.08);
-  --ink-ghost: rgba(17, 17, 16, 0.03);
+  --ink:     #000000;                 /* titles, statement, mark — primary */
+  --ink-2:   rgba(0, 0, 0, 0.92);     /* body, prose, lede */
+  --ink-3:   rgba(0, 0, 0, 0.72);     /* chrome — eyebrow, nav, captions, meta */
+  --ink-4:   rgba(0, 0, 0, 0.48);     /* faintest — folio, separators, placeholders */
+
+  --ink-hair:  rgba(0, 0, 0, 0.14);
+  --ink-ghost: rgba(0, 0, 0, 0.04);
 
   /* Type system — sans-only. The references (hs68, aino) ship with a
      single sans family. Mono is reserved for project numbers + folio. */
   --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
   --font-stack-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
 
-  /* Type scale — extracted from spec §02 */
-  --type-nav:        11px;
-  --type-number:     11px;
-  --type-title:      clamp(15px, 1.2vw, 18px);
-  --type-meta:       10px;
-  --type-body:       clamp(14px, 1vw, 16px);
-  --type-statement:  clamp(20px, 2.5vw, 32px);
-  --type-display:    clamp(28px, 3.8vw, 48px);
-  --type-folio:      9px;
+  /* Type scale — restrained editorial register, Aino-aligned.
+     One step smaller than the prior pass. Aino runs a single small
+     mono register for chrome (nav, eyebrow, footer, meta), with
+     display and body sized only marginally above it. The work is the
+     loud element, not the type. */
+  --type-nav:        10px;
+  --type-number:     10px;
+  --type-title:      clamp(12px, 0.85vw, 13.5px);
+  --type-meta:       9px;
+  --type-body:       clamp(12.5px, 0.8vw, 13.5px);
+  --type-statement:  clamp(15px, 1.6vw, 18px);
+  --type-display:    clamp(20px, 2.4vw, 28px);
+  --type-folio:      8px;
 
   /* Spacing — spec §04 */
   --margin-page:    clamp(20px, 4vw, 64px);

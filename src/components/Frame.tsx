@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * Frame — always-sticky horizontal top nav.
+ * Frame — sticky horizontal top nav.
  *
- *   ┌─ hyeonjoon jun ───────── 1 Work  2 Studio  3 Contact ─┐
- *   ├──────────────────────────────────────────────────────────┤
+ *   ┌─ stray ─────────────────────────── Work  Studio  Contact ─┐
+ *   ├────────────────────────────────────────────────────────────┤
  *
- * Numbered prefix borrowed from hs68.la's [1 COLLECTION] cadence.
- * Three clusters fit Aino's masthead density at our scale (an agency
- * with ten staff and five service lanes can afford five clusters; a
- * single design engineer cannot). Single Geist Sans family throughout.
+ * Plain text labels in Aino's masthead register — no numbered prefix,
+ * no separators. Hides on scroll-down past 80px, reveals on scroll-up.
+ * Mark and links share Geist Mono uppercase at 0.06em tracking.
  */
 
 type NavItem = { href: string; label: string };
@@ -30,15 +30,45 @@ function isActive(pathname: string | null, href: string): boolean {
 
 export default function Frame() {
   const pathname = usePathname();
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    // Reveal on scroll-up, hide on scroll-down past a threshold. The
+    // 8px tolerance keeps small jitters (trackpad inertia, anchor
+    // scroll-into-view) from toggling the bar; the 80px y-threshold
+    // keeps the masthead present at the top of the page.
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const dy = y - lastY.current;
+        if (Math.abs(dy) > 8) {
+          if (y > 80 && dy > 0) setHidden(true);
+          else if (dy < 0) setHidden(false);
+          lastY.current = y;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="frame" aria-label="Site masthead">
-      <Link href="/" className="frame__mark" aria-label="hyeonjoon jun — home">
-        hyeonjoon jun
+    <header
+      className="frame"
+      data-hidden={hidden ? "" : undefined}
+      aria-label="Site masthead"
+    >
+      <Link href="/" className="frame__mark" aria-label="stray — home">
+        stray
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">
-        {NAV.map((item, idx) => {
+        {NAV.map((item) => {
           const active = isActive(pathname, item.href);
           return (
             <Link
@@ -48,10 +78,7 @@ export default function Frame() {
               data-active={active ? "" : undefined}
               aria-current={active ? "page" : undefined}
             >
-              <span className="frame__link-num tabular" aria-hidden>
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-              <span className="frame__link-label">{item.label}</span>
+              {item.label}
             </Link>
           );
         })}
@@ -74,14 +101,24 @@ export default function Frame() {
           backdrop-filter: saturate(150%) blur(8px);
           -webkit-backdrop-filter: saturate(150%) blur(8px);
           pointer-events: auto;
+          transform: translateY(0);
+          transition: transform 250ms var(--ease);
+          will-change: transform;
+        }
+        .frame[data-hidden] {
+          transform: translateY(-100%);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .frame { transition: none; }
+          .frame[data-hidden] { transform: translateY(0); }
         }
 
         .frame__mark {
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
           font-weight: 400;
           line-height: 1;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink);
           justify-self: start;
@@ -96,26 +133,17 @@ export default function Frame() {
           justify-self: end;
         }
         .frame__link {
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
           font-weight: 400;
           line-height: 1;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink-3);
-          font-variant-numeric: tabular-nums;
-          display: inline-flex;
-          align-items: baseline;
-          gap: 6px;
           transition: color 180ms var(--ease);
         }
         .frame__link:hover { color: var(--ink); }
         .frame__link[data-active] { color: var(--ink); }
-        .frame__link-num {
-          color: var(--ink-4);
-          letter-spacing: 0.04em;
-        }
-        .frame__link[data-active] .frame__link-num { color: var(--ink-3); }
 
         @media (prefers-reduced-motion: reduce) {
           .frame__mark, .frame__link { transition: none; }
@@ -124,8 +152,6 @@ export default function Frame() {
         @media (max-width: 640px) {
           .frame { padding: 0 20px; }
           .frame__nav { gap: 14px; }
-          .frame__link { gap: 4px; }
-          .frame__link-num { display: none; }
         }
       `}</style>
     </header>

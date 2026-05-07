@@ -50,19 +50,30 @@ export default function CatalogPlate({ piece, aspect = "4 / 5" }: Props) {
     return () => io.disconnect();
   }, [reduced]);
 
-  const number = `§${piece.number}`;
+  const number = piece.number;
   const title = piece.placeholder ? "Untitled" : piece.title;
   const cover = piece.cover;
   const showLink = !piece.placeholder;
-  const meta = piece.placeholder
-    ? "Reserved · " + piece.year
-    : `${piece.sector} · ${piece.year}`;
+  const yearLabel = piece.placeholder ? "Reserved" : String(piece.year);
 
   const inner = (
     <article className="cat-plate" data-placeholder={piece.placeholder ? "" : undefined}>
       <div
         className="cat-plate__frame"
-        style={{ aspectRatio: aspect } as React.CSSProperties}
+        style={
+          {
+            aspectRatio: aspect,
+            // Shared-element morph target — matches CaseHero's frame on
+            // /work/[slug]. Only emit when the plate links somewhere;
+            // placeholders share no destination so a name would be
+            // orphaned. View-transition-names must also be unique on
+            // any single page, which holds because each slug renders
+            // at most one plate per route.
+            ...(showLink
+              ? { viewTransitionName: `work-cover-${piece.slug}` }
+              : null),
+          } as React.CSSProperties
+        }
       >
         {!piece.placeholder && cover?.kind === "video" ? (
           <video
@@ -92,12 +103,9 @@ export default function CatalogPlate({ piece, aspect = "4 / 5" }: Props) {
         )}
       </div>
       <footer className="cat-plate__caption">
-        <div className="cat-plate__line cat-plate__line--1">
-          <span className="cat-plate__num tabular">{number}</span>
-          <span className="cat-plate__sep" aria-hidden>·</span>
-          <span className="cat-plate__title">{title}</span>
-        </div>
-        <div className="cat-plate__line cat-plate__line--2 tabular">{meta}</div>
+        <span className="cat-plate__num tabular">{number}</span>
+        <span className="cat-plate__title">{title}</span>
+        <span className="cat-plate__year tabular">{yearLabel}</span>
       </footer>
 
       <PlateStyle />
@@ -160,38 +168,38 @@ function PlateStyle() {
         text-transform: uppercase;
       }
 
+      /* Aino-style flat caption: number — title — year on a single row,
+         with the year flush right via grid alignment. */
       .cat-plate__caption {
         display: grid;
-        gap: 4px;
-        line-height: 1.3;
-      }
-      .cat-plate__line--1 {
-        display: inline-flex;
+        grid-template-columns: auto 1fr auto;
         align-items: baseline;
-        gap: 8px;
-        flex-wrap: wrap;
-        font-family: var(--font-stack-sans);
+        gap: 12px;
+        line-height: 1.3;
       }
       .cat-plate__num {
         font-family: var(--font-stack-mono);
         font-size: var(--type-number);
         letter-spacing: 0.06em;
         color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
       }
-      .cat-plate__sep { color: var(--ink-4); }
       .cat-plate__title {
         font-family: var(--font-stack-sans);
         font-size: var(--type-title);
         font-weight: 400;
         letter-spacing: 0;
         color: var(--ink);
+        text-wrap: balance;
       }
       .cat-plate[data-placeholder] .cat-plate__title { color: var(--ink-3); }
-      .cat-plate__line--2 {
-        font-family: var(--font-stack-sans);
+      .cat-plate__year {
+        font-family: var(--font-stack-mono);
         font-size: var(--type-meta);
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         color: var(--ink-3);
+        font-variant-numeric: tabular-nums lining-nums;
+        justify-self: end;
       }
     `}</style>
   );

@@ -3,26 +3,46 @@
 import type { Piece } from "@/constants/pieces";
 import CatalogPlate from "@/components/CatalogPlate";
 import Footer from "@/components/Footer";
+import HomeHero from "@/components/HomeHero";
 
 /**
- * HomeView — homepage composition. Aino-style long-scroll catalog
- * with a positioning sentence partway through. No view toggle on
- * the homepage (Aino reserves the toggle for /work). The page is
- * intentionally short on a small portfolio: real pieces lead, then
- * the statement, then the rest of the catalog as small placeholder
- * blocks that don't pretend to be work.
+ * HomeView — homepage composition.
+ *
+ * Shape borrowed from two sites:
+ *   - hs68.la opens with a full-bleed video gate; the studio identity
+ *     speaks through atmosphere first.
+ *   - aino.agency follows with a quiet variable editorial grid: an
+ *     asymmetric pair, a single positioning sentence, then a single
+ *     offset, and a flat single-row footer.
+ *
+ * Pieces in display order:
+ *   real[0] (large)  +  real[1] (small)   — Row C, asymmetric pair
+ *   statement
+ *   real[2]                                — Row D, single offset
+ *
+ * Placeholder rows have been retired; the catalog only ships real
+ * work. If a real piece doesn't have a cover yet, its plate renders
+ * the "In development" frame and still links through to a partial
+ * case study.
  */
 type Props = { pieces: Piece[] };
 
 export default function HomeView({ pieces }: Props) {
   const real = pieces.filter((p) => !p.placeholder);
-  const placeholders = pieces.filter((p) => p.placeholder);
 
   return (
     <main id="main" className="home">
-      <div className="home__void" aria-hidden />
+      <HomeHero
+        src="/assets/cloudsatsea.mp4"
+        meta={{
+          title: "LA28",
+          description: "Brand Campaign · Personal Concept",
+          year: 2026,
+        }}
+      />
 
-      {/* ROW C — Asymmetric pair (58 / 38) — featured real work */}
+      {/* ROW C — Asymmetric pair (58 / 38). Larger plate carries the
+          stronger cover; in this catalog that's Gyeol's video. */}
       {real[0] && real[1] && (
         <section className="home__row home__row--C" aria-label="Featured">
           <div className="home__cell home__cell--58">
@@ -34,22 +54,21 @@ export default function HomeView({ pieces }: Props) {
         </section>
       )}
 
-      {/* Statement — Aino's mid-page positioning sentence */}
+      {/* Statement — Aino's mid-page positioning sentence, plural studio voice */}
       <section className="home__statement" aria-label="Statement">
         <p>
-          a design engineer building interfaces and brands — and the
-          small things between them.
+          A design-engineering studio of one. Working between interface
+          and identity, sketch to ship.
         </p>
       </section>
 
-      {/* Placeholder rows — quiet, paper-2 only, no diagonal stripes */}
-      {placeholders.length > 0 && (
-        <section className="home__row home__row--B" aria-label="Index">
-          {placeholders.slice(0, 2).map((p) => (
-            <div key={p.slug} className="home__cell home__cell--50">
-              <CatalogPlate piece={p} aspect="3 / 4" />
-            </div>
-          ))}
+      {/* ROW D — Single offset (~45% width, pushed left). The empty
+          space on the right IS the composition. Don't fill it. */}
+      {real[2] && (
+        <section className="home__row home__row--D" aria-label="Index">
+          <div className="home__cell home__cell--45">
+            <CatalogPlate piece={real[2]} aspect="3 / 4" />
+          </div>
         </section>
       )}
 
@@ -62,7 +81,6 @@ export default function HomeView({ pieces }: Props) {
           margin-inline: auto;
           display: grid;
         }
-        .home__void { height: var(--space-void); }
 
         .home__row {
           display: grid;
@@ -70,7 +88,10 @@ export default function HomeView({ pieces }: Props) {
           margin-bottom: var(--space-row);
         }
         .home__row--C { grid-template-columns: 58fr 38fr; align-items: end; }
-        .home__row--B { grid-template-columns: 1fr 1fr; }
+        .home__row--D {
+          grid-template-columns: 45fr 55fr;
+          align-items: start;
+        }
         .home__cell { display: block; }
 
         .home__statement {
@@ -92,9 +113,8 @@ export default function HomeView({ pieces }: Props) {
         }
 
         @media (max-width: 760px) {
-          .home__row--C, .home__row--B { grid-template-columns: 1fr; }
+          .home__row--C, .home__row--D { grid-template-columns: 1fr; }
           .home__row { margin-bottom: clamp(40px, 8vh, 64px); gap: 18px; }
-          .home__void { height: clamp(80px, 18vh, 140px); }
         }
       `}</style>
     </main>

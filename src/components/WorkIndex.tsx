@@ -13,11 +13,11 @@ import Footer from "@/components/Footer";
  * of project covers, Grid/List toggle at the top-right. No statement,
  * no asymmetric rows — this page is a dedicated catalog index.
  *
- * View choice persists in localStorage under hkj.work.view.
+ * View choice persists in localStorage under stray.work.view.
  */
 type Props = { pieces: Piece[] };
 
-const STORAGE_KEY = "hkj.work.view";
+const STORAGE_KEY = "stray.work.view";
 type View = "grid" | "list";
 
 export default function WorkIndex({ pieces }: Props) {
@@ -41,13 +41,7 @@ export default function WorkIndex({ pieces }: Props) {
   return (
     <main id="main" className="workidx">
       <header className="workidx__head">
-        <p className="workidx__eyebrow">
-          <span>Work</span>
-          <span className="workidx__sep" aria-hidden>·</span>
-          <span className="tabular">{pieces.length} entries</span>
-          <span className="workidx__sep" aria-hidden>·</span>
-          <span className="tabular">2025–2026</span>
-        </p>
+        <p className="workidx__eyebrow">Work</p>
         <h1 className="workidx__title">Selected work and projects.</h1>
       </header>
 
@@ -83,19 +77,14 @@ export default function WorkIndex({ pieces }: Props) {
           margin-bottom: clamp(28px, 3.5vw, 48px);
         }
         .workidx__eyebrow {
-          display: inline-flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
           line-height: 1;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink-3);
-          font-variant-numeric: tabular-nums;
           margin: 0;
         }
-        .workidx__sep { color: var(--ink-4); }
         .workidx__title {
           font-family: var(--font-stack-sans);
           font-weight: 380;

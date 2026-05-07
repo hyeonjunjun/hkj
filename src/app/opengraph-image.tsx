@@ -2,16 +2,16 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Hyeonjoon Jun — design engineer, New York";
+export const alt = "Stray — design engineering studio, New York";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Open Graph image — the portfolio's identity card.
+ * Open Graph image — the studio's identity card.
  *
- * ASCII monogram mark (3-line framed stamp) centered, with name and
- * role below. Mono throughout. Paper-and-ink palette. Matches the
- * /contact business-card composition's hierarchy.
+ * Stray wordmark centered on the warm paper ground, with role line
+ * below. Mono throughout, paper-and-ink palette. Matches the
+ * portfolio's masthead and footer registers.
  */
 export default async function Image() {
   const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
@@ -23,7 +23,7 @@ export default async function Image() {
           width: "100%",
           height: "100%",
           background: "#FBFAF6",
-          color: "#111110",
+          color: "#000000",
           display: "flex",
           flexDirection: "column",
           padding: 56,
@@ -36,18 +36,18 @@ export default async function Image() {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            fontSize: 15,
-            letterSpacing: "0.26em",
+            fontSize: 14,
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "#8E8E87",
+            color: "rgba(0,0,0,0.55)",
             width: "100%",
           }}
         >
-          <span>Work from the studio</span>
-          <span>New York · 2026</span>
+          <span>Studio · 2026</span>
+          <span>New York</span>
         </div>
 
-        {/* Center — mark + name + role */}
+        {/* Center — wordmark + role */}
         <div
           style={{
             flex: 1,
@@ -58,49 +58,29 @@ export default async function Image() {
             gap: 24,
           }}
         >
-          {/* ASCII logo mark — 3-line framed stamp */}
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              fontSize: 72,
+              fontSize: 96,
               lineHeight: 1,
-              letterSpacing: "0.05em",
-              textAlign: "center",
-              whiteSpace: "pre",
-              color: "#111110",
-              marginBottom: 32,
-            }}
-          >
-            <div>·───·</div>
-            <div> h·j </div>
-            <div>·───·</div>
-          </div>
-
-          {/* Name */}
-          <div
-            style={{
-              fontSize: 44,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
-              color: "#111110",
+              color: "#000000",
               display: "flex",
             }}
           >
-            Hyeonjoon Jun
+            stray
           </div>
 
-          {/* Role */}
           <div
             style={{
-              fontSize: 15,
-              letterSpacing: "0.26em",
+              fontSize: 14,
+              letterSpacing: "0.22em",
               textTransform: "uppercase",
-              color: "#55554F",
+              color: "rgba(0,0,0,0.55)",
               display: "flex",
             }}
           >
-            Design engineer
+            Design engineering studio
           </div>
         </div>
 
@@ -109,10 +89,10 @@ export default async function Image() {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            fontSize: 13,
-            letterSpacing: "0.22em",
+            fontSize: 12,
+            letterSpacing: "0.20em",
             textTransform: "uppercase",
-            color: "#8E8E87",
+            color: "rgba(0,0,0,0.55)",
             width: "100%",
           }}
         >

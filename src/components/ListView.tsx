@@ -116,9 +116,10 @@ function ListStyle() {
         line-height: 1.3;
       }
 
-      /* Type / sector — sans micro per spec (NOT mono) */
+      /* Type / sector — mono microtype, same register as the rest of
+         the chrome (Aino-aligned). */
       .listview__type {
-        font-family: var(--font-stack-sans);
+        font-family: var(--font-stack-mono);
         font-size: var(--type-meta);
         letter-spacing: 0.04em;
         color: var(--ink-3);

@@ -58,9 +58,9 @@ function ToggleStyle() {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        font-family: var(--font-stack-sans);
+        font-family: var(--font-stack-mono);
         font-size: var(--type-nav);
-        letter-spacing: 0.12em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
         line-height: 1;
       }

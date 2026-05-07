@@ -24,55 +24,40 @@ export interface Piece {
   coverFit?: "cover" | "center";
   /** Aspect ratio string for the home strip frame (e.g. "16 / 9", "4 / 5", "1 / 1"). */
   coverAspect?: string;
-  /** Width as a percentage of the strip column (0–100). Defaults to 100. */
-  coverWidth?: number;
   tags: string[];
   /**
    * Optional alternate cover frame; revealed on hover. Same shape as
    * `cover` (video or image discriminated union) so the renderer can
-   * reuse the existing branch. Diverges intentionally from spec §6's
-   * `coverAlt?: string` for symmetry with `cover`.
+   * reuse the existing branch.
    */
   coverAlt?: CatalogCover;
   /**
-   * Optional caption microtype: EXIF, coordinate, location, source.
-   * Renders as the 5th caption line per spec §9 (`Geist Sans 11px,
-   * 0.08em tracking, var(--ink-4)`). The 4 mandatory fields above
-   * (slug → number, title, year, sector → role, description) are
-   * always present.
-   */
-  meta?: string;
-  /**
    * When true, the plate renders as a static reserved cell (no link,
    * no cover, paper-2 fill). Used for "Untitled" placeholders that
-   * hold the grid's rhythm before content lands.
+   * hold the grid's rhythm before content lands. Currently no entries
+   * use this — the catalog only ships real work.
    */
   placeholder?: boolean;
 }
 
+/**
+ * The catalog. Three real pieces — numbered by visual readiness, not
+ * by chronology. Gyeol leads (most polished, video cover, full
+ * editorial). Sift follows (image cover, in production). Halo Halo!
+ * sits last in the catalog as a real piece without a cover yet — its
+ * plate renders the "In development" frame and links through to a
+ * partial case study.
+ */
 export const PIECES: Piece[] = [
-  {
-    slug: "untitled-01",
-    title: "Untitled",
-    type: "project",
-    order: 1,
-    number: "01",
-    sector: "TBD",
-    description: "Coming.",
-    status: "wip",
-    year: 2026,
-    started: "2026-05",
-    tags: [],
-    placeholder: true,
-  },
   {
     slug: "gyeol",
     title: "Gyeol: 결",
     type: "project",
-    order: 2,
-    number: "02",
+    order: 1,
+    number: "01",
     sector: "Brand · Ecommerce · 3D",
-    description: "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",
+    description:
+      "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",
     status: "shipped",
     year: 2026,
     started: "2026-02",
@@ -83,31 +68,17 @@ export const PIECES: Piece[] = [
       poster: "/images/gyeol-spring.webp",
     },
     coverAspect: "3 / 4",
-    coverWidth: 68,
     tags: ["brand", "ecommerce", "3d"],
-  },
-  {
-    slug: "untitled-03",
-    title: "Untitled",
-    type: "project",
-    order: 3,
-    number: "03",
-    sector: "TBD",
-    description: "Coming.",
-    status: "wip",
-    year: 2026,
-    started: "2026-04",
-    tags: [],
-    placeholder: true,
   },
   {
     slug: "sift",
     title: "Sift",
     type: "project",
-    order: 4,
-    number: "04",
+    order: 2,
+    number: "02",
     sector: "Mobile · AI · Product",
-    description: "An AI tool that surfaces what matters in your camera roll.",
+    description:
+      "An AI tool that surfaces what matters in your camera roll.",
     status: "shipped",
     year: 2025,
     started: "2025-09",
@@ -115,49 +86,20 @@ export const PIECES: Piece[] = [
     cover: { kind: "image", src: "/images/sift-v2.webp" },
     coverFit: "center",
     coverAspect: "9 / 16",
-    coverWidth: 54,
     tags: ["mobile", "ai", "product"],
   },
   {
-    slug: "untitled-05",
-    title: "Untitled",
+    slug: "halo-halo",
+    title: "Halo Halo!",
     type: "project",
-    order: 5,
-    number: "05",
-    sector: "TBD",
-    description: "Coming.",
-    status: "wip",
+    order: 3,
+    number: "03",
+    sector: "Brand · Café",
+    description: "A café brand and identity system. Cover in production.",
+    status: "shipped",
     year: 2026,
-    started: "2026-03",
-    tags: [],
-    placeholder: true,
-  },
-  {
-    slug: "untitled-06",
-    title: "Untitled",
-    type: "project",
-    order: 6,
-    number: "06",
-    sector: "TBD",
-    description: "Coming.",
-    status: "wip",
-    year: 2026,
-    started: "2026-01",
-    tags: [],
-    placeholder: true,
-  },
-  {
-    slug: "untitled-07",
-    title: "Untitled",
-    type: "project",
-    order: 7,
-    number: "07",
-    sector: "TBD",
-    description: "Coming.",
-    status: "wip",
-    year: 2026,
-    started: "2025-12",
-    tags: [],
-    placeholder: true,
+    started: "2026-04",
+    coverAspect: "3 / 4",
+    tags: ["brand", "cafe"],
   },
 ];
