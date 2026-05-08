@@ -120,7 +120,10 @@ export default function Frame() {
         .frame__mark {
           font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
-          font-weight: 400;
+          /* One step heavier than the nav links so the mark reads as
+             the brand and the links read as wayfinding. Same family,
+             same size, same color — only weight differentiates. */
+          font-weight: 500;
           line-height: 1;
           letter-spacing: 0.06em;
           text-transform: uppercase;

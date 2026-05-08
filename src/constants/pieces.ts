@@ -41,34 +41,29 @@ export interface Piece {
 }
 
 /**
- * The catalog. Three real pieces — numbered by visual readiness, not
- * by chronology. Gyeol leads (most polished, video cover, full
- * editorial). Sift follows (image cover, in production). Halo Halo!
- * sits last in the catalog as a real piece without a cover yet — its
- * plate renders the "In development" frame and links through to a
- * partial case study.
+ * The catalog. Three real pieces, all static images now (the Gyeol
+ * b-roll loop has been retired in favor of the rain plate — quieter,
+ * matches the single-register of the rest of the catalog). Halo Halo!
+ * leads with its ube-powder packaging; Sift follows; Gyeol closes in
+ * the single-offset slot.
  */
 export const PIECES: Piece[] = [
   {
-    slug: "gyeol",
-    title: "Gyeol: 결",
+    slug: "halo-halo",
+    title: "Halo Halo!",
     type: "project",
     order: 1,
     number: "01",
-    sector: "Brand · Ecommerce · 3D",
+    sector: "Brand · Café",
     description:
-      "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",
+      "A café brand for Halo Halo! — a New York ube shop. Purple-forward identity, packaging, and signage.",
     status: "shipped",
     year: 2026,
-    started: "2026-02",
-    image: "/images/gyeol-display-hanji.webp",
-    cover: {
-      kind: "video",
-      src: "/assets/gyeol-broll-combined.mp4",
-      poster: "/images/gyeol-spring.webp",
-    },
+    started: "2026-04",
+    image: "/images/halo-halo/image-31.png",
+    cover: { kind: "image", src: "/images/halo-halo/image-31.png" },
     coverAspect: "3 / 4",
-    tags: ["brand", "ecommerce", "3d"],
+    tags: ["brand", "cafe"],
   },
   {
     slug: "sift",
@@ -89,17 +84,20 @@ export const PIECES: Piece[] = [
     tags: ["mobile", "ai", "product"],
   },
   {
-    slug: "halo-halo",
-    title: "Halo Halo!",
+    slug: "gyeol",
+    title: "Gyeol: 결",
     type: "project",
     order: 3,
     number: "03",
-    sector: "Brand · Café",
-    description: "A café brand and identity system. Cover in production.",
+    sector: "Brand · Ecommerce · 3D",
+    description:
+      "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",
     status: "shipped",
     year: 2026,
-    started: "2026-04",
+    started: "2026-02",
+    image: "/images/gyeol-rain.webp",
+    cover: { kind: "image", src: "/images/gyeol-rain.webp" },
     coverAspect: "3 / 4",
-    tags: ["brand", "cafe"],
+    tags: ["brand", "ecommerce", "3d"],
   },
 ];

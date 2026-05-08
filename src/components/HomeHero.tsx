@@ -127,10 +127,14 @@ export default function HomeHero({ src, poster, meta }: Props) {
           display: block;
         }
 
-        /* Caption — three-column plate-shaped row. Sits inside the page
-           margins (the hero bled out, the caption returns to the gutter). */
+        /* Caption — bound to the hero's own edges, NOT the page-margin
+           gutter the catalog uses below. The hero is a full-bleed
+           module; this caption is its plaque, so it sits inside the
+           video's edge by a small flat inset rather than aligning to
+           the same margin token as the project plates. That decouples
+           "metadata for the video" from "first row of the catalog". */
         .home-hero__caption {
-          padding: 0 var(--margin-page);
+          padding: 0 clamp(16px, 1.6vw, 28px);
           display: grid;
           grid-template-columns: auto 1fr auto;
           align-items: baseline;

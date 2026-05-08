@@ -53,7 +53,7 @@ export default function WorkIndex({ pieces }: Props) {
         <section className="workidx__grid" aria-label="Catalog">
           {pieces.map((p) => (
             <div key={p.slug} className="workidx__cell">
-              <CatalogPlate piece={p} aspect="3 / 4" />
+              <CatalogPlate piece={p} aspect={p.coverAspect ?? "3 / 4"} />
             </div>
           ))}
         </section>

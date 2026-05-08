@@ -41,15 +41,17 @@ export default function HomeView({ pieces }: Props) {
         }}
       />
 
-      {/* ROW C — Asymmetric pair (58 / 38). Larger plate carries the
-          stronger cover; in this catalog that's Gyeol's video. */}
+      {/* ROW C — Asymmetric pair (58 / 38). Each plate honours its
+          own coverAspect — Sift at 9:16 reads taller than Halo Halo!
+          at 3:4, and the row uses align-items: end so bottoms align
+          and the differing tops become the editorial asymmetry. */}
       {real[0] && real[1] && (
         <section className="home__row home__row--C" aria-label="Featured">
           <div className="home__cell home__cell--58">
-            <CatalogPlate piece={real[0]} aspect="3 / 4" />
+            <CatalogPlate piece={real[0]} aspect={real[0].coverAspect ?? "3 / 4"} />
           </div>
           <div className="home__cell home__cell--38">
-            <CatalogPlate piece={real[1]} aspect="3 / 4" />
+            <CatalogPlate piece={real[1]} aspect={real[1].coverAspect ?? "3 / 4"} />
           </div>
         </section>
       )}
@@ -67,7 +69,7 @@ export default function HomeView({ pieces }: Props) {
       {real[2] && (
         <section className="home__row home__row--D" aria-label="Index">
           <div className="home__cell home__cell--45">
-            <CatalogPlate piece={real[2]} aspect="3 / 4" />
+            <CatalogPlate piece={real[2]} aspect={real[2].coverAspect ?? "3 / 4"} />
           </div>
         </section>
       )}
