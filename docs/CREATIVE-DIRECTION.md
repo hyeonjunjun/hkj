@@ -1,18 +1,29 @@
-# Ryan Jun — Portfolio Creative Direction
-## The Art Direction Bible
+# stray — Creative Direction
 
-> Last updated 2026-05-06. Supersedes the 2026-04-24 studio-catalog direction.
+> **Brand: stray, a creative studio.** The studio is one person right now (Ryan Jun, Hyeonjoon Jun, New York) but the brand is named to outlast the founder count. The masthead, OG card, favicon, and metadata all carry the studio mark. Ryan Jun is identified on `/studio` as the practice's founder, not promoted as the site's owner.
 >
-> **Brand structure.** The website is a personal portfolio under
-> *Ryan Jun*. The masthead, OG card, favicon, and metadata all carry
-> the personal mark. *Stray Studio* is a forthcoming creative agency
-> and design studio — mentioned editorially on `/studio` as part of
-> the practice notes, not promoted as the site's owner. The document
-> below was originally drafted around "Stray" as the brand; the
-> language has been kept where it speaks to the editorial register
-> that holds across the portfolio (the monograph metaphor, the
-> strays, the four tests). Where it would mislead about the site's
-> ownership, it's been corrected.
+> **Last updated 2026-05-06.** Supersedes the earlier "HKJ Studio" / "Hyeonjoon Jun" / "Ryan Jun personal portfolio" framings — those were transitional. The studio name is locked.
+>
+> This document is the canonical creative direction. It captures the philosophy, the systems, the references, and the roadmap. A fresh session (or a continuation on mobile) should be able to pick up cold from here without losing context.
+
+---
+
+## The Conceptual Frame
+
+> **A monograph laid open on a concrete table. The work is the room.**
+
+Every design decision answers to that one sentence. When in doubt, test against it: does this element belong in the monograph? If it would feel out of place in a quietly printed book on a concrete table, it goes.
+
+This is the **one frame** that locks the work. The earlier session draft floated four candidates ("studio of one," "subtraction is the practice," "built where it ships," etc) — those are all true descriptions of the practice but only one of them does the load-bearing work of *the frame*. The monograph metaphor:
+
+- Sets the register (editorial, restrained, physical)
+- Determines the type system (mono chrome + sans reading, like a printed catalog)
+- Determines the color system (warm paper, pure ink)
+- Determines the pace (one idea per spread)
+- Determines the grid (12-col with consistent margins, like book pages)
+- Determines the strays (hand-placed details, like a printer's marks)
+
+If the monograph metaphor and the work ever conflict, the metaphor wins. That's how a brand stays coherent.
 
 ---
 
@@ -20,9 +31,9 @@
 
 Someone opens the site. Within 3 seconds they should feel:
 
-"This is quiet. This is warm. This person has an eye. I want to scroll slowly."
+> *This is quiet. This is warm. This person has an eye. I want to scroll slowly.*
 
-Not impressed. Not overwhelmed. Not "wow, cool animation." Just a room they want to stay in. The portfolio is a space with good light, good proportion, and nothing competing for their attention. The work is already there, already breathing, and they arrived.
+Not impressed. Not overwhelmed. Not "wow, cool animation." A room they want to stay in. The portfolio is a space with good light, good proportion, and nothing competing for their attention. The work is already there, already breathing, and they arrived.
 
 ---
 
@@ -30,11 +41,7 @@ Not impressed. Not overwhelmed. Not "wow, cool animation." Just a room they want
 
 The portfolio operates at ONE register — never shifts, never raises its voice.
 
-That register is: **a well-edited monograph lying open on a concrete table in a room with one large window.**
-
-Not a magazine (too loud). Not a gallery wall card (too institutional). Not a tech startup landing page (too eager). Not a fashion lookbook (too styled). A monograph. Something that was printed in an edition of 500 and placed in the right bookstores without a press release. You find it or you don't.
-
-Every decision — type size, spacing, motion timing, image crop, copy length — gets tested against this register. If it belongs in the monograph, it stays. If it would feel out of place in a quietly printed book on a concrete table, it goes.
+That register is the monograph (above). Not a magazine (too loud). Not a gallery wall card (too institutional). Not a tech startup landing page (too eager). Not a fashion lookbook (too styled). A monograph — printed in an edition of 500, placed in the right bookstores without a press release. You find it or you don't.
 
 ---
 
@@ -42,57 +49,126 @@ Every decision — type size, spacing, motion timing, image crop, copy length �
 
 The portfolio has a specific quality of light. Not literal lighting effects — the tonal quality of the entire experience.
 
-**The light is: late morning, overcast, through a north-facing window.**
+> **Late morning, overcast, through a north-facing window.**
 
 This means:
-
 - Even illumination. No harsh shadows, no dramatic contrast in the UI chrome.
 - Warm but not golden. The off-white ground (`#FBFAF6`) is the color of paper under this light.
-- Pure black ink, softened by warm paper. The primary ink is `#000000` and the lower hierarchy steps are `rgba(0,0,0,0.92 / 0.72 / 0.48 / 0.14)`. Why opacity steps and not solid greys: black at reduced opacity *takes on the paper's warmth*, so secondary text reads as ink soaked into the page rather than cold grey printed on top of it. Solid neutral greys would clash with the warm ground.
-- No pure white anywhere. The ground is always `#FBFAF6`. Pure `#FFFFFF` would break the light quality like a fluorescent tube in a candlelit room.
-- No pure black backgrounds. Even when dark video appears (the homepage hero), it sits within the warm paper margins. The portfolio frame is always paper.
+- Pure black ink, softened by warm paper. Primary ink at `#000000`, lower hierarchy steps as `rgba(0,0,0,X)` so secondary text inherits the paper's warmth (ink absorbs into the page rather than cold grey overlaid on top).
+- No pure white. `#FBFAF6` is the ground.
+- No pure black backgrounds. Even when dark video appears (the LA28 hero), it sits within the warm paper margins.
 
 ---
 
 ## The Pace
 
-The site has a specific reading speed. Not scroll speed — the rate at which the viewer encounters new information.
+> **One idea per viewport height.**
 
-**The pace is: one idea per viewport height.**
+On the homepage, each scroll-stop gives you one thing: the LA28 hero, then a featured pair, then the positioning statement, then a single offset. Never two ideas competing in the same viewport. The generous vertical spacing (64–120px between rows) prevents the viewer from seeing the next thing before they've absorbed the current thing.
 
-On the homepage, each scroll-stop gives you one thing: the hero video, then a project pair, then the positioning statement, then more projects. Never two ideas competing in the same viewport. The generous vertical spacing (64–120px between rows) is what creates this pace — it prevents the viewer from seeing the next thing before they've absorbed the current thing.
+In case studies, the pace alternates: media (feel) → text (think) → media (feel) → text (think). Never two text blocks in a row. Never three media blocks in a row.
 
-In case studies, the pace alternates: media (feel) → text (think) → media (feel) → text (think). Never two text blocks in a row. Never three media blocks in a row. The alternation creates a reading rhythm like turning pages in a book — image spread, text spread, image spread.
+---
+
+## The Type System (current shipped state)
+
+Two families, no more:
+
+- **Geist Sans** — reading type. Plate titles, body, prose, statement, lede, page titles, ledger values.
+- **Geist Mono** — chrome. Frame mark, nav, eyebrows, captions (number + year), footer chrome, ledger keys, view toggle, list-view sector, folio.
+
+```
+--type-nav        10px      mono chrome (nav, eyebrow, label)
+--type-number     10px
+--type-meta       9px       caption desc, ledger key
+--type-folio      8px
+--type-title      clamp(12, 0.85vw, 13.5)   plate titles, sans
+--type-body       clamp(12.5, 0.8vw, 13.5)
+--type-statement  clamp(15, 1.6vw, 18)      home statement, lede
+--type-display    clamp(20, 2.4vw, 28)      page titles, case hero
+```
+
+Mono tracking: 0.06em uppercase. Tighter than the old 0.12em sans tracking — mono letters are wide enough that wider tracking reads as wandering.
+
+Frame mark sits at `font-weight: 500`; nav links at 400. Same family, same size, same color — weight differentiation does the hierarchy job.
+
+---
+
+## The Color System (current shipped state)
+
+```
+--paper        #FBFAF6                  warm off-white (HS68 line)
+--paper-2      #F4F3EE
+--paper-3      #E8E7E1
+--ink          #000000                  pure black titles + mark
+--ink-2        rgba(0, 0, 0, 0.92)      body, prose, lede
+--ink-3        rgba(0, 0, 0, 0.72)      chrome (eyebrow, nav, captions)
+--ink-4        rgba(0, 0, 0, 0.48)      faintest (folio, separators)
+--ink-hair     rgba(0, 0, 0, 0.14)      hairline rules
+```
+
+Aino-aligned: pure-black primary ink, opacity steps for hierarchy. The opacity steps inherit the paper's warmth so secondary text reads as ink absorbed into the page rather than cold neutral grey overlaid. No solid neutral greys.
+
+---
+
+## The Grid System (current shipped state)
+
+**12-column grid with content at columns 2–11.** Cols 1 and 12 are outer paper gutters that hold consistent ratio at every viewport size — the ratio of paper to content is fixed by the column system, not by viewport math.
+
+```
+.home {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap-plates);
+  row-gap: var(--space-row);
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: 0 var(--margin-page);
+}
+
+/* Default: every direct child sits at cols 2-11 */
+.home > * { grid-column: 2 / -2; }
+```
+
+Sub-row sections use `grid-template-columns: subgrid` so internal cells inherit the parent column tracks exactly.
+
+Current homepage placements:
+- Hero / LA28: cols 2/-2 (full 10-col content row, 16:9 video)
+- Asymmetric pair: 6 + 4 cols
+- Statement: cols 4 / span 6 (centered 6 cols)
+- Single offset: cols 1 / span 5 inside the subgrid (5 cols, 5 cols of paper to right)
+- Footer: cols 2/-2
+
+Mobile (≤760px): grid collapses to 1fr; every cell spans full width.
+
+> **Important — system inconsistency, currently being addressed.** The 12-col grid is currently only applied to `HomeView`. `/work`, `/studio`, `/contact`, `/work/[slug]` use ad-hoc layouts with arbitrary max-widths (1080px, 1440px). This is the **biggest cohesiveness gap** on the site right now. Roadmap item #1 is to apply the 12-col system to every page.
 
 ---
 
 ## The Media
 
-### Photography / Video Direction for Project Covers
+### Project Covers (aspirational direction)
 
-Every project cover gets art directed to feel like it belongs in the same room. The principles below are **aspirational** — they describe what the portfolio should be when every cover has been color-graded for the system. Until then, accept that some covers will sit slightly outside the room. Don't ship a cover that sits *jarringly* outside it.
+Every project cover gets art directed to feel like it belongs in the same room. The principles below describe what the portfolio *should* be when every cover has been color-graded for the system. Until then, accept that some covers will sit slightly outside the room. **Don't ship a cover that sits jarringly outside it.**
 
-**Color temperature.** Covers lean warm-neutral. Cool-toned projects should have warmth lifted in post so blue reads as warm-grey-blue, not cold-digital-blue. Hot-toned projects should be desaturated until they sit comfortably on the warm paper ground.
+- **Color temperature.** Lean warm-neutral. Cool-toned projects have warmth lifted in post. Hot-toned projects desaturated until they sit on the warm paper.
+- **Contrast.** Medium. No crushed blacks, no blown whites. Tonal range compressed — like a scan of a printed page (darkest = 95%, lightest = 5%).
+- **Grain.** Subtle, uniform grain matched to the paper.
+- **Aspect ratios.** Each project takes its natural ratio.
 
-**Contrast.** Medium contrast across covers. No crushed blacks, no blown whites. Tonal range compressed — like a scan of a printed page where the darkest dark is 95% and the lightest light is 5%.
+**Operational gate:** before adding a new project to the homepage — does the cover meet at least the warm/contrast bar? If not, fix it before shipping or hold it in a placeholder slot. **Don't lower the bar for the room.**
 
-**Grain.** A subtle, uniform grain in post on homepage covers, matched to the paper grain of the background. The covers sit ON the paper. They should feel like they were printed on it.
+### Hero Video (current shipped state)
 
-**Aspect ratios.** Each project takes its natural ratio. Art direct the crop so the composition leads the eye to center or center-left.
+The homepage opens with `cloudsatsea.mp4` as the LA28 piece's cover — autoplay, muted, looped, playsInline. Now sits inside the 12-col grid as the catalog's first item, not as a separate hero section. WIP status (LA28) gives it a backdrop-filter blur on hover (visual stays intact, becomes un-clarified — the work is in progress).
 
-**Operational gate.** Before adding a new project to the homepage: does the cover meet at least the warm/contrast bar? If not, fix it before shipping or hold the project in a placeholder slot. Do not lower the bar for the room.
+The video's first frame fills in once metadata loads; before that, paper-2 is the fallback.
 
-### Media in Case Studies
+### Case Studies
 
-Inside case studies, the media gets more room to be itself — covers are the curated selection, case-study interiors are the full story. But:
-
-**No media sits edge-to-edge on the viewport.** It always lives within the page margins. The paper ground is always visible around the media. The media is ON the page, not IS the page. This is the monograph principle.
-
-**Maximum 1–2 full-bleed moments per case study.** These are the moments where the image breaks the margin and runs edge-to-edge. Use them for the single most powerful image in the project — the one that defines everything. The fact that it breaks the rule IS what makes it powerful. If every image is full-bleed, none of them are.
-
-**Video in case studies plays on click, not autoplay.** A poster frame is visible. The viewer chooses to engage. The CaseHero's centered play disc is the monograph equivalent of a tipped-in plate — visible, but the act of engaging is deliberate.
-
-**The homepage hero is the one autoplay exception.** It's the gate. It begins playing on arrival, muted/looped/silent, and pauses when scrolled past. Sound is never offered — silence is the editorial choice. (Contrast: HS68's "Unmute" affordance, which we explicitly don't carry.)
+- No media sits edge-to-edge on the viewport. Always lives within page margins. The paper ground is always visible around the media.
+- **Maximum 1–2 full-bleed moments per case study.** Use them for the single most powerful image. The fact that it breaks the rule IS what makes it powerful.
+- Video plays on click, not autoplay. Poster frame visible. Engagement deliberate.
 
 ---
 
@@ -100,254 +176,366 @@ Inside case studies, the media gets more room to be itself — covers are the cu
 
 A monograph held in two hands reads differently than one lying on a concrete table. The portfolio's register has to hold in both postures.
 
-**The mobile feeling.** Same room, same light, same paper — but you're closer to the page. Your peripheral vision sees the edges. The composition has to be more vertical, more direct, fewer competing elements per viewport.
+What collapses, what holds:
 
-**What collapses, what holds.**
+- The 12-col grid collapses to single-column at ≤760px.
+- Hero video shortens (`48–64svh` instead of `56–72svh`) so the catalog line is hinted below.
+- Folio is hidden below 640px.
+- Footer's three slots collapse to a stacked single column.
+- Frame's nav drops inter-link gap from 36px to 14px.
 
-- The variable grid (Row Types A–E) collapses to single-column at ≤760px. Each project takes a full screen-width. The asymmetric pair becomes two stacked plates.
-- The hero video shortens (`56–78svh` instead of `72–92svh`) so the catalog line is hinted below — the viewer knows there's more before they scroll.
-- The Folio is hidden below 640px. Mobile screens don't have margin to spare for a corner stamp. The Frame masthead carries the identity alone.
-- The footer's three slots (location · contact · socials) collapse to a single left-aligned stack.
-- The Frame's nav drops its inter-link gap from ~36px to 14px to fit "Work · Studio · Contact" without wrapping.
-
-**What does not change.** Type sizes (the chrome stays at 10px / 9px / 8px regardless of viewport — the monograph register doesn't shrink to fit phones). The clamp() values for display and statement allow them to soften slightly on smaller screens without re-scaling the whole system.
-
-**The mobile gut-check.** Hold the phone vertically at reading distance. Does each scroll-stop still feel like one composed thing, or does it feel like a page that gave up and stacked? If it feels stacked, the composition wasn't designed; it was inherited.
+What does **not** change: type sizes (chrome stays 10/9/8px regardless of viewport — the monograph register doesn't shrink to fit phones).
 
 ---
 
-## The Typography Art Direction
-
-The spec defines the type scale. The creative direction defines how type FEELS on the page.
-
-The type system is **two families, no more**. Geist Sans for reading type (titles, body, prose, statement, lede, plate titles). Geist Mono for chrome (nav, eyebrows, captions, footer chrome, ledger keys, view-toggle, project numbers, year, folio). The hierarchy is: *editorial type sits in sans; data and chrome speak in mono*.
+## Typography Art Direction
 
 ### Chrome Type — Geist Mono
 
-This text should feel like it was rubber-stamped onto the page by a meticulous librarian. Small, precise, uppercase, 0.06em tracking (mono letters are wide enough that wider tracking reads as wandering). It's the voice of the system — not the author, the institution. When someone sees `02 · Gyeol: 結 · 2026` they should feel the same thing they feel reading a museum wall label or a library catalog card. Factual, quiet, certain.
-
-Sizes: nav and project number 10px, meta and ledger key 9px, folio 8px. One whisper-register, three slightly different sizes, applied consistently across nav / footer / eyebrows / captions / ledger.
-
-**Art direction note:** Chrome type never appears alone in large amounts. It's always anchoring or annotating media. If a page area has chrome type as the dominant visual element, something is wrong — add media or remove text.
+Rubber-stamped onto the page by a meticulous librarian. Small, precise, uppercase, 0.06em tracking. Voice of the system, not the author. When someone sees `02 · Halo Halo! · 2026` they should feel the same thing they feel reading a museum wall label or a library catalog card. Factual, quiet, certain.
 
 ### Title Type — Geist Sans
 
-Project titles on the homepage are small (12–13.5px). This is a deliberate art direction choice, not a constraint. Titles are CAPTIONS for the media, not headings that precede it. The viewer sees the project cover first, then reads the caption. This inverts the standard portfolio pattern (title → image) into the monograph pattern (image → caption).
+Project titles are small (12–13.5px). **Captions for the media, not headings that precede it.** Image → caption, not title → image. The viewer sees the cover first, then reads the caption. This is the monograph principle.
 
-**Art direction note:** Titles never wrap to more than one line on desktop. If a project name is too long, shorten it. "Clouds at Sea" fits. "A Generative WebGL Exploration of Oceanic Horizons" doesn't belong here.
+Titles never wrap to more than one line on desktop. Shorten if needed.
 
 ### Display Type — Geist Sans 380
 
-The case study title and the studio/contact page titles sit at 20–28px, weight 380 (lighter than regular 400). This is the one moment the portfolio speaks above a whisper. It should feel like the title page of a chapter in a monograph — present, clear, set in generous space, but not shouting. Weight 380 keeps the letters from feeling heavy. They should breathe.
-
-If display ever feels too small in practice, the answer is to make the surrounding white space larger, not the type. The display reads big when it's the only thing within a clear margin of itself.
+Page titles and case study titles at 20–28px, weight 380. The one moment the portfolio speaks above a whisper. Should feel like the title page of a chapter — present, clear, set in generous space, not shouting.
 
 ### Prose Type — Geist Sans
 
-Case study editorial prose runs in Geist Sans at 12.5–13.5px, line-height 1.65, max-width 56ch (≈65–75 characters per line). The portfolio is sans-only — adding a serif would break the four-dependency ceiling and the single-typeface discipline.
+Case study editorial in Geist Sans at 12.5–13.5px, line-height 1.65, max-width 56ch. The portfolio is sans-only — no second typeface. Editorial typesetting via `text-wrap: pretty`, `font-variant-numeric` on figures, hanging punctuation where supported.
 
-The prose should feel like reading a well-typeset essay despite the sans surface. Achieved through: text-wrap pretty, hanging punctuation where supported, old-style numerals via `font-variant-numeric: oldstyle-nums lining-nums` (where the figure context demands), generous line-height, and the conscious cap on line length. This is the voice of the author — not the institution (chrome), not the catalog (titles), but the person explaining why they made what they made.
-
-**Art direction note:** Prose sections should never exceed 3–4 paragraphs before being interrupted by media. If you're writing more than 150 words without an image break, the case study has become a blog post. Add an image. Return to the monograph pace.
+Prose sections never exceed 3–4 paragraphs before being interrupted by media. >150 words without an image break = blog post register, not monograph register. Add an image. Return to pace.
 
 ### The Positioning Statement
 
-Set in `--type-statement` (15–18px), Geist Sans, weight 400, letter-spacing -0.005em, color `--ink-2`. Centered between project rows, max 50–55ch, text-wrap balance.
+> *"A design-engineering studio of one. Working between interface and identity, sketch to ship."*
 
-The current statement reads: *"A design-engineering studio of one. Working between interface and identity, sketch to ship."* Two declarative sentences in Aino's plural-studio voice. The statement is the only place on the homepage where the studio speaks about itself. The rest is the work and the chrome.
+Set in `--type-statement` (15–18px), Geist Sans, weight 400, color `--ink-2`, centered between project rows, max 50–55ch, `text-wrap: balance`. Two declarative sentences, plural-studio voice. The only place on the homepage where the studio speaks about itself.
 
 ---
 
-## The Interaction Art Direction
-
-The spec defines the motion values. The creative direction defines what interactions MEAN.
+## Interaction Art Direction
 
 ### The Hover Dim
 
-When the viewer hovers over a project, the surrounding projects dim. This isn't a UI pattern — it's an atmospheric event. The light in the room shifts to illuminate the thing you're looking at. The dim should feel like peripheral vision softening, not like elements being turned off. The timing (400ms) is the speed of a slow blink. The opacity (0.5) is the visibility of something in your periphery when you're focused on something else.
+When the viewer hovers over a project, surrounding projects dim. Not a UI pattern — an atmospheric event. The light in the room shifts to illuminate the thing you're looking at. 400ms, opacity 0.5. Speed of a slow blink.
+
+### The WIP Backdrop Blur (LA28's signature treatment)
+
+Pieces with `status: "wip"` get a frosted overlay on hover. Visual stays intact (video keeps playing underneath), un-clarified (backdrop-blur 10px + saturate 0.85). Communicates "this is in progress, not yet revealed." Currently only LA28; future-proofed for any in-progress piece.
 
 ### The Scroll
 
-Scrolling should feel like being carried, not like pushing. The page responds immediately but the content has weight — it doesn't feel like a feed, it feels like a surface with mass. We use native scrolling, not Lenis or a smooth-scroll library — the four-dependency ceiling forbids the addition, and on modern browsers the native scroll feels right when the content is sized correctly. The intentional weight comes from the spacing between elements, not from JS interpolation.
+Native scroll. The four-dep ceiling forbids Lenis. Weight comes from element spacing, not JS interpolation.
 
 ### The Frame Hide
 
-The masthead hides on scroll-down past 80px and reappears on scroll-up. The threshold is the height where the viewer has clearly committed to reading the page below. The 250ms hide / show is fast enough to feel responsive, slow enough to feel like a chosen gesture rather than a panicked reaction.
+Masthead hides on scroll-down past 80px, reappears on scroll-up. 250ms transition. Fast enough to feel responsive; slow enough to feel chosen.
 
 ### The Route Transition
 
-Browser-native view-transitions handle the page change. The brief moment of empty paper ground (80ms hold) between exit (200ms ease-in) and entrance (350ms cubic-bezier) is the most important frame in the entire transition. It's the gutter of a book. The breath between sentences. The viewer sees the paper — just the paper — for a fraction of a second. This reminds them, subconsciously, that they're reading a composed object, not scrolling a feed. Don't skip this hold. Don't shorten it below 60ms. That moment of nothing is the signature.
+Browser-native view-transitions. 200ms ease-out + 80ms paper hold + 350ms ease-in. The 80ms hold is the gutter of a book, the breath between sentences. Don't shorten it below 60ms.
 
 ### The Shared-Element Morph
 
-When you click a catalog plate to open its case study, the plate's frame morphs into the case-study hero (`view-transition-name: work-cover-{slug}`). The morph is browser-native, free of JS animation libraries, and gives the click a felt weight — the cover doesn't disappear and reappear; it travels.
+Catalog plate frames carry `view-transition-name: work-cover-{slug}` matching the case study hero. Click → cover travels.
 
 ---
 
-## The Grid Art Direction
+## Grid Art Direction
 
-The variable grid (Row Types A–E) isn't just a layout system — it's editorial composition. Each homepage scroll-stop is a SPREAD, and each spread is composed the way a book designer composes a double-page opening.
+The 12-col grid isn't just layout — it's editorial composition.
 
 ### Composition Principles
 
-**Asymmetry over symmetry.** When two projects sit side by side (Row Type C, 58/38), the imbalance creates visual tension that symmetry can't. The larger project pulls the eye first, then the eye discovers the smaller one. The hierarchy is spatial, not typographic.
-
-**Offset over centered.** When a single project sits alone (Row Type D, ~45% width pushed left or right), the empty space on the opposite side IS the composition. Don't fill it. Don't add text there. The emptiness is saying: this project is confident enough to share the viewport with nothing.
-
-**The positioning statement breaks the pattern.** Between project rows, the statement is the only text-only moment on the homepage. It should feel like an epigraph in a book — a quiet voice between chapters. Centered, weight 400, color `--ink-2` (one step softer than `--ink`). It's not part of the catalog. It's the author's voice, briefly audible.
+- **Asymmetry over symmetry.** Imbalance creates visual tension symmetry can't. Hierarchy is spatial, not typographic.
+- **Offset over centered.** When a single project sits alone (Row D, ~5 cols pushed left), the empty space on the right IS the composition. Don't fill it.
+- **The positioning statement breaks the pattern.** Centered, lighter color, `--ink-2` — the only text-only moment on the homepage. An epigraph between chapters.
 
 ---
 
-## The Content Art Direction
+## Content Art Direction
 
 ### Project Captions
 
-Homepage captions are factual and short. Three columns, single row:
+Three columns, single row:
 
 ```
-02       Gyeol: 結                                       2026
+02       Halo Halo!                                       2026
 ```
 
-Number (mono micro), title (sans editorial), year (mono micro flush right). No sector. No description. No "a beautiful exploration of." No "an innovative approach to." The caption indexes; the cover sells.
-
-Sector ("Brand · Ecommerce · 3D") moves to the case study ledger where there's room for it.
+Number (mono micro), title (sans editorial), year (mono micro flush right). No sector. No description. The work does the selling. The caption indexes.
 
 ### Case Study Writing
 
-The editorial voice in case studies is: **a thoughtful friend explaining their work over coffee.** Not formal. Not casual. Not academic. Not marketing. A person who cares about what they made, explaining why they made it, in specific terms, without jargon or self-promotion.
+> **A thoughtful friend explaining their work over coffee.** Not formal. Not casual. Not academic. Not marketing. A person who cares about what they made, explaining why they made it, in specific terms, without jargon or self-promotion.
 
-> Good: "The spacing scale is 8px because every measurement should feel deliberate. 4px was too tight for body text gutters. 12px was too loose for caption-to-image gaps. 8px was the value where everything felt placed rather than flowed."
+> ✅ "The spacing scale is 8px because every measurement should feel deliberate. 4px was too tight for body text gutters. 12px was too loose for caption-to-image gaps. 8px was the value where everything felt placed rather than flowed."
 >
-> Bad: "I leveraged a carefully crafted 8px spacing system to create a harmonious visual rhythm that enhances the user experience."
-
-> Good: "The hover dims the other projects because I wanted the viewer to feel like the room quieted down around the thing they're looking at."
->
-> Bad: "An innovative hover interaction creates an immersive focal experience by dynamically adjusting the opacity of surrounding elements."
-
-Write the way you think. If you wouldn't say it to a friend, don't write it in a case study.
+> ❌ "I leveraged a carefully crafted 8px spacing system to create a harmonious visual rhythm that enhances the user experience."
 
 ### The Studio Page
 
-The page is one editorial column, max 56ch. Three short notes under inline bold subheads (*Concept to code.* / *Design and engineering.* / *Quiet by design.*), then a single marginalia line of facts: *Founded 2021 · New York · Selective for 2026.*
+Single editorial column. Eyebrow → title → lede → three practice notes → marginalia facts.
 
-No timeline. No 5-column stat ledger. No 3-column "values" cards. No "from a young age I was passionate about design." The voice is the same plural-studio register as the homepage statement.
+Current lede: *"stray is a creative studio working between interface and identity systems. Small on purpose — one set of hands, Ryan Jun, carrying the work from first sketch through final ship."*
 
 ---
 
-## The Hand-Placed Details
+## The Hand-Placed Details (Strays)
 
-Every page gets one detail that a system wouldn't produce. These are the stray marks — the thing that strayed from the grid, the line that broke the pattern. They prove a human directed this, not a template.
+Every page gets one detail that a system wouldn't produce. The stray marks — the thing that strayed from the grid, the line that broke the pattern. Proof a human directed this, not a template.
 
-These details should NEVER be pointed out or explained. They exist for the viewer who looks carefully. They reward attention.
+These details should NEVER be pointed out or explained. They reward attention.
 
 ```
 Homepage:       The positioning statement has one word at a different
                 weight — so subtle you'd miss it in a screenshot but
                 feel it when reading.
 
-Case study:     One image in each case study breaks the margin by
-                exactly 8px on one side. Not full-bleed. Just 8px
-                past the margin. A stray.
+Case study:     One image breaks the margin by exactly 8px on one side.
+                Not full-bleed. Just 8px past. A stray.
 
-Studio page:    The bio's three notes follow Concept / Design /
-                Quiet — but the third note's first sentence is
-                personal in a way the first two aren't. The shift
-                is felt, not announced.
+Studio page:    The third practice note's first sentence is personal in
+                a way the first two aren't. The shift is felt, not
+                announced.
 
-Bookmarks:      One entry has a note that goes beyond the format —
-                a personal annotation that reveals why this reference
-                matters to you specifically.
+Bookmarks:      One entry has a personal annotation that reveals why
+                this reference matters to you specifically.
 
-Footer:         The location reads "New York" by default, but on
-                the rare day the studio is working from elsewhere,
-                it can be hand-edited to that city. The single
-                source of geographic truth lives in code, not in
-                a CMS.
+Footer:         The location reads "New York" by default, but on the
+                rare day the studio is working from elsewhere, hand-
+                edit to that city. Single source of geographic truth
+                in code, not a CMS.
 ```
 
-These are the stray moments. The portfolio has a system, and within that system, something has wandered. That wandering is a craft signature — present, not announced.
-
-(The earlier draft of this document included a "midnight rollover shows both years for one second" detail. It was cut: it required idle JS clock-watching, which contradicts CLAUDE.md's no-animation-on-idle rule, and "Nobody will ever see this" became a justification for indulgent invisible work. The 8px margin break and the personal sentence are the strong strays. The midnight rollover was the precious one.)
+The portfolio has a system, and within that system, something has wandered. That wandering is the studio's signature — present, not announced. **The studio's name itself describes the design method: the stray that escapes the grid.**
 
 ---
 
-## The Failure Modes
+## Failure Modes
 
-The monograph principle has to extend to the system's failures. A book whose spine cracks is still a book; it's not allowed to become something else just because something went wrong.
+The monograph principle has to extend to the system's failures.
 
-**Hero video fails to autoplay** (iOS Low Power Mode, low-data preference, autoplay-blocked browsers). The poster frame is visible. The frame's `var(--paper-2)` background sits underneath in case the poster is also slow to load. No "tap to play" badge appears — silence and stillness are inside the register, an apology UI is not. The page reads as paper with a still image at the top. Acceptable.
-
-**Cover image fails to load** (404, slow connection, network drop). The plate's `var(--paper-2)` frame remains. The caption (number / title / year) sits below it normally. The viewer reads the title and registers that this project exists; the missing cover is information, not a hole. Don't render a broken-image icon, don't render alt text in place of the image — let the paper-2 rectangle stand.
-
-**Slow connection.** The chrome (Frame, Folio, footer) loads with the HTML. The masthead is readable before any image arrives. The catalog plates render their captions immediately and the covers fill in as they arrive. The page is usable at every stage.
-
-**JS disabled.** The Frame's hide-on-scroll-down doesn't work — it stays present, which is the sensible failure. The CatalogPlate IO-based video pause doesn't work — videos play continuously in their plates, costing some battery. The CopyEmailLink falls back to its `mailto:` href. View-transitions are skipped (browsers without VT support also fall back to no transition). Every interaction has a graceful no-JS path.
-
-**`prefers-reduced-motion: reduce`.** All transitions hard-cut. The hero video does not autoplay; the poster shows in its place. The view-transitions are bypassed. The page is fully present and fully usable, with no motion.
-
-**Edge case — the homepage with no real projects.** Until any work has been added, the page renders the hero, the statement, the placeholder pair, and the footer. The placeholders read as "Untitled / Reserved" with paper-2 covers. The page is honest about being a forming catalog rather than pretending to be full.
+- **Hero video fails to autoplay** (iOS Low Power Mode, autoplay-blocked browsers): paper-2 background fallback. No "tap to play" badge. Silence is in the register; apology UI is not.
+- **Cover image fails to load** (404, slow connection): plate's paper-2 frame remains. Caption sits below normally. No broken-image icon.
+- **Slow connection.** Chrome (Frame, Folio, footer) loads with HTML. Catalog captions render immediately; covers fill in.
+- **JS disabled.** Frame stays present (no scroll-hide). Plates videos play continuously. Email link falls back to mailto. View-transitions are skipped (graceful native fallback).
+- **`prefers-reduced-motion: reduce`.** All transitions hard-cut. Hero video does not autoplay; paper-2 fallback. The page is fully present and fully usable, with no motion.
 
 ---
 
-## The First Paint
+## First Paint
 
-The "within 3 seconds" feeling at the top of this document is only true if the technical numbers cooperate. If LCP is 4 seconds, the viewer never gets to the feeling.
+The "within 3 seconds" feeling is only true if the technical numbers cooperate.
 
-**Performance budget.**
-
-- LCP (Largest Contentful Paint): under 1.8s on a fast 3G connection. The LCP element is the hero video's poster frame on `/`, the case-study hero on `/work/[slug]`. These are `next/image` priority assets where the path allows.
-- CLS (Cumulative Layout Shift): zero. Every plate frame has a fixed `aspect-ratio`. The hero has a fixed `clamp(72svh, 86svh, 92svh)` height. No element pushes neighbors when it loads.
-- TBT (Total Blocking Time): under 200ms. The page is mostly server-rendered. Client components (Frame's scroll listener, CatalogPlate's IO, HomeHero's IO, CopyEmailLink) are small.
-- Bundle: shipped with the four production dependencies and no more. Geist fonts ship with the framework. No animation libraries, no carousel libraries, no UI kits.
-
-**The HTML is readable before any CSS or JS lands.** The mobile-first cascade is light enough that even if the stylesheet hits the wire late, the unstyled HTML is structurally legible. No `display: none` chrome elements, no JS-required content.
+- LCP < 1.8s on fast 3G.
+- CLS = 0. Every plate frame has fixed `aspect-ratio`. Hero has fixed `clamp(56svh, 64svh, 72svh)`.
+- TBT < 200ms. Mostly server-rendered.
+- Bundle: four production deps + framework fonts. No animation libraries currently. No carousel libraries. No UI kits.
 
 ---
 
-## The Quiet Read — Accessibility as Atmosphere
+## Quiet Read — Accessibility as Atmosphere
 
 The monograph principle holds at every entry point. The page reads as well aloud as it does silently.
 
-**Semantic landmarks.** Every page has one `<main id="main">`, one `<header>` (the Frame masthead), one `<footer>`. Skip-to-content link is keyboard-reachable as the first focusable element on each page. Route changes announce via `RouteAnnouncer` to assistive tech.
-
-**Color contrast.** Body and primary chrome (`--ink`, `--ink-2`, `--ink-3` on `--paper`) all clear WCAG AAA at 7:1 or better. `--ink-4` (rgba 0.48) is reserved for decorative text only — folio, separator dots, faint accents — never for content that must be read. The folio is `aria-hidden`; the separator dots are `aria-hidden`; the placeholders carry their own `--ink-3` text which is clearly readable.
-
-**Focus.** `:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }` on every interactive element. The outline is the same pure black as the primary ink — it reads as a deliberate hairline, not a browser default.
-
-**Reduced motion.** Respected on every transition, view-transition, hover-slide, and the homepage hero video. The page is fully usable with no motion.
-
-**Reduced data and reduced transparency.** The PaperGrain is at 0.04 opacity multiply blend — invisible to a screen reader, near-invisible under high-contrast OS settings. The mix-blend-mode is decoration, never information.
-
-**Keyboard.** All catalog plates, ViewToggle buttons, nav links, footer links, and the CopyEmailLink are reachable in DOM order. The CaseHero play button is keyboard-toggleable.
-
-**Screen reader read-through.** The page in order: skip link → masthead (mark + nav) → main (eyebrow → title → media → captions) → footer. Aria labels carry the studio sections (`Featured`, `Statement`, `Index`, `Studio reel`, `Colophon`).
-
-The accessibility is not a checklist. It's the same principle as the type, the light, and the pace: one register, applied with care, everywhere.
+- Skip-to-content is the first focusable element.
+- One `<main id="main">`, one `<header>`, one `<footer>` per page.
+- Color contrast: `--ink`, `--ink-2`, `--ink-3` all clear WCAG AAA at 7:1+. `--ink-4` is decorative-only.
+- `:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }` everywhere.
+- All interactions reachable in DOM order. CaseHero play button keyboard-toggleable.
 
 ---
 
 ## The Quality Bar
 
-Before shipping any page or update, four tests:
+Before shipping any page, four external mirrors:
 
-**The YSL test.** Does the media dominate the viewport? Is the chrome invisible until needed? Would a creative director at a luxury house look at this and nod?
-
-**The Aino test.** Is the grid variable and composed? Does each row feel like a considered spread? Is the chrome in a single mono register, captions flat, footer one row?
-
-**The HS68 test.** Is the type small enough? Is the tracking tight enough for mono? Does the warm ground feel like a physical surface?
-
-**The Wang Zhi-Hong test.** Is the void above and around the work doing the same compositional work as the work itself? Could a Taipei book designer pick this up, recognize the catalog discipline, and not need to translate?
+1. **The YSL test.** Does media dominate the viewport? Is chrome invisible until needed?
+2. **The Aino test.** Is the grid variable and composed? Is chrome in a single mono register?
+3. **The HS68 test.** Is type small enough? Tracking tight enough? Does warm paper feel physical?
+4. **The Wang Zhi-Hong test.** Is the void around the work doing compositional work? Could a Taipei book designer recognize the catalog discipline?
 
 If all four pass, ship it. If three pass and one fails, the failure tells you what to fix.
 
-(There's a fifth, internal test — the Stray test: *is there one detail on this page that strayed from the system?* Apply it last, after the four external mirrors, so the strays answer to the room and not just to themselves.)
+A fifth, internal test — **the Stray test:** *is there one detail on this page that strayed from the system?* Apply it last, after the four external mirrors.
+
+---
+
+## Reference Set
+
+### Editorial Neighbors (the lineage)
+
+- **HS68.la** — fashion house, est. 1968 by Richard Lim. Source of: the entrance video gate, numbered nav cadence, 80/20 media-to-text ratio, warm off-white ground.
+- **Aino.agency** — Scandinavian design + tech agency. Source of: variable editorial grid, project numbering system (`A001`, `A002`), Grid/List toggle, mono chrome, single mid-page positioning sentence, flat single-row footer, "one-sized monospace" register.
+- **YSL** — luxury fashion. Source of: minimal UI chrome confidence, media-dominant viewport, whisper-tracked tiny chrome.
+- **Obys.agency** — most restrained of the studio set. Numbered grid 01–19, category tags, three-page nav (Work / About / Contact). Cohesive through extreme restraint. Quote: *"The studio is shaped by people who care deeply about design and the process behind."*
+- **Studio Namma** — Paris/Barcelona/London creative studio. Source of: timezone stamps in footer, Plans (pricing) page, Approach (methodology) page, dedicated case study pages.
+- **Wang Zhi-Hong** — Taiwanese editorial book designer. Source of: catalog-as-art-object, gravity-low text placement, void above content as designed material.
+- **Daikoku Design Institute** — Japanese monograph precision. Systematic numbering. Folio as identity element.
+- **Julia Krantz** — personal-first designer site. Source of: Press / Speaking / Podcasts / blog as depth elements that make personal framing work.
+- **Off-Menu (off-menu.com / offmenu.design)** — modern startup-coded studio. AI assistant Remi as embedded signature. "Book a Call" CTA. Pricing page.
+
+### Anti-References (do not drift toward)
+
+- **NaughtyDuk** — heavy WebGL/GSAP entertainment-industry register. The gravity well to avoid. If anything on the site starts to feel like NaughtyDuk, cut it.
+
+### Spiritual References (the philosophy)
+
+- **Kenya Hara — *Designing Design*.** Hara's *ma* and the subtraction principle: *"does this earn its weight twice?"*
+- Designers cited via Hara: Tanaka, Fukasawa, Morrison, Satoh, Miyake, Kawakubo, Yamamoto, Kuramata, Yanagi, Ando, Sejima, Sugimoto, Moriyama.
+- **Rauno Freiberg** (rauno.me/craft) — design-engineer who writes about HOW he builds his interactions. Closest neighbor in technique.
+- **Paco Coursey** (paco.me) — created cmdk. Speed as design quality.
+- **Emil Kowalski** (emilkowal.ski) — created vaul, sonner. Micro-interaction precision.
+
+### Codrops Case Studies Studied (May 2026)
+
+Studied for technique, stack, and signature-move thinking:
+
+- **Thibault Guignand** (thibaultguignand.com) — Vite/React/TypeScript + GSAP + Lenis + OGL (rewrote from Three.js). Concept: *"a technical handshake — a site for web people."* Signature: persistent flowmap with texture swap. Build: weeks of core, polish stretched. Quote: *"a codebase I felt I truly owned line by line."*
+- **Tomoya Okada (4Wide)** (4wide.jp) — Astro + Swup + WordPress + GSAP + Three.js. Concept: balance expressiveness with business clarity. Signature: synchronized scroll-driven text + radial distortion + blur on About page. Build: 3 months.
+- **Artem Shcherban** (artemshcherban.com) — Webflow + GSAP. Concept: *"designing against the gallery"* — separate metadata from imagery via modals. Signature: dual-track project system (standard cards + SVG-masked "wow effect" for featured work). Build: 6 iterations over 2 years.
+- **Ravi Klaassens (R-K '26)** (raviklaassens.com) — Webflow + GSAP + Barba + Unicorn Studio + Howler.js + Bunny.net + Umami + Finsweet. Concept: *"led by presence. Not volume."* Signature: animated swords fighting in the footer (philosophical, not technical). Build: 1 year.
+
+### What All Four Codrops Portfolios Share
+
+- **One conceptual frame** locks every decision. Not a pattern library — a single sentence.
+- **One signature move** makes the site theirs. Not five, not three. One.
+- **GSAP is the de facto orchestration layer.** All four use it.
+- **Stacks vary widely.** No two are alike. The discipline is "own your stack," not "use the right stack."
+- **Iteration is destructive.** All four killed earlier directions. Thibault rewrote Three.js → OGL midway. Artem killed a 3D gallery. Ravi abandoned "Falconcept" and "Paramor."
+- **Months to years.** Nothing built in a session.
+
+---
+
+## Cohesiveness Audit
+
+### What's Cohesive
+
+- Type system holds across pages.
+- Color palette consistent.
+- Caption format uniform across plates.
+- Frame masthead and footer share mono register.
+- 12-col grid on `HomeView` (just shipped).
+
+### Where Cohesiveness Breaks
+
+1. **Every page uses a different layout rhythm.** HomeView is 12-col grid. `/work` is a 2-col grid in 1440px. `/studio`, `/contact`, `/work/[slug]` are 1-col reading layouts in 1080px. The eye has to recalibrate per page. **Biggest cohesion problem.**
+2. **Container widths are arbitrary.** 1440 / 1440 / 1080 / 1080 / 1080 / 880 (statement). Six numbers, no system.
+3. **Hover language is inconsistent.** Plates dim siblings. Frame links color-shift. Footer socials underline-grow. ViewToggle color-shifts. Three vocabularies, none unified.
+4. **No connecting motif beyond type.** Pixelated cloud lives only in favicon and OG card. Nothing recurring on the actual pages says "this is the same studio."
+5. **The "physical paper" promise doesn't fully materialize.** PaperGrain at 0.04 multiply is below visibility threshold on most monitors. Plates have a 1px black hairline outline that reads as "border" not "paper edge." Section breaks rely on big vertical gaps with no rules between them.
+
+---
+
+## Signature Move Candidates
+
+Ryan needs ONE move that's only stray's. Five candidates, in increasing intervention:
+
+1. **The Folio that follows the work.** Already partially built — fixed bottom-right page-stamp, mono microtype, updates per route. Could be elaborated: track scroll position, show "page X of Y," become a tiny progress mark.
+2. **The PaperGrain that responds.** Grain very slightly more visible when visitor pauses (200ms+ no scroll, no movement). A studio that breathes when you're still. Pure rAF + reduced-motion guard, no library.
+3. **The cloud-fade signature on hover.** ⭐ The WIP backdrop-blur shipped on LA28, elaborated to *every* hover. Plate hovers, footer link hovers, section transitions all use a brief atmospheric blur instead of color shift. The whole site starts to breathe atmosphere. Lowest-risk, highest-cohesion — uses what's already shipped and elevates it from "WIP feature" to "studio language."
+4. **The strays as scroll-tied marks.** Tiny editorial marks (margin numbers, footnote daggers, centered "·" between sections) appear in the gutter as the page scrolls. Pure CSS scroll-driven if committed to that frontier; one-line JS otherwise.
+5. **A sequenced page-turn transition.** Instead of view-transition crossfade, content slides up like a printed page being lifted off a stack. Distinctive, monograph-coherent. Needs orchestration View Transitions alone can't deliver — would benefit from GSAP.
+
+**Recommended:** start with (3). It's the move that comes for free if we elevate the WIP overlay to a system-wide hover language. The whole site's breathing language becomes "atmosphere, not contrast."
+
+---
+
+## The Constraint Question
+
+The four-dep ceiling (geist + next + react + react-dom) is currently doing more work as a *position* than as a *practical constraint*. Almost every interaction on the site is achievable with native CSS.
+
+But — every Codrops case study studied uses GSAP. Every one. GSAP is the de facto orchestration layer for design-engineer portfolios. The difference between a CSS transition and a GSAP timeline isn't decoration — it's the entire vocabulary of *how* an interaction feels. A 0.97 active-scale on press in CSS feels like a button. The same scale with GSAP's `back.out(2)` ease feels like a finger.
+
+**The honest decision:**
+
+- **Option A: Hold the four-dep ceiling.** Commit to native CSS frontiers — `scroll-timeline`, `view-timeline`, `animation-timeline: scroll()`. These are standardized but Safari/Firefox support is patchy. Building on them now means the signature move only works for half the visitors.
+- **Option B: Add GSAP as the fifth dep.** Document it explicitly: *"Five deps. GSAP is the orchestration layer; nothing else."* Update this doc to reflect the new ceiling.
+- **Option C: Add Motion (formerly Framer Motion).** Smaller than GSAP, more React-native, less mature for orchestration. Also a fifth dep.
+
+**Recommendation:** Option B. GSAP. Five deps, documented as the exception. The portfolio will feel meaningfully more crafted with one library that the entire reference set uses; defending the four-dep ceiling at the cost of signature moves is purity over impact.
+
+This decision is **pending your sign-off** — don't add GSAP without explicit go-ahead.
+
+---
+
+## Discovery Sources (where to find ideas to combine)
+
+For studying technique with code-level depth:
+
+- **rauno.me/craft** — Rauno Freiberg's articles on specific gestures (Stagger, Magnetic, etc). Closest aesthetic neighbor with explained code.
+- **paco.me** and **emilkowal.ski** — inspect-element archeology on portfolios that ship the patterns we want.
+- **Olivier Larose** (blog.olivierlarose.com) — tutorials specifically for portfolio interactions in Next.js. Cleanest match for what we're building.
+- **Codrops** (tympanus.net/codrops) — long-form case studies (the four we just studied came from here). New ones drop weekly.
+
+For single-interaction learning:
+
+- **cubic-bezier.com** — interactive easing curve editor. Bookmark.
+- **easings.net** — visual reference for named easing curves with code.
+- **Josh Comeau's blog** — pedagogical depth on specific interaction craft.
+- **motion.dev/examples** — interactive examples even if not using Motion.
+
+For visual ideas (browse before knowing what to build):
+
+- **cosmos.so** — designer-curated mood boards. Search "interaction" / "scroll" / "editorial" / "minimal".
+- **godly.website** — high-craft personal sites, editorial bias.
+- **siteinspire.com** — minimal portfolio filter is good.
+- **are.na** — channels like "Editorial web design" and "Microinteractions".
+- **awwwards.com** — useful but biased toward maximalism. Filter Minimal + Typography only.
+
+---
+
+## Roadmap — What We Are Working On
+
+In priority order. Items 1–3 are **system** moves (make underlying consistency real); 4–6 are **finish** moves (visual polish that depends on system being in place); 7–9 are **content/depth** moves (what makes the portfolio feel like a working studio).
+
+### System (next pass)
+
+1. **Apply the 12-col cols-2-11 grid to every page.** `/work`, `/studio`, `/contact`, `/work/[slug]` all adopt `repeat(12, minmax(0, 1fr))` with content at cols 2-11. Studio prose at cols 4-9 (centered 6 cols, same as homepage statement). Case study editorial at cols 4-9. Case study hero at cols 2-11. **Single highest-leverage move for cohesiveness.**
+2. **Tokenize the width system.** Three CSS tokens replace the six magic numbers:
+    ```
+    --width-page:    1440px;   /* outer container */
+    --width-prose:   60ch;     /* reading text max */
+    --width-figure:  900px;    /* media max */
+    ```
+   Every container references one of these. No more locally-decided widths.
+3. **Unify hover vocabulary.** Two patterns only:
+   - Link-like elements (nav, footer socials, prose links, case study next, plate captions): hairline-underline-grow 0% → 100%, 180ms ease.
+   - Grouped collections (catalog plates, list view rows): sibling-dim opacity 0.5 on non-hovered.
+   - Color-shift-only hover gets retired.
+
+### Finish (after system holds)
+
+4. **Echo the cloud monogram twice on the actual site.** Once at the foot of each case study (small, ink-3, between editorial and "Next →" link — like a publisher's mark closing a chapter). Once on `/studio` next to the eyebrow. Becomes the recurring visual that says *this is the same studio*.
+5. **Strengthen the paper register.** PaperGrain → 0.06 multiply (still subtle, visible at sRGB). Replace plate hairline outlines with a paper-edge: hairline at top + inset `0 0 0 1px rgba(0,0,0,0.04)` shadow inside (reads as printed plate sitting on page, not 1px black border). Add hairline rules above each major section break with small mono section labels (e.g., `§ Work` / `— Studio`) — chapter headers in a monograph.
+6. **Add section-label microtype.** Every page section gets a small mono label hung above the hairline rule. This is what makes editorial books feel coherent — every section announces itself in the same voice.
+
+### Content / Depth (independent priority)
+
+7. **Write the Sift case study editorial.** Highest single-leverage credibility move. 60–100 words minimum. Without it, two of three case studies render fallback prose.
+8. **Add a "Currently —" line on `/studio`** above the practice notes. One sentence: *"Currently — Halo Halo! signage, LA28 brand campaign, available for select 2026 commissions."* Updates manually.
+9. **Add `/notes`** with three short entries (100–300 words each). A decision made on a project, a reference that shaped a piece, a process note. Off Menu calls this "Writing"; Julia Krantz calls hers "Magic Fabric." stray could call it "Notes." Adding `/notes` is the move that transforms the site from "portfolio" register into "studio in progress" register.
+
+### Constraint Decision (open)
+
+- **Add GSAP as a fifth dep?** Pending sign-off. Honest framing: yes, add it, document it as the exception, and signature moves like sequenced page-turn transitions become possible. Defending four-dep purity costs more in expressive vocabulary than it gains in restraint signal.
+
+### Items Not Going to Be Built
+
+- ~~`/lab` or `/playground` route~~ — explicitly opposed by user. Don't propose this naming again.
 
 ---
 
 ## What This Document Is NOT
 
-This is not the design spec (you have that — typography values, spacing tokens, color variables, motion budgets). This is not the CLAUDE.md (you have that — technical instructions for the build agent). This is not the brand identity (wordmark, palette, system).
+This is not the design spec (you have that — typography values, spacing tokens, color variables in `globals.css`). This is not `CLAUDE.md` (technical instructions for the build agent). This is not the brand identity guide (wordmark, palette).
 
-This is how the person art directing the portfolio — you — makes decisions when the spec doesn't have an answer. When the spec says "use --type-title at clamp(12px, 0.85vw, 13.5px)" and you're staring at a project title wondering if it's right, this document says: "Is it small enough to feel like a caption, not a heading? Does the media speak louder than the title? Then it's right."
+This is how the person art directing the portfolio — Ryan — makes decisions when the spec doesn't have an answer. When the spec says *"use --type-title at clamp(12px, 0.85vw, 13.5px)"* and you're staring at a project title wondering if it's right, this document says: *"Is it small enough to feel like a caption, not a heading? Does the media speak louder than the title? Then it's right."*
 
-The spec is the score. This document is how to play it.
+The spec is the score. **This document is how to play it.**

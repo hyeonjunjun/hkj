@@ -41,19 +41,38 @@ export interface Piece {
 }
 
 /**
- * The catalog. Three real pieces, all static images now (the Gyeol
- * b-roll loop has been retired in favor of the rain plate — quieter,
- * matches the single-register of the rest of the catalog). Halo Halo!
- * leads with its ube-powder packaging; Sift follows; Gyeol closes in
- * the single-offset slot.
+ * The catalog. Four real pieces. LA28 leads as the first item with
+ * `status: "wip"` — its plate carries the homepage's hero video and
+ * receives the WIP backdrop-blur on hover (the visual stays intact
+ * but un-clarified, the way a teaser plate should). Halo Halo!,
+ * Sift, and Gyeol follow as shipped pieces in the catalog spread.
  */
 export const PIECES: Piece[] = [
+  {
+    slug: "la28",
+    title: "LA28",
+    type: "project",
+    order: 1,
+    number: "01",
+    sector: "Brand · Campaign · Personal",
+    description:
+      "A personal concept for the LA28 Olympic brand campaign — atmosphere first, identity following the weather.",
+    status: "wip",
+    year: 2026,
+    started: "2026-04",
+    cover: {
+      kind: "video",
+      src: "/assets/cloudsatsea.mp4",
+    },
+    coverAspect: "16 / 9",
+    tags: ["brand", "campaign", "personal"],
+  },
   {
     slug: "halo-halo",
     title: "Halo Halo!",
     type: "project",
-    order: 1,
-    number: "01",
+    order: 2,
+    number: "02",
     sector: "Brand · Café",
     description:
       "A café brand for Halo Halo! — a New York ube shop. Purple-forward identity, packaging, and signage.",
@@ -69,8 +88,8 @@ export const PIECES: Piece[] = [
     slug: "sift",
     title: "Sift",
     type: "project",
-    order: 2,
-    number: "02",
+    order: 3,
+    number: "03",
     sector: "Mobile · AI · Product",
     description:
       "An AI tool that surfaces what matters in your camera roll.",
@@ -87,8 +106,8 @@ export const PIECES: Piece[] = [
     slug: "gyeol",
     title: "Gyeol: 결",
     type: "project",
-    order: 3,
-    number: "03",
+    order: 4,
+    number: "04",
     sector: "Brand · Ecommerce · 3D",
     description:
       "A fragrance brand rooted in Korean material grain — hanji, brushed metal, the texture of patience.",

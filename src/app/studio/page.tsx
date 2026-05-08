@@ -16,9 +16,9 @@ export default function StudioPage() {
         <p className="studio__eyebrow">Studio</p>
         <h1 className="studio__title">A studio of one.</h1>
         <p className="studio__lede">
-          A design-engineering practice working between interface and
-          identity systems. Small on purpose — one set of hands carrying
-          the work from first sketch through the final ship.
+          stray is a creative studio working between interface and
+          identity systems. Small on purpose — one set of hands, Ryan
+          Jun, carrying the work from first sketch through final ship.
         </p>
       </header>
 
@@ -40,11 +40,6 @@ export default function StudioPage() {
           Atmosphere lives in whitespace, type, and the photographs —
           never in color-shift or theatrical framing. Restraint is the
           position, not the absence of one.
-        </Note>
-        <Note heading="Stray Studio.">
-          A creative agency and design studio, in development. The work
-          shown here is the seed; Stray will be the studio&apos;s mature
-          shape — same hands, same register, room for collaborators.
         </Note>
       </section>
 

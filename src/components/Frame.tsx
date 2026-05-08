@@ -7,16 +7,17 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Frame — sticky horizontal top nav.
  *
- *   ┌─ ryan jun ─────────────────────── Work  Studio  Contact ─┐
+ *   ┌─ stray ────────────────────────── Work  Studio  Contact ─┐
  *   ├────────────────────────────────────────────────────────────┤
  *
- * Personal portfolio masthead. The wordmark is the user's name, not
- * the studio name (Stray Studio is mentioned editorially on /studio
- * as a forthcoming entity, not as the site's owner).
+ * Studio masthead. The wordmark is "stray" (the creative studio).
+ * Ryan Jun is the founder, identified on /studio. The lowercase
+ * source maps to UPPERCASE via CSS to match the rest of the chrome.
  *
  * Plain text labels in Aino's masthead register — no numbered prefix,
  * no separators. Hides on scroll-down past 80px, reveals on scroll-up.
- * Mark and links share Geist Mono uppercase at 0.06em tracking.
+ * Mark sits at font-weight 500; links at 400 — same family, same size,
+ * weight differentiation does the hierarchy.
  */
 
 type NavItem = { href: string; label: string };
@@ -67,8 +68,8 @@ export default function Frame() {
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <Link href="/" className="frame__mark" aria-label="ryan jun — home">
-        ryan jun
+      <Link href="/" className="frame__mark" aria-label="stray — home">
+        stray
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">

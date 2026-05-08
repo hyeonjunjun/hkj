@@ -104,17 +104,18 @@ export default function HomeHero({ src, poster, meta }: Props) {
 
       <style>{`
         .home-hero {
-          /* Break out of the page-margin gutter — full-bleed inside the
-             outer max-width container of HomeView. The caption below
-             is brought back inside the gutter via padding. */
-          margin: 0 calc(var(--margin-page) * -1) clamp(48px, 6vw, 96px);
+          /* Hero sits on the 12-column grid like everything else.
+             HomeView places it at grid-column: 1 / -1 (full width of
+             the 12 cols). No viewport math, no 100vw bleed — the
+             ratio of hero-to-page-margin is fixed by the column grid
+             at every screen size. */
           display: grid;
           gap: 14px;
         }
         .home-hero__frame {
           position: relative;
           width: 100%;
-          height: clamp(72svh, 86svh, 92svh);
+          height: clamp(56svh, 64svh, 72svh);
           background: var(--paper-2);
           overflow: hidden;
         }
@@ -172,7 +173,7 @@ export default function HomeHero({ src, poster, meta }: Props) {
         }
 
         @media (max-width: 760px) {
-          .home-hero__frame { height: clamp(56svh, 68svh, 78svh); }
+          .home-hero__frame { height: clamp(48svh, 56svh, 64svh); }
           .home-hero__caption {
             grid-template-columns: 1fr auto;
             gap: 6px 12px;

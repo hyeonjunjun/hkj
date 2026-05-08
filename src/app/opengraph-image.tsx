@@ -2,17 +2,17 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "Ryan Jun — design engineer, New York";
+export const alt = "stray — a creative studio. New York.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Open Graph image — the portfolio's identity card.
+ * Open Graph image — the studio's identity card.
  *
- * Pixelated cloud monogram centered, wordmark below, role line below
- * that. Same 8×5 silhouette as the favicon, scaled up to OG-card size
- * (~14px per pixel). Mono throughout. Stray Studio is not promoted
- * here — that lives only on /studio as editorial copy.
+ * Pixelated cloud monogram centered, "stray" wordmark below, role
+ * line below that. Same 8×5 silhouette as the favicon, scaled up to
+ * OG-card size (~14px per pixel). Mono throughout. Founder name
+ * (Ryan Jun) lives only on /studio as editorial, not promoted here.
  */
 const CLOUD: ReadonlyArray<ReadonlyArray<0 | 1>> = [
   [0, 0, 1, 1, 1, 1, 0, 0],
@@ -53,7 +53,7 @@ export default async function Image() {
             width: "100%",
           }}
         >
-          <span>Portfolio · 2026</span>
+          <span>Studio · 2026</span>
           <span>New York</span>
         </div>
 
@@ -89,7 +89,7 @@ export default async function Image() {
           {/* Wordmark */}
           <div
             style={{
-              fontSize: 72,
+              fontSize: 88,
               lineHeight: 1,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
@@ -97,7 +97,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            ryan jun
+            stray
           </div>
 
           <div
@@ -109,7 +109,7 @@ export default async function Image() {
               display: "flex",
             }}
           >
-            Design engineer
+            A creative studio
           </div>
         </div>
 

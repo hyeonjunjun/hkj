@@ -8,21 +8,21 @@ import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ryanjun.com"),
-  title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
-  description: "Ryan Jun — design engineer, New York.",
+  metadataBase: new URL("https://stray.studio"),
+  title: { default: "stray", template: "%s / stray" },
+  description: "stray — a creative studio. New York.",
   openGraph: {
-    title: "Ryan Jun",
-    description: "Design engineer, New York.",
-    url: "https://ryanjun.com",
-    siteName: "Ryan Jun",
+    title: "stray",
+    description: "A creative studio. New York.",
+    url: "https://stray.studio",
+    siteName: "stray",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ryan Jun",
-    description: "Design engineer, New York.",
+    title: "stray",
+    description: "A creative studio. New York.",
     creator: "@hyeonjunjun",
   },
 };
