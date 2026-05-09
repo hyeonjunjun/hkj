@@ -201,6 +201,11 @@ export default function HomeView({ pieces }: Props) {
                       loop
                       muted
                       playsInline
+                      /* preload=metadata limits the bandwidth on
+                         dev-server HMR double-mounts (which trigger
+                         the net::ERR_ABORTED artifact). In production
+                         autoPlay is unaffected. */
+                      preload="metadata"
                     />
                   ) : piece.cover?.kind === "image" ? (
                     <Image
@@ -209,7 +214,11 @@ export default function HomeView({ pieces }: Props) {
                       alt={piece.title}
                       fill
                       sizes="(max-width: 880px) 80vw, 30vw"
-                      priority={i === 0}
+                      /* Priority on the first three image covers so
+                         whichever lands as LCP (depends on which is
+                         the active when the page renders) gets the
+                         eager-load. Beyond i=2, lazy-load is fine. */
+                      priority={i <= 2}
                     />
                   ) : (
                     <div className="ob__cover-placeholder">
