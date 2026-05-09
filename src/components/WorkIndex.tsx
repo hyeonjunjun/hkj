@@ -13,11 +13,11 @@ import Footer from "@/components/Footer";
  * of project covers, Grid/List toggle at the top-right. No statement,
  * no asymmetric rows — this page is a dedicated catalog index.
  *
- * View choice persists in localStorage under stray.work.view.
+ * View choice persists in localStorage under rj.work.view.
  */
 type Props = { pieces: Piece[] };
 
-const STORAGE_KEY = "stray.work.view";
+const STORAGE_KEY = "rj.work.view";
 type View = "grid" | "list";
 
 export default function WorkIndex({ pieces }: Props) {

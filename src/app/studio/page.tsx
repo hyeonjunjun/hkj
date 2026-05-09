@@ -16,9 +16,10 @@ export default function StudioPage() {
         <p className="studio__eyebrow">Studio</p>
         <h1 className="studio__title">A studio of one.</h1>
         <p className="studio__lede">
-          stray is a creative studio working between interface and
-          identity systems. Small on purpose — one set of hands, Ryan
-          Jun, carrying the work from first sketch through final ship.
+          I&apos;m Ryan Jun — a design engineer working between
+          interface and identity systems. Small on purpose: one set
+          of hands carrying the work from first sketch through final
+          ship.
         </p>
       </header>
 

@@ -3,16 +3,21 @@
 import { useEffect, useState } from "react";
 
 /**
- * LiveTime — the page's live element. Renders current New York
- * wall-clock time as HH:MM, updating exactly when the minute
- * rolls over (not 60s after page load). The format is always
- * 24h tabular — minute-tick boards feel alive; second-tick
- * boards feel anxious.
+ * LiveTime — split-flap departure-board clock.
  *
- * Styling is owned by the parent (the consuming cell). This
- * component emits text only — no font-family, no color, no size
- * — so it can drop into a cell__sym slot and inherit cell type
- * styles directly.
+ * Renders the New York wall-clock time as HH:MM with each digit
+ * wrapped in a FlapDigit that animates a vertical scaleY collapse-
+ * and-expand whenever its value changes. The colon stays static —
+ * only digits flap. Animation timing (320ms total, content swap at
+ * 160ms midpoint) borrowed from the Solari mechanism: the flap
+ * card collapses to invisible, the next character is revealed,
+ * then the new card unfolds. Reduced-motion users get the same
+ * digits without the rotation.
+ *
+ * The component emits text only — no font, no size, no color. The
+ * consuming parent (the banner's __time slot) controls typography
+ * via cascade, so the digits inherit the banner's amber + tabular
+ * mono treatment.
  */
 
 const FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -21,6 +26,32 @@ const FORMATTER = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
   hour12: false,
 });
+
+function FlapDigit({ value }: { value: string }) {
+  const [shown, setShown] = useState(value);
+  const [flipping, setFlipping] = useState(false);
+
+  useEffect(() => {
+    if (value === shown) return;
+    setFlipping(true);
+    // Swap the rendered character at the midpoint of the flip — the
+    // moment the flap is at scaleY ~0, when the eye can't read what's
+    // there. This gives the illusion of a single mechanical action
+    // ending on the new value.
+    const swap = setTimeout(() => setShown(value), 160);
+    const stop = setTimeout(() => setFlipping(false), 320);
+    return () => {
+      clearTimeout(swap);
+      clearTimeout(stop);
+    };
+  }, [value, shown]);
+
+  return (
+    <span className="flap-digit" data-flipping={flipping ? "" : undefined}>
+      {shown}
+    </span>
+  );
+}
 
 export default function LiveTime() {
   const [time, setTime] = useState<string | null>(null);
@@ -45,5 +76,56 @@ export default function LiveTime() {
     };
   }, []);
 
-  return <>{time ?? "——:——"}</>;
+  // SSR placeholder + initial paint before useEffect resolves the
+  // real time. Same character count so the layout slot is stable.
+  if (!time) {
+    return (
+      <span className="live-time" aria-label="Loading time">
+        ——:——
+      </span>
+    );
+  }
+
+  const [h1, h2, , m1, m2] = time;
+
+  return (
+    <span className="live-time" aria-live="off" aria-label={`Local time ${time}`}>
+      <FlapDigit value={h1} />
+      <FlapDigit value={h2} />
+      <span className="live-time__colon">:</span>
+      <FlapDigit value={m1} />
+      <FlapDigit value={m2} />
+      <style>{`
+        .live-time {
+          display: inline-flex;
+          align-items: baseline;
+          font-variant-numeric: tabular-nums;
+        }
+        .flap-digit {
+          display: inline-block;
+          min-width: 0.62em;
+          text-align: center;
+          transform-origin: center;
+          backface-visibility: hidden;
+          will-change: transform;
+        }
+        .flap-digit[data-flipping] {
+          animation: flap-flip 320ms cubic-bezier(.4, 0, .2, 1);
+        }
+        @keyframes flap-flip {
+          0%   { transform: scaleY(1); }
+          48%  { transform: scaleY(0.04); }
+          52%  { transform: scaleY(0.04); }
+          100% { transform: scaleY(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .flap-digit[data-flipping] { animation: none; }
+        }
+        .live-time__colon {
+          display: inline-block;
+          padding: 0 0.05em;
+        }
+      `}</style>
+    </span>
+  );
 }
