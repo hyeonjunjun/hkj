@@ -38,9 +38,11 @@
   --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
 
   /* ── Type scale ──────────────────────────────────────────
-     Nine roles. Every text element on the site is one of these.
-     Don't add a tenth without retiring one. Names are role-based,
-     not size-based: a future scale rebalance reuses the names. */
+     Ten roles. Every text element on the site is one of these.
+     Don't add an eleventh without retiring one. Names are role-
+     based, not size-based: a future scale rebalance reuses the
+     names. */
+  --type-monument:   clamp(72px, 11vw, 180px);   /* page-anchor wordmark — OBYS-tier */
   --type-display:    clamp(48px, 9vw, 96px);     /* hero name — used ONCE */
   --type-statement:  clamp(15px, 1.4vw, 18px);   /* hero positioning sentence */
   --type-row:        clamp(13px, 1vw, 15px);     /* primary list rows, project titles */
@@ -151,7 +153,21 @@ a { color: inherit; text-decoration: none; }
 .dimmer { color: var(--ink-4); }
 .live  { color: var(--accent); }
 
-/* ── t-display ── hero name. Used ONCE per page. */
+/* ── t-monument ── the page's anchor wordmark. OBYS-tier scale.
+   Used ONCE on the home (the RJ / RYAN JUN top-left mark).
+   Never repeated; the type role is the page anchor. */
+.t-monument {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-monument);
+  font-weight: 500;
+  letter-spacing: var(--track-tightest);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+/* ── t-display ── hero name / sub-anchor. Used ONCE per page
+   below t-monument when both exist. */
 .t-display {
   font-family: var(--font-stack-mono);
   font-size: var(--type-display);

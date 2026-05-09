@@ -1,539 +1,493 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import type { Piece } from "@/constants/pieces";
 import LiveTime from "@/components/LiveTime";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
 /**
- * HomeView — single-composition departure board.
+ * HomeView — single-viewport OBYS-style microtypographic composition.
  *
- *   ┌────────────────────────────────────────────────────────────┐
- *   │  Ryan Jun       Design engineer · NYC · 14:32 EDT      → │  Banner
- *   ├────────────────────────────────────────────────────────────┤
- *   │  THUMB │ TIME │ NO │ DESTINATION │ SECTOR │ STATUS         │  Col header
- *   │  ◆ DEPARTURES                              01 · LIVE       │
- *   │ │[▶︎]  │ 2026 │ 01 │ LA28        │ Brand  │ ◆ LIVE          │  Live row (amber bar + pulse)
- *   │  ● ARRIVALS                                03 · ON FILE    │
- *   │  [HH] │ 2026 │ 02 │ Halo Halo!  │ Brand  │ ● 2026          │
- *   │  [Gy] │ 2026 │ 03 │ Gyeol: 결    │ Brand  │ ● 2026          │
- *   │  [Sf] │ 2025 │ 04 │ Sift        │ Mobile │ ● 2025          │
- *   ├────────────────────────────────────────────────────────────┤
- *   │  © 2026 Ryan Jun ─────────────────  rykjun@gmail.com →    │
- *   └────────────────────────────────────────────────────────────┘
+ *   ┌─────────────────────────────────────────────────────────────────┐
+ *   │  RYAN JUN®                              Work, About  EDT 14:32:18   Contact
+ *   │
+ *   │                            ┌──────────┐
+ *   │                            │  cover   │       I'm Ryan Jun — a design
+ *   │                            │  active  │       engineer working between
+ *   │                            └──────────┘       interface and identity.
+ *   │   La28                     ┌──────────┐
+ *   │   Halo Halo!               │  cover   │       Contact:
+ *   │ ▶ Sift                     │  next    │       rykjun@gmail.com
+ *   │   Gyeol                    └──────────┘
+ *   │
+ *   │   Sift  ·  Mobile · AI · 2025  ·  03  ·  Concept, Engineering, Product
+ *   │
+ *   │   Vertical, Horizontal, Grid                       © 2026 Ryan Jun
+ *   └─────────────────────────────────────────────────────────────────┘
  *
- * Iteration past the OK-but-not-brilliant first board:
+ * Layout grid (3 cols × 4 rows):
  *
- *  1. Cover strip removed. The board is now the page's only visual
- *     band — every project gets an inline thumbnail in its row, so
- *     media is in service of the schedule rather than a separate
- *     spread above it.
+ *   ┌───────────┬─────────────────┬───────────┐
+ *   │ MARK         (spans cols 1-2)  │  TOP-NAV  │   row 1: top
+ *   │           │                 │           │
+ *   │ RAIL      │   IMAGE STACK   │  TEXT     │   row 2: middle (1fr — fills)
+ *   │           │                 │           │
+ *   ├───────────┴─────────────────┴───────────┤
+ *   │  ACTIVE-ROW  (spans all 3)              │   row 3: active metadata
+ *   ├───────────┬─────────────────┬───────────┤
+ *   │ VIEW      │                 │ COLOPHON  │   row 4: bottom
+ *   └───────────┴─────────────────┴───────────┘
  *
- *  2. Rows commanded up. Height 76px (was 50px) with destination
- *     type at clamp(20-26px) — readable from across the room, the
- *     way a real flap board reads.
+ * Every piece of text uses the microtype framework defined in
+ * globals.css — no inline font definitions, no one-off sizes. The
+ * compositional rhythm comes from grid placement; the typographic
+ * rhythm comes from `.t-*` class composition.
  *
- *  3. LIVE row gets a left-edge amber bar (3px, full row height,
- *     pulsing in sync with the status cell). The bar is the "this
- *     row is currently active" cue — Solari boards literally light
- *     up the row that's about to depart.
- *
- *  4. Banner h1 lifted to clamp(34-60px) — the name now sits as
- *     the station-name anchor, not as masthead-sized chrome.
- *
- *  5. Split-flap clock in the banner (LiveTime). Each digit's an
- *     individual flap that animates scaleY collapse-and-expand on
- *     value change. Single mechanical click per minute boundary.
+ * Single-viewport on any desktop ≥720px tall. The grid yields to a
+ * stacked column on mobile (≤880px); the wordmark scales down via
+ * `clamp` and the rail collapses below the image stack.
  */
 
 type Props = { pieces: Piece[] };
 
-const STATUS_GLYPH = { shipped: "●", wip: "◆" } as const;
-
 export default function HomeView({ pieces }: Props) {
   const real = pieces.filter((p) => !p.placeholder);
-  const departures = real.filter((p) => p.status === "wip");
-  const arrivals = real.filter((p) => p.status === "shipped");
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = real[activeIdx] ?? real[0];
 
   return (
-    <main id="main" className="page">
-      <header className="banner">
-        <h1 className="banner__h1">Ryan Jun</h1>
-        <span className="banner__role tabular">
-          Design engineer
-          <span className="banner__sep" aria-hidden> · </span>
-          New York
-          <span className="banner__sep" aria-hidden> · </span>
-          <span className="banner__time">
-            <LiveTime />
+    <main id="main" className="ob">
+      {/* Top-left wordmark — t-monument scale, the page's anchor. */}
+      <div className="ob__mark">
+        <h1 className="t-monument">
+          Ryan Jun<sup className="ob__reg" aria-hidden>®</sup>
+        </h1>
+      </div>
+
+      {/* Top-right cluster — nav row, station-meta, studio paragraph,
+          contact line. Stays in column 3 across rows 1-2. */}
+      <aside className="ob__topright">
+        <nav className="ob__nav" aria-label="Primary">
+          <Link href="/work" className="t-meta ob__nav-link" data-active="">
+            Work
+          </Link>
+          <span className="t-meta dimmer" aria-hidden>,</span>
+          <Link href="/studio" className="t-meta ob__nav-link">
+            About
+          </Link>
+          <span className="t-meta tabular live ob__nav-time">
+            EDT <LiveTime />
           </span>
-          <span className="banner__edt"> EDT</span>
-        </span>
-        <a href={`mailto:${CONTACT_EMAIL}`} className="banner__cta">
-          {CONTACT_EMAIL} →
-        </a>
-      </header>
+          <Link href="/contact" className="t-meta ob__nav-link">
+            Contact
+          </Link>
+        </nav>
 
-      <section className="board" aria-label="Schedule">
-        <div className="board__cols" role="row" aria-hidden>
-          <span className="col col--thumb" />
-          <span className="col col--time">Time</span>
-          <span className="col col--no">No</span>
-          <span className="col col--dest">Destination</span>
-          <span className="col col--sector">Sector</span>
-          <span className="col col--status">Status</span>
+        <p className="t-prose ob__lede">
+          I&apos;m Ryan Jun — a design engineer working between interface
+          and identity systems. Small on purpose: one set of hands
+          carrying the work from sketch to ship.
+        </p>
+
+        <div className="ob__contact">
+          <p className="t-meta dim">Contact:</p>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="t-meta ob__email">
+            {CONTACT_EMAIL}
+          </a>
         </div>
+      </aside>
 
-        <div className="board__section" data-kind="dep">
-          <header className="section-bar">
-            <span className="section-bar__icon" aria-hidden>◆</span>
-            <span className="section-bar__label">Departures</span>
-            <span className="section-bar__meta tabular">
-              {String(departures.length).padStart(2, "0")} · LIVE
-            </span>
-          </header>
-          {departures.map((piece, i) => (
-            <DepRow key={piece.slug} piece={piece} idx={i + 1} live />
-          ))}
-        </div>
-
-        <div className="board__section" data-kind="arr">
-          <header className="section-bar">
-            <span className="section-bar__icon" aria-hidden>●</span>
-            <span className="section-bar__label">Arrivals</span>
-            <span className="section-bar__meta tabular">
-              {String(arrivals.length).padStart(2, "0")} · ON FILE
-            </span>
-          </header>
-          {arrivals.map((piece, i) => (
-            <DepRow
+      {/* Left rail — project list. Active piece is full ink, others
+          are dimmer; on hover the row activates and the center column
+          updates the highlighted cover + active metadata band updates
+          its data. */}
+      <ul className="ob__rail" role="list" aria-label="Catalog">
+        {real.map((piece, i) => {
+          const isActive = i === activeIdx;
+          return (
+            <li
               key={piece.slug}
-              piece={piece}
-              idx={departures.length + i + 1}
-            />
-          ))}
-        </div>
-      </section>
+              className="ob__rail-item"
+              data-active={isActive ? "" : undefined}
+              onMouseEnter={() => setActiveIdx(i)}
+              onFocus={() => setActiveIdx(i)}
+            >
+              <Link
+                href={`/work/${piece.slug}`}
+                className={`ob__rail-link ${isActive ? "" : "dim"}`}
+              >
+                <span className="ob__rail-marker" aria-hidden>
+                  {isActive ? "▶" : ""}
+                </span>
+                <span className="t-row">{piece.title}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
 
-      <footer className="foot" aria-label="Colophon">
-        <span className="foot__copy">© 2026 Ryan Jun</span>
-        <span className="foot__filler" aria-hidden />
-        <a href={`mailto:${CONTACT_EMAIL}`} className="foot__cta">
-          {CONTACT_EMAIL} →
-        </a>
-      </footer>
+      {/* Center column — image stack. All covers shown vertically,
+          the active one full-bright; siblings dim. The stack is the
+          page's only imagery. */}
+      <div className="ob__stack" aria-hidden>
+        {real.map((piece, i) => {
+          const isActive = i === activeIdx;
+          return (
+            <div
+              key={piece.slug}
+              className="ob__stack-cell"
+              data-active={isActive ? "" : undefined}
+              onMouseEnter={() => setActiveIdx(i)}
+            >
+              {piece.cover?.kind === "video" ? (
+                <video
+                  className="ob__stack-media"
+                  src={piece.cover.src}
+                  poster={piece.cover.poster}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : piece.cover?.kind === "image" ? (
+                <Image
+                  className="ob__stack-media"
+                  src={piece.cover.src}
+                  alt={piece.title}
+                  fill
+                  sizes="(max-width: 880px) 80vw, 28vw"
+                  priority={i === 0}
+                />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Active metadata band — full-width row showing the active
+          piece's title, sector, code, services. Microtype, dot-
+          separated, mono caps for code, sentence case for title. */}
+      <div className="ob__active" aria-live="polite">
+        <span className="t-row">{active.title}</span>
+        <span className="t-sep">·</span>
+        <span className="t-meta">{active.sector}</span>
+        <span className="t-sep">·</span>
+        <span className="t-code">{active.number}</span>
+        <span className="t-sep">·</span>
+        <span className="t-meta tabular">{active.year}</span>
+      </div>
+
+      {/* Bottom-left view toggle. Vertical is active by default;
+          horizontal/grid are reserved as future view modes. */}
+      <div className="ob__view">
+        <span className="t-meta" data-active="">Vertical</span>
+        <span className="t-meta dimmer" aria-hidden>,</span>
+        <span className="t-meta dim">Horizontal</span>
+        <span className="t-meta dimmer" aria-hidden>,</span>
+        <span className="t-meta dim">Grid</span>
+      </div>
+
+      {/* Bottom-right colophon. */}
+      <p className="ob__colophon t-footnote">
+        All rights reserved. © 2026 Ryan Jun
+      </p>
 
       <style>{`
         @keyframes pagefadein { from { opacity: 0; } to { opacity: 1; } }
-        .page {
+
+        /* ── Page grid ────────────────────────────────────────────
+           Single-viewport composition. Three columns × four rows.
+           Middle row (1fr) absorbs spare height; rest are content-
+           sized. Padding generous on top, tighter on bottom so the
+           wordmark feels seated at the page's edge. */
+        .ob {
           animation: pagefadein 220ms ease;
-          padding: 48px var(--margin-page) 0;
-          max-width: 1680px;
-          margin-inline: auto;
-          min-height: calc(100dvh - 48px);
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns:
+            minmax(180px, 1.1fr)
+            minmax(0, 2.4fr)
+            minmax(220px, 1.2fr);
+          grid-template-rows: auto 1fr auto auto;
+          column-gap: clamp(24px, 4vw, 56px);
+          row-gap: clamp(20px, 3vw, 32px);
+          min-height: 100dvh;
+          padding: clamp(20px, 2.4vw, 32px) clamp(24px, 4vw, 56px) clamp(16px, 2vw, 24px);
         }
         @media (prefers-reduced-motion: reduce) {
-          .page { animation: none; }
+          .ob { animation: none; }
         }
 
-        /* ── Banner ─────────────────────────────────────────────
-           h1 lifted to station-name scale (clamp 34-60). Role line
-           carries the live data: city · split-flap clock · timezone.
-           Amber lives only on the time digits (and the LIVE bar /
-           status / section-icon below). */
-        .banner {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: baseline;
-          gap: clamp(16px, 2.4vw, 32px);
-          padding: clamp(14px, 1.6vw, 22px) 0 clamp(14px, 1.6vw, 22px);
-          border-bottom: 1px solid var(--ink-hair);
-        }
-        .banner__h1 {
-          font-family: var(--font-stack-sans);
-          font-size: clamp(34px, 4vw, 60px);
-          font-weight: 500;
-          letter-spacing: -0.04em;
-          line-height: 0.95;
-          color: var(--ink);
-          margin: 0;
-        }
-        .banner__role {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          justify-self: start;
-          padding-left: clamp(0px, 1vw, 16px);
-        }
-        .banner__sep { color: var(--ink-4); }
-        .banner__time {
-          color: var(--accent);
-          margin: 0 2px;
-          font-weight: 500;
-        }
-        .banner__edt {
-          color: var(--ink-3);
-          font-size: 9px;
-          margin-left: 2px;
-        }
-        .banner__cta {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          justify-self: end;
-          transition: color 200ms var(--ease);
-        }
-        .banner__cta:hover { color: var(--ink); }
-
-        /* ── Board ──────────────────────────────────────────────
-           Single column system shared between both sections. The
-           thumbnail column is fixed-width (56px on desktop) so
-           cover frames align cleanly down the column edge. */
-        .board {
-          --row-grid:
-            56px            /* thumbnail */
-            72px            /* time */
-            44px            /* no */
-            minmax(0, 1.4fr)  /* destination */
-            minmax(0, 1fr)    /* sector */
-            130px;          /* status */
-          --row-gap: clamp(10px, 1.2vw, 18px);
-          border: 1px solid var(--ink-hair);
-        }
-        .board__cols {
-          display: grid;
-          grid-template-columns: var(--row-grid);
-          column-gap: var(--row-gap);
-          align-items: center;
-          height: 28px;
-          padding: 0 clamp(10px, 1.2vw, 18px);
-          border-bottom: 1px solid var(--ink-hair);
-          background: var(--paper-3);
-        }
-        .col {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          font-weight: 500;
-        }
-        .col--status { text-align: right; }
-
-        /* ── Section bar ─────────────────────────────────────────
-           DEPARTURES / ARRIVALS sub-header. Icon left + label +
-           meta right. Lifted background separates it from the data
-           rows below. */
-        .section-bar {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: baseline;
-          gap: 10px;
-          height: 32px;
-          padding: 0 clamp(10px, 1.2vw, 18px);
-          border-bottom: 1px solid var(--ink-hair);
-          background: var(--paper-2);
-        }
-        .section-bar__icon {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
+        /* ── Wordmark ──────────────────────────────────────────────
+           Spans cols 1-2 of row 1. Aligned to the page's top-left.
+           The ® is a small superscript at the top-right of the mark.
+           Letter-spacing is tighter than t-monument's default for
+           the optical effect of caps at this scale. */
+        .ob__mark {
+          grid-column: 1 / span 2;
+          grid-row: 1;
+          align-self: start;
           line-height: 1;
         }
-        .board__section[data-kind="dep"] .section-bar__icon {
-          color: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
+        .ob__mark .t-monument {
+          line-height: 0.92;
+          letter-spacing: -0.045em;
         }
-        .board__section[data-kind="arr"] .section-bar__icon {
-          color: var(--ink);
-        }
-        .section-bar__label {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--ink);
-          font-weight: 500;
-        }
-        .section-bar__meta {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+        .ob__reg {
+          font-size: 0.18em;
+          vertical-align: top;
+          margin-left: 0.08em;
+          font-weight: 400;
+          letter-spacing: 0.04em;
           color: var(--ink-3);
         }
 
-        /* ── Departure row ──────────────────────────────────────
-           76px tall — commanding height for read-from-distance type.
-           Thumbnail anchored left, destination is the row's hero,
-           status right-aligned. LIVE row has a 3px amber bar on the
-           left edge (pulsing) as the "this seat is active" cue. */
-        .row {
+        /* ── Top-right cluster ─────────────────────────────────────
+           Spans column 3, rows 1-2. Inside is a small grid: nav row,
+           lede paragraph, contact. */
+        .ob__topright {
+          grid-column: 3;
+          grid-row: 1 / span 2;
           display: grid;
-          grid-template-columns: var(--row-grid);
-          column-gap: var(--row-gap);
+          grid-template-rows: auto auto auto;
+          row-gap: clamp(18px, 2.2vw, 28px);
+          align-self: start;
+          padding-top: 4px;
+        }
+
+        .ob__nav {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .ob__nav-link {
+          color: var(--ink);
+          text-decoration: none;
+          background-image: linear-gradient(currentColor, currentColor);
+          background-size: 0% 1px;
+          background-position: 0 100%;
+          background-repeat: no-repeat;
+          transition: background-size 200ms var(--ease);
+        }
+        .ob__nav-link[data-active] {
+          background-size: 100% 1px;
+        }
+        .ob__nav-link:hover {
+          background-size: 100% 1px;
+        }
+        .ob__nav-time {
+          margin-left: auto;
+          padding-left: 12px;
+        }
+
+        .ob__lede {
+          color: var(--ink-2);
+          max-width: 32ch;
+        }
+
+        .ob__contact {
+          display: grid;
+          row-gap: 4px;
+        }
+        .ob__email {
+          color: var(--ink);
+          background-image: linear-gradient(currentColor, currentColor);
+          background-size: 0% 1px;
+          background-position: 0 100%;
+          background-repeat: no-repeat;
+          transition: background-size 200ms var(--ease);
+          width: max-content;
+        }
+        .ob__email:hover { background-size: 100% 1px; }
+
+        /* ── Left rail ─────────────────────────────────────────────
+           Column 1, row 2. Project list aligned to the BOTTOM of the
+           cell so it sits adjacent to the active-row band below.
+           Gap between items is tight — Aino-style row density. */
+        .ob__rail {
+          grid-column: 1;
+          grid-row: 2;
+          align-self: end;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .ob__rail-item {
+          display: block;
+        }
+        .ob__rail-link {
+          display: inline-grid;
+          grid-template-columns: 14px auto;
+          gap: 6px;
+          align-items: baseline;
+          color: var(--ink);
+          transition: color 160ms var(--ease);
+        }
+        .ob__rail-link.dim { color: var(--ink-3); }
+        .ob__rail-link:hover { color: var(--ink); }
+        .ob__rail-marker {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          line-height: 1;
+          color: var(--accent);
+          opacity: 0;
+          transition: opacity 160ms var(--ease);
+        }
+        .ob__rail-item[data-active] .ob__rail-marker {
+          opacity: 1;
+        }
+
+        /* ── Center stack ──────────────────────────────────────────
+           Column 2, row 2. Vertically-stacked covers, all visible.
+           Active cover is full brightness; siblings dim to 0.4. The
+           stack is the page's only imagery — there is no separate
+           hero image. Each cell is 3:4 aspect, narrow column. */
+        .ob__stack {
+          grid-column: 2;
+          grid-row: 2;
+          display: flex;
+          flex-direction: column;
           align-items: center;
-          height: 76px;
-          padding: 0 clamp(10px, 1.2vw, 18px);
-          border-bottom: 1px solid var(--ink-hair);
-          transition: background 200ms var(--ease);
+          justify-content: center;
+          gap: clamp(8px, 1vw, 14px);
+          min-height: 0;
+          /* Stack reads as a vertical "spine" of covers. Width and
+             aspect are tuned so all four real pieces fit inside the
+             1fr middle row at 720px+ viewport heights without forcing
+             scroll. Square (1:1) is the neutral aspect — works for
+             LA28 video, Sift portrait, Halo packaging, Gyeol render. */
+          width: 100%;
+          max-width: clamp(140px, 18vw, 220px);
+          margin-inline: auto;
+        }
+        .ob__stack-cell {
           position: relative;
-        }
-        .row:last-child { border-bottom: none; }
-        .row:hover { background: var(--paper-2); }
-
-        /* LIVE row — amber left-edge bar runs full height,
-           synchronized with the status pulse. The bar is the
-           strongest of the live cues; status text is the second;
-           section-bar icon is the third. */
-        .row[data-live]::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 3px;
-          background: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
-        }
-
-        .row__thumb {
-          width: 56px;
-          height: 56px;
+          width: 100%;
+          aspect-ratio: 1 / 1;
           background: var(--paper-2);
           overflow: hidden;
-          position: relative;
-          flex-shrink: 0;
+          opacity: 0.32;
+          filter: grayscale(0.6) brightness(0.7);
+          transition: opacity 220ms var(--ease), filter 220ms var(--ease),
+                      transform 240ms var(--ease);
+          cursor: pointer;
         }
-        .row__thumb-media {
+        /* Active cover scales up slightly — visual hierarchy without
+           changing layout flow. The siblings step down, creating the
+           "spine with featured center" gesture. */
+        .ob__stack-cell[data-active] {
+          opacity: 1;
+          filter: grayscale(0) brightness(1);
+          transform: scale(1.18);
+          z-index: 1;
+        }
+        .ob__stack-media {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: brightness(0.86) saturate(0.95);
-          transition: filter 320ms var(--ease);
-        }
-        .row:hover .row__thumb-media {
-          filter: brightness(1) saturate(1);
         }
 
-        .row__time {
-          font-family: var(--font-stack-mono);
-          font-size: 12px;
-          letter-spacing: 0.04em;
-          color: var(--ink);
+        /* ── Active row ────────────────────────────────────────────
+           Spans all 3 columns, row 3. Single line of dot-separated
+           microtype showing the active piece's title + sector + code
+           + year. Sits as a band between the stack and the bottom row. */
+        .ob__active {
+          grid-column: 1 / -1;
+          grid-row: 3;
+          display: flex;
+          align-items: baseline;
+          gap: 10px;
+          flex-wrap: wrap;
+          padding-top: clamp(12px, 1.6vw, 20px);
+          border-top: 1px solid var(--ink-hair);
         }
-        .row__no {
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: 0.06em;
-          color: var(--ink-3);
-        }
-        .row__dest {
-          font-family: var(--font-stack-sans);
-          font-size: clamp(20px, 1.8vw, 26px);
-          font-weight: 500;
-          letter-spacing: -0.025em;
-          line-height: 1.05;
-          color: var(--ink);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          min-width: 0;
-        }
-        .row__sector {
-          font-family: var(--font-stack-mono);
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          min-width: 0;
-        }
-        .row__status {
+
+        /* ── Bottom row ────────────────────────────────────────────
+           View toggle col 1, colophon col 3, row 4. Microtype, both
+           dim. The toggle's active option is full ink; others are
+           --ink-3. */
+        .ob__view {
+          grid-column: 1;
+          grid-row: 4;
           display: inline-flex;
           align-items: baseline;
-          gap: 8px;
-          justify-self: end;
-          font-family: var(--font-stack-mono);
-          font-size: 11px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--ink-3);
+          gap: 6px;
         }
-        .row__status .glyph {
-          font-size: 11px;
-          line-height: 1;
-        }
-        .row__status[data-status="shipped"] .glyph { color: var(--ink); }
-        .row[data-live] .row__status {
-          color: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
-        }
-        .row[data-live] .row__status .glyph { color: var(--accent); }
-
-        @keyframes live-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.55; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .row[data-live] .row__status,
-          .row[data-live]::before,
-          .board__section[data-kind="dep"] .section-bar__icon {
-            animation: none;
-          }
-        }
-
-        /* ── Footer ─────────────────────────────────────────────
-           Pushed to the bottom on tall viewports via margin-top: auto. */
-        .foot {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: clamp(14px, 1.6vw, 22px) 0 clamp(16px, 2vw, 24px);
-          margin-top: auto;
-          flex-wrap: wrap;
-        }
-        .foot__copy {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-        }
-        .foot__filler {
-          flex: 1 1 auto;
-          height: 1px;
-          background: var(--ink-hair);
-          align-self: center;
-        }
-        .foot__cta {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
+        .ob__view .t-meta[data-active] {
           color: var(--ink);
-          transition: color 200ms var(--ease);
+          background-image: linear-gradient(currentColor, currentColor);
+          background-size: 100% 1px;
+          background-position: 0 100%;
+          background-repeat: no-repeat;
         }
-        .foot__cta:hover { color: var(--ink-3); }
 
-        /* ── Responsive ────────────────────────────────────────
-           1100px: row grid narrows (smaller fixed cols, smaller
-           gap). Sector still visible.
-           880px: sector column drops; row reflows to thumb / time +
-           no / destination (with sector as sub-line) / status.
-           600px: column header hidden; row is a 2-line stack with
-           thumb left and stacked text right. */
+        .ob__colophon {
+          grid-column: 3;
+          grid-row: 4;
+          justify-self: end;
+          margin: 0;
+        }
+
+        /* ── Responsive ────────────────────────────────────────────
+           1100px: text column tightens; gap closes.
+           880px: 3-col grid collapses to single column. Wordmark
+                  scales via clamp; topright moves under wordmark;
+                  rail moves under stack.
+           600px: tightened paddings, reflowed rail. */
         @media (max-width: 1280px) {
-          .board {
-            --row-grid: 52px 64px 40px minmax(0, 1.3fr) minmax(0, 1fr) 120px;
+          .ob {
+            grid-template-columns:
+              minmax(160px, 1fr)
+              minmax(0, 2fr)
+              minmax(200px, 1fr);
           }
         }
-        @media (max-width: 1100px) {
-          .board {
-            --row-grid: 48px 60px 36px minmax(0, 1.2fr) minmax(0, 0.9fr) 110px;
+        @media (max-width: 1024px) {
+          .ob {
+            grid-template-columns: 1fr 1.4fr 1fr;
           }
-          .row { height: 72px; }
-          .row__thumb { width: 48px; height: 48px; }
+          .ob__lede { max-width: 28ch; }
         }
         @media (max-width: 880px) {
-          .board {
-            --row-grid: 48px 56px 32px minmax(0, 1fr) 100px;
+          .ob {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto auto auto auto;
+            row-gap: clamp(20px, 4vw, 32px);
           }
-          .col--sector,
-          .row__sector {
-            display: none;
+          .ob__mark        { grid-column: 1; grid-row: 1; }
+          .ob__topright    { grid-column: 1; grid-row: 2; }
+          .ob__stack       { grid-column: 1; grid-row: 3; max-width: 280px; }
+          .ob__rail        { grid-column: 1; grid-row: 4; align-self: start; }
+          .ob__active      { grid-column: 1; grid-row: 5; }
+          .ob__view        { grid-column: 1; grid-row: 6; }
+          .ob__colophon    { grid-column: 1; grid-row: 6; justify-self: end; }
+
+          .ob__nav-time {
+            margin-left: 0;
+            padding-left: 0;
           }
-          .row { height: 68px; }
-          .row__dest { font-size: 18px; }
         }
         @media (max-width: 600px) {
-          .page { min-height: 0; padding-top: 48px; }
-          .banner {
-            grid-template-columns: 1fr auto;
-            grid-template-rows: auto auto;
-            row-gap: 6px;
+          .ob {
+            padding: 16px 20px;
           }
-          .banner__h1 { grid-column: 1; grid-row: 1; }
-          .banner__cta { grid-column: 2; grid-row: 1; }
-          .banner__role {
-            grid-column: 1 / -1;
-            grid-row: 2;
-            padding-left: 0;
+          .ob__view {
+            grid-column: 1; grid-row: 6;
+          }
+          .ob__colophon {
+            grid-column: 1; grid-row: 7;
             justify-self: start;
+            margin-top: 8px;
           }
-          .board__cols { display: none; }
-          .board {
-            --row-grid: 44px 1fr 90px;
-          }
-          .row {
-            height: auto;
-            padding: 12px clamp(10px, 1.2vw, 18px);
-          }
-          .row__thumb { width: 44px; height: 44px; }
-          .row__time, .row__no { display: none; }
-          .row__dest { font-size: 16px; }
         }
       `}</style>
     </main>
-  );
-}
-
-/* ── Departure row with inline thumbnail ───────────────────── */
-
-function DepRow({
-  piece,
-  idx,
-  live,
-}: {
-  piece: Piece;
-  idx: number;
-  live?: boolean;
-}) {
-  const num = String(idx).padStart(2, "0");
-  return (
-    <Link
-      href={`/work/${piece.slug}`}
-      className="row"
-      data-live={live ? "" : undefined}
-    >
-      <span className="row__thumb">
-        {piece.cover?.kind === "video" ? (
-          <video
-            className="row__thumb-media"
-            src={piece.cover.src}
-            poster={piece.cover.poster}
-            autoPlay
-            loop
-            muted
-            playsInline
-            aria-hidden
-          />
-        ) : piece.cover?.kind === "image" ? (
-          <Image
-            className="row__thumb-media"
-            src={piece.cover.src}
-            alt={piece.title}
-            fill
-            sizes="56px"
-          />
-        ) : null}
-      </span>
-      <span className="row__time tabular">{piece.year}</span>
-      <span className="row__no tabular">{num}</span>
-      <span className="row__dest">{piece.title}</span>
-      <span className="row__sector">{piece.sector}</span>
-      <span className="row__status" data-status={piece.status}>
-        <span className="glyph" aria-hidden>{STATUS_GLYPH[piece.status]}</span>
-        <span>{live ? "Live" : `${piece.year}`}</span>
-      </span>
-    </Link>
   );
 }
