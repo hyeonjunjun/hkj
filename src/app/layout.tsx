@@ -8,13 +8,13 @@ import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ryanjun.com"),
+  metadataBase: new URL("https://hyeonjunjun.com"),
   title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
   description: "Ryan Jun — design engineer, New York.",
   openGraph: {
     title: "Ryan Jun",
     description: "Design engineer, New York.",
-    url: "https://ryanjun.com",
+    url: "https://hyeonjunjun.com",
     siteName: "Ryan Jun",
     locale: "en_US",
     type: "website",
