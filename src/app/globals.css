@@ -2,29 +2,25 @@
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Inverted warm-paper register — same conceptual material at night.
-     Solari/split-flap departure-board reference: warm cream type on
-     warm near-black, never cold grey on charcoal. Token names retained
-     (--paper = ground, --ink = text); only the values flip. The opacity
-     steps on --ink-N step *down* in luminance against the dark ground,
-     so chrome reads as soft cream absorbed into a warm board surface. */
-  --paper:   #0E0D0B;                       /* warm near-black ground */
-  --paper-2: #16140F;                       /* row hover, lifted cells */
-  --paper-3: #211E18;                       /* hairline-adjacent surface */
+  /* Krantz-line dark register: pure black ground, cool off-white type,
+     monochrome (no accent). The page is the composition; nothing
+     decorative competes. juliakrantz.com uses #000 + #F8F8F8 + alpha
+     steps on a single fg value — we mirror that exactly so the
+     hairline grid reads as drawn lines rather than tinted edges.
 
-  --ink:     #F4F2EC;                       /* titles, mark, status dot — primary */
-  --ink-2:   rgba(244, 242, 236, 0.92);     /* prose, project titles */
-  --ink-3:   rgba(244, 242, 236, 0.62);     /* chrome — section labels, nav, captions */
-  --ink-4:   rgba(244, 242, 236, 0.38);     /* faintest — row numbers, folio, sub-meta */
+     Token names retained (--paper = ground, --ink = text); the
+     codebase already speaks that vocabulary. */
+  --paper:   #000000;                       /* pure black ground */
+  --paper-2: #0A0A0A;                       /* lifted cell hover */
+  --paper-3: #161616;                       /* hairline-adjacent surface */
 
-  --ink-hair:  rgba(244, 242, 236, 0.16);   /* hairline rules */
-  --ink-ghost: rgba(244, 242, 236, 0.04);
+  --ink:     #F8F8F8;                       /* primary — titles, mark, sym */
+  --ink-2:   rgba(248, 248, 248, 0.92);     /* prose */
+  --ink-3:   rgba(248, 248, 248, 0.45);     /* chrome — labels, meta, nav */
+  --ink-4:   rgba(248, 248, 248, 0.30);     /* faintest — folio, sub-meta */
 
-  /* Single accent — Solari amber. Used ONLY on truly-live elements:
-     the masthead clock, the LIVE row's status cell, the weather line.
-     Used everywhere it's costume; used in three places it's signal. */
-  --accent:    #D9A441;
-  --accent-2:  rgba(217, 164, 65, 0.72);
+  --ink-hair:  rgba(248, 248, 248, 0.12);   /* hairline rules — Krantz value */
+  --ink-ghost: rgba(248, 248, 248, 0.04);
 
   /* Type system — sans-only. The references (hs68, aino) ship with a
      single sans family. Mono is reserved for project numbers + folio. */

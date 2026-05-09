@@ -3,22 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import LiveTime from "@/components/LiveTime";
 
 /**
- * Frame — sticky horizontal top nav with a departure-board clock.
+ * Frame — sticky horizontal top nav, Krantz-spec.
  *
- *   ┌─ STRAY · 14:32 ────────────── Work  Studio  Contact ─┐
- *   ├──────────────────────────────────────────────────────┤
+ *   ┌─ STRAY ──────────────── Work  Studio  Contact ─┐
+ *   └──────────────────────────────────────────────────┘
  *
- * The clock is the load-bearing live element of the chrome — it ticks
- * by the minute and is the only place the accent amber appears in the
- * masthead. Without it the page is a static document; with it the
- * page reads as a board currently in operation.
+ * Minimal masthead — small wordmark left, three nav links right. The
+ * live time and atmospherics moved out of the masthead and into cells
+ * inside the homepage's element grid. Frame's job here is just to
+ * carry the brand and the wayfinding; the work and the live data live
+ * inside the composition below.
  *
- * Hides on scroll-down past 80px, reveals on scroll-up. Mark sits at
- * font-weight 500; links at 400 — same family, same size, weight
- * differentiation does the hierarchy.
+ * Hides on scroll-down past 80px, reveals on scroll-up. Mark at
+ * weight 500, links at 400 — same family, same size.
  */
 
 type NavItem = { href: string; label: string };
@@ -69,13 +68,9 @@ export default function Frame() {
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <span className="frame__lead">
-        <Link href="/" className="frame__mark" aria-label="stray — home">
-          stray
-        </Link>
-        <span className="frame__sep" aria-hidden>·</span>
-        <LiveTime />
-      </span>
+      <Link href="/" className="frame__mark" aria-label="stray — home">
+        stray
+      </Link>
 
       <nav aria-label="Primary" className="frame__nav">
         {NAV.map((item) => {
@@ -107,7 +102,7 @@ export default function Frame() {
           grid-template-columns: 1fr auto;
           align-items: center;
           gap: clamp(16px, 3vw, 40px);
-          background: rgba(14, 13, 11, 0.88);
+          background: rgba(0, 0, 0, 0.92);
           backdrop-filter: saturate(140%) blur(10px);
           -webkit-backdrop-filter: saturate(140%) blur(10px);
           border-bottom: 1px solid var(--ink-hair);
@@ -124,18 +119,6 @@ export default function Frame() {
           .frame[data-hidden] { transform: translateY(0); }
         }
 
-        .frame__lead {
-          display: inline-flex;
-          align-items: baseline;
-          gap: 10px;
-          justify-self: start;
-        }
-        .frame__sep {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          color: var(--ink-4);
-          line-height: 1;
-        }
         .frame__mark {
           font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
@@ -147,6 +130,7 @@ export default function Frame() {
           letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink);
+          justify-self: start;
           transition: opacity 180ms var(--ease);
         }
         .frame__mark:hover { opacity: 0.65; }
