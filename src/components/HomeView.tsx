@@ -2,43 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Piece } from "@/constants/pieces";
 import LiveTime from "@/components/LiveTime";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
 /**
- * HomeView — single-section locked-viewport carousel.
+ * HomeView — single-section locked-viewport carousel, OBYS-line.
  *
- * The body is locked to 100dvh with overflow hidden. The page does not
- * scroll. Wheel / trackpad / arrow / hover events change the active
- * project; the center stage crossfades between covers; the active
- * metadata band updates inline.
+ * Filmstrip (not crossfade): all covers stacked in a vertical strip
+ * inside the center stage; the strip translates so the active cover's
+ * center sits at the stage's vertical center. Adjacent covers peek
+ * above and below — fades to transparent at the stage edges. Big
+ * (   ) brackets flank the stage as the OBYS active-frame signature.
  *
- * Pattern lifted from obys.agency (`max-h-screen overflow-hidden`,
- * `h-[11vh]` per rail item, `mix-blend-difference` custom cursor) and
- * cathydolle.com (vertical ListSlider with wheel-driven activation).
+ * Layout (single screen, locked to 100dvh):
  *
- * Layout grid (3 cols × 3 rows):
+ *   ┌─ MARK ───────────── peek ─── NAV · TIME · MAIL ────────────┐
+ *   │                                                              │
+ *   │              [   peek of prev cover   ]                      │
+ *   │ rail (    [          ACTIVE           ]    aside lede        │
+ *   │  items     [    peek of next cover    ]      mail            │
+ *   │              [   peek of next-1       ]                      │
+ *   │                                                              │
+ *   ├─ VIEW ── active title · sector · code · yr ───── COPYR ─────┤
+ *   └──────────────────────────────────────────────────────────────┘
  *
- *   ┌─ MARK ───────────────────────────── NAV · TIME · MAIL ─┐
- *   │                                                         │
- *   │  ▶ rail item    [   single full-stage cover   ]   aside │
- *   │    rail item                                       lede │
- *   │    rail item                                       mail │
- *   │    rail item                                            │
- *   │                                                         │
- *   ├─ VIEW ──── active title · sector · code · yr ── COPYR ─┤
- *   └─────────────────────────────────────────────────────────┘
+ * Wheel / arrow / hover advances activeIdx (debounced 620ms). The
+ * filmstrip's translateY is computed via CSS calc with --idx and --n
+ * custom properties so the active cover's center always sits at the
+ * stage's center.
  *
- * Three carousel triggers (each adjusts activeIdx by ±1):
- *   - mouseenter on a rail item / stage cell → set absolute index
- *   - wheel / trackpad gesture (debounced 600ms)
- *   - ArrowUp / ArrowDown
+ * 8 pieces total: 4 shipped + 4 untitled placeholders. Placeholders
+ * render with an empty hairline frame instead of a cover image; the
+ * rail entry still exists so the catalog reads at full length.
  *
- * The custom cursor is a 10×10 hollow square at z-index 9999 with
- * mix-blend-mode: difference — sits white on dark surfaces, dark on
- * light ones. Single signature interaction. Hidden on touch devices.
+ * Smaller text + tighter rail spacing vs. the prior pass — the
+ * compactness comes from rail items at fixed line-height (no flex
+ * spread) and reduced clamp ranges on the wordmark.
  */
 
 const WHEEL_DEBOUNCE_MS = 620;
@@ -46,18 +48,18 @@ const WHEEL_DEBOUNCE_MS = 620;
 type Props = { pieces: Piece[] };
 
 export default function HomeView({ pieces }: Props) {
-  const real = pieces.filter((p) => !p.placeholder);
+  // Show ALL pieces, including placeholders. Placeholders render as
+  // empty frames in the stage; rail entries exist either way.
+  const all = pieces.slice().sort((a, b) => a.order - b.order);
   const [activeIdx, setActiveIdx] = useState(0);
   const lastWheelAt = useRef(0);
   const cursorRef = useRef<HTMLDivElement | null>(null);
 
   const goTo = (idx: number) => {
-    const next = Math.max(0, Math.min(real.length - 1, idx));
+    const next = Math.max(0, Math.min(all.length - 1, idx));
     setActiveIdx(next);
   };
 
-  // Wheel-driven carousel — debounced so trackpad inertia doesn't
-  // skip multiple cards in one gesture. Each gesture moves ±1.
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 4) return;
@@ -72,9 +74,8 @@ export default function HomeView({ pieces }: Props) {
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
-  }, [activeIdx, real.length]);
+  }, [activeIdx, all.length]);
 
-  // Keyboard — Up/Down arrows. Accessibility + power-user.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -83,23 +84,16 @@ export default function HomeView({ pieces }: Props) {
       } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
         goTo(activeIdx - 1);
-      } else if (e.key === "Home") {
-        goTo(0);
-      } else if (e.key === "End") {
-        goTo(real.length - 1);
-      }
+      } else if (e.key === "Home") goTo(0);
+      else if (e.key === "End") goTo(all.length - 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [activeIdx, real.length]);
+  }, [activeIdx, all.length]);
 
-  // Custom cursor — fixed div tracked to mouse via translate. Hidden
-  // when finger-pointer is detected (touch device).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const isCoarse = window.matchMedia("(pointer: coarse)").matches;
-    if (isCoarse) return;
-
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     let raf = 0;
     let x = 0;
     let y = 0;
@@ -122,11 +116,10 @@ export default function HomeView({ pieces }: Props) {
     };
   }, []);
 
-  const active = real[activeIdx];
+  const active = all[activeIdx];
 
   return (
     <main id="main" className="ob">
-      {/* ── Top: wordmark + nav + time + email ──────────── */}
       <header className="ob__top">
         <h1 className="t-monument ob__mark">
           Ryan Jun<sup className="ob__reg" aria-hidden>®</sup>
@@ -148,11 +141,11 @@ export default function HomeView({ pieces }: Props) {
         </nav>
       </header>
 
-      {/* ── Middle: rail | stage | aside ────────────────── */}
       <section className="ob__main">
         <ul className="ob__rail" role="list" aria-label="Catalog">
-          {real.map((piece, i) => {
+          {all.map((piece, i) => {
             const isActive = i === activeIdx;
+            const isPlaceholder = piece.placeholder;
             return (
               <li
                 key={piece.slug}
@@ -162,51 +155,72 @@ export default function HomeView({ pieces }: Props) {
                 onFocus={() => goTo(i)}
               >
                 <Link
-                  href={`/work/${piece.slug}`}
+                  href={isPlaceholder ? "#" : `/work/${piece.slug}`}
                   className="ob__rail-link"
+                  data-disabled={isPlaceholder ? "" : undefined}
+                  onClick={(e) => {
+                    if (isPlaceholder) e.preventDefault();
+                  }}
                 >
-                  <span className="ob__rail-marker" aria-hidden>
-                    ▶
-                  </span>
-                  <span className="t-row">{piece.title}</span>
+                  <span className="ob__rail-marker" aria-hidden>▶</span>
+                  <span className="ob__rail-title">{piece.title}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
 
-        <div className="ob__stage" aria-hidden>
-          {real.map((piece, i) => {
-            const isActive = i === activeIdx;
-            return (
-              <div
-                key={piece.slug}
-                className="ob__cover"
-                data-active={isActive ? "" : undefined}
-              >
-                {piece.cover?.kind === "video" ? (
-                  <video
-                    className="ob__cover-media"
-                    src={piece.cover.src}
-                    poster={piece.cover.poster}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  />
-                ) : piece.cover?.kind === "image" ? (
-                  <Image
-                    className="ob__cover-media"
-                    src={piece.cover.src}
-                    alt={piece.title}
-                    fill
-                    sizes="(max-width: 880px) 80vw, 50vw"
-                    priority={i === 0}
-                  />
-                ) : null}
-              </div>
-            );
-          })}
+        {/* Stage — filmstrip of all covers, brackets flanking. */}
+        <div className="ob__stage">
+          <span className="ob__bracket ob__bracket--left" aria-hidden>(</span>
+          <div
+            className="ob__strip"
+            style={
+              {
+                "--idx": activeIdx,
+                "--n": all.length,
+              } as CSSProperties
+            }
+            aria-hidden
+          >
+            {all.map((piece, i) => {
+              const isActive = i === activeIdx;
+              return (
+                <div
+                  key={piece.slug}
+                  className="ob__cover"
+                  data-active={isActive ? "" : undefined}
+                  onMouseEnter={() => goTo(i)}
+                >
+                  {piece.cover?.kind === "video" ? (
+                    <video
+                      className="ob__cover-media"
+                      src={piece.cover.src}
+                      poster={piece.cover.poster}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    />
+                  ) : piece.cover?.kind === "image" ? (
+                    <Image
+                      className="ob__cover-media"
+                      src={piece.cover.src}
+                      alt={piece.title}
+                      fill
+                      sizes="(max-width: 880px) 80vw, 30vw"
+                      priority={i === 0}
+                    />
+                  ) : (
+                    <div className="ob__cover-placeholder">
+                      <span className="t-caption dimmer">In development</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <span className="ob__bracket ob__bracket--right" aria-hidden>)</span>
         </div>
 
         <aside className="ob__aside">
@@ -227,12 +241,9 @@ export default function HomeView({ pieces }: Props) {
         </aside>
       </section>
 
-      {/* ── Bottom: view toggle | active metadata | colophon ── */}
       <footer className="ob__bottom">
         <div className="ob__view">
-          <span className="t-meta" data-active="">
-            Vertical
-          </span>
+          <span className="t-meta" data-active="">Vertical</span>
           <span className="t-meta dimmer" aria-hidden>,</span>
           <span className="t-meta dim">Horizontal</span>
           <span className="t-meta dimmer" aria-hidden>,</span>
@@ -240,7 +251,7 @@ export default function HomeView({ pieces }: Props) {
         </div>
 
         <div className="ob__active" aria-live="polite">
-          <span className="t-row">{active.title}</span>
+          <span className="ob__active-title">{active.title}</span>
           <span className="t-sep">·</span>
           <span className="t-meta">{active.sector}</span>
           <span className="t-sep">·</span>
@@ -254,18 +265,12 @@ export default function HomeView({ pieces }: Props) {
         </p>
       </footer>
 
-      {/* ── Custom cursor — mix-blend-difference square ──── */}
       <div ref={cursorRef} className="ob__cursor" aria-hidden />
 
       <style>{`
         @keyframes pagefadein { from { opacity: 0; } to { opacity: 1; } }
 
-        /* The page locks to viewport. Body itself is allowed to scroll
-           on mobile (≤880px) where the layout reflows; on desktop the
-           wheel handler takes over and the page is fixed. */
-        html, body {
-          overscroll-behavior: none;
-        }
+        html, body { overscroll-behavior: none; }
 
         .ob {
           animation: pagefadein 220ms ease;
@@ -274,20 +279,17 @@ export default function HomeView({ pieces }: Props) {
           overflow: hidden;
           display: grid;
           grid-template-columns:
-            minmax(180px, 1.1fr)
-            minmax(0, 2.4fr)
-            minmax(220px, 1.2fr);
+            minmax(160px, 1fr)
+            minmax(0, 2.6fr)
+            minmax(200px, 1.1fr);
           grid-template-rows: auto 1fr auto;
-          column-gap: clamp(20px, 3vw, 48px);
-          row-gap: clamp(14px, 1.6vw, 22px);
-          padding: clamp(16px, 2vw, 28px) clamp(20px, 3vw, 48px) clamp(14px, 1.8vw, 22px);
+          column-gap: clamp(24px, 4vw, 64px);
+          row-gap: clamp(10px, 1.4vw, 20px);
+          padding: clamp(14px, 1.6vw, 22px) clamp(20px, 3vw, 48px);
         }
-        @media (prefers-reduced-motion: reduce) {
-          .ob { animation: none; }
-        }
+        @media (prefers-reduced-motion: reduce) { .ob { animation: none; } }
 
-        /* ── Top row ────────────────────────────────────────────
-           Wordmark spans cols 1-2 left, nav cluster right. */
+        /* ── Top row ───────────────────────────────────────────── */
         .ob__top {
           grid-column: 1 / -1;
           grid-row: 1;
@@ -298,13 +300,17 @@ export default function HomeView({ pieces }: Props) {
         }
         .ob__mark {
           grid-column: 1 / span 2;
-          line-height: 0.92;
-          letter-spacing: -0.045em;
+          /* OBYS-tier compactness — wordmark is monumental but the
+             clamp is reduced one tick. The page reads dense, not
+             oversized. */
+          font-size: clamp(56px, 9vw, 140px);
+          line-height: 0.9;
+          letter-spacing: -0.05em;
         }
         .ob__reg {
           font-size: 0.18em;
           vertical-align: top;
-          margin-left: 0.08em;
+          margin-left: 0.06em;
           font-weight: 400;
           letter-spacing: 0.04em;
           color: var(--ink-3);
@@ -316,8 +322,10 @@ export default function HomeView({ pieces }: Props) {
           gap: 6px;
           flex-wrap: wrap;
           justify-self: start;
-          padding-top: 4px;
+          padding-top: 6px;
+          font-size: 11px;
         }
+        .ob__nav .t-meta { font-size: 11px; }
         .ob__nav-link {
           color: var(--ink);
           background-image: linear-gradient(currentColor, currentColor);
@@ -327,18 +335,10 @@ export default function HomeView({ pieces }: Props) {
           transition: background-size 200ms var(--ease);
         }
         .ob__nav-link[data-active],
-        .ob__nav-link:hover {
-          background-size: 100% 1px;
-        }
-        .ob__nav-time {
-          padding: 0 6px;
-        }
+        .ob__nav-link:hover { background-size: 100% 1px; }
+        .ob__nav-time { padding: 0 6px; }
 
-        /* ── Middle row ────────────────────────────────────────
-           Three columns: rail | stage | aside. The stage is the
-           hero — a single full-bleed cover that crossfades on
-           active change. The rail is OBYS-style equal-height
-           items spread across the available height. */
+        /* ── Middle row ────────────────────────────────────────── */
         .ob__main {
           grid-column: 1 / -1;
           grid-row: 2;
@@ -349,6 +349,9 @@ export default function HomeView({ pieces }: Props) {
           min-height: 0;
         }
 
+        /* Rail — tightly stacked items at fixed line-height. No flex
+           spread; the list is a typeset block, not a distributed bar.
+           Centered vertically in the column. */
         .ob__rail {
           grid-column: 1;
           list-style: none;
@@ -356,28 +359,37 @@ export default function HomeView({ pieces }: Props) {
           padding: 0;
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
+          justify-content: center;
           align-items: flex-start;
+          gap: 1px;
           min-height: 0;
         }
         .ob__rail-item {
           display: block;
-          padding: clamp(6px, 1vh, 14px) 0;
+          height: clamp(20px, 2.6vh, 26px);
         }
         .ob__rail-link {
           display: inline-grid;
-          grid-template-columns: 14px auto;
+          grid-template-columns: 12px auto;
           gap: 6px;
-          align-items: baseline;
+          align-items: center;
+          height: 100%;
+          font-family: var(--font-stack-mono);
+          font-size: 12px;
+          font-weight: 400;
+          letter-spacing: -0.005em;
           color: var(--ink-3);
           transition: color 180ms var(--ease);
+        }
+        .ob__rail-link[data-disabled] {
+          cursor: default;
         }
         .ob__rail-item[data-active] .ob__rail-link {
           color: var(--ink);
         }
         .ob__rail-marker {
           font-family: var(--font-stack-mono);
-          font-size: 9px;
+          font-size: 8px;
           line-height: 1;
           color: var(--accent);
           opacity: 0;
@@ -388,45 +400,107 @@ export default function HomeView({ pieces }: Props) {
           opacity: 1;
           transform: translateX(0);
         }
+        .ob__rail-title {
+          line-height: 1.2;
+        }
 
-        /* The stage. All covers stacked absolutely; only active is
-           opacity 1. Crossfade duration matches wheel debounce so
-           gestures feel synchronous with the visual. */
+        /* ── Stage (filmstrip + brackets) ──────────────────────── */
         .ob__stage {
           grid-column: 2;
           position: relative;
           width: 100%;
           height: 100%;
           min-height: 0;
-          background: transparent;
+          overflow: visible;
+        }
+
+        /* The strip: vertical column of all covers. Translated so the
+           active cover's center sits at stage center. CSS calc reads
+           --idx and --n custom props from inline style. Translate
+           formula puts the active cover (index = idx) at the stage's
+           vertical center. Transition is 600ms — slightly longer
+           than the wheel debounce so a held gesture animates
+           smoothly through. */
+        .ob__strip {
+          --cover-h: clamp(220px, 38vh, 340px);
+          --cover-w: calc(var(--cover-h) * 0.78);
+          --strip-gap: clamp(12px, 2vh, 24px);
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          display: flex;
+          flex-direction: column;
+          gap: var(--strip-gap);
+          width: var(--cover-w);
+          transform: translate(
+            -50%,
+            calc(
+              -50% - (var(--idx) - (var(--n) - 1) / 2)
+                   * (var(--cover-h) + var(--strip-gap))
+            )
+          );
+          transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: transform;
         }
         .ob__cover {
-          position: absolute;
-          inset: 0;
-          opacity: 0;
-          transition: opacity 480ms var(--ease);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          pointer-events: none;
+          position: relative;
+          flex: 0 0 auto;
+          width: 100%;
+          height: var(--cover-h, clamp(220px, 38vh, 340px));
+          background: var(--paper-2);
+          overflow: hidden;
+          opacity: 0.32;
+          filter: grayscale(0.6) brightness(0.78);
+          transition: opacity 480ms var(--ease), filter 480ms var(--ease);
+          cursor: pointer;
         }
         .ob__cover[data-active] {
           opacity: 1;
-          pointer-events: auto;
+          filter: grayscale(0) brightness(1);
         }
         .ob__cover-media {
-          /* Inset slightly from the cell edge so the stage feels
-             like a "frame" rather than full-bleed. The covers
-             retain their aspect via object-fit: contain — covers
-             of different aspects don't get cropped, they sit
-             centered in the stage. */
           position: absolute !important;
           inset: 0;
           width: 100% !important;
           height: 100% !important;
-          object-fit: contain;
+          object-fit: cover;
+        }
+        .ob__cover-placeholder {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: 1px solid var(--ink-hair);
         }
 
+        /* Brackets — large mono "(  )" flanking the stage. They mark
+           the active frame in the OBYS pattern. Sized via clamp
+           proportional to viewport height; positioned just outside
+           the strip's effective width. */
+        .ob__bracket {
+          position: absolute;
+          top: 50%;
+          font-family: var(--font-stack-mono);
+          font-size: clamp(120px, 22vh, 220px);
+          font-weight: 400;
+          line-height: 0.85;
+          color: var(--ink);
+          pointer-events: none;
+          transform: translateY(-50%);
+          user-select: none;
+          z-index: 2;
+        }
+        .ob__bracket--left {
+          left: calc(50% - clamp(180px, 28vh, 280px));
+        }
+        .ob__bracket--right {
+          left: auto;
+          right: calc(50% - clamp(180px, 28vh, 280px));
+        }
+
+        /* ── Aside ─────────────────────────────────────────────── */
         .ob__aside {
           grid-column: 3;
           display: flex;
@@ -434,18 +508,20 @@ export default function HomeView({ pieces }: Props) {
           justify-content: space-between;
           align-items: flex-start;
           min-height: 0;
-          padding-top: 4px;
+          padding-top: 6px;
+          gap: 16px;
         }
         .ob__lede {
           color: var(--ink-2);
-          max-width: 32ch;
+          font-size: clamp(11px, 0.85vw, 13px);
+          line-height: 1.55;
+          max-width: 30ch;
         }
-        .ob__contact {
-          display: grid;
-          row-gap: 4px;
-        }
+        .ob__contact { display: grid; row-gap: 4px; }
+        .ob__contact .t-meta { font-size: 10.5px; }
         .ob__email {
           color: var(--ink);
+          font-size: 10.5px;
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
           background-position: 0 100%;
@@ -455,8 +531,7 @@ export default function HomeView({ pieces }: Props) {
         }
         .ob__email:hover { background-size: 100% 1px; }
 
-        /* ── Bottom row ────────────────────────────────────────
-           View toggle col 1, active band col 2, colophon col 3. */
+        /* ── Bottom row ────────────────────────────────────────── */
         .ob__bottom {
           grid-column: 1 / -1;
           grid-row: 3;
@@ -473,6 +548,7 @@ export default function HomeView({ pieces }: Props) {
           align-items: baseline;
           gap: 6px;
         }
+        .ob__view .t-meta { font-size: 10.5px; }
         .ob__view .t-meta[data-active] {
           color: var(--ink);
           background-image: linear-gradient(currentColor, currentColor);
@@ -488,16 +564,24 @@ export default function HomeView({ pieces }: Props) {
           flex-wrap: wrap;
           justify-self: start;
         }
+        .ob__active .t-meta,
+        .ob__active .t-code { font-size: 10.5px; }
+        .ob__active-title {
+          font-family: var(--font-stack-mono);
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: -0.005em;
+          color: var(--ink);
+          line-height: 1.2;
+        }
         .ob__colophon {
           grid-column: 3;
           margin: 0;
           justify-self: end;
+          font-size: 10px;
         }
 
-        /* ── Custom cursor ──────────────────────────────────────
-           10×10 hollow square. mix-blend-mode: difference inverts
-           against whatever's behind — white on dark, dark on light.
-           The square reads more "engineering" than a circle would. */
+        /* ── Cursor ────────────────────────────────────────────── */
         .ob__cursor {
           position: fixed;
           top: 0;
@@ -515,35 +599,23 @@ export default function HomeView({ pieces }: Props) {
           transition: opacity 200ms var(--ease);
           will-change: transform;
         }
-        @media (pointer: coarse) {
-          .ob__cursor { display: none; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .ob__cursor { display: none; }
-        }
+        @media (pointer: coarse) { .ob__cursor { display: none; } }
+        @media (prefers-reduced-motion: reduce) { .ob__cursor { display: none; } }
 
-        /* ── Responsive ────────────────────────────────────────
-           1280: tighter column ratios.
-           1024: smaller aside, lede shrinks.
-           880: page becomes scrollable; carousel collapses to a
-                stacked column where each piece is shown in turn,
-                rail moves above stage.
-           600: wordmark scales down; aside moves under stage. */
+        /* ── Responsive ────────────────────────────────────────── */
         @media (max-width: 1280px) {
           .ob {
             grid-template-columns:
-              minmax(160px, 1fr)
-              minmax(0, 2fr)
-              minmax(200px, 1fr);
+              minmax(140px, 0.9fr)
+              minmax(0, 2.4fr)
+              minmax(180px, 1fr);
           }
         }
         @media (max-width: 1024px) {
-          .ob__lede { max-width: 26ch; }
+          .ob__lede { max-width: 24ch; font-size: 11px; }
+          .ob__bracket { font-size: clamp(80px, 16vh, 160px); }
         }
         @media (max-width: 880px) {
-          /* Below 880, kill the wheel-jacking and reflow to a
-             stacked layout with body scroll. The carousel is a
-             desktop affordance; mobile gets a clean linear list. */
           html, body { overscroll-behavior: auto; }
           .ob {
             height: auto;
@@ -554,18 +626,22 @@ export default function HomeView({ pieces }: Props) {
             row-gap: clamp(20px, 4vw, 32px);
           }
           .ob__top { grid-template-columns: 1fr; row-gap: 12px; }
-          .ob__mark { grid-column: 1; }
-          .ob__nav { grid-column: 1; padding-top: 0; }
+          .ob__mark, .ob__nav { grid-column: 1; }
+          .ob__nav { padding-top: 0; }
           .ob__main { grid-template-columns: 1fr; row-gap: 24px; }
-          .ob__rail { grid-column: 1; }
-          .ob__stage { grid-column: 1; aspect-ratio: 4 / 3; height: auto; }
-          .ob__aside { grid-column: 1; }
+          .ob__rail, .ob__stage, .ob__aside { grid-column: 1; }
+          .ob__stage {
+            aspect-ratio: 4 / 3;
+            height: auto;
+          }
+          .ob__strip {
+            --cover-h: clamp(180px, 50vw, 280px);
+          }
+          .ob__bracket { display: none; }
           .ob__bottom { grid-template-columns: 1fr; row-gap: 12px; }
-          .ob__view, .ob__active, .ob__colophon { grid-column: 1; justify-self: start; }
-        }
-        @media (max-width: 600px) {
-          .ob {
-            padding: 14px 18px;
+          .ob__view, .ob__active, .ob__colophon {
+            grid-column: 1;
+            justify-self: start;
           }
         }
       `}</style>
