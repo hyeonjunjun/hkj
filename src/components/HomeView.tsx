@@ -132,7 +132,7 @@ export default function HomeView({ pieces }: Props) {
           <Link href="/studio" className="t-meta ob__nav-link">
             About
           </Link>
-          <span className="t-meta tabular live ob__nav-time">
+          <span className="t-meta tabular ob__nav-time">
             EDT <LiveTime />
           </span>
           <Link href="/contact" className="t-meta ob__nav-link">
@@ -233,12 +233,28 @@ export default function HomeView({ pieces }: Props) {
         </div>
 
         <aside className="ob__aside">
-          <p className="t-prose ob__lede">
-            I&apos;m Ryan Jun — a design engineer working between
-            interface and identity systems. Small on purpose: one set
-            of hands carrying the work from sketch to ship.
-          </p>
+          {/* Intro — lede + contact bonded as one unit. The "who I
+              am + how to reach me" block sits at the top of the
+              aside; the project details below are pushed to the
+              vertical center via grid placement. */}
+          <div className="ob__intro">
+            <p className="t-prose ob__lede">
+              old soul
+            </p>
+            <div className="ob__contact">
+              <p className="t-meta dim">Contact:</p>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="t-meta ob__email"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </div>
+          </div>
 
+          {/* Active project — sits in row 2 of the grid, align-self
+              center, with a minimum padding-top so it never crowds
+              the intro on shorter viewports. */}
           <div className="ob__active" aria-live="polite">
             <span className="ob__active-title">{active.title}</span>
             <span className="ob__active-meta">
@@ -250,20 +266,10 @@ export default function HomeView({ pieces }: Props) {
               {active.status === "wip" && (
                 <>
                   <span className="t-sep">·</span>
-                  <span className="live">Live</span>
+                  <span>Live</span>
                 </>
               )}
             </span>
-          </div>
-
-          <div className="ob__contact">
-            <p className="t-meta dim">Contact:</p>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="t-meta ob__email"
-            >
-              {CONTACT_EMAIL}
-            </a>
           </div>
         </aside>
       </section>
@@ -350,7 +356,10 @@ export default function HomeView({ pieces }: Props) {
         }
         .ob__nav-link[data-active],
         .ob__nav-link:hover { background-size: 100% 1px; }
-        .ob__nav-time { padding: 0 6px; }
+        .ob__nav-time {
+          padding: 0 6px;
+          color: var(--ink);
+        }
 
         /* ── Middle row ────────────────────────────────────────── */
         .ob__main {
@@ -405,7 +414,7 @@ export default function HomeView({ pieces }: Props) {
           font-family: var(--font-stack-mono);
           font-size: 8px;
           line-height: 1;
-          color: var(--accent);
+          color: var(--ink);
           opacity: 0;
           transform: translateX(-2px);
           transition: opacity 180ms var(--ease), transform 180ms var(--ease);
@@ -515,14 +524,29 @@ export default function HomeView({ pieces }: Props) {
         }
 
         /* ── Aside ─────────────────────────────────────────────── */
+        /* Grid with two rows: intro group at top (auto), spacer
+           row containing the active block centered (1fr). The
+           active block has padding-top to guarantee a minimum gap
+           from the intro on short viewports — when there's spare
+           space, align-self: center pushes it toward the middle
+           of the spacer. */
         .ob__aside {
           grid-column: 3;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
+          display: grid;
+          grid-template-rows: auto 1fr;
+          align-items: start;
           min-height: 0;
           padding-top: 6px;
-          gap: clamp(14px, 2vh, 24px);
+        }
+
+        /* Intro — lede + contact as one bonded unit. Tight inner
+           gap between the paragraph and the contact line so they
+           read as a single "who I am + how to reach me" block. */
+        .ob__intro {
+          grid-row: 1;
+          display: flex;
+          flex-direction: column;
+          gap: clamp(12px, 1.6vh, 20px);
         }
         .ob__lede {
           color: var(--ink-2);
@@ -530,17 +554,24 @@ export default function HomeView({ pieces }: Props) {
           line-height: 1.55;
           max-width: 30ch;
         }
+        .ob__contact {
+          display: grid;
+          row-gap: 4px;
+          width: 100%;
+        }
+        .ob__contact .t-meta { font-size: 10.5px; }
 
-        /* Active project details — sits in the aside under the
-           lede. Title on its own line, meta wraps below in mono
-           caps. Replaces the prior horizontal band that lived in
-           the bottom row. */
+        /* Active project block — vertically centered in row 2 with
+           a guaranteed minimum gap from the intro above. Title on
+           its own line; meta wraps below in mono caps. */
         .ob__active {
+          grid-row: 2;
+          align-self: center;
           display: flex;
           flex-direction: column;
           gap: 4px;
-          padding-top: clamp(10px, 1.4vh, 16px);
-          border-top: 1px solid var(--ink-hair);
+          padding-top: clamp(48px, 6vh, 96px);
+          padding-bottom: clamp(24px, 4vh, 64px);
           width: 100%;
         }
         .ob__active-title {
@@ -569,12 +600,6 @@ export default function HomeView({ pieces }: Props) {
         .ob__active-meta .t-code {
           font-size: 10px;
         }
-        .ob__active-meta .live {
-          color: var(--accent);
-        }
-
-        .ob__contact { display: grid; row-gap: 4px; padding-top: clamp(10px, 1.4vh, 16px); border-top: 1px solid var(--ink-hair); width: 100%; }
-        .ob__contact .t-meta { font-size: 10.5px; }
         .ob__email {
           color: var(--ink);
           font-size: 10.5px;
