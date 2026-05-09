@@ -238,6 +238,24 @@ export default function HomeView({ pieces }: Props) {
             interface and identity systems. Small on purpose: one set
             of hands carrying the work from sketch to ship.
           </p>
+
+          <div className="ob__active" aria-live="polite">
+            <span className="ob__active-title">{active.title}</span>
+            <span className="ob__active-meta">
+              <span>{active.sector}</span>
+              <span className="t-sep">·</span>
+              <span className="t-code">{active.number}</span>
+              <span className="t-sep">·</span>
+              <span className="tabular">{active.year}</span>
+              {active.status === "wip" && (
+                <>
+                  <span className="t-sep">·</span>
+                  <span className="live">Live</span>
+                </>
+              )}
+            </span>
+          </div>
+
           <div className="ob__contact">
             <p className="t-meta dim">Contact:</p>
             <a
@@ -254,19 +272,7 @@ export default function HomeView({ pieces }: Props) {
         <div className="ob__view">
           <span className="t-meta" data-active="">Vertical</span>
           <span className="t-meta dimmer" aria-hidden>,</span>
-          <span className="t-meta dim">Horizontal</span>
-          <span className="t-meta dimmer" aria-hidden>,</span>
           <span className="t-meta dim">Grid</span>
-        </div>
-
-        <div className="ob__active" aria-live="polite">
-          <span className="ob__active-title">{active.title}</span>
-          <span className="t-sep">·</span>
-          <span className="t-meta">{active.sector}</span>
-          <span className="t-sep">·</span>
-          <span className="t-code">{active.number}</span>
-          <span className="t-sep">·</span>
-          <span className="t-meta tabular">{active.year}</span>
         </div>
 
         <p className="ob__colophon t-footnote">
@@ -309,10 +315,9 @@ export default function HomeView({ pieces }: Props) {
         }
         .ob__mark {
           grid-column: 1 / span 2;
-          /* OBYS-tier compactness — wordmark is monumental but the
-             clamp is reduced one tick. The page reads dense, not
-             oversized. */
-          font-size: clamp(56px, 9vw, 140px);
+          /* Wordmark size lives in --type-monument (globals.css).
+             Local overrides only adjust line-height and tracking
+             for the optical caps treatment. */
           line-height: 0.9;
           letter-spacing: -0.05em;
         }
@@ -514,11 +519,10 @@ export default function HomeView({ pieces }: Props) {
           grid-column: 3;
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
           align-items: flex-start;
           min-height: 0;
           padding-top: 6px;
-          gap: 16px;
+          gap: clamp(14px, 2vh, 24px);
         }
         .ob__lede {
           color: var(--ink-2);
@@ -526,7 +530,50 @@ export default function HomeView({ pieces }: Props) {
           line-height: 1.55;
           max-width: 30ch;
         }
-        .ob__contact { display: grid; row-gap: 4px; }
+
+        /* Active project details — sits in the aside under the
+           lede. Title on its own line, meta wraps below in mono
+           caps. Replaces the prior horizontal band that lived in
+           the bottom row. */
+        .ob__active {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding-top: clamp(10px, 1.4vh, 16px);
+          border-top: 1px solid var(--ink-hair);
+          width: 100%;
+        }
+        .ob__active-title {
+          font-family: var(--font-stack-mono);
+          font-size: clamp(13px, 0.9vw, 14px);
+          font-weight: 500;
+          letter-spacing: -0.005em;
+          color: var(--ink);
+          line-height: 1.2;
+        }
+        .ob__active-meta {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          font-weight: 400;
+          letter-spacing: 0.06em;
+          line-height: 1.5;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          font-feature-settings: "tnum" on, "lnum" on;
+          font-variant-numeric: tabular-nums lining-nums;
+          display: flex;
+          align-items: baseline;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .ob__active-meta .t-code {
+          font-size: 10px;
+        }
+        .ob__active-meta .live {
+          color: var(--accent);
+        }
+
+        .ob__contact { display: grid; row-gap: 4px; padding-top: clamp(10px, 1.4vh, 16px); border-top: 1px solid var(--ink-hair); width: 100%; }
         .ob__contact .t-meta { font-size: 10.5px; }
         .ob__email {
           color: var(--ink);
@@ -564,24 +611,6 @@ export default function HomeView({ pieces }: Props) {
           background-size: 100% 1px;
           background-position: 0 100%;
           background-repeat: no-repeat;
-        }
-        .ob__active {
-          grid-column: 2;
-          display: flex;
-          align-items: baseline;
-          gap: 8px;
-          flex-wrap: wrap;
-          justify-self: start;
-        }
-        .ob__active .t-meta,
-        .ob__active .t-code { font-size: 10.5px; }
-        .ob__active-title {
-          font-family: var(--font-stack-mono);
-          font-size: 13px;
-          font-weight: 500;
-          letter-spacing: -0.005em;
-          color: var(--ink);
-          line-height: 1.2;
         }
         .ob__colophon {
           grid-column: 3;
@@ -648,7 +677,7 @@ export default function HomeView({ pieces }: Props) {
           }
           .ob__bracket { display: none; }
           .ob__bottom { grid-template-columns: 1fr; row-gap: 12px; }
-          .ob__view, .ob__active, .ob__colophon {
+          .ob__view, .ob__colophon {
             grid-column: 1;
             justify-self: start;
           }
