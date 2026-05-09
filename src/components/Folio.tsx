@@ -63,7 +63,6 @@ export default function Folio() {
           text-transform: uppercase;
           color: var(--ink-4);
           pointer-events: none;
-          mix-blend-mode: multiply;
         }
         @media (max-width: 640px) {
           .folio { display: none; }

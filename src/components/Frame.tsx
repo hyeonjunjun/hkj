@@ -3,21 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import LiveTime from "@/components/LiveTime";
 
 /**
- * Frame — sticky horizontal top nav.
+ * Frame — sticky horizontal top nav with a departure-board clock.
  *
- *   ┌─ stray ────────────────────────── Work  Studio  Contact ─┐
- *   ├────────────────────────────────────────────────────────────┤
+ *   ┌─ STRAY · 14:32 ────────────── Work  Studio  Contact ─┐
+ *   ├──────────────────────────────────────────────────────┤
  *
- * Studio masthead. The wordmark is "stray" (the creative studio).
- * Ryan Jun is the founder, identified on /studio. The lowercase
- * source maps to UPPERCASE via CSS to match the rest of the chrome.
+ * The clock is the load-bearing live element of the chrome — it ticks
+ * by the minute and is the only place the accent amber appears in the
+ * masthead. Without it the page is a static document; with it the
+ * page reads as a board currently in operation.
  *
- * Plain text labels in Aino's masthead register — no numbered prefix,
- * no separators. Hides on scroll-down past 80px, reveals on scroll-up.
- * Mark sits at font-weight 500; links at 400 — same family, same size,
- * weight differentiation does the hierarchy.
+ * Hides on scroll-down past 80px, reveals on scroll-up. Mark sits at
+ * font-weight 500; links at 400 — same family, same size, weight
+ * differentiation does the hierarchy.
  */
 
 type NavItem = { href: string; label: string };
@@ -68,9 +69,13 @@ export default function Frame() {
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <Link href="/" className="frame__mark" aria-label="stray — home">
-        stray
-      </Link>
+      <span className="frame__lead">
+        <Link href="/" className="frame__mark" aria-label="stray — home">
+          stray
+        </Link>
+        <span className="frame__sep" aria-hidden>·</span>
+        <LiveTime />
+      </span>
 
       <nav aria-label="Primary" className="frame__nav">
         {NAV.map((item) => {
@@ -102,9 +107,10 @@ export default function Frame() {
           grid-template-columns: 1fr auto;
           align-items: center;
           gap: clamp(16px, 3vw, 40px);
-          background: rgba(251, 250, 246, 0.92);
-          backdrop-filter: saturate(150%) blur(8px);
-          -webkit-backdrop-filter: saturate(150%) blur(8px);
+          background: rgba(14, 13, 11, 0.88);
+          backdrop-filter: saturate(140%) blur(10px);
+          -webkit-backdrop-filter: saturate(140%) blur(10px);
+          border-bottom: 1px solid var(--ink-hair);
           pointer-events: auto;
           transform: translateY(0);
           transition: transform 250ms var(--ease);
@@ -118,6 +124,18 @@ export default function Frame() {
           .frame[data-hidden] { transform: translateY(0); }
         }
 
+        .frame__lead {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 10px;
+          justify-self: start;
+        }
+        .frame__sep {
+          font-family: var(--font-stack-mono);
+          font-size: var(--type-nav);
+          color: var(--ink-4);
+          line-height: 1;
+        }
         .frame__mark {
           font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
@@ -129,7 +147,6 @@ export default function Frame() {
           letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink);
-          justify-self: start;
           transition: opacity 180ms var(--ease);
         }
         .frame__mark:hover { opacity: 0.65; }

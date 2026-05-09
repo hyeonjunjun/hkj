@@ -30,11 +30,15 @@ export default function PaperGrain() {
           background-image: url("${NOISE_SVG}");
           background-size: 240px 240px;
           background-repeat: repeat;
-          mix-blend-mode: multiply;
-          opacity: 0.04;
+          /* Overlay multiplies on dark and screens on light, so the
+             same noise SVG reads as warm-paper texture on the old
+             paper register and as soft board grain on the inverted
+             dark register without changing the source bitmap. */
+          mix-blend-mode: overlay;
+          opacity: 0.06;
         }
         @media (prefers-reduced-motion: reduce) {
-          .paper-grain { opacity: 0.03; }
+          .paper-grain { opacity: 0.04; }
         }
       `}</style>
     </div>

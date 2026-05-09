@@ -2,24 +2,29 @@
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Paper-and-ink palette — single register, light only.
-     Paper keeps the warm off-white signature (HS68 line). Ink moves to
-     Aino's pure-black system: titles & primary at #000000; body, chrome,
-     and faint accents step down via rgba opacity instead of separate
-     grey values. The opacity steps inherit the underlying paper warmth,
-     so type reads as ink soaked into the paper rather than as flat
-     greys overlaid on top. */
-  --paper:   #FBFAF6;
-  --paper-2: #F4F3EE;
-  --paper-3: #E8E7E1;
+  /* Inverted warm-paper register — same conceptual material at night.
+     Solari/split-flap departure-board reference: warm cream type on
+     warm near-black, never cold grey on charcoal. Token names retained
+     (--paper = ground, --ink = text); only the values flip. The opacity
+     steps on --ink-N step *down* in luminance against the dark ground,
+     so chrome reads as soft cream absorbed into a warm board surface. */
+  --paper:   #0E0D0B;                       /* warm near-black ground */
+  --paper-2: #16140F;                       /* row hover, lifted cells */
+  --paper-3: #211E18;                       /* hairline-adjacent surface */
 
-  --ink:     #000000;                 /* titles, statement, mark — primary */
-  --ink-2:   rgba(0, 0, 0, 0.92);     /* body, prose, lede */
-  --ink-3:   rgba(0, 0, 0, 0.72);     /* chrome — eyebrow, nav, captions, meta */
-  --ink-4:   rgba(0, 0, 0, 0.48);     /* faintest — folio, separators, placeholders */
+  --ink:     #F4F2EC;                       /* titles, mark, status dot — primary */
+  --ink-2:   rgba(244, 242, 236, 0.92);     /* prose, project titles */
+  --ink-3:   rgba(244, 242, 236, 0.62);     /* chrome — section labels, nav, captions */
+  --ink-4:   rgba(244, 242, 236, 0.38);     /* faintest — row numbers, folio, sub-meta */
 
-  --ink-hair:  rgba(0, 0, 0, 0.14);
-  --ink-ghost: rgba(0, 0, 0, 0.04);
+  --ink-hair:  rgba(244, 242, 236, 0.16);   /* hairline rules */
+  --ink-ghost: rgba(244, 242, 236, 0.04);
+
+  /* Single accent — Solari amber. Used ONLY on truly-live elements:
+     the masthead clock, the LIVE row's status cell, the weather line.
+     Used everywhere it's costume; used in three places it's signal. */
+  --accent:    #D9A441;
+  --accent-2:  rgba(217, 164, 65, 0.72);
 
   /* Type system — sans-only. The references (hs68, aino) ship with a
      single sans family. Mono is reserved for project numbers + folio. */
