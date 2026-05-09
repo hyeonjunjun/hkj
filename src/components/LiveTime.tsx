@@ -24,6 +24,7 @@ const FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/New_York",
   hour: "2-digit",
   minute: "2-digit",
+  second: "2-digit",
   hour12: false,
 });
 
@@ -60,15 +61,17 @@ export default function LiveTime() {
     const render = () => setTime(FORMATTER.format(new Date()));
     render();
 
+    // Align the first tick to the next whole-second boundary so the
+    // flap fires on the wall clock, not 1000ms after page load.
+    // Subsequent ticks are a plain 1000ms interval.
     const now = new Date();
-    const msToNext =
-      (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    const msToNextSecond = 1000 - now.getMilliseconds();
 
     let intervalId: ReturnType<typeof setInterval> | undefined;
     const timeoutId = setTimeout(() => {
       render();
-      intervalId = setInterval(render, 60_000);
-    }, msToNext);
+      intervalId = setInterval(render, 1000);
+    }, msToNextSecond);
 
     return () => {
       clearTimeout(timeoutId);
@@ -81,12 +84,16 @@ export default function LiveTime() {
   if (!time) {
     return (
       <span className="live-time" aria-label="Loading time">
-        ——:——
+        ——:——:——
       </span>
     );
   }
 
-  const [h1, h2, , m1, m2] = time;
+  // Intl.DateTimeFormat returns "HH:MM:SS" — split into individual
+  // digit slots so each can flap independently. Hours flip ~1×/hr,
+  // minutes ~1×/min, seconds 1×/sec. The seconds are the visible
+  // heartbeat; the rest are quiet.
+  const [h1, h2, , m1, m2, , s1, s2] = time;
 
   return (
     <span className="live-time" aria-live="off" aria-label={`Local time ${time}`}>
@@ -95,6 +102,9 @@ export default function LiveTime() {
       <span className="live-time__colon">:</span>
       <FlapDigit value={m1} />
       <FlapDigit value={m2} />
+      <span className="live-time__colon">:</span>
+      <FlapDigit value={s1} />
+      <FlapDigit value={s2} />
       <style>{`
         .live-time {
           display: inline-flex;
