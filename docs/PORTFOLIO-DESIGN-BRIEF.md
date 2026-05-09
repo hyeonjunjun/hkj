@@ -1,83 +1,126 @@
-# Hyeonjoon Jun — Portfolio Design Brief
+# Ryan Jun — Portfolio Design Brief
 
-**As of 2026-05-03**
+**As of 2026-05-09**
 
-## Philosophy
+## The Direction
 
-The portfolio is not a vessel for other work. The portfolio is itself the project. Design decisions stop waiting on content; the framing carries the substance. Each surface is either real material or honest emptiness — never decoration.
+The homepage is a single ruled surface — a timetable of an entire practice. Work, identity, writing, reading, and location coexist on one scroll. The layout borrows from Japanese train timetable design: density that stays legible because the grid is precise, not because there's whitespace everywhere. The conceptual frame shifts from "monograph laid open on a concrete table" to "an index card for a life in progress." Every section earns its place. Nothing decorates.
 
-The design synthesizes five references. Kenya Hara's ma (emptiness as active material) is the spiritual center. Aino's microtype discipline (project codes, role tags, caption density) informs the typographic register. ASCII as data rendered into typography is conditionally present under strict non-decorative rules. Ambient motion follows natural-settling behavior (fog, eyes adjusting) — user-triggered only, resolving to stillness within 480ms, no idle loops. Media is real photography and video with real captions, or honest emptiness.
+The identity is Ryan Jun, design engineer, New York. No studio name for now. The brand emerges from the decisions in the work, not from a wordmark.
 
-The positioning sits on the line between Rauno Freiberg's editorial-engineer quietness and Joanie Lemercier's luminous-catalog restraint, with aino and TLB as the direct compositional references for the homepage grid.
+## The Timetable Principles
 
-Guiding rule: if removing it doesn't hurt the composition, it shouldn't be there.
+From Japanese railway timetable design (時刻表), these specific techniques inform the layout:
 
-## Entry Sequence
+Stem-and-leaf separation. Structural information (section labels, row numbers) sits in a heavier weight or separate column from data information (titles, descriptions, dates). The structural column is mono; the data column is sans. Weight alone creates the hierarchy — no size change needed.
 
-The homepage opens with a three-phase sequence that demonstrates the portfolio's thesis — data as typography resolving into real media resolving into the catalog.
+Hairline rule separation. Sections are divided by 0.5px rules (retina) / 1px (standard). The rules do the spatial work so the type can be tight. Density stays legible because the grid is visible but nearly weightless.
 
-Phase 1: a pre-rendered ASCII frame of the cloudsatsea video occupies the full viewport. Visible on first paint with no flash of empty page. This is not a loading screen — it is the first piece of content. ASCII as honest representation of video data.
+Blank cells as data. Express trains that skip stations leave cells empty. The white gaps form a visual staircase showing speed. On the portfolio: WIP projects show "In progress" in faint ink while shipped projects show ● at full ink. The absence communicates.
 
-Phase 2: the ASCII crossfades into the actual cloudsatsea video, approximately 1.5–2 seconds after paint. The data resolves into the source material.
+2–3 color maximum. Black for base, opacity steps for hierarchy. No accent color. Color differentiates state (shipped vs in progress), never decorates.
 
-Phase 3: the video fades or dissolves into the paper-ground catalog, approximately 1 second later. The media yields to the work.
+Weight variation within one family. Station names in medium, route headers in bold, minute digits in regular. Same principle: Geist Mono at weight 500 for the frame mark, weight 400 for nav links. Same family, same size, same color — weight does the job.
 
-Total sequence is roughly 3 seconds. No interaction required, no navigation blocked during the sequence. Once-per-session via sessionStorage — return visits go straight to the catalog. Reduced-motion users skip directly to the catalog.
+## The Homepage Structure
 
-## Architecture
+Top to bottom, one continuous ruled surface:
 
-The information architecture has four primary routes. The root is the studio catalog showing a 2-column grid of work with a gallery/list toggle. The studio page consolidates bio, engagements, contact, and colophon into one surface. Bookmarks is a living bibliography organized by read, watch, keep, and visit. Notes is a dated stream of working-out-loud entries. Work detail pages and note detail pages are reached from their respective indexes.
+The page opens with a void — `clamp(120px, 28vh, 280px)` of empty warm paper. On a 13" laptop this is breathing room; on a 27" display it's a statement. The emptiness is the first thing the visitor reads.
 
-The layout is built from three persistent components. PaperGrain is a static SVG fractal-noise overlay at 0.055 opacity with multiply blend — the only atmospheric element. NavCoordinates is a fixed top nav that hides on scroll-down and reveals on scroll-up. Folio is a fixed top-right stamp reading HKJ / §NN / 2026, hidden below 960px. Total component count is 7 including RouteAnnouncer for accessibility and the new entry sequence components. Nothing decorative, nothing idle.
+Identity header. RYAN JUN left-aligned, NEW YORK right-aligned. Below: "Design engineer" left, "2026" right. Geist Mono, 10px, `--ink-3`. Hairline rule below.
+
+Featured image. One full-width photograph or video within cols 2–11, 3:2 aspect. The single piece of media on the page — this is what prevents the index from being flat. It proves visual ability before any text. Below it: a caption in Geist Sans — "Gyeol: 結. Material science. 2026." — attached tight at 10px margin-top so it reads as part of the image, not a separate element. Hairline rule below.
+
+Work index. Section label "WORK" at `--ink-3`. Rows as a CSS grid: number (mono, `--ink-4`, tabular-nums), title (sans, `--ink-2`), sector (sans, `--ink-3`), year (mono, tabular-nums, `--ink-3`), status (● at full `--ink` for shipped, "In progress" at `--ink-4` for WIP). Rows link to `/work/[slug]`. Hairline rule below.
+
+Currently. Section label "CURRENTLY" at `--ink-4` (one step fainter than other labels because the prose below is the real content). 2–3 sentences in Geist Sans, `--ink-2`, max 48ch. Available for work, location, what you're focused on. Hairline rule below.
+
+Notes. Section label "NOTES" at `--ink-3`, with "updated" right-aligned at `--ink-4`. 1–3 rows matching the work index proportions. Note number, title, date, arrow glyph. Hairline rule below.
+
+Reading. Section label "READING" at `--ink-3`, with "4 of 17" right-aligned at `--ink-4`. 3–5 entries as title — author, one per line, Geist Sans, `--ink-2`. Hairline rule below.
+
+Footer. Email (copy-on-click) left-aligned. Weather line right-aligned: real temperature, conditions, humidity for New York, fetched at build time or edge. Korean seasonal word (봄/여름/가을/겨울) at `--ink-3`, one step more present than the weather data at `--ink-4`. The weather is context; the Korean word is personal.
+
+## Preventing Flatness
+
+The risk with a timetable-index layout is reading as a developer's README. Five specific moves prevent this:
+
+The featured image breaks the index. One full-width photograph sitting between the identity header and the work index. This is the single visual statement. Without it, the page is a spreadsheet. With it, the page is a catalog that happens to be organized like a timetable.
+
+Asymmetric vertical rhythm. Not every section gets the same gap. The void at top is 120–280px. The gap after the featured image caption is tight (48px — the caption pulls toward the image). The gap between WORK and CURRENTLY is medium (64px). The gap before the footer is generous (96px). The rhythm accelerates then decelerates.
+
+Two type registers. Geist Mono for structural chrome (section labels, numbers, dates, status dots, weather). Geist Sans for content the visitor reads (project titles, the CURRENTLY paragraph, note titles, book titles). The timetable's lesson: the grid is mono, the content is sans.
+
+Opacity as depth. Section headers at `--ink-3`. Row numbers at `--ink-4`. Status dots at full `--ink`. Hairline rules at `--ink-hair`. The page has visual layers despite being spatially flat.
+
+The weather line grounds it. Real data for New York right now, plus the seasonal Korean word. This is the detail that makes it yours and not a template.
+
+## Micro-Decisions (Rauno/Emil Level)
+
+These are the 1–2px decisions that separate "clean" from "crafted."
+
+Typographic. Mono numbers in the work index need optical baseline alignment with sans titles — mono sits slightly higher at the same font-size; compensate with `translateY(1px)` on the number span. Hairline rules at `border-width: 0.5px` which rounds correctly on HiDPI and falls back to 1px on standard. Section labels sit at the hairline rule's top edge with `padding-top: 0` so the label reads as stamped onto the line. Letter-spacing must be tested at each size — `0.06em` at 10px and `0.08em` at 9px; the right value is where characters are distinct but the word reads as one unit. The → arrow on note rows should be Geist Sans (not Mono — sans arrows look gestural, mono arrows look mechanical), at `--ink-4` resting, `--ink` on hover with 3px `translateX` over 200ms.
+
+Spatial. Row height in the work index tapers: first row gets `padding-top: 16px` (more air after the section label), middle rows get `12px`, last row gets `12px` top and `0` bottom (the rule below closes the section). The featured image caption margin-top is 10px — the distance where the caption reads as attached to the image. Test by squinting; if you can see the gap, it's too big. The gap between CURRENTLY prose and the next rule is `clamp(48px, 6vh, 72px)` — prose sections breathe, index sections are tight. This contrast makes density feel intentional. The email and weather in the footer need at least 40% of content width between them so they read as two independent pieces anchored to opposite edges.
+
+Interaction. Work index row hover: the hovered title transitions from `--ink-2` to `--ink` over `160ms`, siblings transition from `--ink-2` to `--ink-4` over `240ms`. Enter fast, leave slow — the eye follows what moves first. This is the Rauno pattern. The ● status dot does not respond to hover — it's state, not interaction. The email "copied" state must not cause layout shift — use `min-width` set to the email's rendered width. Focus-visible outlines: `outline-offset: 2px` on dense work rows (3px creates a visible gap), `outline-offset: 4px` on the featured image. The featured image has no hover state — it's a photograph, not a button. The caption carries the link affordance via underline-color fade.
+
+Color. The ● status dot must be full `--ink` (#000), not `--ink-2` — at 6px, a dot at 0.92 opacity disappears on some displays. The CURRENTLY section label should be `--ink-4` (not `--ink-3` like other labels) because the prose below at `--ink-2` is the real content — the label needs to recede further. The Korean seasonal word at `--ink-3`, the weather data at `--ink-4` — one step of opacity separates "this is mine" from "this is context."
+
+Easing. One curve for all hover transitions: `cubic-bezier(.4, 0, .2, 1)` (the existing `--ease`). Vary only the duration. Consistency across interactions is what makes it feel like one hand made it. Enter durations shorter than exit durations everywhere.
 
 ## Typography
 
-Two fonts. Geist Sans is the sans stack used for everything — chrome, labels, captions, metadata, microtype. It is a proportional humanist sans calibrated for both 9px and 15px. Newsreader (variable 400–600) is the serif stack reserved for long-form prose in case study body and note detail body, a screen-optimized serif with optical sizing. Italics are globally suppressed. Emphasis comes through weight, tracking, and caps only. Letter-spacing is calibrated for proportional sans at 0.08em uppercased. Tabular figures come from OpenType tnum where alignment is needed. Old-style figures via onum are used on serif prose. Hanging punctuation and text-wrap pretty are applied to case study prose.
+Two families, no more.
+
+Geist Sans is the reading face. Project titles, prose body, note titles, book titles, the CURRENTLY paragraph, the featured image caption. Everything the visitor actually reads.
+
+Geist Mono is the chrome face. The frame mark, nav, section labels, row numbers, dates, status indicators, the weather line, the folio stamp. Everything structural. Mono tracking at 0.06em uppercase at 10px, 0.08em at 9px.
+
+Frame mark at weight 500; nav links at weight 400. Same family, same size, same color — weight differentiation does the hierarchy.
+
+Italics globally suppressed. Emphasis through weight, tracking, and caps only.
 
 ## Palette
 
-The palette is paper-and-ink with no accent color. Paper is #FBFAF6 for the body ground, paper-2 is #F4F3EE for lifted surfaces, paper-3 is #E8E7E1 for hairline-adjacent areas. Ink is #111110 for primary text, ink-2 is #55554F for prose body, ink-3 is #8E8E87 for meta, ink-4 is #BFBEB8 for folio and near-subliminal elements. Ink-hair is rgba(17,17,16,0.10) for hairlines and ink-ghost is rgba(17,17,16,0.06) for row hover tint. Ink hierarchy does all the work. No accent color. The restraint is total.
+```
+--paper      #FBFAF6              body ground (warm off-white)
+--paper-2    #F4F3EE              lifted surfaces
+--paper-3    #E8E7E1              hairline-adjacent
+--ink        #000000              pure black — titles, mark, status dots
+--ink-2      rgba(0,0,0, 0.92)    body prose, project titles
+--ink-3      rgba(0,0,0, 0.72)    chrome, section labels, nav, captions
+--ink-4      rgba(0,0,0, 0.48)    faintest — folio, row numbers, weather
+--ink-hair   rgba(0,0,0, 0.14)    hairline rules
+```
 
-## Homepage Composition
+No accent color. Opacity steps inherit paper warmth — secondary text reads as ink absorbed into the page rather than cold grey overlaid. No solid neutral greys.
 
-The homepage references aino and TLB as direct compositional models. The catalog is one composition with two views: a vertical sequence of full-width plates (gallery, default) or a typeset row index (list). The toggle between them is the home's hand-placed moment — discoverable but unannounced. View preference persists via a data attribute on the html element, set before paint.
+## Grid
 
-The gallery view is a 2-column grid at max-width 1240px with uniform plates. Row gap is tightened to match aino's 24–32px vertical density. Captions read as museum labels — mixed case, sentence-shaped, period-terminated. The list view is a typeset row index with project codes, titles, sectors, and years.
+12-column grid with content at columns 2–11. Columns 1 and 12 are outer paper gutters. The ratio of paper to content is fixed by the column system, not viewport math. Max-width 1440px, centered.
 
-The catalog now includes 7 pieces with 5 untitled placeholders alongside the 2 shipped projects with full media (Clouds at Sea and Gyeol) plus Sift and Pane.
+This grid applies to every page — the homepage, case studies, studio, all routes. The biggest cohesiveness principle: the margins never change between pages.
 
-The footer shows email (copy-on-click) and 2026 · new york separated by a hairline rule.
+Mobile (≤760px): grid collapses to single column; every cell spans full width.
 
-## Case Study Structure
+## What Stays From Current Codebase
 
-Each work detail page follows a modular editorial template. It opens with an eyebrow, then the title as a view-transition shared element, then the subtitle, then a ledger grid showing sector, role, year, status, and tags. The plate shows the hero image or video with plate-marks and a figure caption. Photographs are now embedded as plates between editorial sections with EXIF-style metadata captions. Modular sections follow covering stakes, paradox, editorial, process, steps, highlights, engineering, statistics, and video gallery. A next-project footer link cycles through the catalog, skipping placeholders.
+The 12-col grid system and its tokens. The color system. Geist Sans + Geist Mono. The Folio component (fixed bottom-right page stamp). PaperGrain (static SVG fractal-noise overlay). Frame (nav). CopyEmailLink (email copy micro-state). The case study page structure and its modular sections. The ! moments (結 separator, coordinate line, drop cap).
 
-All sections use intersection-observer-based staggered reveal — 8px vertical rise over 280ms with 50ms stagger capped at 5. View transitions morph the cover image from home tile to case study plate at 480ms and the title between home caption and case study heading at 420ms.
+## What Changes
 
-## Moments
+HomeView is rewritten as a single ruled surface — no gallery/list toggle, no CatalogPlate grid. The index IS the view. The featured image replaces the catalog grid of plates as the single visual statement. ViewToggle, HomeViewInit, ListView, WorkPlate, WorkList all retire. A weather component is added (build-time or edge fetch). A seasonal word utility is added (date-based Korean season).
 
-One hand-placed detail per page, invisible systematically, felt on careful reading. On the home page the gallery/list toggle is the moment. On the Gyeol case study the second eyebrow separator is the character 結 instead of a dot. On the Clouds at Sea case study a coordinate line reads 40°43′N 73°59′W · horizon dissolve. On the studio page there is a first-letter drop cap on the AI collaborator paragraph, plus a live build SHA in the colophon section. On bookmarks the Butterfly Stool year reads 1954 – with the dash open-ended. On note detail pages the running-head keyword is shown at full ink.
+## Content
 
-## Interaction Vocabulary
-
-Three gestures applied globally. Underline-color fade at 180ms on inline links transitions from transparent to currentColor on hover, with bookmarks row links excluded since they use ghost background instead. Hairline underline slide at 220ms on editorial prose links draws a background-image line left-to-right paired with the color fade. Arrow-glyph slide at 200ms on forward action indicators translates 6px on parent hover or focus.
-
-Motion budgets are hover at 180–220ms, section reveal at 280ms with 50ms stagger, route crossfade at 300ms, title morph at 420ms, cover morph at 480ms, and the entry sequence at approximately 3 seconds once per session. Nothing on idle. No ambient loops.
-
-## Content State
-
-The catalog includes 7 pieces. Clouds at Sea is shipped with a video cover and a full case study. Gyeol is shipped with a video cover and a full case study including process, highlights, stats, and 4 video plates. Pane is work-in-progress with no cover and a minimal case study. Sift is shipped with an image cover and a full case study. Five additional pieces are untitled placeholders.
-
-There is one note: N-001, On restraint as the hardest move, a process reflection on removing ambient motion. Bookmarks show 17 items from the READ group including books, portfolios, essays, and archives. WATCH, KEEP, and VISIT groups exist but are sparse and hidden.
+Four projects: LA28 (WIP, brand campaign, 2026), Halo Halo! (identity, 2026), Sift (mobile/AI, 2025), Gyeol: 結 (material science, 2026). One note: N-001, On restraint as the hardest move. Reading list: 4 displayed of 17 total.
 
 ## Dependencies
 
-Four production dependencies: geist, next, react, and react-dom. Everything else is devDependencies for Tailwind, TypeScript, ESLint, and testing.
-
-## What Stays Retired
-
-Stage register and dark mode. Cinematic entrance overlay that blocks navigation. Path-blur grammar. Command palette. Fragment Mono and Gambetta (replaced by Geist Sans and Newsreader). The mono register entirely. All previously removed npm packages.
+Four production: geist, next, react, react-dom. GSAP approved as fifth when scroll-driven interactions (ink density, parallax-within-frame, clip-path page transitions) are built in a later phase. Not added until needed.
 
 ## The Design in One Sentence
 
-A paper-ground studio catalog where the portfolio is itself the project — opening with data rendered as typography resolving into real media, then yielding to a warm-paper grid of work with four dependencies, two fonts, no accent color, and one hand-placed detail per page.
+A warm-paper timetable of an entire practice — where the hairline rules do the spatial work, the featured photograph does the visual work, and the empty space at the top does the hardest work of all.
