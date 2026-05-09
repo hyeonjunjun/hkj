@@ -5,16 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Frame — sticky horizontal top nav, Krantz-spec.
+ * Frame — sticky horizontal top nav.
  *
- *   ┌─ STRAY ──────────────── Work  Studio  Contact ─┐
+ *   ┌─ rj ─────────────────── Work  Studio  Contact ─┐
  *   └──────────────────────────────────────────────────┘
  *
- * Minimal masthead — small wordmark left, three nav links right. The
- * live time and atmospherics moved out of the masthead and into cells
- * inside the homepage's element grid. Frame's job here is just to
- * carry the brand and the wayfinding; the work and the live data live
- * inside the composition below.
+ * Minimal masthead — initials wordmark left ("rj" for Ryan Jun),
+ * three nav links right. The live time + station meta lives in the
+ * homepage's name banner, not the masthead.
  *
  * Hides on scroll-down past 80px, reveals on scroll-up. Mark at
  * weight 500, links at 400 — same family, same size.
@@ -68,8 +66,8 @@ export default function Frame() {
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <Link href="/" className="frame__mark" aria-label="stray — home">
-        stray
+      <Link href="/" className="frame__mark" aria-label="Ryan Jun — home">
+        rj
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">

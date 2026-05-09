@@ -4,198 +4,148 @@ import type { Piece } from "@/constants/pieces";
 import LiveTime from "@/components/LiveTime";
 
 /**
- * HomeView — single-composition departure-board portfolio.
+ * HomeView — single-composition departure board.
  *
- * Krantz's structural insight (single 2D composition, no scroll, all
- * cells equally weighted, hairline grid) wedded to Solari's vocabulary
- * (live time in amber, ◆ LIVE status pulse on the active piece, status
- * grammar borrowed from a station board). The layout is the periodic-
- * table pattern; the language is the departure board.
- *
- * The page is a CSS-grid of fixed regions stacked vertically:
- *
- *   Frame (fixed, 48px) ─────────────────────────────────────────
  *   ┌──────────────────────────────────────────────────────────┐
- *   │ Name banner          stray            ryan@…    →        │
+ *   │  Ryan Jun   design engineer · NYC   ryan@ryanjun.com →   │  Banner
  *   ├──────────────────────────────────────────────────────────┤
- *   │ Intro: PRACTICE / NOW BOARDING / READING / LINKS         │
+ *   │  [LA28]   [Halo Halo!]   [Gyeol]   [Sift]                │  Media strip
  *   ├──────────────────────────────────────────────────────────┤
- *   │ Element grid: 8 cols × 3 rows = 24 cells, aspect 4:3     │
- *   │   project / media / info / time / empty                  │
+ *   │  Time │ No │ Destination │ Sector │ Status                │  Column header
+ *   │ ◆ Departures                                              │  Section label
+ *   │  2026 │ 01 │ LA28        │ Brand  │ ◆ Live                │
+ *   │ ● Arrivals                                                │
+ *   │  2026 │ 02 │ Halo Halo!  │ Brand  │ ● 2026                │
+ *   │  2026 │ 03 │ Gyeol: 結    │ Brand  │ ● 2026                │
+ *   │  2025 │ 04 │ Sift        │ Mobile │ ● 2025                │
  *   ├──────────────────────────────────────────────────────────┤
- *   │ Foot: © stray · Ryan Jun         get in touch →          │
+ *   │  © 2026 Ryan Jun                ryan@ryanjun.com →       │  Footer
  *   └──────────────────────────────────────────────────────────┘
  *
- * The page sits in a `min-height: calc(100dvh - 48px)` container with
- * `display: flex; flex-direction: column;` and the grid as the elastic
- * region. At any viewport ≥720px tall, no scroll is needed — the grid
- * shrinks/grows to absorb the spare height. At smaller viewports the
- * page yields to natural scroll rather than forcing crammed cells.
+ * Solari/split-flap reference, not periodic-table reference. Three
+ * structural moves separate this from the prior Krantz pass:
  *
- * Cell aspect is 4:3 (landscape) rather than Krantz's 1:1 — keeps
- * cells board-row shaped (wider than tall) AND lets three rows fit
- * inside ~400px of vertical room on a 1440 viewport.
+ *   1. Tabular ROWS, not square cells. Each project is one wide row
+ *      with consistent columns (Time / No / Destination / Sector /
+ *      Status) — the Solari board's grammar. Krantz used 4-line
+ *      vertical cell stacks; we lay the same data flat.
  *
- * Live elements (time digits, LA28 status indicator) carry the amber
- * accent and subtle motion; everything else is monochrome cream.
+ *   2. DEPARTURES and ARRIVALS partition. Real boards split outbound
+ *      vs inbound; we split in-progress vs shipped. Iconography and
+ *      semantics borrow directly: ◆ for live/departing, ● for landed.
+ *
+ *   3. Media strip above the board, not interspersed in the grid.
+ *      Cover thumbnails sit as their own row of equal-aspect tiles
+ *      so the visual statement is one band, not scattered cells.
+ *      Below it, the rows are pure text — board-faithful.
+ *
+ * Single-viewport at any desktop size ≥720px tall. Phone widths
+ * collapse the column header and stack rows vertically.
  */
 
 type Props = { pieces: Piece[] };
-
-const KOREAN_SEASON = (m: number): string => {
-  if (m >= 3 && m <= 5) return "봄";
-  if (m >= 6 && m <= 8) return "여름";
-  if (m >= 9 && m <= 11) return "가을";
-  return "겨울";
-};
 
 const STATUS_GLYPH = { shipped: "●", wip: "◆" } as const;
 
 export default function HomeView({ pieces }: Props) {
   const real = pieces.filter((p) => !p.placeholder);
-  const month = new Date().getMonth() + 1;
-  const season = KOREAN_SEASON(month);
-  const weather = "62°F";
-  const conditions = "Overcast";
+  const departures = real.filter((p) => p.status === "wip");
+  const arrivals = real.filter((p) => p.status === "shipped");
 
   return (
     <main id="main" className="page">
-      <div className="name-banner">
-        <h1 className="name-banner__h1">stray</h1>
-        <span className="name-banner__meta tabular">
-          New York ·{" "}
-          <span className="name-banner__time">
+      <header className="banner">
+        <h1 className="banner__h1">Ryan Jun</h1>
+        <span className="banner__role tabular">
+          Design engineer
+          <span className="banner__sep" aria-hidden> · </span>
+          New York
+          <span className="banner__sep" aria-hidden> · </span>
+          <span className="banner__time">
             <LiveTime />
           </span>
-          <span className="name-banner__edt">EDT</span>
+          <span className="banner__edt"> EDT</span>
         </span>
-        <a href="mailto:ryan@ryanjun.com" className="name-banner__cta">
+        <a href="mailto:ryan@ryanjun.com" className="banner__cta">
           ryan@ryanjun.com →
         </a>
-      </div>
+      </header>
 
-      <section className="intro" aria-label="Practice intro">
-        <div className="intro__cell intro__cell--about">
-          <span className="cell-label">Practice</span>
-          <div className="intro__body">
-            <p>
-              A design-engineering studio of one in New York. Working
-              between interface and identity systems for independent
-              practices and studios.{" "}
-              <Link href="/studio">↗</Link>
-            </p>
-          </div>
-        </div>
-
-        <div className="intro__cell">
-          <span className="cell-label">Now Boarding</span>
-          <ul className="ps-list" role="list">
-            <li className="ps-row ps-row--live">
-              <span className="ps-glyph" aria-hidden>◆</span>
-              <span className="ps-name">
-                <Link href="/work/la28">LA28 — Brand campaign ↗</Link>
-              </span>
-              <span className="ps-state">Live</span>
-            </li>
-            <li className="ps-row">
-              <span className="ps-num">·</span>
-              <span className="ps-name ps-name--mid">In development</span>
-            </li>
-          </ul>
-        </div>
-
-        <div className="intro__cell">
-          <span className="cell-label">Reading</span>
-          <ul className="ps-list" role="list">
-            <li className="ps-row"><span className="ps-num">01</span><span className="ps-name">Designing Design — Hara</span></li>
-            <li className="ps-row"><span className="ps-num">02</span><span className="ps-name">In Praise of Shadows — Tanizaki</span></li>
-            <li className="ps-row"><span className="ps-num">03</span><span className="ps-name ps-name--mid">A Pattern Language</span></li>
-          </ul>
-        </div>
-
-        <div className="intro__cell intro__cell--links">
-          <span className="cell-label">Links</span>
-          <ul className="ps-list" role="list">
-            <li className="ps-row"><span className="ps-num">01</span><span className="ps-name"><a href="https://read.cv/ryanjun" target="_blank" rel="noopener noreferrer">Read.cv ↗</a></span></li>
-            <li className="ps-row"><span className="ps-num">02</span><span className="ps-name"><a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></span></li>
-            <li className="ps-row"><span className="ps-num">03</span><span className="ps-name"><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></span></li>
-          </ul>
-        </div>
+      <section className="strip" aria-label="Cover plates">
+        {real.map((piece) => (
+          <Tile key={piece.slug} piece={piece} />
+        ))}
       </section>
 
-      <section className="grid" aria-label="Catalog">
-        {/* Row 1 */}
-        <InfoCell num="01" sym="St" name="stray" cat="Studio" />
-        <MediaCell piece={real[0]} />
-        <ProjectCell idx="02" piece={real[0]} />
-        <TimeCell num="03" />
-        <InfoCell num="04" sym="Ny" name="New York" cat="Origin" />
-        <EmptyCell />
-        <MediaCell piece={real[1]} />
-        <ProjectCell idx="05" piece={real[1]} />
+      <section className="board" aria-label="Schedule">
+        <div className="board__cols" role="row" aria-hidden>
+          <span className="col col--time">Time</span>
+          <span className="col col--no">No</span>
+          <span className="col col--dest">Destination</span>
+          <span className="col col--sector">Sector</span>
+          <span className="col col--status">Status</span>
+        </div>
 
-        {/* Row 2 */}
-        <EmptyCell />
-        <MediaCell piece={real[2]} />
-        <ProjectCell idx="06" piece={real[2]} />
-        <EmptyCell />
-        <MediaCell piece={real[3]} />
-        <ProjectCell idx="07" piece={real[3]} />
-        <InfoCell num="08" sym={weather} name={conditions} cat="Atmos" tabular />
-        <InfoCell num="09" sym={season} name="Spring" cat="Season" lang="ko" />
+        <div className="board__section" data-kind="dep">
+          <header className="section-bar">
+            <span className="section-bar__icon" aria-hidden>◆</span>
+            <span className="section-bar__label">Departures</span>
+            <span className="section-bar__meta tabular">
+              {String(departures.length).padStart(2, "0")} · LIVE
+            </span>
+          </header>
+          {departures.map((piece, i) => (
+            <DepRow key={piece.slug} piece={piece} idx={i + 1} live />
+          ))}
+        </div>
 
-        {/* Row 3 */}
-        <InfoCell num="10" sym="De" name="Design Engineer" cat="Role" />
-        <EmptyCell />
-        <EmptyCell />
-        <NoteCell num="11" />
-        <EmptyCell />
-        <EmptyCell />
-        <EmailCell num="12" />
-        <EmptyCell />
+        <div className="board__section" data-kind="arr">
+          <header className="section-bar">
+            <span className="section-bar__icon" aria-hidden>●</span>
+            <span className="section-bar__label">Arrivals</span>
+            <span className="section-bar__meta tabular">
+              {String(arrivals.length).padStart(2, "0")} · ON FILE
+            </span>
+          </header>
+          {arrivals.map((piece, i) => (
+            <DepRow
+              key={piece.slug}
+              piece={piece}
+              idx={departures.length + i + 1}
+            />
+          ))}
+        </div>
       </section>
 
       <footer className="foot" aria-label="Colophon">
-        <span className="foot__copy">© 2026 stray</span>
-        <span className="foot__spine" aria-hidden>·</span>
-        <span className="foot__copy">Ryan Jun</span>
+        <span className="foot__copy">© 2026 Ryan Jun</span>
         <span className="foot__filler" aria-hidden />
         <a href="mailto:ryan@ryanjun.com" className="foot__cta">
-          Get in touch → ryan@ryanjun.com
+          ryan@ryanjun.com →
         </a>
       </footer>
 
       <style>{`
-        /* ── Page shell — single-composition viewport fit ──────
-           The page reserves the full viewport height minus the fixed
-           Frame (48px), then distributes its children: banner / intro
-           / grid / footer. The grid is the elastic region; banner +
-           intro + footer have content-driven heights and the grid
-           absorbs whatever vertical space is left. At ≥720px viewport
-           heights the content fits in one frame; below that the grid's
-           cells stay at their aspect-ratio minimum and the page yields
-           to natural scroll rather than collapsing the cell type. */
         @keyframes pagefadein { from { opacity: 0; } to { opacity: 1; } }
         .page {
           animation: pagefadein 220ms ease;
-          padding: 0 var(--margin-page);
+          padding: 48px var(--margin-page) 0;
           max-width: 1680px;
           margin-inline: auto;
           min-height: calc(100dvh - 48px);
           display: flex;
           flex-direction: column;
-          padding-top: 48px;     /* clear the fixed Frame */
         }
         @media (prefers-reduced-motion: reduce) {
           .page { animation: none; }
         }
 
-        /* ── Name banner ─────────────────────────────────────────
-           Three-slot row: wordmark · live "station" meta · email CTA.
-           The middle slot carries New York · 14:32 EDT in mono — the
-           page's "this is a station and the clock is running" cue.
-           The clock digits sit in amber. */
-        .name-banner {
+        /* ── Banner ─────────────────────────────────────────────
+           Three slots: name h1 left, role + station-meta center,
+           email CTA right. The center carries the live time —
+           the page's "this is a board, currently in operation"
+           cue. h1 stays sans, role+time mono. */
+        .banner {
           display: grid;
           grid-template-columns: auto 1fr auto;
           align-items: baseline;
@@ -203,17 +153,16 @@ export default function HomeView({ pieces }: Props) {
           padding: clamp(10px, 1.2vw, 18px) 0;
           border-bottom: 1px solid var(--ink-hair);
         }
-        .name-banner__h1 {
+        .banner__h1 {
           font-family: var(--font-stack-sans);
-          font-size: clamp(28px, 3.4vw, 48px);
+          font-size: clamp(26px, 3vw, 42px);
           font-weight: 500;
           letter-spacing: -0.04em;
           line-height: 1;
           color: var(--ink);
           margin: 0;
-          text-transform: lowercase;
         }
-        .name-banner__meta {
+        .banner__role {
           font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
           letter-spacing: 0.06em;
@@ -222,275 +171,72 @@ export default function HomeView({ pieces }: Props) {
           justify-self: start;
           padding-left: clamp(0px, 1vw, 12px);
         }
-        .name-banner__time {
+        .banner__sep { color: var(--ink-4); }
+        .banner__time {
           color: var(--accent);
-          margin: 0 4px;
+          margin: 0 2px;
         }
-        .name-banner__edt {
+        .banner__edt {
           color: var(--ink-3);
           font-size: 9px;
+          margin-left: 2px;
         }
-        .name-banner__cta {
+        .banner__cta {
           font-family: var(--font-stack-mono);
           font-size: var(--type-nav);
           letter-spacing: 0.06em;
           text-transform: uppercase;
           color: var(--ink-3);
-          transition: color 200ms var(--ease);
           justify-self: end;
-        }
-        .name-banner__cta:hover { color: var(--ink); }
-
-        /* ── Intro — 4 columns of hairline cells ────────────────
-           Sits between the banner and the element grid. Cells share
-           a complete hairline grid; left edge anchored, right edge
-           closes via individual cell border-right. */
-        .intro {
-          display: grid;
-          grid-template-columns: 2fr 1.2fr 1fr 0.8fr;
-          border-left: 1px solid var(--ink-hair);
-          border-bottom: 1px solid var(--ink-hair);
-        }
-        .intro__cell {
-          border-right: 1px solid var(--ink-hair);
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-          min-height: 0;
-        }
-        .cell-label {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          padding: 8px clamp(12px, 1.2vw, 18px);
-          border-bottom: 1px solid var(--ink-hair);
-          flex-shrink: 0;
-        }
-        .intro__body {
-          padding: clamp(10px, 1.2vw, 16px) clamp(12px, 1.2vw, 18px);
-        }
-        .intro__body p {
-          font-family: var(--font-stack-sans);
-          font-size: clamp(12px, 0.8vw, 13.5px);
-          line-height: 1.5;
-          color: var(--ink-2);
-          font-weight: 400;
-          max-width: 50ch;
-          margin: 0;
-        }
-        .intro__body a {
-          color: var(--ink-3);
           transition: color 200ms var(--ease);
         }
-        .intro__body a:hover { color: var(--ink); }
+        .banner__cta:hover { color: var(--ink); }
 
-        /* Numbered list rows inside intro cells. */
-        .ps-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .ps-row {
+        /* ── Media strip ────────────────────────────────────────
+           4 cover tiles, equal width, 21:9 cinematic aspect. Wide
+           enough that LA28's 16:9 video crops minimally; tall
+           enough that portrait Sift still reads. The strip is the
+           only place imagery appears on the home — the board
+           below it is text-only, board-faithful. */
+        .strip {
           display: grid;
-          grid-template-columns: 22px 1fr auto;
-          align-items: center;
-          gap: 8px;
-          padding: 0 clamp(12px, 1.2vw, 18px);
-          height: 26px;
-          border-bottom: 1px solid var(--ink-hair);
-          white-space: nowrap;
-          overflow: hidden;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1px;
+          background: var(--ink-hair);
+          padding: 1px;
+          border: 1px solid var(--ink-hair);
+          border-top: none;
         }
-        .ps-row:last-child { border-bottom: none; }
-        .ps-num {
-          font-family: var(--font-stack-mono);
-          font-size: 10px;
-          letter-spacing: 0.05em;
-          color: var(--ink-3);
-        }
-        .ps-glyph {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          color: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
-        }
-        .ps-state {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
-        }
-        .ps-name {
-          font-family: var(--font-stack-sans);
-          font-size: 12px;
-          color: var(--ink);
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .ps-name--mid { color: var(--ink-3); }
-        .ps-name a {
-          color: var(--ink);
-          transition: color 200ms var(--ease);
-        }
-        .ps-name a:hover { color: var(--ink-3); }
-
-        /* ── Element grid — 8 cols × 3 rows of 4:3 cells ──────
-           4:3 (landscape) keeps the cell board-row-shaped: wider
-           than tall, so three rows of cells fit comfortably in the
-           vertical budget. Subgrid aligns intro borders to the grid
-           below it visually. */
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(8, 1fr);
-          border-left: 1px solid var(--ink-hair);
-        }
-        .cell {
-          border-right: 1px solid var(--ink-hair);
-          border-bottom: 1px solid var(--ink-hair);
-          /* 3:2 landscape — wider than tall, board-row shaped, with
-             enough vertical room for the four-line cell skeleton.
-             Three rows of 3:2 cells at 164px wide ≈ 327px total grid
-             height, well under any laptop viewport's vertical budget. */
-          aspect-ratio: 3 / 2;
-          display: flex;
-          flex-direction: column;
-          padding: clamp(8px, 0.9vw, 14px);
-          min-width: 0;
-          min-height: 0;
-          overflow: hidden;
+        .tile {
+          display: block;
           position: relative;
-        }
-        .cell--empty { /* borders only */ }
-        .cell__num {
-          font-family: var(--font-stack-mono);
-          font-size: 9px;
-          letter-spacing: 0.05em;
-          color: var(--ink-3);
-          line-height: 1;
-        }
-        .cell__sym {
-          font-family: var(--font-stack-sans);
-          font-size: clamp(16px, 1.8vw, 26px);
-          font-weight: 500;
-          letter-spacing: -0.03em;
-          line-height: 1.05;
-          color: var(--ink);
-          margin: auto 0 4px;
-          /* Truncate single-line if symbol is long, never wrap into
-             a second line that would push the cat below. */
+          aspect-ratio: 21 / 9;
+          background: var(--paper-2);
           overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          min-width: 0;
         }
-        .cell__sym--time {
-          font-family: var(--font-stack-mono);
-          font-size: clamp(14px, 1.5vw, 20px);
-          letter-spacing: 0.02em;
-          font-weight: 400;
-          color: var(--accent);
-        }
-        .cell__sym--ko {
-          font-family: var(--font-stack-sans);
-        }
-        .cell__name {
-          font-family: var(--font-stack-sans);
-          font-size: clamp(10px, 0.8vw, 12px);
-          line-height: 1.25;
-          color: var(--ink);
-          margin-bottom: 2px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .cell__name a { color: inherit; }
-        .cell__cat {
-          font-family: var(--font-stack-mono);
-          font-size: 8.5px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          line-height: 1.3;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        /* Project cells link, hover yields a row-tint without
-           transform — cells live in a grid; we don't lift them. */
-        .cell--proj {
-          transition: background 240ms var(--ease);
-        }
-        .cell--proj:hover { background: var(--paper-2); }
-
-        /* Status row at cell foot. Shipped pieces show ● ON TIME in
-           cream; LA28 (LIVE) shows ◆ LIVE in amber with the slow
-           pulse — only the LIVE row breathes. */
-        .cell__status {
-          display: inline-flex;
-          align-items: baseline;
-          gap: 6px;
-          font-family: var(--font-stack-mono);
-          font-size: 8.5px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-        }
-        .cell__status .glyph {
-          font-size: 9px;
-          color: var(--ink);
-        }
-        .cell__status[data-status="wip"] {
-          color: var(--accent);
-          animation: live-pulse 2.6s ease-in-out infinite;
-        }
-        .cell__status[data-status="wip"] .glyph { color: var(--accent); }
-        @keyframes live-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.55; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .cell__status[data-status="wip"],
-          .ps-glyph,
-          .ps-state {
-            animation: none;
-          }
-        }
-
-        /* Media cells — full-bleed, dim at rest, brighten on hover.
-           Title overlay slides up from bottom. */
-        .cell--media { padding: 0; }
-        .cell__media {
+        .tile__media {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          filter: brightness(0.78);
+          filter: brightness(0.78) saturate(0.95);
           transition: filter 320ms var(--ease);
         }
-        .cell--media:hover .cell__media,
-        .cell--media:focus-within .cell__media {
-          filter: brightness(1);
+        .tile:hover .tile__media,
+        .tile:focus-within .tile__media {
+          filter: brightness(1) saturate(1);
         }
-        .cell__overlay {
+        .tile__overlay {
           position: absolute;
           left: 0;
           right: 0;
           bottom: 0;
-          padding: 6px 8px;
-          background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+          padding: 8px 12px;
+          background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
           color: var(--ink);
           font-family: var(--font-stack-mono);
-          font-size: 8.5px;
+          font-size: 9px;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           line-height: 1.3;
@@ -499,27 +245,178 @@ export default function HomeView({ pieces }: Props) {
           transition: opacity 280ms var(--ease), transform 280ms var(--ease);
           pointer-events: none;
         }
-        .cell--media:hover .cell__overlay,
-        .cell--media:focus-within .cell__overlay {
+        .tile:hover .tile__overlay,
+        .tile:focus-within .tile__overlay {
           opacity: 1;
           transform: translateY(0);
         }
 
+        /* ── Board ──────────────────────────────────────────────
+           Two sections (Departures, Arrivals) sharing one column
+           system. The grid columns are defined once on the board
+           and inherited by both the column-header row and every
+           data row, so Time always lines up under Time. */
+        .board {
+          --row-grid: 88px 56px minmax(0, 1.6fr) minmax(0, 1.4fr) 140px;
+          border-left: 1px solid var(--ink-hair);
+          border-right: 1px solid var(--ink-hair);
+        }
+        .board__cols {
+          display: grid;
+          grid-template-columns: var(--row-grid);
+          align-items: center;
+          height: 24px;
+          padding: 0 clamp(8px, 1vw, 14px);
+          border-bottom: 1px solid var(--ink-hair);
+          background: var(--paper-3);
+        }
+        .col {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+        }
+        .col--status { text-align: right; }
+
+        /* Sub-section label — DEPARTURES / ARRIVALS marker. Slightly
+           lifted background so the label visually severs the row
+           groups; icon left in cream (or amber for departures), label
+           in cream caps, meta right in mono. */
+        .section-bar {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: baseline;
+          gap: 8px;
+          height: 28px;
+          padding: 0 clamp(8px, 1vw, 14px);
+          border-bottom: 1px solid var(--ink-hair);
+          background: var(--paper-2);
+        }
+        .section-bar__icon {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          line-height: 1;
+        }
+        .board__section[data-kind="dep"] .section-bar__icon {
+          color: var(--accent);
+          animation: live-pulse 2.6s ease-in-out infinite;
+        }
+        .board__section[data-kind="arr"] .section-bar__icon {
+          color: var(--ink);
+        }
+        .section-bar__label {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--ink);
+          font-weight: 500;
+        }
+        .section-bar__meta {
+          font-family: var(--font-stack-mono);
+          font-size: 9px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+        }
+
+        /* ── Departure row ──────────────────────────────────────
+           Wide horizontal row, five tabular columns. Time + No
+           tabular mono left; Destination sans (the project title
+           is the readable element); Sector mono uppercase; Status
+           right-aligned with glyph + state. Hover tints the row
+           background, no transform. */
+        .row {
+          display: grid;
+          grid-template-columns: var(--row-grid);
+          align-items: center;
+          height: 50px;
+          padding: 0 clamp(8px, 1vw, 14px);
+          border-bottom: 1px solid var(--ink-hair);
+          transition: background 200ms var(--ease);
+        }
+        .row:last-child { border-bottom: none; }
+        .row:hover { background: var(--paper-2); }
+        .row__time {
+          font-family: var(--font-stack-mono);
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          color: var(--ink);
+        }
+        .row__no {
+          font-family: var(--font-stack-mono);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          color: var(--ink-3);
+        }
+        .row__dest {
+          font-family: var(--font-stack-sans);
+          font-size: clamp(15px, 1.4vw, 19px);
+          font-weight: 500;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
+          color: var(--ink);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          min-width: 0;
+        }
+        .row__sector {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          min-width: 0;
+        }
+        .row__status {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 6px;
+          justify-self: end;
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--ink-3);
+        }
+        .row__status .glyph {
+          font-size: 10px;
+          line-height: 1;
+        }
+        .row__status[data-status="shipped"] .glyph { color: var(--ink); }
+        .row[data-live] .row__status {
+          color: var(--accent);
+          animation: live-pulse 2.6s ease-in-out infinite;
+        }
+        .row[data-live] .row__status .glyph { color: var(--accent); }
+
+        @keyframes live-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.55; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .row[data-live] .row__status,
+          .board__section[data-kind="dep"] .section-bar__icon {
+            animation: none;
+          }
+        }
+
         /* ── Footer ─────────────────────────────────────────────
-           One row, flat. Copyright + name left, contact CTA right.
-           No top border — the grid's bottom border closes the
-           composition; the footer is an outdented tail. */
+           Auto top-margin pushes the footer to the bottom on tall
+           viewports so the gap absorbs below the board, not above
+           the footer. Spine-rule fills the middle. */
         .foot {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: clamp(10px, 1.2vw, 16px) 0 clamp(12px, 1.4vw, 18px);
-          flex-wrap: wrap;
-          /* Push the footer to the bottom of the viewport when the
-             grid + intro fit comfortably above. On taller viewports
-             this prevents an unfinished gap below the footer; on
-             tighter viewports the auto-margin collapses harmlessly. */
+          gap: 12px;
+          padding: clamp(12px, 1.4vw, 18px) 0 clamp(14px, 1.6vw, 20px);
           margin-top: auto;
+          flex-wrap: wrap;
         }
         .foot__copy {
           font-family: var(--font-stack-mono);
@@ -528,129 +425,93 @@ export default function HomeView({ pieces }: Props) {
           text-transform: uppercase;
           color: var(--ink-3);
         }
-        .foot__spine {
-          color: var(--ink-4);
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-        }
         .foot__filler {
           flex: 1 1 auto;
           height: 1px;
           background: var(--ink-hair);
           align-self: center;
-          margin: 0 12px;
         }
         .foot__cta {
-          font-family: var(--font-stack-sans);
-          font-size: 12px;
+          font-family: var(--font-stack-mono);
+          font-size: var(--type-nav);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           color: var(--ink);
           transition: color 200ms var(--ease);
         }
         .foot__cta:hover { color: var(--ink-3); }
 
-        /* ── Responsive — keep fit-in-viewport across resolutions ─
-           The principle: at every breakpoint the page reads as one
-           composition, never crammed, never scrolling on a desktop
-           viewport ≥720px tall. Below that, the page yields to
-           natural scroll instead of squeezing cells past readability. */
-
-        /* Wide desktops — already handled by clamp() and max-width. */
-
-        /* Laptop / small desktop: same column counts, smaller cells
-           via natural shrinkage (8 cols at 1024w → 128px cells). */
-        @media (max-width: 1280px) {
-          .intro { grid-template-columns: 1.8fr 1.2fr 1fr 0.8fr; }
-          .name-banner__meta { padding-left: 0; }
-        }
-
-        /* Tablet — drop intro to 2 cols (about + boarding stay
-           prominent; reading + links wrap below). Element grid keeps
-           8 cols so the cell grammar stays consistent. */
-        @media (max-width: 1024px) {
-          .intro {
-            grid-template-columns: 1.6fr 1fr;
+        /* ── Responsive ────────────────────────────────────────
+           The row's column grid narrows progressively. At ≤880px
+           the Sector column moves below Destination as a sub-line.
+           At ≤600px the column header drops, tiles stack 2-cols,
+           rows reflow into a 2-line stack per project. */
+        @media (max-width: 1100px) {
+          .board {
+            --row-grid: 72px 44px minmax(0, 1.4fr) minmax(0, 1.2fr) 120px;
           }
-          .intro__cell--about { grid-column: 1; grid-row: 1; }
-          .intro__cell:nth-child(2) { grid-column: 2; grid-row: 1; }
-          .intro__cell:nth-child(3) { grid-column: 1; grid-row: 2; border-top: 1px solid var(--ink-hair); }
-          .intro__cell--links { grid-column: 2; grid-row: 2; border-top: 1px solid var(--ink-hair); }
         }
-
-        /* Smaller tablet / large phone landscape: drop the grid to
-           6 cols. Three rows × 6 cols = 18 cells; the eight empties
-           in the design naturally drop the right amount. */
         @media (max-width: 880px) {
-          .grid { grid-template-columns: repeat(6, 1fr); }
-          .name-banner {
-            grid-template-columns: auto auto;
-            grid-template-rows: auto auto;
+          .board {
+            --row-grid: 64px 40px minmax(0, 1fr) 100px;
           }
-          .name-banner__meta { grid-column: 1; grid-row: 2; padding-left: 0; }
-          .name-banner__cta { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+          .board__cols .col--sector,
+          .row__sector {
+            display: none;
+          }
+          .row__dest {
+            white-space: normal;
+            line-height: 1.15;
+          }
+          .strip { grid-template-columns: repeat(2, 1fr); }
+          .tile { aspect-ratio: 16 / 9; }
         }
-
-        /* Phone portrait. Single-viewport fit gives up here — the
-           cells need vertical room to read, and 8/6 cols collapse
-           past a useful size at 375. We accept scroll here; the
-           composition reads top-to-bottom on phone but still shows
-           the same content in the same order. */
         @media (max-width: 600px) {
-          .page { min-height: 0; }
-          .name-banner { padding: 12px 0; }
-          .intro {
-            grid-template-columns: 1fr;
-            border-bottom: none;
+          .page { min-height: 0; padding-top: 48px; }
+          .banner {
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto;
+            row-gap: 6px;
           }
-          .intro__cell,
-          .intro__cell--about,
-          .intro__cell:nth-child(2),
-          .intro__cell:nth-child(3),
-          .intro__cell--links {
-            grid-column: 1;
-            grid-row: auto;
-            border-top: none;
+          .banner__h1 { grid-column: 1; grid-row: 1; }
+          .banner__cta { grid-column: 2; grid-row: 1; }
+          .banner__role {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            padding-left: 0;
+            justify-self: start;
           }
-          .grid {
-            grid-template-columns: repeat(2, 1fr);
-            border-bottom: 1px solid var(--ink-hair);
+          .strip { grid-template-columns: repeat(2, 1fr); gap: 1px; }
+          .board__cols { display: none; }
+          .board {
+            --row-grid: 56px 36px 1fr 90px;
           }
-          .cell--empty { display: none; }
-          .cell__sym { font-size: 18px; }
-          .cell__sym--time { font-size: 16px; }
-          .foot { gap: 12px; }
-          .foot__filler { display: none; }
+          .row {
+            height: auto;
+            padding: 12px clamp(8px, 1vw, 14px);
+          }
         }
       `}</style>
     </main>
   );
 }
 
-/* ── Cell components ─────────────────────────────────────────── */
+/* ── Cover tile ──────────────────────────────────────────────── */
 
-function ProjectCell({ idx, piece }: { idx: string; piece: Piece | undefined }) {
-  if (!piece) return <EmptyCell />;
-  const live = piece.status === "wip";
-  return (
-    <Link href={`/work/${piece.slug}`} className="cell cell--proj">
-      <span className="cell__num tabular">{idx}</span>
-      <span className="cell__sym">{piece.title}</span>
-      <span className="cell__name">{piece.sector}</span>
-      <span className="cell__status" data-status={piece.status}>
-        <span className="glyph" aria-hidden>{STATUS_GLYPH[piece.status]}</span>
-        <span>{live ? "Live" : `${piece.year}`}</span>
+function Tile({ piece }: { piece: Piece }) {
+  if (!piece.cover) {
+    return (
+      <span className="tile" aria-hidden>
+        <span className="tile__overlay">{piece.title}</span>
       </span>
-    </Link>
-  );
-}
-
-function MediaCell({ piece }: { piece: Piece | undefined }) {
-  if (!piece || !piece.cover) return <EmptyCell />;
-  const overlay = `${piece.title} · ${piece.year}`;
+    );
+  }
+  const overlay = `${piece.number} · ${piece.title} · ${piece.year}`;
   return (
-    <Link href={`/work/${piece.slug}`} className="cell cell--media">
+    <Link href={`/work/${piece.slug}`} className="tile">
       {piece.cover.kind === "video" ? (
         <video
-          className="cell__media"
+          className="tile__media"
           src={piece.cover.src}
           poster={piece.cover.poster}
           autoPlay
@@ -661,83 +522,45 @@ function MediaCell({ piece }: { piece: Piece | undefined }) {
         />
       ) : (
         <Image
-          className="cell__media"
+          className="tile__media"
           src={piece.cover.src}
           alt={piece.title}
           fill
-          sizes="(max-width: 600px) 50vw, (max-width: 880px) 16vw, 12vw"
+          sizes="(max-width: 600px) 50vw, (max-width: 880px) 50vw, 25vw"
+          priority={piece.order <= 2}
         />
       )}
-      <span className="cell__overlay">{overlay}</span>
+      <span className="tile__overlay">{overlay}</span>
     </Link>
   );
 }
 
-function InfoCell({
-  num,
-  sym,
-  name,
-  cat,
-  tabular,
-  lang,
+/* ── Departure row ──────────────────────────────────────────── */
+
+function DepRow({
+  piece,
+  idx,
+  live,
 }: {
-  num: string;
-  sym: string;
-  name: string;
-  cat: string;
-  tabular?: boolean;
-  lang?: string;
+  piece: Piece;
+  idx: number;
+  live?: boolean;
 }) {
+  const num = String(idx).padStart(2, "0");
   return (
-    <div className="cell">
-      <span className="cell__num tabular">{num}</span>
-      <span
-        className={`cell__sym${tabular ? " tabular cell__sym--time" : ""}${lang === "ko" ? " cell__sym--ko" : ""}`}
-        lang={lang}
-      >
-        {sym}
+    <Link
+      href={`/work/${piece.slug}`}
+      className="row"
+      data-live={live ? "" : undefined}
+    >
+      <span className="row__time tabular">{piece.year}</span>
+      <span className="row__no tabular">{num}</span>
+      <span className="row__dest">{piece.title}</span>
+      <span className="row__sector">{piece.sector}</span>
+      <span className="row__status" data-status={piece.status}>
+        <span className="glyph" aria-hidden>{STATUS_GLYPH[piece.status]}</span>
+        <span>{live ? "Live" : `${piece.year}`}</span>
       </span>
-      <span className="cell__name">{name}</span>
-      <span className="cell__cat">{cat}</span>
-    </div>
-  );
-}
-
-function TimeCell({ num }: { num: string }) {
-  return (
-    <div className="cell">
-      <span className="cell__num tabular">{num}</span>
-      <span className="cell__sym cell__sym--time tabular">
-        <LiveTime />
-      </span>
-      <span className="cell__name">Local time</span>
-      <span className="cell__cat">NYC · Live</span>
-    </div>
-  );
-}
-
-function NoteCell({ num }: { num: string }) {
-  return (
-    <Link href="/notes/n-001" className="cell cell--proj">
-      <span className="cell__num tabular">{num}</span>
-      <span className="cell__sym">N-01</span>
-      <span className="cell__name">On restraint</span>
-      <span className="cell__cat">Note · 2026</span>
     </Link>
   );
-}
-
-function EmailCell({ num }: { num: string }) {
-  return (
-    <a href="mailto:ryan@ryanjun.com" className="cell cell--proj">
-      <span className="cell__num tabular">{num}</span>
-      <span className="cell__sym">@</span>
-      <span className="cell__name">ryan@ryanjun.com</span>
-      <span className="cell__cat">Contact</span>
-    </a>
-  );
-}
-
-function EmptyCell() {
-  return <div className="cell cell--empty" aria-hidden />;
 }
