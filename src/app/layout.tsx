@@ -6,6 +6,7 @@ import RouteAnnouncer from "@/components/RouteAnnouncer";
 import Frame from "@/components/Frame";
 import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
+import Preloader from "@/components/Preloader";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyeonjunjun.com"),
@@ -40,6 +41,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <RouteAnnouncer />
+        <Preloader />
         <Frame />
         {children}
         <Folio />
