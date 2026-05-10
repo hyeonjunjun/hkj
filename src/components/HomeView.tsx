@@ -234,22 +234,18 @@ export default function HomeView({ pieces }: Props) {
 
         <aside className="ob__aside">
           {/* Intro — three semicolon-separated noun phrases (Flo
-              Guo register), then a separate role line. Lowercase,
-              casual, lyrical. The phrases describe how he
-              encounters the world; the role line places him
-              professionally without competing.
+              Guo register) about his love for music. Lowercase,
+              casual, lyrical. The phrases describe how he listens
+              and what music does to him.
 
               Tweak any of the three phrases freely — the structure
               holds as long as it's three noun-phrases joined by
               semicolons. */}
           <div className="ob__intro">
             <p className="t-prose ob__lede">
-              old soul with a late-night curiosity; collector of
-              design monographs; admirer of details that take a
-              year to notice.
-            </p>
-            <p className="ob__role">
-              design engineer in new york. selective for q3 2026.
+              old soul with a late-night ear; habitual collector
+              of mixes and voice memos; admirer of the kind of
+              song you have to play twice.
             </p>
             <div className="ob__contact">
               <p className="t-meta dim">Contact:</p>
