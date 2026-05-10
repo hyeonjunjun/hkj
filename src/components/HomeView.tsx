@@ -2,54 +2,67 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Piece } from "@/constants/pieces";
 import LiveTime from "@/components/LiveTime";
+import NowPlaying from "@/components/NowPlaying";
 import { CONTACT_EMAIL } from "@/constants/contact";
 
 /**
- * HomeView — single-section locked-viewport carousel, OBYS-line.
+ * HomeView — single-section tracklist (CD-inlay register).
  *
- * Filmstrip (not crossfade): all covers stacked in a vertical strip
- * inside the center stage; the strip translates so the active cover's
- * center sits at the stage's vertical center. Adjacent covers peek
- * above and below — fades to transparent at the stage edges. Big
- * (   ) brackets flank the stage as the OBYS active-frame signature.
+ *   ┌────────────────────────────────────────────────────────────────┐
+ *   │ ryan jun®                          work · about · time · contact│
+ *   ├────────────────────────────────────────────────────────────────┤
+ *   │ SET 002 / 2026 / NEW YORK                                       │
+ *   │ 04 RELEASED · 04 B-SIDE · RUNTIME 21:54                         │
+ *   ├────────────────────── tracklist ──────────┬─── featured ───────┤
+ *   │ T-01  LA28           brand · campaign  ◆  │  [now-playing       │
+ *   │ T-02  Halo Halo!     brand · café      ●  │   cover, large]     │
+ *   │ T-03  Sift           mobile · ai       ●  │                     │
+ *   │ T-04  Gyeol: 결      brand · ecommerce ●  │  old soul lede...   │
+ *   │ T-05  untitled       brand · identity  ◌  │                     │
+ *   │ T-06  untitled       product · saas    ◌  │  now playing        │
+ *   │ T-07  untitled       mobile · consumer ◌  │  fred again — ...   │
+ *   │ T-08  untitled       brand · editorial ◌  │                     │
+ *   │                                            │  contact            │
+ *   ├────────────────────────────────────────────┴────────────────────┤
+ *   │ vertical, grid                                       © 2026     │
+ *   └────────────────────────────────────────────────────────────────┘
  *
- * Layout (single screen, locked to 100dvh):
+ * Music-coded vocabulary throughout (light coding):
+ *   - status grammar: live (◆) / released (●) / b-side (◌)
+ *   - track codes: T-01 through T-08
+ *   - runtime per track in MM:SS, set total in header
+ *   - "now playing" feeds Last.fm (real-time evidence of the lede)
  *
- *   ┌─ MARK ───────────── peek ─── NAV · TIME · MAIL ────────────┐
- *   │                                                              │
- *   │              [   peek of prev cover   ]                      │
- *   │ rail (    [          ACTIVE           ]    aside lede        │
- *   │  items     [    peek of next cover    ]      mail            │
- *   │              [   peek of next-1       ]                      │
- *   │                                                              │
- *   ├─ VIEW ── active title · sector · code · yr ───── COPYR ─────┤
- *   └──────────────────────────────────────────────────────────────┘
- *
- * Wheel / arrow / hover advances activeIdx (debounced 620ms). The
- * filmstrip's translateY is computed via CSS calc with --idx and --n
- * custom properties so the active cover's center always sits at the
- * stage's center.
- *
- * 8 pieces total: 4 shipped + 4 untitled placeholders. Placeholders
- * render with an empty hairline frame instead of a cover image; the
- * rail entry still exists so the catalog reads at full length.
- *
- * Smaller text + tighter rail spacing vs. the prior pass — the
- * compactness comes from rail items at fixed line-height (no flex
- * spread) and reduced clamp ranges on the wordmark.
+ * No flowing borders, no audio visualizers, no ambient audio bed.
+ * Music register lives in vocabulary and one live data line.
  */
 
-const WHEEL_DEBOUNCE_MS = 620;
+const WHEEL_DEBOUNCE_MS = 480;
 
 type Props = { pieces: Piece[] };
 
+const STATUS_GLYPH: Record<string, string> = {
+  released: "●",
+  live: "◆",
+  "b-side": "◌",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  released: "released",
+  live: "live",
+  "b-side": "b-side",
+};
+
+function statusKey(piece: Piece): "live" | "released" | "b-side" {
+  if (piece.placeholder) return "b-side";
+  if (piece.status === "wip") return "live";
+  return "released";
+}
+
 export default function HomeView({ pieces }: Props) {
-  // Show ALL pieces, including placeholders. Placeholders render as
-  // empty frames in the stage; rail entries exist either way.
   const all = pieces.slice().sort((a, b) => a.order - b.order);
   const [activeIdx, setActiveIdx] = useState(0);
   const lastWheelAt = useRef(0);
@@ -60,6 +73,7 @@ export default function HomeView({ pieces }: Props) {
     setActiveIdx(next);
   };
 
+  // Wheel — debounced ±1 step
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 4) return;
@@ -76,6 +90,7 @@ export default function HomeView({ pieces }: Props) {
     return () => window.removeEventListener("wheel", onWheel);
   }, [activeIdx, all.length]);
 
+  // Keyboard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -91,6 +106,7 @@ export default function HomeView({ pieces }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [activeIdx, all.length]);
 
+  // Custom cursor
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -116,72 +132,99 @@ export default function HomeView({ pieces }: Props) {
     };
   }, []);
 
-  const active = all[activeIdx];
+  const released = all.filter((p) => statusKey(p) === "released").length;
+  const bside = all.filter((p) => statusKey(p) === "b-side").length;
+
+  // Cumulative set runtime — sum of all defined runtimes
+  const setRuntime = sumRuntimes(all);
 
   return (
     <main id="main" className="ob">
       <header className="ob__top">
         <h1 className="t-monument ob__mark">
-          Ryan Jun<sup className="ob__reg" aria-hidden>®</sup>
+          ryan jun<sup className="ob__reg" aria-hidden>®</sup>
         </h1>
         <nav className="ob__nav" aria-label="Primary">
           <Link href="/work" className="t-meta ob__nav-link" data-active="">
-            Work
+            work
           </Link>
           <span className="t-meta dimmer" aria-hidden>,</span>
           <Link href="/studio" className="t-meta ob__nav-link">
-            About
+            about
           </Link>
           <span className="t-meta tabular ob__nav-time">
-            EDT <LiveTime />
+            edt <LiveTime />
           </span>
           <Link href="/contact" className="t-meta ob__nav-link">
-            Contact
+            contact
           </Link>
         </nav>
       </header>
 
+      {/* Set header — metadata band above the tracklist. */}
+      <header className="ob__set" aria-label="Set metadata">
+        <span className="t-section ob__set-title">set 002 / 2026</span>
+        <span className="t-meta ob__set-meta">
+          new york
+          <span className="t-sep">·</span>
+          {String(released).padStart(2, "0")} released
+          <span className="t-sep">·</span>
+          {String(bside).padStart(2, "0")} b-side
+          <span className="t-sep">·</span>
+          runtime <span className="tabular">{setRuntime}</span>
+        </span>
+      </header>
+
       <section className="ob__main">
-        <ul className="ob__rail" role="list" aria-label="Catalog">
+        <ol className="ob__tracklist" aria-label="Catalog">
+          <li className="ob__tracklist-head" aria-hidden>
+            <span className="t-meta dim">#</span>
+            <span className="t-meta dim">title</span>
+            <span className="t-meta dim ob__col-sector">sector</span>
+            <span className="t-meta dim ob__col-runtime">runtime</span>
+            <span className="t-meta dim ob__col-status">status</span>
+          </li>
           {all.map((piece, i) => {
             const isActive = i === activeIdx;
+            const sk = statusKey(piece);
             const isPlaceholder = piece.placeholder;
+            const code = `T-${String(piece.order).padStart(2, "0")}`;
             return (
               <li
                 key={piece.slug}
-                className="ob__rail-item"
+                className="ob__track"
                 data-active={isActive ? "" : undefined}
                 onFocus={() => goTo(i)}
               >
                 <Link
                   href={isPlaceholder ? "#" : `/work/${piece.slug}`}
-                  className="ob__rail-link"
+                  className="ob__track-link"
                   data-disabled={isPlaceholder ? "" : undefined}
                   onClick={(e) => {
                     if (isPlaceholder) e.preventDefault();
                   }}
                 >
-                  <span className="ob__rail-marker" aria-hidden>▶</span>
-                  <span className="ob__rail-title">{piece.title}</span>
+                  <span className="ob__col-num t-code tabular">{code}</span>
+                  <span className="ob__col-title">{piece.title}</span>
+                  <span className="ob__col-sector t-meta">{piece.sector}</span>
+                  <span className="ob__col-runtime t-meta tabular">
+                    {piece.runtime ?? "—:—"}
+                  </span>
+                  <span className="ob__col-status">
+                    <span className="ob__status-glyph" aria-hidden>
+                      {STATUS_GLYPH[sk]}
+                    </span>
+                    <span className="t-meta">{STATUS_LABEL[sk]}</span>
+                  </span>
                 </Link>
               </li>
             );
           })}
-        </ul>
+        </ol>
 
-        {/* Stage — filmstrip of all covers, brackets flanking. */}
-        <div className="ob__stage">
-          <span className="ob__bracket ob__bracket--left" aria-hidden>(</span>
-          <div
-            className="ob__strip"
-            style={
-              {
-                "--idx": activeIdx,
-                "--n": all.length,
-              } as CSSProperties
-            }
-            aria-hidden
-          >
+        <aside className="ob__aside">
+          {/* Featured cover — large, swaps on active change. */}
+          <div className="ob__featured">
             {all.map((piece, i) => {
               const isActive = i === activeIdx;
               return (
@@ -199,10 +242,6 @@ export default function HomeView({ pieces }: Props) {
                       loop
                       muted
                       playsInline
-                      /* preload=metadata limits the bandwidth on
-                         dev-server HMR double-mounts (which trigger
-                         the net::ERR_ABORTED artifact). In production
-                         autoPlay is unaffected. */
                       preload="metadata"
                     />
                   ) : piece.cover?.kind === "image" ? (
@@ -211,82 +250,49 @@ export default function HomeView({ pieces }: Props) {
                       src={piece.cover.src}
                       alt={piece.title}
                       fill
-                      sizes="(max-width: 880px) 80vw, 30vw"
-                      /* Priority on the first three image covers so
-                         whichever lands as LCP (depends on which is
-                         the active when the page renders) gets the
-                         eager-load. Beyond i=2, lazy-load is fine. */
+                      sizes="(max-width: 880px) 80vw, 28vw"
                       priority={i <= 2}
                     />
                   ) : (
                     <div className="ob__cover-placeholder">
-                      <span className="t-caption dimmer">In development</span>
+                      <span className="t-caption dimmer">b-side</span>
                     </div>
                   )}
                 </div>
               );
             })}
           </div>
-          <span className="ob__bracket ob__bracket--right" aria-hidden>)</span>
-        </div>
 
-        <aside className="ob__aside">
-          {/* Intro — three semicolon-separated noun phrases (Flo
-              Guo register) about his love for music. Lowercase,
-              casual, lyrical. The phrases describe how he listens
-              and what music does to him.
-
-              Tweak any of the three phrases freely — the structure
-              holds as long as it's three noun-phrases joined by
-              semicolons. */}
           <div className="ob__intro">
             <p className="t-prose ob__lede">
-              old soul with a late-night ear; habitual collector
-              of mixes and voice memos; admirer of the kind of
-              song you have to play twice.
+              old soul with a late-night ear; habitual collector of
+              mixes and voice memos; admirer of the kind of song you
+              have to play twice.
             </p>
-            <div className="ob__contact">
-              <p className="t-meta dim">Contact:</p>
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="t-meta ob__email"
-              >
-                {CONTACT_EMAIL}
-              </a>
-            </div>
           </div>
 
-          {/* Active project — sits in row 2 of the grid, align-self
-              center, with a minimum padding-top so it never crowds
-              the intro on shorter viewports. */}
-          <div className="ob__active" aria-live="polite">
-            <span className="ob__active-title">{active.title}</span>
-            <span className="ob__active-meta">
-              <span>{active.sector}</span>
-              <span className="t-sep">·</span>
-              <span className="t-code">{active.number}</span>
-              <span className="t-sep">·</span>
-              <span className="tabular">{active.year}</span>
-              {active.status === "wip" && (
-                <>
-                  <span className="t-sep">·</span>
-                  <span>Live</span>
-                </>
-              )}
-            </span>
+          <NowPlaying />
+
+          <div className="ob__contact">
+            <p className="t-meta dim">contact:</p>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="t-meta ob__email"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
         </aside>
       </section>
 
       <footer className="ob__bottom">
         <div className="ob__view">
-          <span className="t-meta" data-active="">Vertical</span>
+          <span className="t-meta" data-active="">tracklist</span>
           <span className="t-meta dimmer" aria-hidden>,</span>
-          <span className="t-meta dim">Grid</span>
+          <span className="t-meta dim">grid</span>
         </div>
-
         <p className="ob__colophon t-footnote">
-          All rights reserved. © 2026 Ryan Jun
+          all rights reserved. © 2026 ryan jun
         </p>
       </footer>
 
@@ -294,7 +300,6 @@ export default function HomeView({ pieces }: Props) {
 
       <style>{`
         @keyframes pagefadein { from { opacity: 0; } to { opacity: 1; } }
-
         html, body { overscroll-behavior: none; }
 
         .ob {
@@ -302,39 +307,29 @@ export default function HomeView({ pieces }: Props) {
           height: 100dvh;
           width: 100%;
           overflow: hidden;
-          /* Hide the default browser cursor across the whole home —
-             the custom .ob__cursor is the signature interaction.
-             Default cursor returns on every other route since this
-             only scopes to .ob. */
           cursor: none;
           display: grid;
-          grid-template-columns:
-            minmax(160px, 1fr)
-            minmax(0, 2.6fr)
-            minmax(200px, 1.1fr);
-          grid-template-rows: auto 1fr auto;
-          column-gap: clamp(24px, 4vw, 64px);
-          row-gap: clamp(10px, 1.4vw, 20px);
+          grid-template-columns: minmax(0, 2.4fr) minmax(280px, 1fr);
+          grid-template-rows: auto auto 1fr auto;
+          column-gap: clamp(28px, 4vw, 56px);
+          row-gap: clamp(12px, 1.4vw, 18px);
           padding: clamp(14px, 1.6vw, 22px) clamp(20px, 3vw, 48px);
         }
         @media (prefers-reduced-motion: reduce) { .ob { animation: none; } }
 
-        /* ── Top row ───────────────────────────────────────────── */
+        /* ── Top row ──────────────────────────────────────────── */
         .ob__top {
           grid-column: 1 / -1;
           grid-row: 1;
-          display: grid;
-          grid-template-columns: subgrid;
-          align-items: start;
-          column-gap: inherit;
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: clamp(20px, 3vw, 48px);
+          flex-wrap: wrap;
         }
         .ob__mark {
-          grid-column: 1 / span 2;
-          /* Wordmark size lives in --type-monument (globals.css).
-             Local overrides only adjust line-height and tracking
-             for the optical caps treatment. */
           line-height: 0.9;
-          letter-spacing: -0.05em;
+          letter-spacing: -0.045em;
         }
         .ob__reg {
           font-size: 0.18em;
@@ -345,14 +340,10 @@ export default function HomeView({ pieces }: Props) {
           color: var(--ink-3);
         }
         .ob__nav {
-          grid-column: 3;
           display: inline-flex;
           align-items: baseline;
           gap: 6px;
-          flex-wrap: wrap;
-          justify-self: start;
           padding-top: 6px;
-          font-size: 11px;
         }
         .ob__nav .t-meta { font-size: 11px; }
         .ob__nav-link {
@@ -363,139 +354,164 @@ export default function HomeView({ pieces }: Props) {
           background-repeat: no-repeat;
           transition: background-size 200ms var(--ease);
         }
-        .ob__nav-link[data-active],
-        .ob__nav-link:hover { background-size: 100% 1px; }
-        .ob__nav-time {
-          padding: 0 6px;
-          color: var(--ink);
+        .ob__nav-link[data-active], .ob__nav-link:hover {
+          background-size: 100% 1px;
         }
+        .ob__nav-time { padding: 0 6px; color: var(--ink); }
 
-        /* ── Middle row ────────────────────────────────────────── */
-        .ob__main {
+        /* ── Set header ────────────────────────────────────────── */
+        .ob__set {
           grid-column: 1 / -1;
           grid-row: 2;
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 20px;
+          padding-bottom: clamp(8px, 1vh, 14px);
+          border-bottom: 1px solid var(--ink-hair);
+          flex-wrap: wrap;
+        }
+        .ob__set-title { color: var(--ink); }
+        .ob__set-meta {
+          color: var(--ink-3);
+          display: inline-flex;
+          align-items: baseline;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .ob__set-meta .tabular { color: var(--ink); }
+
+        /* ── Main two-column layout ────────────────────────────── */
+        .ob__main {
+          grid-column: 1 / -1;
+          grid-row: 3;
           display: grid;
           grid-template-columns: subgrid;
-          align-items: stretch;
           column-gap: inherit;
           min-height: 0;
+          align-items: start;
         }
 
-        /* Rail — tightly stacked items at fixed line-height. No flex
-           spread; the list is a typeset block, not a distributed bar.
-           Centered vertically in the column. */
-        .ob__rail {
+        /* ── Tracklist ─────────────────────────────────────────── */
+        .ob__tracklist {
           grid-column: 1;
           list-style: none;
           margin: 0;
           padding: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: flex-start;
-          gap: 1px;
-          min-height: 0;
+          display: grid;
+          row-gap: 1px;
+          align-self: start;
         }
-        .ob__rail-item {
-          display: block;
-          height: clamp(20px, 2.6vh, 26px);
+
+        /* Column system shared by header + every track row. The
+           grid-template-columns is set once on the link/header so
+           every row aligns vertically. */
+        .ob__tracklist-head,
+        .ob__track-link {
+          display: grid;
+          grid-template-columns:
+            56px                /* T-01 */
+            minmax(0, 1.6fr)    /* title */
+            minmax(0, 1.4fr)    /* sector */
+            68px                /* runtime */
+            128px;              /* status */
+          column-gap: clamp(12px, 1.6vw, 22px);
+          align-items: baseline;
+          padding: 6px 8px;
         }
-        .ob__rail-link {
-          display: inline-grid;
-          grid-template-columns: 12px auto;
-          gap: 6px;
-          align-items: center;
-          height: 100%;
-          font-family: var(--font-stack-mono);
-          font-size: 12px;
-          font-weight: 400;
-          letter-spacing: -0.005em;
+        .ob__tracklist-head {
+          padding-top: 0;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--ink-hair);
+        }
+        .ob__col-status { text-align: left; }
+
+        .ob__track {
+          border-bottom: 1px solid var(--ink-hair);
+        }
+        .ob__track:last-child { border-bottom: none; }
+        .ob__track-link {
           color: var(--ink-3);
-          transition: color 180ms var(--ease);
+          transition: background 200ms var(--ease), color 180ms var(--ease);
+          padding: clamp(10px, 1.4vh, 14px) 8px;
         }
-        .ob__rail-link[data-disabled] {
-          cursor: default;
-        }
-        .ob__rail-item[data-active] .ob__rail-link {
+        .ob__track[data-active] .ob__track-link {
           color: var(--ink);
+          background: var(--paper-2);
         }
-        .ob__rail-marker {
+        .ob__track-link[data-disabled] { cursor: default; }
+
+        .ob__col-num { color: var(--ink-3); }
+        .ob__track[data-active] .ob__col-num { color: var(--ink); }
+        .ob__col-title {
           font-family: var(--font-stack-mono);
-          font-size: 8px;
+          font-size: clamp(13px, 1vw, 15px);
+          font-weight: 500;
+          letter-spacing: -0.005em;
+          color: inherit;
+          line-height: 1.2;
+          text-transform: lowercase;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .ob__col-sector {
+          color: var(--ink-3);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          text-transform: lowercase;
+        }
+        .ob__col-runtime { color: var(--ink-3); }
+        .ob__col-status {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 6px;
+          color: var(--ink-3);
+        }
+        .ob__status-glyph {
+          font-family: var(--font-stack-mono);
+          font-size: 10px;
           line-height: 1;
           color: var(--ink);
-          opacity: 0;
-          transform: translateX(-2px);
-          transition: opacity 180ms var(--ease), transform 180ms var(--ease);
         }
-        .ob__rail-item[data-active] .ob__rail-marker {
-          opacity: 1;
-          transform: translateX(0);
-        }
-        .ob__rail-title {
-          line-height: 1.2;
+        .ob__track[data-active] .ob__status-glyph {
+          color: var(--ink);
         }
 
-        /* ── Stage (filmstrip + brackets) ──────────────────────── */
-        .ob__stage {
+        /* ── Aside ─────────────────────────────────────────────── */
+        .ob__aside {
           grid-column: 2;
-          position: relative;
-          width: 100%;
-          height: 100%;
-          min-height: 0;
-          overflow: visible;
-        }
-
-        /* The strip: vertical column of all covers. Translated so the
-           active cover's center sits at stage center. CSS calc reads
-           --idx and --n custom props from inline style. Translate
-           formula puts the active cover (index = idx) at the stage's
-           vertical center. Transition is 600ms — slightly longer
-           than the wheel debounce so a held gesture animates
-           smoothly through. */
-        .ob__strip {
-          --cover-h: clamp(220px, 38vh, 340px);
-          --cover-w: calc(var(--cover-h) * 0.78);
-          --strip-gap: clamp(12px, 2vh, 24px);
-          position: absolute;
-          left: 50%;
-          top: 50%;
           display: flex;
           flex-direction: column;
-          gap: var(--strip-gap);
-          width: var(--cover-w);
-          transform: translate(
-            -50%,
-            calc(
-              -50% - (var(--idx) - (var(--n) - 1) / 2)
-                   * (var(--cover-h) + var(--strip-gap))
-            )
-          );
-          transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-          will-change: transform;
+          gap: clamp(14px, 2vh, 22px);
+          min-height: 0;
+          padding-top: 6px;
         }
-        .ob__cover {
+
+        /* Featured cover stack — same crossfade as before, square
+           aspect, max-width capped so it doesn't dominate. */
+        .ob__featured {
           position: relative;
-          flex: 0 0 auto;
           width: 100%;
-          height: var(--cover-h, clamp(220px, 38vh, 340px));
+          aspect-ratio: 1 / 1;
           background: var(--paper-2);
           overflow: hidden;
-          opacity: 0.32;
-          filter: grayscale(0.6) brightness(0.78);
-          transition: opacity 480ms var(--ease), filter 480ms var(--ease);
-          cursor: pointer;
+          border: 1px solid var(--ink-hair);
+        }
+        .ob__cover {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transition: opacity 480ms var(--ease);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
         }
         .ob__cover[data-active] {
           opacity: 1;
-          filter: grayscale(0) brightness(1);
-        }
-        /* Touch devices restore the default cursor. cursor:none on
-           the page would leave touch users with no pointer
-           affordance, since the custom .ob__cursor is also hidden
-           on pointer: coarse. */
-        @media (pointer: coarse) {
-          .ob { cursor: auto; }
+          pointer-events: auto;
         }
         .ob__cover-media {
           position: absolute !important;
@@ -510,59 +526,11 @@ export default function HomeView({ pieces }: Props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: transparent;
-          border: 1px solid var(--ink-hair);
         }
 
-        /* Brackets — large mono "(  )" flanking the stage. They mark
-           the active frame in the OBYS pattern. Sized via clamp
-           proportional to viewport height; positioned just outside
-           the strip's effective width. */
-        .ob__bracket {
-          position: absolute;
-          top: 50%;
-          font-family: var(--font-stack-mono);
-          font-size: clamp(120px, 22vh, 220px);
-          font-weight: 400;
-          line-height: 0.85;
-          color: var(--ink);
-          pointer-events: none;
-          transform: translateY(-50%);
-          user-select: none;
-          z-index: 2;
-        }
-        .ob__bracket--left {
-          left: calc(50% - clamp(180px, 28vh, 280px));
-        }
-        .ob__bracket--right {
-          left: auto;
-          right: calc(50% - clamp(180px, 28vh, 280px));
-        }
-
-        /* ── Aside ─────────────────────────────────────────────── */
-        /* Grid with two rows: intro group at top (auto), spacer
-           row containing the active block centered (1fr). The
-           active block has padding-top to guarantee a minimum gap
-           from the intro on short viewports — when there's spare
-           space, align-self: center pushes it toward the middle
-           of the spacer. */
-        .ob__aside {
-          grid-column: 3;
-          display: grid;
-          grid-template-rows: auto 1fr;
-          align-items: start;
-          min-height: 0;
-          padding-top: 6px;
-        }
-
-        /* Intro — lede + contact as one bonded unit. Tight inner
-           gap between the paragraph and the contact line so they
-           read as a single "who I am + how to reach me" block. */
         .ob__intro {
-          grid-row: 1;
           display: flex;
           flex-direction: column;
-          gap: clamp(12px, 1.6vh, 20px);
         }
         .ob__lede {
           color: var(--ink-2);
@@ -570,72 +538,18 @@ export default function HomeView({ pieces }: Props) {
           line-height: 1.55;
           max-width: 32ch;
           text-transform: lowercase;
-          /* Lowercase even at sentence start — Flo Guo register.
-             Semicolons read better with slightly more breathing
-             than commas, so no extra word-spacing tweaks needed. */
         }
-        .ob__role {
-          font-family: var(--font-stack-mono);
-          color: var(--ink-3);
-          font-size: clamp(10px, 0.75vw, 11.5px);
-          line-height: 1.5;
-          letter-spacing: -0.005em;
-          margin: 0;
-          max-width: 32ch;
-          text-transform: lowercase;
-          /* Sits one step quieter than the lede — establishes
-             professional context without competing with the
-             characterological phrases above. */
-        }
+
         .ob__contact {
           display: grid;
           row-gap: 4px;
           width: 100%;
         }
-        .ob__contact .t-meta { font-size: 10.5px; }
-
-        /* Active project block — vertically centered in row 2 with
-           a guaranteed minimum gap from the intro above. Title on
-           its own line; meta wraps below in mono caps. */
-        .ob__active {
-          grid-row: 2;
-          align-self: center;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          padding-top: clamp(48px, 6vh, 96px);
-          padding-bottom: clamp(24px, 4vh, 64px);
-          width: 100%;
-        }
-        .ob__active-title {
-          font-family: var(--font-stack-mono);
-          font-size: clamp(13px, 0.9vw, 14px);
-          font-weight: 500;
-          letter-spacing: -0.005em;
-          color: var(--ink);
-          line-height: 1.2;
-        }
-        .ob__active-meta {
-          font-family: var(--font-stack-mono);
-          font-size: 10px;
-          font-weight: 400;
-          letter-spacing: 0.06em;
-          line-height: 1.5;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          font-feature-settings: "tnum" on, "lnum" on;
-          font-variant-numeric: tabular-nums lining-nums;
-          display: flex;
-          align-items: baseline;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-        .ob__active-meta .t-code {
-          font-size: 10px;
-        }
+        .ob__contact .t-meta { font-size: 10.5px; text-transform: lowercase; }
         .ob__email {
           color: var(--ink);
           font-size: 10.5px;
+          text-transform: lowercase;
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
           background-position: 0 100%;
@@ -648,21 +562,21 @@ export default function HomeView({ pieces }: Props) {
         /* ── Bottom row ────────────────────────────────────────── */
         .ob__bottom {
           grid-column: 1 / -1;
-          grid-row: 3;
-          display: grid;
-          grid-template-columns: subgrid;
+          grid-row: 4;
+          display: flex;
+          justify-content: space-between;
           align-items: baseline;
-          column-gap: inherit;
           padding-top: clamp(8px, 1.2vw, 14px);
           border-top: 1px solid var(--ink-hair);
+          gap: 20px;
+          flex-wrap: wrap;
         }
         .ob__view {
-          grid-column: 1;
           display: inline-flex;
           align-items: baseline;
           gap: 6px;
         }
-        .ob__view .t-meta { font-size: 10.5px; }
+        .ob__view .t-meta { font-size: 10.5px; text-transform: lowercase; }
         .ob__view .t-meta[data-active] {
           color: var(--ink);
           background-image: linear-gradient(currentColor, currentColor);
@@ -671,10 +585,9 @@ export default function HomeView({ pieces }: Props) {
           background-repeat: no-repeat;
         }
         .ob__colophon {
-          grid-column: 3;
           margin: 0;
-          justify-self: end;
           font-size: 10px;
+          text-transform: lowercase;
         }
 
         /* ── Cursor ────────────────────────────────────────────── */
@@ -695,21 +608,19 @@ export default function HomeView({ pieces }: Props) {
           transition: opacity 200ms var(--ease);
           will-change: transform;
         }
-        @media (pointer: coarse) { .ob__cursor { display: none; } }
+        @media (pointer: coarse) {
+          .ob { cursor: auto; }
+          .ob__cursor { display: none; }
+        }
         @media (prefers-reduced-motion: reduce) { .ob__cursor { display: none; } }
 
         /* ── Responsive ────────────────────────────────────────── */
-        @media (max-width: 1280px) {
-          .ob {
-            grid-template-columns:
-              minmax(140px, 0.9fr)
-              minmax(0, 2.4fr)
-              minmax(180px, 1fr);
+        @media (max-width: 1100px) {
+          .ob__tracklist-head,
+          .ob__track-link {
+            grid-template-columns: 48px minmax(0, 1.4fr) minmax(0, 1fr) 60px 100px;
+            column-gap: 14px;
           }
-        }
-        @media (max-width: 1024px) {
-          .ob__lede { max-width: 24ch; font-size: 11px; }
-          .ob__bracket { font-size: clamp(80px, 16vh, 160px); }
         }
         @media (max-width: 880px) {
           html, body { overscroll-behavior: auto; }
@@ -718,29 +629,37 @@ export default function HomeView({ pieces }: Props) {
             min-height: 100dvh;
             overflow: visible;
             grid-template-columns: 1fr;
-            grid-template-rows: auto auto auto auto auto;
-            row-gap: clamp(20px, 4vw, 32px);
+            row-gap: clamp(20px, 4vw, 28px);
+            cursor: auto;
           }
-          .ob__top { grid-template-columns: 1fr; row-gap: 12px; }
-          .ob__mark, .ob__nav { grid-column: 1; }
-          .ob__nav { padding-top: 0; }
+          .ob__top, .ob__set, .ob__main, .ob__bottom { grid-column: 1; }
           .ob__main { grid-template-columns: 1fr; row-gap: 24px; }
-          .ob__rail, .ob__stage, .ob__aside { grid-column: 1; }
-          .ob__stage {
-            aspect-ratio: 4 / 3;
-            height: auto;
+          .ob__tracklist, .ob__aside { grid-column: 1; }
+          .ob__tracklist-head { display: none; }
+          .ob__tracklist-head,
+          .ob__track-link {
+            grid-template-columns: 40px 1fr 60px 80px;
+            column-gap: 10px;
           }
-          .ob__strip {
-            --cover-h: clamp(180px, 50vw, 280px);
-          }
-          .ob__bracket { display: none; }
-          .ob__bottom { grid-template-columns: 1fr; row-gap: 12px; }
-          .ob__view, .ob__colophon {
-            grid-column: 1;
-            justify-self: start;
-          }
+          .ob__col-sector { display: none; }
+          .ob__featured { aspect-ratio: 4 / 3; }
         }
       `}</style>
     </main>
   );
+}
+
+/** Sum HH:MM or MM:SS strings into a single MM:SS total. */
+function sumRuntimes(pieces: Piece[]): string {
+  let totalSeconds = 0;
+  for (const p of pieces) {
+    if (!p.runtime) continue;
+    const [m, s] = p.runtime.split(":").map(Number);
+    if (Number.isFinite(m) && Number.isFinite(s)) {
+      totalSeconds += m * 60 + s;
+    }
+  }
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }

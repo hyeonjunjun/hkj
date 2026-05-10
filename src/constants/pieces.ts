@@ -38,6 +38,13 @@ export interface Piece {
    * use this — the catalog only ships real work.
    */
   placeholder?: boolean;
+  /**
+   * Decorative MM:SS runtime for the home's tracklist column. Reads
+   * as a music-coded duration — 1 month of work ≈ 1 minute is the
+   * rough mapping but each piece is hand-tuned for set rhythm.
+   * Undefined for placeholders → renders as "—:—".
+   */
+  runtime?: string;
 }
 
 /**
@@ -66,6 +73,7 @@ export const PIECES: Piece[] = [
     },
     coverAspect: "16 / 9",
     tags: ["brand", "campaign", "personal"],
+    runtime: "02:30",
   },
   {
     slug: "halo-halo",
@@ -83,6 +91,7 @@ export const PIECES: Piece[] = [
     cover: { kind: "image", src: "/images/halo-halo/image-31.png" },
     coverAspect: "3 / 4",
     tags: ["brand", "cafe"],
+    runtime: "04:18",
   },
   {
     slug: "sift",
@@ -101,6 +110,7 @@ export const PIECES: Piece[] = [
     coverFit: "center",
     coverAspect: "9 / 16",
     tags: ["mobile", "ai", "product"],
+    runtime: "06:42",
   },
   {
     slug: "gyeol",
@@ -118,6 +128,7 @@ export const PIECES: Piece[] = [
     cover: { kind: "image", src: "/images/gyeol-rain.webp" },
     coverAspect: "3 / 4",
     tags: ["brand", "ecommerce", "3d"],
+    runtime: "08:24",
   },
 
   /* Reserved slots for upcoming work — Q3 2026 onward.
