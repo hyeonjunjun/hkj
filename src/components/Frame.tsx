@@ -36,11 +36,9 @@ export default function Frame() {
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
 
-  // Home owns its own masthead — the monumental "RYAN JUN®" wordmark
-  // and the top-right nav cluster live inside HomeView. Frame would
-  // duplicate that signal.
-  if (pathname === "/") return null;
-
+  // All hooks must run on every render — React enforces fixed hook
+  // order. The `if (pathname === "/") return null` lives AFTER the
+  // hooks below for that reason.
   useEffect(() => {
     // Reveal on scroll-up, hide on scroll-down past a threshold. The
     // 8px tolerance keeps small jitters (trackpad inertia, anchor
@@ -64,6 +62,11 @@ export default function Frame() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Home owns its own masthead — the monumental "RYAN JUN®" wordmark
+  // and the top-right nav cluster live inside HomeView. Frame would
+  // duplicate that signal.
+  if (pathname === "/") return null;
 
   return (
     <header
