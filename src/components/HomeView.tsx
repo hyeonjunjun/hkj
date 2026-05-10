@@ -233,13 +233,23 @@ export default function HomeView({ pieces }: Props) {
         </div>
 
         <aside className="ob__aside">
-          {/* Intro — lede + contact bonded as one unit. The "who I
-              am + how to reach me" block sits at the top of the
-              aside; the project details below are pushed to the
-              vertical center via grid placement. */}
+          {/* Intro — three semicolon-separated noun phrases (Flo
+              Guo register), then a separate role line. Lowercase,
+              casual, lyrical. The phrases describe how he
+              encounters the world; the role line places him
+              professionally without competing.
+
+              Tweak any of the three phrases freely — the structure
+              holds as long as it's three noun-phrases joined by
+              semicolons. */}
           <div className="ob__intro">
             <p className="t-prose ob__lede">
-              old soul
+              old soul with a late-night curiosity; collector of
+              design monographs; admirer of details that take a
+              year to notice.
+            </p>
+            <p className="ob__role">
+              design engineer in new york. selective for q3 2026.
             </p>
             <div className="ob__contact">
               <p className="t-meta dim">Contact:</p>
@@ -552,7 +562,24 @@ export default function HomeView({ pieces }: Props) {
           color: var(--ink-2);
           font-size: clamp(11px, 0.85vw, 13px);
           line-height: 1.55;
-          max-width: 30ch;
+          max-width: 32ch;
+          text-transform: lowercase;
+          /* Lowercase even at sentence start — Flo Guo register.
+             Semicolons read better with slightly more breathing
+             than commas, so no extra word-spacing tweaks needed. */
+        }
+        .ob__role {
+          font-family: var(--font-stack-mono);
+          color: var(--ink-3);
+          font-size: clamp(10px, 0.75vw, 11.5px);
+          line-height: 1.5;
+          letter-spacing: -0.005em;
+          margin: 0;
+          max-width: 32ch;
+          text-transform: lowercase;
+          /* Sits one step quieter than the lede — establishes
+             professional context without competing with the
+             characterological phrases above. */
         }
         .ob__contact {
           display: grid;
