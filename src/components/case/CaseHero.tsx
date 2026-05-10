@@ -153,21 +153,25 @@ export default function CaseHero({ piece }: Props) {
           height: clamp(56px, 6vw, 80px);
           display: grid;
           place-items: center;
-          background: rgba(251, 250, 246, 0.92);
+          /* Hollow circle on the dark register — border + faint
+             tint so the disc reads against any cover. */
+          background: rgba(248, 248, 248, 0.06);
           color: var(--ink);
-          border: 1px solid var(--ink-hair);
+          border: 1px solid rgba(248, 248, 248, 0.32);
           border-radius: 50%;
           cursor: pointer;
-          font-family: var(--font-stack-sans);
+          font-family: var(--font-stack-mono);
           backdrop-filter: blur(6px);
           -webkit-backdrop-filter: blur(6px);
           transition:
             opacity 200ms var(--ease),
             transform 200ms var(--ease),
-            background-color 200ms var(--ease);
+            background-color 200ms var(--ease),
+            border-color 200ms var(--ease);
         }
         .case-hero__play:hover {
-          background: var(--paper);
+          background: rgba(248, 248, 248, 0.14);
+          border-color: var(--ink);
           transform: scale(1.04);
         }
         .case-hero__play:focus-visible {
