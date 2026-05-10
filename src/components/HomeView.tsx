@@ -151,7 +151,6 @@ export default function HomeView({ pieces }: Props) {
                 key={piece.slug}
                 className="ob__rail-item"
                 data-active={isActive ? "" : undefined}
-                onMouseEnter={() => goTo(i)}
                 onFocus={() => goTo(i)}
               >
                 <Link
@@ -190,7 +189,6 @@ export default function HomeView({ pieces }: Props) {
                   key={piece.slug}
                   className="ob__cover"
                   data-active={isActive ? "" : undefined}
-                  onMouseEnter={() => goTo(i)}
                 >
                   {piece.cover?.kind === "video" ? (
                     <video
@@ -304,6 +302,11 @@ export default function HomeView({ pieces }: Props) {
           height: 100dvh;
           width: 100%;
           overflow: hidden;
+          /* Hide the default browser cursor across the whole home —
+             the custom .ob__cursor is the signature interaction.
+             Default cursor returns on every other route since this
+             only scopes to .ob. */
+          cursor: none;
           display: grid;
           grid-template-columns:
             minmax(160px, 1fr)
@@ -486,6 +489,13 @@ export default function HomeView({ pieces }: Props) {
         .ob__cover[data-active] {
           opacity: 1;
           filter: grayscale(0) brightness(1);
+        }
+        /* Touch devices restore the default cursor. cursor:none on
+           the page would leave touch users with no pointer
+           affordance, since the custom .ob__cursor is also hidden
+           on pointer: coarse. */
+        @media (pointer: coarse) {
+          .ob { cursor: auto; }
         }
         .ob__cover-media {
           position: absolute !important;
