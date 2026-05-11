@@ -2,68 +2,182 @@
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Paper-and-ink palette — single register, light only.
-     Paper keeps the warm off-white signature (HS68 line). Ink moves to
-     Aino's pure-black system: titles & primary at #000000; body, chrome,
-     and faint accents step down via rgba opacity instead of separate
-     grey values. The opacity steps inherit the underlying paper warmth,
-     so type reads as ink soaked into the paper rather than as flat
-     greys overlaid on top. */
-  --paper:   #FBFAF6;
-  --paper-2: #F4F3EE;
-  --paper-3: #E8E7E1;
+  /* Krantz-line dark register: pure black ground, cool off-white type,
+     monochrome (no accent). The page is the composition; nothing
+     decorative competes. juliakrantz.com uses #000 + #F8F8F8 + alpha
+     steps on a single fg value — we mirror that exactly so the
+     hairline grid reads as drawn lines rather than tinted edges.
 
-  --ink:     #000000;                 /* titles, statement, mark — primary */
-  --ink-2:   rgba(0, 0, 0, 0.92);     /* body, prose, lede */
-  --ink-3:   rgba(0, 0, 0, 0.72);     /* chrome — eyebrow, nav, captions, meta */
-  --ink-4:   rgba(0, 0, 0, 0.48);     /* faintest — folio, separators, placeholders */
+     Token names retained (--paper = ground, --ink = text); the
+     codebase already speaks that vocabulary. */
+  --paper: #000000;
+  /* pure black ground */
+  --paper-2: #0A0A0A;
+  /* lifted cell hover */
+  --paper-3: #161616;
+  /* hairline-adjacent surface */
 
-  --ink-hair:  rgba(0, 0, 0, 0.14);
-  --ink-ghost: rgba(0, 0, 0, 0.04);
+  --ink: #F8F8F8;
+  /* primary — titles, mark, sym */
+  --ink-2: rgba(248, 248, 248, 0.92);
+  /* prose */
+  --ink-3: rgba(248, 248, 248, 0.45);
+  /* chrome — labels, meta, nav */
+  --ink-4: rgba(248, 248, 248, 0.30);
+  /* faintest — folio, sub-meta */
 
-  /* Type system — sans-only. The references (hs68, aino) ship with a
-     single sans family. Mono is reserved for project numbers + folio. */
-  --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  --ink-hair: rgba(248, 248, 248, 0.12);
+  /* hairline rules — Krantz value */
+  --ink-ghost: rgba(248, 248, 248, 0.04);
+
+  /* Solari amber — restored for the departure-board direction. Used
+     ONLY on truly-live elements: the live clock, the LIVE status on
+     in-progress work, the active "boarding" cue. Three places, no
+     more. Used everywhere it's costume; used in three it's signal. */
+  --accent: #E8B25A;
+  /* warm Solari amber */
+  --accent-2: rgba(232, 178, 90, 0.55);
+  /* dimmed for pulse trough */
+
+  /* ── Font stacks ─────────────────────────────────────────
+     Mono is the primary face. Sans is retained as a fallback
+     stack for any rare component that opts out of mono (almost
+     nothing should). The mono-only commitment is enforced by
+     the type scale below: every role is mono-styled. */
   --font-stack-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
 
-  /* Type scale — restrained editorial register, Aino-aligned.
-     One step smaller than the prior pass. Aino runs a single small
-     mono register for chrome (nav, eyebrow, footer, meta), with
-     display and body sized only marginally above it. The work is the
-     loud element, not the type. */
-  --type-nav:        10px;
-  --type-number:     10px;
-  --type-title:      clamp(12px, 0.85vw, 13.5px);
-  --type-meta:       9px;
-  --type-body:       clamp(12.5px, 0.8vw, 13.5px);
-  --type-statement:  clamp(15px, 1.6vw, 18px);
-  --type-display:    clamp(20px, 2.4vw, 28px);
-  --type-folio:      8px;
+  /* ── Type scale ──────────────────────────────────────────
+     Ten roles. Every text element on the site is one of these.
+     Don't add an eleventh without retiring one. Names are role-
+     based, not size-based: a future scale rebalance reuses the
+     names. */
+  --type-monument: clamp(36px, 5.5vw, 48px);
+  /* page-anchor wordmark — OBYS-tier */
+  --type-display: clamp(48px, 9vw, 96px);
+  /* hero name — used ONCE */
+  --type-statement: clamp(15px, 1.4vw, 18px);
+  /* hero positioning sentence */
+  --type-row: clamp(13px, 1vw, 15px);
+  /* primary list rows, project titles */
+  --type-prose: clamp(13px, 0.95vw, 14.5px);
+  /* paragraphs, longer body */
+  --type-section: 11px;
+  /* SECTION LABELS — caps */
+  --type-meta: 10px;
+  /* meta lines — caps */
+  --type-caption: 10px;
+  /* captions — case-sensitive */
+  --type-footnote: 9px;
+  /* footer build info — caps */
+  --type-eyebrow: 9px;
+  /* hero eyebrow — caps, weight 500 */
 
-  /* Spacing — spec §04 */
-  --margin-page:    clamp(20px, 4vw, 64px);
-  --space-void:     clamp(120px, 24vh, 280px);
-  --space-row:      clamp(64px, 8vw, 120px);
-  --space-section:  clamp(48px, 6vw, 96px);
-  --space-caption:  12px;
-  --gap-plates:     clamp(12px, 1.5vw, 20px);
+  /* Legacy aliases — kept so existing components don't break.
+     Migrate references to the role names above when touching
+     a component, then drop these. */
+  --type-nav: var(--type-meta);
+  --type-number: var(--type-meta);
+  --type-title: var(--type-row);
+  --type-body: var(--type-prose);
+  --type-folio: var(--type-footnote);
+
+  /* ── Tracking scale ──────────────────────────────────────
+     Eight steps. Tighter at display sizes, looser at small
+     caps. Mono-only sites lean on tracking + caps for hierarchy
+     because they can't lean on family contrast. */
+  --track-tightest: -0.04em;
+  /* display — name */
+  --track-tight: -0.025em;
+  /* large body */
+  --track-snug: -0.005em;
+  /* medium body */
+  --track-normal: 0;
+  /* default mono prose */
+  --track-loose: 0.06em;
+  /* mono caps, tight */
+  --track-loosest: 0.10em;
+  /* mono caps, comfortable */
+  --track-section: 0.16em;
+  /* section labels */
+  --track-eyebrow: 0.20em;
+  /* eyebrows — max */
+
+  /* ── Line-height scale ───────────────────────────────────
+     Five steps. Display is tightest; prose is loosest. */
+  --lh-tight: 1.05;
+  /* display — name */
+  --lh-snug: 1.15;
+  /* row titles, statement */
+  --lh-body: 1.5;
+  /* default body */
+  --lh-prose: 1.65;
+  /* paragraphs */
+  --lh-loose: 1.8;
+  /* generous prose */
+
+  /* ── Spacing — 7-step scale ──────────────────────────────
+     Used across the site for rhythmic pacing. The section gap
+     (--space-6) is load-bearing — it's the silence that makes
+     mono prose readable. */
+  --space-hairline: 1px;
+  --space-tight: 4px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 64px;
+  --space-6: clamp(96px, 12vw, 128px);
+  /* between sections */
+  --space-7: clamp(140px, 18vw, 200px);
+  /* hero → first section */
+
+  /* Page geometry */
+  --margin-page: clamp(24px, 4vw, 56px);
+  --max-width: 1200px;
+
+  /* Legacy spacing aliases */
+  --space-void: var(--space-7);
+  --space-row: var(--space-6);
+  --space-section: var(--space-6);
+  --space-caption: 12px;
+  --gap-plates: clamp(12px, 1.5vw, 20px);
 
   --ease: cubic-bezier(.4, 0, .2, 1);
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-*::-webkit-scrollbar { display: none; }
-* { scrollbar-width: none; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-stack-sans);
-  font-size: var(--type-body);
-  line-height: 1.5;
+  /* Mono is the primary face for the entire site. Every role-based
+     class below sets font-family explicitly anyway, so this is the
+     fallback for raw text outside the type system. */
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-prose);
+  line-height: var(--lh-body);
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -71,18 +185,205 @@ body {
   font-feature-settings: "kern" 1, "calt" 1;
 }
 
-::selection { background: var(--ink); color: var(--paper); }
-:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
-a { color: inherit; text-decoration: none; }
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
 
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── Microtypography framework ──────────────────────────────────────────
+   Every text role on the site is one of these classes. Compose with
+   `.tabular` and `.caps` modifiers when needed. Color is encoded into
+   the role; override via `--ink-N` only with intent. */
+
+/* Modifiers — composable with any role */
 .tabular {
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums lining-nums;
 }
 
+.caps {
+  text-transform: uppercase;
+}
+
+.dim {
+  color: var(--ink-3);
+}
+
+.dimmer {
+  color: var(--ink-4);
+}
+
+.live {
+  color: var(--accent);
+}
+
+/* ── t-monument ── the page's anchor wordmark. OBYS-tier scale.
+   Used ONCE on the home (the RJ / RYAN JUN top-left mark).
+   Never repeated; the type role is the page anchor. */
+.t-monument {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-monument);
+  font-weight: 500;
+  letter-spacing: var(--track-tightest);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+/* ── t-display ── hero name / sub-anchor. Used ONCE per page
+   below t-monument when both exist. */
+.t-display {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-display);
+  font-weight: 500;
+  letter-spacing: var(--track-tightest);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+}
+
+/* ── t-statement ── hero positioning sentence. Body register at
+   ~16-18px, slightly tightened tracking for length-readability. */
+.t-statement {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-statement);
+  font-weight: 400;
+  letter-spacing: var(--track-snug);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+  max-width: 56ch;
+}
+
+/* ── t-row ── primary list-row title. Project destinations,
+   note titles, anything that's the "headline" of a row. */
+.t-row {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-row);
+  font-weight: 500;
+  letter-spacing: var(--track-snug);
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+
+/* ── t-prose ── paragraph body. The one place we need real
+   line-height for reading. Use sparingly — mono prose is dense. */
+.t-prose {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-prose);
+  font-weight: 400;
+  letter-spacing: var(--track-normal);
+  line-height: var(--lh-prose);
+  color: var(--ink-2);
+  max-width: 56ch;
+}
+
+/* ── t-section ── SECTION LABELS — WORK, STUDIO, CURRENTLY.
+   Always uppercase, weight 500, tracked. The architectural
+   beats of the page. */
+.t-section {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-section);
+  font-weight: 500;
+  letter-spacing: var(--track-section);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ── t-meta ── meta lines under section labels (count, last-
+   updated). Always caps, looser tracking, dimmer ink. */
+.t-meta {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-meta);
+  font-weight: 400;
+  letter-spacing: var(--track-loosest);
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ── t-caption ── captions, sub-meta on rows, hover detail.
+   Same size as t-meta but case-sensitive (allows mixed case). */
+.t-caption {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-caption);
+  font-weight: 400;
+  letter-spacing: var(--track-loose);
+  line-height: 1.3;
+  color: var(--ink-3);
+}
+
+/* ── t-footnote ── footer build info, last deploy. The faintest
+   readable type on the page. */
+.t-footnote {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-footnote);
+  font-weight: 400;
+  letter-spacing: var(--track-eyebrow);
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* ── t-eyebrow ── above-the-name eyebrow on the hero. The widest
+   tracking on the page. Weight 500 separates it from t-footnote. */
+.t-eyebrow {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-eyebrow);
+  font-weight: 500;
+  letter-spacing: var(--track-eyebrow);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ── t-code ── alphanumeric codes (RJ-26-01). Always tabular,
+   weight 500, ink-2 (one shade off pure to read as data). */
+.t-code {
+  font-family: var(--font-stack-mono);
+  font-size: var(--type-meta);
+  font-weight: 500;
+  letter-spacing: var(--track-loose);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ── Hairline rule — section dividers. The board's framing element. */
+.t-rule {
+  height: 1px;
+  background: var(--ink-hair);
+  border: 0;
+  margin: 0;
+  display: block;
+}
+
+/* ── Separator glyph — the dot between meta items. Slightly
+   dimmer than the items it joins. */
+.t-sep {
+  color: var(--ink-4);
+  display: inline-block;
+  margin: 0 0.4em;
+  user-select: none;
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
@@ -97,6 +398,7 @@ a { color: inherit; text-decoration: none; }
   height: 1px;
   overflow: hidden;
 }
+
 .skip-to-content:focus {
   left: 24px;
   top: 24px;
@@ -118,9 +420,13 @@ a:active {
   transform: scale(0.97);
   transition: transform 100ms var(--ease);
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   button:active:not([aria-disabled="true"]),
-  a:active { transform: none; }
+  a:active {
+    transform: none;
+  }
 }
 
 /* ─── View transitions ────────────────────────────────────────────────────
@@ -130,12 +436,17 @@ a:active {
   animation-duration: 200ms;
   animation-timing-function: ease-in;
 }
+
 ::view-transition-new(root) {
   animation-duration: 350ms;
   animation-delay: 80ms;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   ::view-transition-old(root),
-  ::view-transition-new(root) { animation: none; }
+  ::view-transition-new(root) {
+    animation: none;
+  }
 }

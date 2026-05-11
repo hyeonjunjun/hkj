@@ -1,166 +1,157 @@
+"use client";
+
 import CopyEmailLink from "@/components/CopyEmailLink";
-import Footer from "@/components/Footer";
 import { CONTACT_EMAIL, NETWORKS } from "@/constants/contact";
 
 /**
- * /contact — direct lines.
+ * /contact — direct lines, in the home's mono register.
  *
- * Single editorial column. One sentence. One email. One row of social
- * handles. No section numbering, no duplicated office address (the
- * footer carries it), no contact-reason taxonomy — Aino's contact page
- * doesn't break things into "new work" vs "partnership" because the
- * inbox sorts that out itself.
+ * Single editorial column. One sentence of context, one email
+ * (primary), one row of social handles. No CV, no contact-reason
+ * taxonomy — the inbox sorts that out itself. Mono-only typography;
+ * email at display scale acts as the page's anchor.
  */
 export default function ContactPage() {
   return (
     <main id="main" className="contact">
       <header className="contact__head">
-        <p className="contact__eyebrow">Contact</p>
-        <h1 className="contact__title">Get in touch.</h1>
-        <p className="contact__body">
-          For new work, partnerships, or a brief reach-out about something
-          specific — a direct email is the fastest path.
+        <p className="t-eyebrow">Contact</p>
+        <h1 className="t-display contact__title">Get in touch.</h1>
+        <p className="t-prose contact__body">
+          for new work, partnerships, or a brief reach-out about
+          something specific — a direct email is the fastest path.
         </p>
       </header>
 
+      <hr className="t-rule" />
+
       <section className="contact__primary" aria-label="Direct line">
-        <p className="contact__label">Email</p>
+        <span className="t-section contact__label">Email</span>
         <CopyEmailLink className="contact__email" email={CONTACT_EMAIL} />
       </section>
 
+      <hr className="t-rule" />
+
       <section className="contact__elsewhere" aria-label="Networks">
-        <p className="contact__label">Elsewhere</p>
-        <ul className="contact__socials">
+        <span className="t-section contact__label">Elsewhere</span>
+        <ul className="contact__socials" role="list">
           {NETWORKS.map((n, i) => (
             <li key={n.label} className="contact__social-item">
-              {i > 0 && <span className="contact__social-sep" aria-hidden>/</span>}
+              <span className="t-code dimmer contact__social-num" aria-hidden>
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <a
                 className="contact__social"
                 href={n.href}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {n.label}
+                {n.handle} <span className="contact__social-arrow" aria-hidden>↗</span>
               </a>
             </li>
           ))}
         </ul>
       </section>
 
-      <Footer />
-
       <style>{`
         .contact {
-          padding: clamp(96px, 16vh, 168px) var(--margin-page) 0;
-          max-width: 1080px;
+          padding: clamp(80px, 12vh, 140px) var(--margin-page) clamp(56px, 8vh, 96px);
+          max-width: 920px;
           margin-inline: auto;
           display: grid;
-          gap: var(--space-section);
+          row-gap: clamp(40px, 5vh, 64px);
         }
 
         .contact__head {
           display: grid;
-          gap: 14px;
-          max-width: 720px;
-        }
-        .contact__eyebrow {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          margin: 0;
+          row-gap: clamp(14px, 1.6vh, 22px);
+          max-width: 56ch;
         }
         .contact__title {
-          font-family: var(--font-stack-sans);
-          font-weight: 380;
-          font-size: var(--type-display);
-          line-height: 1.1;
-          letter-spacing: -0.02em;
-          color: var(--ink);
-          margin: 0;
+          text-transform: none;
+          letter-spacing: -0.03em;
         }
         .contact__body {
-          font-family: var(--font-stack-sans);
-          font-weight: 400;
-          font-size: var(--type-body);
-          line-height: 1.65;
           color: var(--ink-2);
-          max-width: 56ch;
-          margin: 8px 0 0;
-          text-wrap: pretty;
+          text-transform: lowercase;
+          max-width: 48ch;
         }
 
+        /* Primary email — display-scale, the page's center of
+           gravity. Mono, weight 500, with the underline-fade
+           hover from the home's email pattern. */
         .contact__primary,
         .contact__elsewhere {
-          padding-top: var(--space-section);
-          border-top: 1px solid var(--ink-hair);
           display: grid;
-          gap: 14px;
+          grid-template-columns: clamp(80px, 12vw, 120px) 1fr;
+          column-gap: clamp(20px, 3vw, 40px);
+          align-items: baseline;
         }
         .contact__label {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
           color: var(--ink-3);
-          margin: 0;
         }
         .contact__email {
-          font-family: var(--font-stack-sans);
-          font-size: var(--type-statement);
-          font-weight: 380;
-          line-height: 1.2;
-          letter-spacing: -0.01em;
+          font-family: var(--font-stack-mono);
+          font-size: clamp(20px, 2.4vw, 32px);
+          font-weight: 500;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
           color: var(--ink);
-          text-decoration: none;
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
           background-position: 0 100%;
           background-repeat: no-repeat;
           transition: background-size 220ms var(--ease), color 180ms var(--ease);
+          text-transform: lowercase;
           width: max-content;
           max-width: 100%;
         }
-        .contact__email:hover {
-          background-size: 100% 1px;
-        }
-        .contact__email[data-copied] {
-          color: var(--ink-3);
-        }
+        .contact__email:hover { background-size: 100% 1px; }
+        .contact__email[data-copied] { color: var(--ink-3); }
 
+        /* Networks — numbered rows, microtype-density. */
         .contact__socials {
           list-style: none;
           margin: 0;
           padding: 0;
-          display: inline-flex;
-          align-items: baseline;
-          flex-wrap: wrap;
-          gap: 8px;
+          display: grid;
+          row-gap: 8px;
         }
         .contact__social-item {
-          display: inline-flex;
+          display: inline-grid;
+          grid-template-columns: 28px auto;
+          column-gap: 12px;
           align-items: baseline;
-          gap: 8px;
         }
-        .contact__social-sep { color: var(--ink-4); }
+        .contact__social-num {
+          padding-top: 1px;
+        }
         .contact__social {
           font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1.4;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
+          font-size: clamp(12px, 0.95vw, 14px);
+          font-weight: 400;
+          letter-spacing: 0;
           color: var(--ink);
+          text-transform: lowercase;
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
           background-position: 0 100%;
           background-repeat: no-repeat;
-          transition: background-size 180ms var(--ease), color 180ms var(--ease);
+          transition: background-size 180ms var(--ease);
         }
-        .contact__social:hover {
-          background-size: 100% 1px;
+        .contact__social:hover { background-size: 100% 1px; }
+        .contact__social-arrow {
+          color: var(--ink-3);
+          margin-left: 4px;
+        }
+
+        @media (max-width: 720px) {
+          .contact { row-gap: clamp(28px, 4vh, 48px); }
+          .contact__primary,
+          .contact__elsewhere {
+            grid-template-columns: 1fr;
+            row-gap: 12px;
+          }
         }
       `}</style>
     </main>

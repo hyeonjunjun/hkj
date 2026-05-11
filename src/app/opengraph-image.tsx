@@ -2,29 +2,27 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "stray — a creative studio. New York.";
+export const alt = "Ryan Jun — design engineer, New York.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Open Graph image — the studio's identity card.
+ * Open Graph image — the portfolio's identity card.
  *
- * Pixelated cloud monogram centered, "stray" wordmark below, role
- * line below that. Same 8×5 silhouette as the favicon, scaled up to
- * OG-card size (~14px per pixel). Mono throughout. Founder name
- * (Ryan Jun) lives only on /studio as editorial, not promoted here.
+ * Single ruled departure-board frame in the same dark register as the
+ * site: pure black ground, warm cream type, one amber detail (the
+ * pulse glyph next to the role line). Wordmark "Ryan Jun" big-center,
+ * with station-meta above and a single-line schedule strip below.
  */
-const CLOUD: ReadonlyArray<ReadonlyArray<0 | 1>> = [
-  [0, 0, 1, 1, 1, 1, 0, 0],
-  [0, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1],
-  [0, 1, 1, 1, 1, 1, 1, 0],
-];
-
 export default async function Image() {
   const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
-  const PX = 14;
+
+  const PAPER = "#000000";
+  const INK = "#F8F8F8";
+  const INK_3 = "rgba(248,248,248,0.45)";
+  const INK_4 = "rgba(248,248,248,0.30)";
+  const INK_HAIR = "rgba(248,248,248,0.16)";
+  const ACCENT = "#E8B25A";
 
   return new ImageResponse(
     (
@@ -32,8 +30,8 @@ export default async function Image() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#FBFAF6",
-          color: "#000000",
+          background: PAPER,
+          color: INK,
           display: "flex",
           flexDirection: "column",
           padding: 56,
@@ -49,84 +47,73 @@ export default async function Image() {
             fontSize: 14,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "rgba(0,0,0,0.55)",
+            color: INK_3,
             width: "100%",
+            paddingBottom: 18,
+            borderBottom: `1px solid ${INK_HAIR}`,
           }}
         >
-          <span>Studio · 2026</span>
-          <span>New York</span>
+          <span>Portfolio · 2026</span>
+          <span>New York · EDT</span>
         </div>
 
-        {/* Center — cloud monogram + wordmark + role */}
+        {/* Center — wordmark + role */}
         <div
           style={{
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "center",
-            gap: 36,
+            gap: 24,
           }}
         >
-          {/* Pixelated cloud */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            {CLOUD.map((row, ri) => (
-              <div key={ri} style={{ display: "flex" }}>
-                {row.map((cell, ci) => (
-                  <div
-                    key={ci}
-                    style={{
-                      width: PX,
-                      height: PX,
-                      background: cell ? "#000000" : "transparent",
-                    }}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-
-          {/* Wordmark */}
           <div
             style={{
-              fontSize: 88,
+              fontSize: 132,
               lineHeight: 1,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              color: "#000000",
+              letterSpacing: "-0.04em",
+              color: INK,
               display: "flex",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+              fontWeight: 500,
             }}
           >
-            stray
+            Ryan Jun
           </div>
 
           <div
             style={{
-              fontSize: 14,
-              letterSpacing: "0.22em",
+              fontSize: 22,
+              letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: "rgba(0,0,0,0.55)",
+              color: INK_3,
               display: "flex",
+              alignItems: "center",
+              gap: 14,
             }}
           >
-            A creative studio
+            <span style={{ color: ACCENT }}>◆</span>
+            <span>Design engineer · Studio of one</span>
           </div>
         </div>
 
-        {/* Bottom register */}
+        {/* Bottom register — single departure-board strip */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            fontSize: 12,
-            letterSpacing: "0.20em",
+            fontSize: 14,
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "rgba(0,0,0,0.55)",
+            color: INK_4,
             width: "100%",
+            paddingTop: 18,
+            borderTop: `1px solid ${INK_HAIR}`,
           }}
         >
           <span>rykjun@gmail.com</span>
-          <span>40°43′N 73°59′W</span>
+          <span>40°43′N · 73°59′W</span>
         </div>
       </div>
     ),

@@ -7,17 +7,15 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Frame — sticky horizontal top nav.
  *
- *   ┌─ stray ────────────────────────── Work  Studio  Contact ─┐
- *   ├────────────────────────────────────────────────────────────┤
+ *   ┌─ rj ─────────────────── Work  Studio  Contact ─┐
+ *   └──────────────────────────────────────────────────┘
  *
- * Studio masthead. The wordmark is "stray" (the creative studio).
- * Ryan Jun is the founder, identified on /studio. The lowercase
- * source maps to UPPERCASE via CSS to match the rest of the chrome.
+ * Minimal masthead — initials wordmark left ("rj" for Ryan Jun),
+ * three nav links right. The live time + station meta lives in the
+ * homepage's name banner, not the masthead.
  *
- * Plain text labels in Aino's masthead register — no numbered prefix,
- * no separators. Hides on scroll-down past 80px, reveals on scroll-up.
- * Mark sits at font-weight 500; links at 400 — same family, same size,
- * weight differentiation does the hierarchy.
+ * Hides on scroll-down past 80px, reveals on scroll-up. Mark at
+ * weight 500, links at 400 — same family, same size.
  */
 
 type NavItem = { href: string; label: string };
@@ -38,6 +36,9 @@ export default function Frame() {
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
 
+  // All hooks must run on every render — React enforces fixed hook
+  // order. The `if (pathname === "/") return null` lives AFTER the
+  // hooks below for that reason.
   useEffect(() => {
     // Reveal on scroll-up, hide on scroll-down past a threshold. The
     // 8px tolerance keeps small jitters (trackpad inertia, anchor
@@ -62,14 +63,19 @@ export default function Frame() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Home owns its own masthead — the monumental "RYAN JUN®" wordmark
+  // and the top-right nav cluster live inside HomeView. Frame would
+  // duplicate that signal.
+  if (pathname === "/") return null;
+
   return (
     <header
       className="frame"
       data-hidden={hidden ? "" : undefined}
       aria-label="Site masthead"
     >
-      <Link href="/" className="frame__mark" aria-label="stray — home">
-        stray
+      <Link href="/" className="frame__mark" aria-label="Ryan Jun — home">
+        rj
       </Link>
 
       <nav aria-label="Primary" className="frame__nav">
@@ -102,9 +108,10 @@ export default function Frame() {
           grid-template-columns: 1fr auto;
           align-items: center;
           gap: clamp(16px, 3vw, 40px);
-          background: rgba(251, 250, 246, 0.92);
-          backdrop-filter: saturate(150%) blur(8px);
-          -webkit-backdrop-filter: saturate(150%) blur(8px);
+          background: rgba(0, 0, 0, 0.92);
+          backdrop-filter: saturate(140%) blur(10px);
+          -webkit-backdrop-filter: saturate(140%) blur(10px);
+          border-bottom: 1px solid var(--ink-hair);
           pointer-events: auto;
           transform: translateY(0);
           transition: transform 250ms var(--ease);

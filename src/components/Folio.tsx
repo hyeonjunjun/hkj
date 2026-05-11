@@ -11,7 +11,7 @@ import { PIECES } from "@/constants/pieces";
  * with the work. Top-right is owned by the Frame nav; bottom-right is
  * the natural folio gutter.
  *
- *   /                  STRAY · 2026
+ *   /                  (suppressed — home carries its own identity)
  *   /work              WORK · INDEX · {N}
  *   /work/[slug]       §{number} · {title}
  *   /studio            STUDIO · NEW YORK
@@ -63,7 +63,6 @@ export default function Folio() {
           text-transform: uppercase;
           color: var(--ink-4);
           pointer-events: none;
-          mix-blend-mode: multiply;
         }
         @media (max-width: 640px) {
           .folio { display: none; }

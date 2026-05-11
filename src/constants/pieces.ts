@@ -38,6 +38,24 @@ export interface Piece {
    * use this — the catalog only ships real work.
    */
   placeholder?: boolean;
+  /**
+   * Decorative MM:SS runtime for the home's tracklist column. Reads
+   * as a music-coded duration — 1 month of work ≈ 1 minute is the
+   * rough mapping but each piece is hand-tuned for set rhythm.
+   * Undefined for placeholders → renders as "—:—".
+   */
+  runtime?: string;
+  /** Client / brand the work is for. "Personal" / "Self" for spec. */
+  client?: string;
+  /**
+   * Hand-tuned 12-char unicode bar string showing the project's work
+   * intensity over its duration. Uses U+2581—U+2588 (block elements)
+   * and U+2591 (light shade) for reserved slots. Reads as a Fred
+   * Again-style waveform in monospace.
+   */
+  waveform?: string;
+  /** YYYY-MM stamp — when work ended/shipped. Undefined → still wip. */
+  ended?: string;
 }
 
 /**
@@ -66,6 +84,9 @@ export const PIECES: Piece[] = [
     },
     coverAspect: "16 / 9",
     tags: ["brand", "campaign", "personal"],
+    runtime: "02:30",
+    client: "Personal",
+    waveform: "▁▁▂▃▄▆▇████▇",
   },
   {
     slug: "halo-halo",
@@ -83,6 +104,10 @@ export const PIECES: Piece[] = [
     cover: { kind: "image", src: "/images/halo-halo/image-31.png" },
     coverAspect: "3 / 4",
     tags: ["brand", "cafe"],
+    runtime: "04:18",
+    client: "Halo Halo!",
+    waveform: "▂▄▇█▇▆▅▃▂▁▁▁",
+    ended: "2026-09",
   },
   {
     slug: "sift",
@@ -101,6 +126,10 @@ export const PIECES: Piece[] = [
     coverFit: "center",
     coverAspect: "9 / 16",
     tags: ["mobile", "ai", "product"],
+    runtime: "06:42",
+    client: "Self",
+    waveform: "▁▂▃▅▆▇█▇▆▅▃▁",
+    ended: "2025-12",
   },
   {
     slug: "gyeol",
@@ -118,5 +147,9 @@ export const PIECES: Piece[] = [
     cover: { kind: "image", src: "/images/gyeol-rain.webp" },
     coverAspect: "3 / 4",
     tags: ["brand", "ecommerce", "3d"],
+    runtime: "08:24",
+    client: "Gyeol",
+    waveform: "▁▂▃▅▇█████▆▃",
+    ended: "2026-04",
   },
 ];
