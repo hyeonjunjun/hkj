@@ -475,14 +475,19 @@ export default function HomeView({ pieces }: Props) {
           justify-self: center;
         }
 
-        /* ─── BODY — 3-column ─── */
+        /* ─── BODY — Plate variation ───────────────────────────
+           Path B / Plate: the active image dominates. Setlist and
+           right column flank the artwork like exhibition wall
+           labels. Proportions ~16% / ~70% / ~14%. The center plate
+           takes most of the visible width AND height; the typographic
+           columns shrink to support, not compete. */
         .obys__body {
           display: grid;
           grid-template-columns:
-            minmax(160px, 1fr)
-            minmax(320px, 2.6fr)
-            minmax(220px, 1.2fr);
-          column-gap: clamp(32px, 4vw, 64px);
+            minmax(120px, 0.8fr)
+            minmax(420px, 4fr)
+            minmax(180px, 1fr);
+          column-gap: clamp(40px, 5vw, 80px);
           align-items: stretch;
           min-height: 0;
         }
@@ -778,8 +783,13 @@ function PlateMedia({
       <style>{`
         .obys__plate-frame {
           position: relative;
-          max-height: min(70vh, 720px);
-          max-width: clamp(280px, 38vw, 520px);
+          /* Plate variation: dominant proportions. The image takes
+             most of the body row's vertical space and as much of the
+             column width as its aspect allows. The 1fr column on
+             either side becomes a label sidebar; the plate becomes
+             the headline. */
+          max-height: min(82vh, 900px);
+          max-width: 100%;
           background: var(--o-paper-2);
           overflow: hidden;
           outline: 1px solid var(--o-hair);

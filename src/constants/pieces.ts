@@ -100,7 +100,7 @@ export const PIECES: Piece[] = [
     started: "2026-04",
     cover: {
       kind: "video",
-      src: "/assets/cloudsatsea.mp4",
+      src: "/assets/aurebor_jeju.mp4",
     },
     coverAspect: "16 / 9",
     tags: ["brand", "campaign", "personal"],
