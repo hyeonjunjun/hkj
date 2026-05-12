@@ -49,11 +49,21 @@ export interface Piece {
   client?: string;
   /**
    * Hand-tuned 12-char unicode bar string showing the project's work
-   * intensity over its duration. Uses U+2581—U+2588 (block elements)
-   * and U+2591 (light shade) for reserved slots. Reads as a Fred
-   * Again-style waveform in monospace.
+   * intensity over its duration. DEPRECATED — prefer `workLog`
+   * (typed, future-API-compatible). Kept only as fallback.
    */
   waveform?: string;
+  /**
+   * Work-rate intensity samples across the project's duration. Each
+   * value is 0–7, mapping 1:1 to one of the eight unicode block
+   * elements (U+2581—U+2588). 12 samples is the canonical strip
+   * length so all rows align.
+   *
+   * Schema kept narrow so it can later be sourced from a live API:
+   *   GET /api/work-rate/[slug] → { workLog: number[], updatedAt }
+   * For now, hand-curated per project but renderer-driven.
+   */
+  workLog?: number[];
   /** YYYY-MM stamp — when work ended/shipped. Undefined → still wip. */
   ended?: string;
 }
@@ -86,7 +96,7 @@ export const PIECES: Piece[] = [
     tags: ["brand", "campaign", "personal"],
     runtime: "02:30",
     client: "Personal",
-    waveform: "▁▁▂▃▄▆▇████▇",
+    workLog: [0, 0, 1, 2, 3, 5, 6, 7, 7, 7, 7, 6],
   },
   {
     slug: "halo-halo",
@@ -106,7 +116,7 @@ export const PIECES: Piece[] = [
     tags: ["brand", "cafe"],
     runtime: "04:18",
     client: "Halo Halo!",
-    waveform: "▂▄▇█▇▆▅▃▂▁▁▁",
+    workLog: [1, 3, 6, 7, 6, 5, 4, 2, 1, 0, 0, 0],
     ended: "2026-09",
   },
   {
@@ -128,7 +138,7 @@ export const PIECES: Piece[] = [
     tags: ["mobile", "ai", "product"],
     runtime: "06:42",
     client: "Self",
-    waveform: "▁▂▃▅▆▇█▇▆▅▃▁",
+    workLog: [0, 1, 2, 4, 5, 6, 7, 6, 5, 4, 2, 0],
     ended: "2025-12",
   },
   {
@@ -149,7 +159,7 @@ export const PIECES: Piece[] = [
     tags: ["brand", "ecommerce", "3d"],
     runtime: "08:24",
     client: "Gyeol",
-    waveform: "▁▂▃▅▇█████▆▃",
+    workLog: [0, 1, 2, 4, 6, 7, 7, 7, 7, 7, 5, 2],
     ended: "2026-04",
   },
 ];
