@@ -66,6 +66,16 @@ export interface Piece {
   workLog?: number[];
   /** YYYY-MM stamp — when work ended/shipped. Undefined → still wip. */
   ended?: string;
+  /**
+   * Multi-image preview cycle for the cursor-tracked preview. When
+   * the cursor lingers on a row for >800ms, the preview cycles
+   * through these images at ~1.2s per image. Each piece gets up to
+   * 4 fragments (concept + real-world + detail + context) so the
+   * hover becomes a teaser rather than a single cover. Borrowed
+   * from caverzasio.ch's multi-image project preview. Falls back
+   * to a single-image cycle when undefined.
+   */
+  previewImages?: string[];
 }
 
 /**
@@ -118,6 +128,12 @@ export const PIECES: Piece[] = [
     client: "Halo Halo!",
     workLog: [1, 3, 6, 7, 6, 5, 4, 2, 1, 0, 0, 0],
     ended: "2026-09",
+    previewImages: [
+      "/images/halo-halo/image-31.png", // product hero — packaging
+      "/images/halo-halo/image-20.png", // lifestyle — tote in the city
+      "/images/halo-halo/image-21.png", // typographic — printed menu
+      "/images/halo-halo/image-29.png", // architectural — storefront
+    ],
   },
   {
     slug: "sift",
@@ -161,5 +177,11 @@ export const PIECES: Piece[] = [
     client: "Gyeol",
     workLog: [0, 1, 2, 4, 6, 7, 7, 7, 7, 7, 5, 2],
     ended: "2026-04",
+    previewImages: [
+      "/images/gyeol-rain.webp",            // atmospheric — rain plate
+      "/images/gyeol-spring.webp",          // sunlit — yellow flowers
+      "/images/gyeol-green-tea.webp",       // tea-ceremony context
+      "/images/gyeol-display-hanji.webp",   // packaging detail
+    ],
   },
 ];

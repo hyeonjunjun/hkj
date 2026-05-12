@@ -50,9 +50,9 @@ function CaseStudyPage({ piece }: { piece: Piece }) {
         <header className="case__head">
           <p className="t-eyebrow case__eyebrow">
             <span>Work</span>
-            <span className="t-sep">·</span>
+            <span className="t-sep">/</span>
             <span className="tabular">{code}</span>
-            <span className="t-sep">·</span>
+            <span className="t-sep">/</span>
             <span className="tabular">{piece.year}</span>
           </p>
           <h1 className="t-display case__title">{piece.title}</h1>
@@ -126,7 +126,7 @@ function NotFound() {
     <main id="main" className="work-404">
       <p className="t-eyebrow work-404__eyebrow">
         <span>Work</span>
-        <span className="t-sep">·</span>
+        <span className="t-sep">/</span>
         <span>Not found</span>
       </p>
       <p className="t-prose work-404__body">

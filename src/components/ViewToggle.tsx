@@ -34,7 +34,7 @@ export default function ViewToggle({ value, onChange }: Props) {
         Grid
       </button>
       <span className="view-toggle__sep" aria-hidden>
-        ·
+        /
       </span>
       <button
         type="button"

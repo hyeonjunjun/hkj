@@ -12,11 +12,13 @@ import { PIECES } from "@/constants/pieces";
  * the natural folio gutter.
  *
  *   /                  (suppressed — home carries its own identity)
- *   /work              WORK · INDEX · {N}
- *   /work/[slug]       §{number} · {title}
- *   /studio            STUDIO · NEW YORK
+ *   /work              WORK / INDEX / {N}
+ *   /work/[slug]       §{number} / {title}
+ *   /studio            STUDIO / NEW YORK
  *   /contact           CONTACT
  *
+ * Slash-as-separator (borrowed from cathydolle.com's "01/ARD" pattern)
+ * reads as a quieter, more editorial join than the dot used elsewhere.
  * No JS work past the pathname read. Hidden when there is no resolvable
  * label rather than rendering an empty stamp.
  */
@@ -26,17 +28,17 @@ function resolveLabel(pathname: string | null): string | null {
   // caption; a corner stamp would duplicate signal. Folio kicks in on
   // every other route.
   if (pathname === "/") return null;
-  if (pathname === "/studio") return "STUDIO · NEW YORK";
+  if (pathname === "/studio") return "STUDIO / NEW YORK";
   if (pathname === "/contact") return "CONTACT";
   if (pathname === "/work") {
     const n = PIECES.length;
-    return `WORK · INDEX · ${String(n).padStart(2, "0")}`;
+    return `WORK / INDEX / ${String(n).padStart(2, "0")}`;
   }
   if (pathname.startsWith("/work/")) {
     const slug = pathname.slice("/work/".length);
     const piece = PIECES.find((p) => p.slug === slug && !p.placeholder);
     if (!piece) return null;
-    return `§${piece.number} · ${piece.title.toUpperCase()}`;
+    return `§${piece.number} / ${piece.title.toUpperCase()}`;
   }
   return null;
 }

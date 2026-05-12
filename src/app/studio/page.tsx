@@ -19,11 +19,8 @@ export default function StudioPage() {
         <p className="t-eyebrow">Studio</p>
         <h1 className="t-display studio__title">A studio of one.</h1>
         <p className="t-prose studio__lede">
-          ryan jun — design engineer based in new york. small studio,
-          independent practice. mostly between interface and identity
-          systems. work begins with editing — subtracting first,
-          composing what remains until the system reads as one
-          decision repeated.
+          ryan jun designs and engineers interface and identity —
+          one set of hands, sketch to deployment.
         </p>
       </header>
 
@@ -36,22 +33,17 @@ export default function StudioPage() {
         </header>
         <ol className="studio__list" role="list">
           <Note num="01" heading="Concept to code">
-            most engagements begin with editing. a product surface
-            that has accumulated affordances; a brand that has
-            outgrown its first marks; a small piece of typography
-            that never quite settled. the work is to subtract first,
-            then compose what remains.
+            most engagements begin with editing — subtract first, then
+            compose what remains until the system reads as one decision
+            repeated.
           </Note>
           <Note num="02" heading="Design and engineering">
-            the interface is shipped, not handed off. decisions about
-            typography, motion, and state are made in the same tool
-            that compiles them. a figure isn&apos;t styled in one
-            place and assembled in another.
+            the interface is shipped, not handed off. typography, motion,
+            and state are made in the same tool that compiles them.
           </Note>
           <Note num="03" heading="Quiet by design">
-            atmosphere lives in whitespace, type, and the photographs
-            — never in color-shift or theatrical framing. restraint
-            is the position, not the absence of one.
+            atmosphere lives in whitespace and type. never in color-shift
+            or theatrical framing.
           </Note>
         </ol>
       </section>
