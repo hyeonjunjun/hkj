@@ -821,13 +821,12 @@ function PlateMedia({
           animation: plate-media-fade 700ms var(--o-ease);
         }
 
-        /* Crop source watermarks on plate videos (e.g. the Veo stamp
-           in the bottom-right). Scale 1.22× + shift the video toward
-           upper-left so the bottom-right ~17% clips off the frame, the
-           top-left ~5% clips, and the rest of the composition stays
-           centered. The parent's overflow:hidden does the masking. */
+        /* Crop source watermarks on plate videos. Scale 1.22× from the
+           center — each edge clips ~11%. Symmetric crop (no translate)
+           so the composition stays centered in the frame. The parent's
+           overflow:hidden does the masking. */
         video.obys__plate-media {
-          transform: scale(1.22) translate(-6%, -6%);
+          transform: scale(1.22);
           transform-origin: center center;
         }
         @keyframes plate-media-fade {
