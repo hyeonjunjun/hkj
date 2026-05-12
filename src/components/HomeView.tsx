@@ -285,6 +285,12 @@ export default function HomeView({ pieces }: Props) {
                     {piece.number}
                   </span>
                   <span className="obys__setlist-title">{piece.title}</span>
+                  <span className="obys__setlist-meta tabular" aria-hidden>
+                    <span className="obys__setlist-arrow">↗</span>
+                    <span>{piece.year}</span>
+                    <span className="obys__setlist-sep">·</span>
+                    <span>{piece.status === "wip" ? "wip" : "shipped"}</span>
+                  </span>
                 </Link>
               </li>
             );
@@ -510,23 +516,81 @@ export default function HomeView({ pieces }: Props) {
           font-family: var(--font-stack-mono);
           font-size: clamp(13px, 1vw, 15px);
         }
+        /* Setlist row — compound hover state. Default: number + title
+           in --ink-3. Active: ink full, number scales up, hairline
+           draws underneath, meta (year · status) slides in inline. */
         .obys__setlist-link {
+          position: relative;
           display: grid;
-          grid-template-columns: 2ch 1fr;
-          column-gap: clamp(12px, 1.4vw, 22px);
+          grid-template-columns: 2ch 1fr auto;
+          column-gap: clamp(10px, 1.2vw, 18px);
           align-items: baseline;
+          padding-bottom: 3px;
           color: var(--o-ink-3);
           transition: color 200ms var(--o-ease);
         }
         .obys__setlist-link:hover,
         .obys__setlist-link[data-active] { color: var(--o-ink); }
+
+        /* Hairline rule under the active row — draws left-to-right. */
+        .obys__setlist-link::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: 1px;
+          background: var(--o-ink);
+          transform-origin: left center;
+          transform: scaleX(0);
+          transition: transform 280ms var(--o-ease);
+        }
+        .obys__setlist-link[data-active]::after {
+          transform: scaleX(1);
+        }
+
         .obys__setlist-num {
           font-variant-numeric: tabular-nums lining-nums;
           font-weight: 500;
+          display: inline-block;
+          transform-origin: left center;
+          transition: transform 240ms var(--o-ease);
         }
+        .obys__setlist-link[data-active] .obys__setlist-num {
+          transform: scale(1.12);
+        }
+
         .obys__setlist-title {
           font-weight: 500;
           letter-spacing: -0.005em;
+        }
+
+        /* Inline meta — year + status, with an upper-right arrow.
+           Hidden by default, slides in from -8px translateX on active.
+           Same baseline as the title; one step smaller. */
+        .obys__setlist-meta {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 0.4ch;
+          font-size: 0.82em;
+          color: var(--o-ink-3);
+          opacity: 0;
+          transform: translateX(-8px);
+          transition:
+            opacity 240ms var(--o-ease) 40ms,
+            transform 280ms var(--o-ease) 40ms;
+          white-space: nowrap;
+        }
+        .obys__setlist-link[data-active] .obys__setlist-meta {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .obys__setlist-arrow {
+          color: var(--o-ink);
+          margin-right: 0.2ch;
+        }
+        .obys__setlist-sep {
+          color: var(--o-ink-4);
         }
 
         /* CENTER — single active plate, clip-path wipe on key change */
