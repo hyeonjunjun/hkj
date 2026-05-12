@@ -226,7 +226,7 @@ export default function HomeView({ pieces }: Props) {
           <span>Ryan Jun</span>
           <sup className="obys__reg" aria-hidden>®</sup>
           <span className="obys__wordmark-cloud" aria-hidden>
-            <CloudGlyph size={10} />
+            <CloudGlyph size={7} />
           </span>
         </Link>
 
@@ -413,32 +413,38 @@ export default function HomeView({ pieces }: Props) {
         }
         .obys__wordmark {
           display: inline-flex;
-          align-items: flex-start;
+          align-items: baseline;
           color: var(--o-ink);
           font-family: var(--font-stack-sans);
           font-weight: 700;
-          font-size: clamp(22px, 2.6vw, 38px);
-          letter-spacing: -0.03em;
-          line-height: 0.95;
+          /* Match the nav cluster's size — wordmark sits alongside the
+             nav as a chrome element, still bold + uppercase so it reads
+             as the brand mark, just at nav scale. */
+          font-size: clamp(12px, 0.95vw, 14px);
+          letter-spacing: -0.01em;
+          line-height: 1;
           text-transform: uppercase;
           margin: 0;
-          gap: 0.08em;
+          gap: 0.2em;
         }
         .obys__reg {
-          font-size: 0.36em;
+          font-size: 0.7em;
           line-height: 1;
           margin-left: 0.1em;
-          margin-top: 0.2em;
           font-weight: 500;
           letter-spacing: 0;
+          vertical-align: super;
+          position: relative;
+          top: -0.15em;
         }
-        /* Pixel-cloud echo next to the wordmark — small, --ink-3 so
-           it reads as a subordinate stamp rather than competing with
-           the name. */
+        /* Pixel-cloud echo next to the wordmark — sized to match the
+           wordmark's cap height, dimmer ink so it reads as a stamp
+           rather than competing with the name. */
         .obys__wordmark-cloud {
           color: var(--o-ink-3);
-          margin-left: 0.5em;
-          margin-top: 0.55em;
+          margin-left: 0.4em;
+          display: inline-flex;
+          align-self: center;
           opacity: 0.75;
         }
 
