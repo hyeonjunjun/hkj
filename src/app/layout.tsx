@@ -3,7 +3,11 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
-import Frame from "@/components/Frame";
+import { Sitebar } from "@/components/chrome/Sitebar";
+import { Nav } from "@/components/chrome/Nav";
+import { Logo } from "@/components/chrome/Logo";
+import { CTAPill } from "@/components/chrome/CTAPill";
+import { BackButton } from "@/components/chrome/BackButton";
 import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
 import Preloader from "@/components/Preloader";
@@ -84,7 +88,11 @@ export default function RootLayout({
         <TransitionProvider>
           <RouteAnnouncer />
           <Preloader />
-          <Frame />
+          <Sitebar />
+          <Nav />
+          <Logo />
+          <CTAPill />
+          <BackButton />
           <TransitionCover />
           <main id="main" data-page-root>{children}</main>
           <Folio />
