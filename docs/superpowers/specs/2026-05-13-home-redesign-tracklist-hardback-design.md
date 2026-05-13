@@ -44,7 +44,9 @@ The recent brief evolution: the user has asked to move from BTS and Fred Again a
 - Sub-page redesigns. `/about`, `/contact`, `/notes`, `/work`, `/work/[slug]` stay as they are.
 - Real mock-up assets for the 4 concept pieces (e.g., hand-designed brand posters per concept). Future work — see "Out of scope" below.
 - Scroll-driven motion on `/`. Single-viewport stays.
-- New runtime dependencies. View Transitions is native; no GSAP, no Framer Motion, no Three.js for this pass.
+- New runtime dependencies. View Transitions is native; WebGL2 (used for the airflow cursor) is native. No GSAP, no Framer Motion, no Three.js, no fluid-sim library for this pass.
+- No multi-frame physics tuning UI or runtime sim parameter controls on the airflow cursor — constants (dissipation, viscosity, gust radius, color) are baked into the shader and the consumer cannot adjust them at runtime.
+- No mobile/touch airflow effect. Touch-primary devices intentionally get the OS cursor, no canvas, no replacement.
 
 ---
 
@@ -304,7 +306,7 @@ Today the toggle flips `data-theme="dark"` on `<html>`. New behavior: clicking t
     background: var(--wipe-paper-from);
     clip-path: circle(150% at var(--wipe-x) var(--wipe-y));
     animation: theme-wipe 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    z-index: 9000;             /* above PaperGrain, below cursor (z 10000) */
+    z-index: 9000;             /* above PaperGrain (z 5) and Frame (z 50); below airflow cursor canvas (z 9999) and Preloader (z 10000) */
     pointer-events: none;       /* clicks pass through to the toggle */
   }
   @keyframes theme-wipe {
@@ -313,7 +315,7 @@ Today the toggle flips `data-theme="dark"` on `<html>`. New behavior: clicking t
   ```
 
 - **Risks addressed:**
-  - **Z-index:** overlay at `9000` sits above page content, PaperGrain (z 5), and Frame (z 50); below cursor (z 10000) and Preloader (z 10000). Preloader runs only on first-visit, so no z-stack conflict in practice.
+  - **Z-index:** overlay at `9000` sits above page content, PaperGrain (z 5), and Frame (z 50); below the airflow cursor canvas (z 9999) and the Preloader (z 10000). Preloader runs only on first-visit, so no z-stack conflict in practice.
   - **Pointer-events:** `none` on the overlay — clicks pass through; the toggle itself stays responsive even mid-wipe.
   - **Re-entrancy (committed):** rapid second click cancels the in-flight wipe and restarts from the new click position. The handler clears the timeout, removes `[data-theme-wiping]`, forces a reflow (`void root.offsetWidth`), then re-adds the attribute to restart the CSS animation. Without the reflow the attribute-toggle is batched and the animation does not restart.
   - **FOUC on initial paint:** unchanged. The inline `<head>` script in `layout.tsx` already sets `data-theme` synchronously before paint. M3 only activates on user clicks.
@@ -330,9 +332,37 @@ The current row hover does a color shift, number scale, and hairline rule via `:
 - **LA28 interaction:** LA28's existing live amber pulse persists (whole row pulses opacity at 2.6s). The tonearm bar appears on hover regardless of `wip` status; on LA28 the bar reads as an extension of the pulse.
 - **Reduced motion:** `transition: none`; the bar appears at full scale immediately on hover.
 
-**M5. Cursor wake.**
+**M5. Airflow cursor (WebGL2).**
 
-Existing speed-line cursor wake stays. No changes.
+Replaces the existing speed-line cursor wake. A fullscreen WebGL2 canvas runs a three-pass fluid simulation: cursor motion injects directional velocity + perpendicular swirl into a flow field; the field advects, diffuses, and dissipates each frame; a render pass samples the flow and draws an atmospheric shimmer (FBM noise stretched along flow direction, layered for interference, with subtle directional streak lines). At rest, the field decays to zero — the effect only appears under motion.
+
+This is the signature creative-web move. Editorial restraint at first paint, technical density on interaction.
+
+- **Scope:** site-wide. Mounted in `layout.tsx`, persists across all routes. The OS cursor is hidden via `body { cursor: none }` applied conditionally (only when the canvas is created).
+- **Visual character per theme:**
+  - Dark theme: cool blue-white shimmer (`vec3(0.75, 0.92, 1.0)`) → pure white at peak velocity. Matches the cool off-white ink register.
+  - Light theme: ink shimmer using the resolved `--ink` token (approximately `vec3(0.05, 0.04, 0.04)` — the off-black ink color, not literal pure black, so it harmonizes with the rest of the system). Same alpha curve as dark, just inverted color stop. Single shader uniform `uTint` updated via MutationObserver on `data-theme`; same observer pattern ThemeToggle already uses.
+- **Z-index:** `9999` (above content). Canvas is alpha-blended; content beneath shows through; only the shimmer is opaque. The cursor effect reads as a true cursor, not an atmospheric backdrop.
+- **Guard rails (all gate canvas creation; if any fails, the OS cursor stays visible and no canvas is added to the DOM):**
+  - `matchMedia('(pointer: fine)').matches` — only on devices with a precise pointer; touch-primary devices get nothing.
+  - `matchMedia('(prefers-reduced-motion: reduce)').matches` — reduced-motion users get nothing.
+  - WebGL2 context availability — graceful no-op on browsers without support.
+- **Performance:**
+  - Simulation runs at 0.5× display resolution; DPR capped at 1.5. At 1440×900 → sim at 720×450 → ~324K texels per pass × 3 passes/frame = ~58M texels/sec at 60fps. Well within any modern GPU.
+  - RGBA16F float textures (ping-pong) hold the flow field.
+  - Render shader early-exits with `discard`-equivalent (`fragColor = vec4(0); return;`) for static areas where the flow field is zero — saves fillrate when nothing is moving.
+  - `Page Visibility API`: `requestAnimationFrame` loop pauses when tab is hidden.
+  - `IntersectionObserver`: secondary pause when the canvas scrolls out of view (defensive — canvas is `position: fixed` so this rarely fires, included per implementation reference).
+  - `powerPreference: 'low-power'` on context creation — battery-conscious.
+- **Shader passes** (all GLSL ES 3.00):
+  - *Inject:* writes a gaussian velocity burst at cursor position (radius ~0.07 UV) plus a perpendicular swirl (radius ~0.035) for rotational eddies. The swirl is signed left/right of the cursor's travel direction — this is what makes the effect read as "air" rather than "water."
+  - *Advect & diffuse:* semi-Lagrangian backward trace along the velocity field (×14 texel scale), Jacobi-style diffusion mixing with cardinal neighbors at 0.10 viscosity, dissipation at 0.975 per frame.
+  - *Render:* FBM (5 octaves) stretched along flow direction (3× along axis, 0.35× perpendicular = thin streaks), three noise layers at offset scales mixed for shimmer, optional high-frequency directional streak overlay (`pow(fract(proj * 120 + time * 2.5), 10)`) gated by velocity magnitude > 0.03, mask gated by `smoothstep(0, 0.05, velMag)` so static regions are fully transparent.
+- **No new runtime dependency.** WebGL2 is browser-native. Total new code is one component file (`AirflowCursor.tsx`) with embedded GLSL strings.
+- **Reduced motion:** the entire effect is skipped. No canvas is created, no GPU work happens, and `document.body.style.cursor = "none"` is **never applied** — the OS cursor stays as the only cursor indicator. This is also the intentional fallback for touch-only devices and browsers without WebGL2 support. A reduced-motion desktop user gets no cursor effect at all (no airflow, no replacement speed-line).
+- **Hybrid pointer devices (touchscreen laptops, iPad with trackpad):** these report `pointer: fine`, so the canvas mounts. Touch events also inject velocity into the simulation at touch points — known acceptable behavior; not a bug to fix.
+- **Theme listener lifecycle:** the MutationObserver is created once in the component's mount effect (empty dependency array). Since `AirflowCursor` mounts at the layout root, it persists across all SPA navigation. The observer is torn down only if the entire page unmounts (full reload).
+- **View Transition interaction with M1:** the airflow canvas carries no `view-transition-name`, so it is not captured by M1's plate VT. The canvas continues animating uninterrupted during the 380ms slice wipe.
 
 ---
 
@@ -340,7 +370,7 @@ Existing speed-line cursor wake stays. No changes.
 
 ### New / changed
 
-- **`src/components/HomeView.tsx`** (changed)
+- **`src/components/HomeView.tsx`** (changed — covers composition + M1/M2 setup + speed-line removal)
   - Split the setlist render loop into two passes: SIDE A (case-study) and SIDE B (personal). Use `piece.category` to partition.
   - Add SIDE A / SIDE B eyebrow labels with hairline rule between.
   - Personal rows render with dimmer ink classes and indent — CSS-only, no new component.
@@ -348,6 +378,7 @@ Existing speed-line cursor wake stays. No changes.
   - The center plate frame branches on `piece.cover` to render either the existing media plate or `<ConceptPlate piece={piece} />`. The frame element (single shared parent) carries `view-transition-name: plate` — one static name, not per-slug.
   - Wrap the hover-driven `setActiveSlug` call in `document.startViewTransition(() => setActiveSlug(next))` when the API is available; fall back to a plain state update otherwise. The startViewTransition wrapper is what makes M1 actually run — the `view-transition-name` alone does nothing without an explicit transition call.
   - On mount, add a `[data-initial-render]` attribute to `<html>` (or to HomeView's root) and remove it after 1500ms via `setTimeout`. This attribute gates M2 — see ConceptPlate notes.
+  - **Remove the existing speed-line cursor wake** (state refs, rAF loop, `obys__cursor`/`obys__cursor-line` JSX, related CSS). The airflow cursor at the layout level supersedes it entirely. The `cursorTo`/`cursorLeave` body-attribute handlers can stay — they encode hover state for potential future use, even if the speed-line consumer is gone.
 
 - **`src/components/ConceptPlate.tsx`** (new, ~60 lines)
   - Single-purpose component: renders the typographic plate for a piece without media. Inputs: `piece`. Outputs: a framed plate with code, status, title (per-letter spans), sector lockup.
@@ -365,6 +396,18 @@ Existing speed-line cursor wake stays. No changes.
   - Add `html[data-theme-wiping]::before` pseudo-element overlay with the `theme-wipe` keyframe (M3).
   - Add the per-letter title `letter-rise` keyframe, scoped under `:where([data-initial-render])` so it only runs during the first 1500ms (M2).
   - Add reduced-motion overrides for all new motion (animation: none on the VT pseudo-elements, instant theme swap on `[data-theme-wiping]`, instant final state on letter-rise).
+
+- **`src/components/AirflowCursor.tsx`** (new, ~500 lines including GLSL)
+  - Client component. Mounts once at `layout.tsx`. Encapsulates the WebGL2 setup, shader compilation, render loop, theme listener, and teardown.
+  - **Guard rails on mount:** check `matchMedia('(pointer: fine)')`, `matchMedia('(prefers-reduced-motion: reduce)')`, and WebGL2 availability. If any fails, return `null` — no canvas created, no `cursor: none`.
+  - **Theme listener:** `MutationObserver` on `<html>` watching `data-theme`; updates a `uTint` uniform on the render shader. Cleans up on unmount.
+  - **Performance gating:** `Page Visibility API` + `IntersectionObserver` pause the `requestAnimationFrame` loop when the page is hidden or the canvas is offscreen. Resume on visibility restore.
+  - **DPR + sim resolution:** display canvas at `devicePixelRatio` capped at 1.5; simulation textures at 0.5× display.
+  - **`cursor: none` application:** sets `document.body.style.cursor = "none"` only after canvas is in the DOM. Restored on unmount.
+  - GLSL is per the reference implementation provided — three passes (inject, advect+diffuse, render), RGBA16F ping-pong textures, full-screen triangle-strip quad, low-power context.
+
+- **`src/app/layout.tsx`** (changed)
+  - Add `<AirflowCursor />` mounted next to `<Frame />`, `<Folio />`, etc. — site-wide presence. No props.
 
 ### Unchanged
 
@@ -425,15 +468,17 @@ This is a frontend visual change. Verification is primarily manual:
 2. **Visual check, light theme** — load `/`, verify SIDE A / SIDE B split renders, all 7 rows fit in one viewport, personal rows render dimmer, concept plates show typographic treatment, LA28/Sift/Gyeol still show image plates.
 3. **Visual check, dark theme** — toggle, verify same as above with inverted ground.
 4. **Motion check** — hover (or keyboard-focus) each setlist row, verify the plate slice wipe fires on every active-slug change, the row's tonearm bar slides in on hover/focus and collapses on exit. The per-letter title reveal only fires on initial page load — confirm it on first paint and verify it does NOT re-fire on subsequent row hovers (intentional).
-5. **Theme wipe** — click the theme toggle from different positions on the page, verify the wipe radiates from the click point.
-6. **Reduced motion** — toggle `prefers-reduced-motion` in devtools or OS, verify all motion becomes instant.
-7. **Mobile (≤640px)** — verify the stack layout renders, no horizontal overflow, SIDE A / SIDE B labels remain.
-8. **Existing tests** — `npx vitest run` should still pass; no test file is being changed.
+
+5. **Airflow cursor check** — on a desktop browser with a mouse, verify the OS cursor is hidden and the WebGL shimmer follows pointer motion site-wide. Move slowly: subtle streaks. Move fast: visible directional shimmer with perpendicular swirl. Hold still 1s: field decays to invisible. Switch theme: shimmer color flips between cool-white (dark) and ink (light) within one frame. On a touch device or with reduced-motion enabled: the OS cursor remains visible, no canvas exists in the DOM (`document.querySelector('canvas#airflow-canvas')` returns null). Perf verification: open Chrome DevTools Performance panel and confirm the rAF loop stays under ~3ms per frame on integrated graphics. Safari verification by visual smoothness only (no per-canvas GPU metric exposed in DevTools).
+6. **Theme wipe** — click the theme toggle from different positions on the page, verify the wipe radiates from the click point.
+7. **Reduced motion** — toggle `prefers-reduced-motion` in devtools or OS, verify all motion becomes instant and no airflow canvas is created.
+8. **Mobile (≤640px)** — verify the stack layout renders, no horizontal overflow, SIDE A / SIDE B labels remain, OS cursor unchanged (touch device → no airflow canvas).
+9. **Existing tests** — `npx vitest run` should still pass; no test file is being changed.
 
 Cross-browser:
-- Chrome / Edge / Arc (Chromium 111+): full motion experience.
-- Safari 18+: full motion experience (same-document View Transitions are stable).
-- Firefox (no VT support as of 2026): plate swap is **instant** (no slice, no fade — the code path skips `document.startViewTransition` when undefined). Theme wipe is instant. All other motion (cursor wake, per-letter reveal on initial mount, tonearm hover) works since they're CSS animations.
+- Chrome / Edge / Arc (Chromium 111+): full motion experience including M1 (VT slice) and M5 (airflow cursor).
+- Safari 18+: full motion experience (same-document View Transitions are stable; WebGL2 fully supported).
+- Firefox (no VT support as of 2026): **M5 airflow cursor runs fully** (WebGL2 works in Firefox). Only **M1 plate swap is instant** — no slice, no fade, the code path skips `document.startViewTransition` when undefined. **M3 theme wipe is instant**. All other motion (per-letter reveal on initial mount, tonearm hover) works since they're CSS animations.
 
 ---
 
@@ -462,11 +507,12 @@ When the implementation plan is written from this spec, the recommended order is
 1. **SIDE A / SIDE B split** — composition change, no new components. Smallest change, biggest perceived hierarchy win.
 2. **ConceptPlate component** — typographic plate without motion. Makes concept rows feel intentional immediately.
 3. **M2 per-letter title reveal** — adds motion to ConceptPlate.
-4. **M1 plate slice transition** — View Transition on plate swap.
-5. **M4 tonearm row hover** — refine existing row hover.
-6. **M3 radial theme-toggle wipe** — cinematic theme event.
+4. **M5 airflow cursor** — promoted in the order because it's the signature creative-web move; landing it earlier means the page reads as itself even if later motion polish slips. Largest single piece of new code (~500 lines incl. GLSL), but isolated to one new component + a `layout.tsx` mount.
+5. **M1 plate slice transition** — View Transition on plate swap.
+6. **M4 tonearm row hover** — refine existing row hover.
+7. **M3 radial theme-toggle wipe** — cinematic theme event.
 
-Each step ships independently; each step is visually verifiable. M5 (cursor wake) is already shipped.
+Each step ships independently; each step is visually verifiable.
 
 ---
 
@@ -475,6 +521,8 @@ Each step ships independently; each step is visually verifiable. M5 (cursor wake
 - All 7 setlist pieces visible in one viewport with clear case-study / personal hierarchy.
 - Zero "In development" placeholders on the home — every concept piece reads as intentional via the typographic plate.
 - At least three of M1–M4 motion moves shipped and verifiable on hover/click.
-- Light and dark themes both render coherently.
-- `prefers-reduced-motion` honored across all new motion.
+- M5 airflow cursor active site-wide on desktop with mouse; absent on touch / reduced-motion / no-WebGL2.
+- Light and dark themes both render coherently, including the airflow shimmer color flip.
+- `prefers-reduced-motion` honored across all new motion (no airflow canvas, no plate slice, no theme wipe, no letter-rise).
 - Build clean, no regression in existing pages or sub-page route transitions.
+- No new runtime dependency (WebGL2 is browser-native).
