@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { PIECES } from "@/constants/pieces";
 import { computeSlot } from "./carouselSlot";
+import { ConceptPlate } from "./ConceptPlate";
 
 const COUNT = PIECES.length;
 
@@ -134,18 +135,6 @@ function CardFace({ piece }: { piece: (typeof PIECES)[number] }) {
       />
     );
   }
-  // Concept piece placeholder — replaced by ConceptPlate in Chunk 6
-  return (
-    <div
-      className="t-meta dim"
-      style={{
-        position: "absolute",
-        inset: 0,
-        display: "grid",
-        placeItems: "center",
-      }}
-    >
-      Concept plate (chunk 6)
-    </div>
-  );
+  // Concept piece: typographic plate
+  return <ConceptPlate piece={piece} />;
 }
