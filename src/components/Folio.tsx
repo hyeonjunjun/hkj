@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { PIECES } from "@/constants/pieces";
+import { NOTES } from "@/constants/notes";
 
 /**
  * Folio — fixed bottom-right page stamp, 9px Geist Mono, --ink-4.
@@ -15,6 +16,7 @@ import { PIECES } from "@/constants/pieces";
  *   /work              WORK / INDEX / {N}
  *   /work/[slug]       §{number} / {title}
  *   /about             ABOUT / NEW YORK
+ *   /notes             NOTES / {N}
  *   /contact           CONTACT
  *
  * Slash-as-separator (borrowed from cathydolle.com's "01/ARD" pattern)
@@ -29,6 +31,10 @@ function resolveLabel(pathname: string | null): string | null {
   // every other route.
   if (pathname === "/") return null;
   if (pathname === "/about") return "ABOUT / NEW YORK";
+  if (pathname === "/notes") {
+    const n = NOTES.length;
+    return `NOTES / ${String(n).padStart(2, "0")}`;
+  }
   if (pathname === "/contact") return "CONTACT";
   if (pathname === "/work") {
     const n = PIECES.length;

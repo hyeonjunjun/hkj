@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { CONTACT_EMAIL } from "@/constants/contact";
+import { NOTES } from "@/constants/notes";
 
 /**
  * /about — multidisciplinary practice, in the home's mono register.
@@ -70,6 +72,23 @@ export default function AboutPage() {
         </dl>
       </section>
 
+      <hr className="t-rule" />
+
+      <footer className="about__further">
+        <Link href="/notes" className="about__further-link">
+          <span className="t-section">Read</span>
+          <span className="about__further-label">
+            recent studio notes{" "}
+            <span className="t-meta dim about__further-count">
+              {String(NOTES.length).padStart(2, "0")}
+            </span>
+          </span>
+          <span className="about__further-arrow" aria-hidden>
+            ↗
+          </span>
+        </Link>
+      </footer>
+
       <style>{`
         .about {
           padding: clamp(80px, 12vh, 140px) var(--margin-page) clamp(56px, 8vh, 96px);
@@ -128,11 +147,46 @@ export default function AboutPage() {
         }
         .about__email:hover { background-size: 100% 1px; }
 
+        .about__further {
+          display: flex;
+          align-items: baseline;
+        }
+        .about__further-link {
+          display: grid;
+          grid-template-columns: clamp(80px, 12vw, 120px) 1fr auto;
+          column-gap: clamp(20px, 3vw, 40px);
+          align-items: baseline;
+          width: 100%;
+          color: var(--ink);
+          transition: opacity 200ms var(--ease);
+        }
+        .about__further-link:hover { opacity: 0.7; }
+        .about__further-label {
+          font-family: var(--font-stack-mono);
+          font-size: var(--type-meta);
+          letter-spacing: var(--track-loosest);
+          text-transform: lowercase;
+          color: var(--ink);
+        }
+        .about__further-count {
+          margin-left: 6px;
+        }
+        .about__further-arrow {
+          font-family: var(--font-stack-mono);
+          font-size: var(--type-meta);
+          color: var(--ink-3);
+          letter-spacing: 0;
+        }
+
         @media (max-width: 720px) {
           .about { row-gap: clamp(32px, 5vh, 56px); }
           .about__ledger {
             grid-template-columns: 1fr;
             row-gap: 12px;
+          }
+          .about__further-link {
+            grid-template-columns: 1fr auto;
+            row-gap: 6px;
           }
         }
       `}</style>

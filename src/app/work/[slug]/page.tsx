@@ -42,7 +42,12 @@ function CaseStudyPage({ piece }: { piece: Piece }) {
 
   const editorial = EDITORIAL[piece.slug];
   const code = String(piece.order).padStart(2, "0");
-  const status = piece.status === "wip" ? "in progress" : "shipped";
+  const status =
+    piece.status === "wip"
+      ? "in progress"
+      : piece.status === "concept"
+        ? "concept"
+        : "shipped";
 
   return (
     <main id="main">

@@ -291,7 +291,7 @@ export default function HomeView({ pieces }: Props) {
                     <span className="obys__setlist-arrow">↗</span>
                     <span>{piece.year}</span>
                     <span className="obys__setlist-sep">·</span>
-                    <span>{piece.status === "wip" ? "wip" : "shipped"}</span>
+                    <span>{piece.status}</span>
                   </span>
                 </Link>
               </li>
@@ -353,7 +353,11 @@ export default function HomeView({ pieces }: Props) {
               </div>
               <div className="obys__meta-row obys__meta-row--alt">
                 <span>
-                  {active.status === "wip" ? "In progress" : "Shipped"}
+                  {active.status === "wip"
+                    ? "In progress"
+                    : active.status === "concept"
+                      ? "Concept"
+                      : "Shipped"}
                 </span>
                 <span className="obys__meta-num tabular">{active.number}</span>
               </div>
