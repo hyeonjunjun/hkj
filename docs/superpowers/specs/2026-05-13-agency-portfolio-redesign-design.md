@@ -405,7 +405,7 @@ Sequence (offsets are measured from the moment IntroAnimation actually starts, p
    - Sitebar: `width: 0` (invisible).
    - Cards: `scale: 0.96`, `filter: blur(6px) saturate(0)`, `opacity: 0.4`.
    - Bottom bar: `opacity: 0`.
-2. **0.0s** — Sitebar animates `width: 0 → calc(100% - 2 * var(--margin-page))` over **0.9s**, ease `power3.inOut`.
+2. **0.0s** — Sitebar reveals via `clip-path: inset(0 100% 0 0) → inset(0 0% 0 0)` over **0.9s**, ease `power3.inOut`. (Implementation note: clip-path is used instead of `width: 0 → calc(...)` because the Sitebar uses simultaneous `left` + `right` positioning, and animating `width` against both anchors produces undefined geometry. clip-path achieves the same visible left-to-right reveal effect with stable positioning.)
 3. **0.9s** — Sitebar inner text reveals via `clip-path: inset(0 0 0 100%) → inset(0 0 0 0%)` per text node over **0.5s**, ease `expo.inOut`. CSS animation, no GSAP.
 4. **1.0s** — Cards animate to final state: `scale: 1`, `filter: blur(0) saturate(1)`, `opacity: 1`. Staggered 80ms per card (3 visible cards = last starts at 1.16s, ends 1.86s). Each card takes 0.7s, ease `power2.out`.
 5. **1.3s** — Bottom bar fades in: `opacity: 0 → 1` over **0.5s** (ends 1.8s).
