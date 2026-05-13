@@ -7,6 +7,8 @@ import Frame from "@/components/Frame";
 import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
 import Preloader from "@/components/Preloader";
+import { TransitionProvider } from "@/components/transition/TransitionProvider";
+import { TransitionCover } from "@/components/transition/TransitionCover";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyeonjunjun.com"),
@@ -79,12 +81,15 @@ export default function RootLayout({
         <a href="#main" className="skip-to-content">
           Skip to content
         </a>
-        <RouteAnnouncer />
-        <Preloader />
-        <Frame />
-        <main id="main" data-page-root>{children}</main>
-        <Folio />
-        <PaperGrain />
+        <TransitionProvider>
+          <RouteAnnouncer />
+          <Preloader />
+          <Frame />
+          <TransitionCover />
+          <main id="main" data-page-root>{children}</main>
+          <Folio />
+          <PaperGrain />
+        </TransitionProvider>
       </body>
     </html>
   );
