@@ -62,7 +62,10 @@
      stack for any rare component that opts out of mono (almost
      nothing should). The mono-only commitment is enforced by
      the type scale below: every role is mono-styled. */
-  --font-stack-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  /* Departure Mono leads the mono stack — subtle dot-matrix character
+     that pairs with the pixel-coded register (favicon, theme toggle).
+     Geist Mono is the fallback before system mono kicks in. */
+  --font-stack-mono: "Departure Mono", var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
   --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
 
   /* ── Type scale ──────────────────────────────────────────

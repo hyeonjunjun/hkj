@@ -51,6 +51,22 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Departure Mono — the chrome typeface. Subtle dot-matrix
+            character pairs with the pixel-coded register (favicon
+            monogram, theme toggle). Geist Mono stays as fallback. */}
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Departure+Mono&display=swap"
+        />
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         {/* Skip link is the first focusable element — ahead of the

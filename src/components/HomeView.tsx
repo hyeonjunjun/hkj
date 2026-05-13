@@ -37,49 +37,6 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 type Props = { pieces: Piece[] };
 
-// ─── Cloud pixel monogram ─────────────────────────────────────────
-// Same 8×5 silhouette as /app/icon.tsx and /app/opengraph-image.tsx.
-// One mark, repeated across surfaces, so the cloud reads as the
-// studio's signature wherever it appears.
-const CLOUD: ReadonlyArray<ReadonlyArray<0 | 1>> = [
-  [0, 0, 1, 1, 1, 1, 0, 0],
-  [0, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1],
-  [0, 1, 1, 1, 1, 1, 1, 0],
-];
-
-function CloudGlyph({ size = 14 }: { size?: number }) {
-  // 8 columns × 5 rows. Width follows the column count so the
-  // pixel shape stays square at any rendered size.
-  const w = (size * 8) / 5;
-  return (
-    <svg
-      width={w}
-      height={size}
-      viewBox="0 0 8 5"
-      aria-hidden
-      style={{ display: "inline-block", verticalAlign: "middle" }}
-    >
-      {CLOUD.flatMap((row, y) =>
-        row.map((cell, x) =>
-          cell ? (
-            <rect
-              key={`${x}-${y}`}
-              x={x}
-              y={y}
-              width="1"
-              height="1"
-              fill="currentColor"
-              shapeRendering="crispEdges"
-            />
-          ) : null,
-        ),
-      )}
-    </svg>
-  );
-}
-
 function splitSector(sector: string): { category: string; disciplines: string } {
   const parts = sector.split("·").map((s) => s.trim()).filter(Boolean);
   return {
@@ -231,9 +188,6 @@ export default function HomeView({ pieces }: Props) {
         >
           <span>Ryan Jun</span>
           <sup className="obys__reg" aria-hidden>®</sup>
-          <span className="obys__wordmark-cloud" aria-hidden>
-            <CloudGlyph size={7} />
-          </span>
         </Link>
 
         <div className="obys__topnav">
@@ -372,24 +326,20 @@ export default function HomeView({ pieces }: Props) {
         </aside>
       </section>
 
-      {/* ─── BOTTOM ROW — philosophy + cloud mark + copyright ─── */}
+      {/* ─── BOTTOM ROW — philosophy + copyright ─── */}
       <footer className="obys__bottom">
         <span className="obys__philosophy">
           <span className="obys__philosophy-active">design</span>, build, write
-        </span>
-        <span className="obys__bottom-cloud" aria-hidden>
-          <CloudGlyph size={9} />
         </span>
         <span className="obys__copyright">
           All rights reserved. ©{new Date().getFullYear()} Ryan Jun
         </span>
       </footer>
 
-      {/* ─── Custom cursor — pixel cloud that follows the pointer ─── */}
+      {/* ─── Custom cursor — placeholder pixel dot. The trail variation
+          will build on top of this base position marker. ─── */}
       <div ref={cursorRef} className="obys__cursor" aria-hidden>
-        <div className="obys__cursor-mark">
-          <CloudGlyph size={6} />
-        </div>
+        <div className="obys__cursor-dot" />
       </div>
 
       <style>{`
@@ -462,17 +412,6 @@ export default function HomeView({ pieces }: Props) {
           position: relative;
           top: -0.15em;
         }
-        /* Pixel-cloud echo next to the wordmark — sized to match the
-           wordmark's cap height, dimmer ink so it reads as a stamp
-           rather than competing with the name. */
-        .obys__wordmark-cloud {
-          color: var(--o-ink-3);
-          margin-left: 0.4em;
-          display: inline-flex;
-          align-self: center;
-          opacity: 0.75;
-        }
-
         .obys__topnav {
           justify-self: end;
           display: grid;
@@ -704,7 +643,7 @@ export default function HomeView({ pieces }: Props) {
         /* ─── BOTTOM ROW ─── */
         .obys__bottom {
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          grid-template-columns: 1fr auto;
           align-items: baseline;
           font-family: var(--font-stack-sans);
           font-size: clamp(11px, 0.85vw, 13px);
@@ -717,22 +656,16 @@ export default function HomeView({ pieces }: Props) {
           text-decoration-thickness: 1px;
           text-underline-offset: 3px;
         }
-        /* Cloud echo in the footer center — same mark as the wordmark
-           and the favicon. Subordinate tint. */
-        .obys__bottom-cloud {
-          color: var(--o-ink-4);
-          justify-self: center;
-        }
         .obys__copyright {
           color: var(--o-ink-3);
           justify-self: end;
         }
 
-        /* ─── Custom cursor — pixel cloud ───────────────────────
-           The cloud monogram IS the cursor. Same 8×5 silhouette as
-           the favicon/OG card/wordmark stamp. Sized 6px tall at rest,
-           scales up via integer steps on link/media hover. Edges stay
-           crisp via shape-rendering: crispEdges on each rect. */
+        /* ─── Custom cursor — placeholder pixel dot ────────────
+           A small square (no border-radius) at the cursor position.
+           Scales on link/media hover. This is the base position
+           marker; a trail variation will layer on top once picked.
+           Sharp edges via image-rendering: pixelated on the parent. */
         .obys__cursor {
           position: fixed;
           top: 0;
@@ -742,29 +675,32 @@ export default function HomeView({ pieces }: Props) {
           pointer-events: none;
           z-index: 9999;
           will-change: transform;
-        }
-        .obys__cursor-mark {
-          position: absolute;
-          /* Translate-from-center: SVG width is size*8/5, height is
-             size. For size=6 that's ~10px × 6px. Offset by half to
-             center the mark on the cursor's tracked position. */
-          left: -5px;
-          top: -3px;
-          color: var(--o-ink);
           image-rendering: pixelated;
-          transform-origin: center center;
-          transform: scale(1);
-          transition: transform 200ms var(--o-ease);
         }
-        body[data-cursor="link"] .obys__cursor-mark {
-          /* Integer scale = stays pixel-crisp. 1.667 ≈ 10/6 (cloud
-             goes from 6px tall to ~10px tall on link hover). */
-          transform: scale(1.667);
+        .obys__cursor-dot {
+          position: absolute;
+          left: -2px;
+          top: -2px;
+          width: 4px;
+          height: 4px;
+          background: var(--o-ink);
+          transition:
+            width 200ms var(--o-ease),
+            height 200ms var(--o-ease),
+            left 200ms var(--o-ease),
+            top 200ms var(--o-ease);
         }
-        body[data-cursor="media"] .obys__cursor-mark {
-          /* 2x scale on media hover — cloud reads as 12px tall, big
-             enough to feel like "zoom in" without dominating. */
-          transform: scale(2);
+        body[data-cursor="link"] .obys__cursor-dot {
+          width: 8px;
+          height: 8px;
+          left: -4px;
+          top: -4px;
+        }
+        body[data-cursor="media"] .obys__cursor-dot {
+          width: 12px;
+          height: 12px;
+          left: -6px;
+          top: -6px;
         }
         @media (pointer: coarse) {
           .obys__cursor { display: none; }
