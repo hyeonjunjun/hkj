@@ -410,6 +410,22 @@ a {
   }
 }
 
+/* ─── Pre-intro state ────────────────────────────────────────────────────
+   Pin pre-intro state on first session-load until GSAP fromTo() takes
+   over. Prevents a flash of full-width Sitebar / fully-saturated cards
+   between paint and animation start. */
+html.intro-pending .sitebar {
+  clip-path: inset(0 100% 0 0);
+}
+html.intro-pending .carousel__card {
+  opacity: 0.4;
+  filter: blur(6px) saturate(0);
+  transform: scale(0.96);
+}
+html.intro-pending .home__bottom {
+  opacity: 0;
+}
+
 /* ─── Skip link (a11y) ───────────────────────────────────────────────────── */
 .skip-to-content {
   position: absolute;
