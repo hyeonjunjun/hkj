@@ -46,7 +46,7 @@ The user provided a detailed input document describing the architectural pattern
 
 1. **Single-viewport home (desktop).** No scroll on `/`. The card carousel + chrome + bottom bar all fit in `h-svh`.
 2. **Chrome layer reads as one system.** Sitebar, CTA pill, nav, logo, back button share a typographic register (mono, micro caps, tabular nums) and a positional grammar (corner-anchored, fixed, low-distraction).
-3. **Cover transition makes navigation feel cinematic without being slow.** Total cover+reveal time ≤ 2.5s per route change. The cover sequence is the brand's "scene change."
+3. **Cover transition makes navigation feel cinematic without being slow.** Cover phase ≤ 2.1s, reveal phase ≤ 1.3s, total round-trip per route change ≤ 3.5s (including Next's render time). The cover sequence is the brand's "scene change."
 4. **Intro animation lands on first visit only.** Once per session, gated by `sessionStorage`. Subsequent navigations skip directly to the page-reveal portion of the transition.
 5. **Concept pieces (4 of 5 case-studies have no media) render with intent, not as broken placeholders.** Each concept card face is a typographic plate inside the carousel frame — carries forward the ConceptPlate idea from the prior spec.
 6. **Light and dark themes both work.** Chrome elements, cover overlay, and card faces all theme-aware via existing tokens.
@@ -148,16 +148,18 @@ Visual treatment:
 - The "calendar icon" is a 12×12 SVG inlined in the component. Single stroke, current color.
 - Action on click: `mailto:` link using `CONTACT_EMAIL` from existing `src/constants/contact.ts`. Plain `<a>` tag, not a TransitionLink — leaves the site to the mail client.
 
+**Theme intent (both themes).** The pill always renders in the inverse register: in light theme it's a near-black pill against a warm-paper ground; in dark theme it's a cool off-white pill against a pure-black ground. This is intentional — the pill is meant to read as a contrasted "tab" attached to the screen edge in both themes. The same inverted-pill pattern applies to the Sitebar and BackButton for visual coherence. If a more nuanced (less contrasted) treatment is wanted, that's an open decision for a future pass.
+
 ### Back button (top-left, conditional)
 
-Appears only when `pathname !== "/"`. Replaces the visible position of the Sitebar's left text on sub-pages — the Sitebar's left column drops its wordmark when the BackButton is present so they don't visually compete.
+Appears only when `pathname !== "/"`.
 
-- Behavior: clicking fires `startTransition("/")` — uses the cover-transition system to return to the home, NOT `window.history.back()`. This guarantees a clean transition from any sub-page.
-- Visual treatment: pill style matching the Sitebar register.
+- **Behavior:** clicking fires `startTransition("/")` — uses the cover-transition system to return to the home, NOT `window.history.back()`. This guarantees a clean transition from any sub-page.
+- **Visual treatment:** pill style matching the Sitebar register.
   - Background: `--ink`, foreground: `--paper`.
   - Content: `← INDEX` (arrow glyph + uppercase label, mono micro caps).
-  - Position: `position: fixed; top: var(--margin-page); left: var(--margin-page);` — same anchor as the existing Frame mark used.
-- Conditional render: handled by reading `usePathname()` in the component; returns `null` on `/`.
+- **Geometry resolution.** The Sitebar pill is full-width along the top edge. The BackButton would otherwise overlap the Sitebar's left third. Resolution: when `pathname !== "/"`, the Sitebar emits a left-padding "reserve slot" matching the BackButton's width + gap (~120px on desktop), and drops its left-column wordmark text. The BackButton sits inside that reserved slot. The BackButton is at `z-51` (one above the Sitebar's `z-50`) so any antialiasing edges remain crisp. On mobile (≤640px), the Sitebar collapses to a single line and the BackButton replaces the Sitebar's left text entirely.
+- **Conditional render:** handled by reading `usePathname()` in the component; returns `null` on `/`. The Sitebar reads the same pathname to decide whether to emit the left-pad reserve slot.
 
 ### ThemeToggle (top-right, inside Nav cluster)
 
@@ -195,13 +197,34 @@ The home (`/`) renders as a single viewport. Composition:
 
 ### The carousel
 
-A 3-card row centered vertically in the available space between chrome top and bottom bar. Each card is a DOM element with CSS 3D perspective applied.
+The carousel visualizes the catalog (7 pieces total: 5 case-study + 2 personal) through a **3-slot frame**: center (dominant), left (off-center), right (off-center). Only 3 cards are visually present at any time; the other 4 are hidden but still in the DOM.
 
-- **Center card (dominant):** larger, full opacity, sharp focus. Aspect ratio `4 / 5` (portrait), max width `28vw`.
-- **Side cards (off-center):** smaller (~70% scale), translated outward, slightly rotated (`rotateY(±8deg)`), reduced opacity (~0.55), reduced contrast. Aspect ratio matches the center card.
-- The active piece is the center card. Clicking on a side card slides it into the center position (CSS transform transitions, 480ms `cubic-bezier(0.22, 1, 0.36, 1)` — same easing the site already uses).
-- Keyboard: left/right arrow keys rotate the carousel. Tab focus moves through cards.
-- Default active piece: `pieces[0]` (LA28).
+**DOM model:** 7 absolutely-positioned `<article>` elements (one per piece), all children of the carousel container. Each card carries an inline CSS custom property `--slot` that controls its position. The slot value is computed as `(pieceIndex - activeIndex + 7) % 7` and represents the card's position relative to the active piece. Slot 0 = center, slot 1 = right-offset, slot 6 = left-offset, slots 2-5 = hidden (off-screen, `opacity: 0`, `pointer-events: none`).
+
+```
+piece index:   0   1   2   3   4   5   6
+activeIndex=0: 0   1   2   3   4   5   6   ← slots
+              CTR R  hide hide hide hide  L
+activeIndex=2: 5   6   0   1   2   3   4   ← slots
+              hide L  CTR R  hide hide hide
+```
+
+CSS uses `--slot` to drive transforms via a single rule with conditional values (or per-slot data attributes, equivalent). All cards transition the same `transform` and `opacity` properties:
+
+- Slot 0 (center): `transform: translateX(0) scale(1) rotateY(0); opacity: 1;`
+- Slot 1 (right): `transform: translateX(60%) scale(0.7) rotateY(-8deg); opacity: 0.55;`
+- Slot 6 (left): `transform: translateX(-60%) scale(0.7) rotateY(8deg); opacity: 0.55;`
+- Slots 2-5 (hidden): `transform: translateX(120%) scale(0.4); opacity: 0; pointer-events: none;`
+
+Transitions: `transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 480ms`. Same easing the site already uses.
+
+**Navigation:**
+- Click a visible side card → it becomes active. `setActiveIndex(pieceIndex)`.
+- Left/right arrow keys → `setActiveIndex((activeIndex ± 1 + 7) % 7)`. The carousel wraps; left from piece 0 wraps to piece 6.
+- Tab focus moves through all 7 `<article>` elements in DOM order; focused-but-not-active pieces are reachable but not rendered visually (`opacity: 0`).
+- Default active: `pieces[0]` (LA28).
+
+**Aspect:** each card frame is `aspect-ratio: 4 / 5` (portrait), max width `28vw`.
 
 ### Card face rendering
 
@@ -268,20 +291,37 @@ State values: `"idle" | "covering" | "exiting"`. Default: `"idle"`.
 ### TransitionProvider
 
 A client component at the app root. Owns:
-- `phase` state.
-- `pendingPath` state.
-- A `disposers` ref (`Map<string, () => void>`) — components can register cleanup callbacks (rAF loops, observers, etc.) that fire during the `exiting` phase before the new route mounts.
+- `phase: "idle" | "covering" | "exiting"` state. Default `"idle"`.
+- `pendingPath: string | null` state.
+- `isTransitioning: boolean` — derived as `phase !== "idle"`. Exposed in the context value so consumers don't have to compute it.
+- A `disposers` ref (`Map<string, () => void>`) — components can register cleanup callbacks (rAF loops, observers, etc.) that fire during `onCoverComplete` before the new route mounts. First v1 consumer: `IntroAnimation` registers its in-flight GSAP timeline so a mid-intro navigation kills it cleanly before the page swaps. Additional consumers (carousel rAF if added, etc.) can register later.
 - `startTransition(path)` — entry point used by TransitionLink and BackButton.
-- `onCoverComplete()` — called by TransitionCover when the cover phase finishes. Runs disposers, then calls `router.push(pendingPath)` and sets phase to `"exiting"`.
+- `onCoverComplete()` — called by TransitionCover when the cover phase finishes. Runs disposers in order, then calls `router.push(pendingPath)` and sets phase to `"exiting"`.
 - `onExitComplete()` — called by TransitionCover when the reveal phase finishes. Resets phase to `"idle"`.
 - Re-entrancy guard: `startTransition` no-ops if `phase !== "idle"`.
+
+**Exposed context contract:**
+```ts
+type TransitionContextValue = {
+  phase: "idle" | "covering" | "exiting";
+  isTransitioning: boolean;
+  pendingPath: string | null;
+  startTransition: (path: string) => void;
+  onCoverComplete: () => void;
+  onExitComplete: () => void;
+  registerDisposer: (key: string, fn: () => void) => void;
+  unregisterDisposer: (key: string) => void;
+};
+```
+
+**Hook name:** `useRouteTransition` (the project hook). Avoids name collision with React 19's built-in `useTransition` from `react`. The file is `src/components/transition/useRouteTransition.ts`.
 
 ### TransitionCover
 
 A full-bleed element at `z-100`, hidden by default (`visibility: hidden`), made visible only during the `covering` and `exiting` phases.
 
 Three internal layers:
-1. **Page-content layer** — not in TransitionCover itself; this is the root `{children}` slot which the cover animates *against* (scale, blur, opacity).
+1. **Page-content layer** — not in TransitionCover itself; this is the page content slot. Targeted by GSAP via a **stable selector `[data-page-root]`** placed on a `<main>` wrapper around `{children}` in `layout.tsx`. The selector is the explicit target — never use "body's first element" or similar fragile querySelectors, since the body's actual first element depends on chrome mount order.
 2. **Border layer** — a `div` with `border-style: solid; border-color: var(--ink); border-width: 0`. Animates to `border-width: 12vh` during the cover phase, creating a "frame closing inward" effect.
 3. **Fill layer** — a `div` with `height: 0%`, `background: var(--ink)`. Animates to `height: 100%` rising from the bottom, then back to `0%` during reveal.
 
@@ -293,21 +333,21 @@ The cover animation is a single `gsap.timeline()` with the cover sequence offset
 
 **Cover phase** (the page exits, cover comes in). Targets, properties, and offsets calibrated to this site's existing 380-600ms motion vocabulary — *not* reproduced from any third-party reference:
 
-- Page content + canvas: `scale: 1 → 0.96`, `filter: blur(0) → blur(6px)`, `opacity: 1 → 0.5` over **0.9s**, ease `power2.in`, offset `+0s`.
-- Border div: `border-width: 0 → 12vh` over **0.8s**, ease `expo.inOut`, offset `+0.3s`.
-- Fill div: `height: 0% → 100%` over **0.8s**, ease `expo.inOut`, offset `+0.5s`.
-- Hold at full cover: **0.4s**.
+- Page content (`[data-page-root]`): `scale: 1 → 0.96`, `filter: blur(0) → blur(6px)`, `opacity: 1 → 0.5` over **0.9s**, ease `power2.in`, offset `+0s` (ends at 0.9s).
+- Border div: `border-width: 0 → 12vh` over **0.8s**, ease `expo.inOut`, offset `+0.3s` (ends at 1.1s).
+- Fill div: `height: 0% → 100%` over **0.8s**, ease `expo.inOut`, offset `+0.5s` (ends at 1.3s).
+- Hold at full cover: **0.8s** (no animation; pure GSAP `.to({}, { duration: 0.8 })` for timeline pacing).
 
-Total cover duration: ~2.1s before `onCoverComplete()` fires. Snappier than the input reference because this site's existing motion vocabulary trends faster (the prior plate VT was 380ms, the prior theme wipe was 600ms — restraint is the brand).
+Total cover duration: **2.1s** before `onCoverComplete()` fires. The `onCoverComplete` callback is attached to the *hold tween's* `onComplete` — the last tween in the timeline — guaranteeing the fill layer is fully opaque (100% height) before disposers run and `router.push` is called. This is snappier than the input reference because this site's existing motion vocabulary trends faster (the prior plate VT was 380ms, the prior theme wipe was 600ms — restraint is the brand).
 
 **Reveal phase** (the new page appears, cover leaves):
-- Fill div: `height: 100% → 0%` over **0.7s**, ease `expo.inOut`, offset `+0.2s`.
-- Border div: `border-width: 12vh → 0` over **0.7s**, ease `expo.inOut`, offset `+0.4s`.
-- Page content: `scale: 0.96 → 1`, `filter: blur(6px) → blur(0)`, `opacity: 0.5 → 1` over **0.9s**, ease `power2.out`, offset `+0.4s`.
+- Fill div: `height: 100% → 0%` over **0.7s**, ease `expo.inOut`, offset `+0.2s` (ends at 0.9s).
+- Border div: `border-width: 12vh → 0` over **0.7s**, ease `expo.inOut`, offset `+0.4s` (ends at 1.1s).
+- Page content (`[data-page-root]`): `scale: 0.96 → 1`, `filter: blur(6px) → blur(0)`, `opacity: 0.5 → 1` over **0.9s**, ease `power2.out`, offset `+0.4s` (ends at 1.3s).
 
-Total reveal duration: ~1.4s before `onExitComplete()` fires.
+Total reveal duration: **1.3s** before `onExitComplete()` fires. The `onExitComplete` callback is attached to the page-content tween's `onComplete` — the longest path in the reveal timeline.
 
-Total round-trip per navigation: ~3.5s including Next's render time. Sub-pages return to home via the BackButton flow through the same timeline.
+Total round-trip per navigation: ~3.5s (cover 2.1s + Next render ≤0.1s + reveal 1.3s). Sub-pages return to home via the BackButton flow through the same timeline.
 
 ### TransitionLink
 
@@ -315,7 +355,7 @@ A thin wrapper around `<Link>` from `next/link` that intercepts the click and ro
 
 ```tsx
 function TransitionLink({ to, children, ...props }) {
-  const { startTransition, isTransitioning } = useTransition();
+  const { startTransition, isTransitioning } = useRouteTransition();
   const pathname = usePathname();
   const isActive = pathname === to;
 
@@ -323,6 +363,8 @@ function TransitionLink({ to, children, ...props }) {
     <Link
       href={to}
       onClick={(e) => {
+        // Allow modifier-key clicks to behave as native (open in new tab, etc.)
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
         if (!isTransitioning && !isActive) startTransition(to);
       }}
@@ -335,7 +377,7 @@ function TransitionLink({ to, children, ...props }) {
 }
 ```
 
-The `<Link>` `href` is preserved so right-click "Open in new tab" / "Copy link" still works. Only left-click is intercepted.
+The `<Link>` `href` is preserved so right-click "Open in new tab" / "Copy link" still works. Only un-modified left-clicks are intercepted.
 
 ### Why a custom state machine over native View Transitions
 
@@ -351,27 +393,36 @@ Native View Transitions can't deliver this exact sequence (border + fill + page-
 
 Gated by `sessionStorage.getItem("rj-intro-played")`. If absent, plays once and writes the flag.
 
-Sequence:
+**Preloader handoff.** The existing `Preloader.tsx` runs its own first-visit curtain (separate `sessionStorage` key, ~2.8s). The IntroAnimation must not start while the Preloader is still on screen.
+
+Handoff mechanism:
+- Preloader dispatches `window.dispatchEvent(new CustomEvent("rj-preloader-done"))` when its fade-out finishes.
+- IntroAnimation's mount effect listens for that event. If the Preloader's `sessionStorage` flag is already set on mount (i.e., this isn't a first visit), IntroAnimation runs immediately. Otherwise it waits up to 4s for the event before starting (timeout fallback in case the Preloader was skipped for any reason).
+- Both sessionStorage flags (`rj-curtain-shown` and `rj-intro-played`) are independent. First visit: Preloader runs, then Intro runs. Second visit: neither runs.
+
+Sequence (offsets are measured from the moment IntroAnimation actually starts, post-Preloader):
 1. Page mounts with chrome elements in their initial states:
    - Sitebar: `width: 0` (invisible).
    - Cards: `scale: 0.96`, `filter: blur(6px) saturate(0)`, `opacity: 0.4`.
    - Bottom bar: `opacity: 0`.
 2. **0.0s** — Sitebar animates `width: 0 → calc(100% - 2 * var(--margin-page))` over **0.9s**, ease `power3.inOut`.
 3. **0.9s** — Sitebar inner text reveals via `clip-path: inset(0 0 0 100%) → inset(0 0 0 0%)` per text node over **0.5s**, ease `expo.inOut`. CSS animation, no GSAP.
-4. **1.0s** — Cards animate to final state: `scale: 1`, `filter: blur(0) saturate(1)`, `opacity: 1`. Staggered 80ms per card. Each card takes 0.7s, ease `power2.out`.
-5. **1.3s** — Bottom bar fades in: `opacity: 0 → 1` over **0.5s**.
+4. **1.0s** — Cards animate to final state: `scale: 1`, `filter: blur(0) saturate(1)`, `opacity: 1`. Staggered 80ms per card (3 visible cards = last starts at 1.16s, ends 1.86s). Each card takes 0.7s, ease `power2.out`.
+5. **1.3s** — Bottom bar fades in: `opacity: 0 → 1` over **0.5s** (ends 1.8s).
 
-Total intro: ~2.0s before page is fully interactive.
+Total intro: ~**1.86s** before page is fully interactive (longest path: cards).
 
 Reduced-motion: skip the entire intro, render everything at final state immediately. Still writes the `sessionStorage` flag (so the user doesn't get the intro on a future toggle of their preference).
+
+**Disposer integration.** IntroAnimation registers its GSAP timeline via `registerDisposer("intro", () => timeline.kill())` on mount. If the user clicks a nav link mid-intro, `startTransition` runs and `onCoverComplete` (when it fires) calls the disposer, killing the intro timeline cleanly before navigation completes.
 
 ---
 
 ## Concept piece face — typographic plate
 
-When a card's piece has `cover === undefined`, the card renders a `<ConceptPlate>` instead of an image. This component is the only behavioral carryover from the retired Tracklist Hardback spec.
+When a card's piece has `cover === undefined`, the card renders a `<ConceptPlate>` instead of an image. The full component composition is described below — no need to read prior (superseded) docs.
 
-Composition (same as prior spec):
+Composition:
 - Top-left: `§NN` (t-code, tabular).
 - Top-right: status (t-meta) — typically "concept" for this set.
 - Middle: title at `clamp(60px, 7vw, 120px)`, uppercase, weight 500, mono, tracking `-0.04em`, line-height `0.95`. Renders wrapped at word boundaries; `overflow-wrap: anywhere` allows a long word to break.
@@ -402,9 +453,9 @@ All chrome elements and the cover overlay use theme-token colors:
 
 Every motion move has a static fallback:
 
-- **Cover transition under reduced-motion:** the `covering` phase still happens (so disposers fire and Next navigation runs) but the GSAP timeline duration drops to 100ms total per phase. The cover briefly appears as a flash, the route changes, the reveal flashes off. Functional, low-motion.
-- **Intro animation under reduced-motion:** entire intro skipped, elements render at final state immediately.
-- **Carousel rotation:** transitions drop to 100ms (still animated but near-instant).
+- **Cover transition under reduced-motion:** the state-machine semantics are **preserved end-to-end** — the timeline still runs, `onCoverComplete` still fires, disposers still run, `router.push(pendingPath)` still happens, `onExitComplete` still fires, `phase` returns to `"idle"`. Only the *visible* animation collapses: the cover timeline becomes a single `gsap.to(fillRef, { height: "100%", duration: 0.1 })` with `onComplete: onCoverComplete`, and the reveal timeline becomes a single `gsap.to(fillRef, { height: "0%", duration: 0.1 })` with `onComplete: onExitComplete`. The page-content blur/scale/opacity tweens are skipped entirely. Visual outcome: a brief 100ms ink flash on each route change, no choreography.
+- **Intro animation under reduced-motion:** entire intro skipped, elements render at final state immediately. `sessionStorage` flag is still written (so toggling reduce-motion later doesn't re-run the intro).
+- **Carousel rotation:** transitions drop to `0.01ms` via the existing `@media (prefers-reduced-motion: reduce)` global rule. Active piece swap is instant.
 - **Marquee ticker:** static (CSS `animation-play-state: paused`).
 - **Wordmark morph between routes** (existing View Transitions feature): unchanged behavior; native VT honors reduced-motion already.
 
@@ -424,9 +475,9 @@ Screen readers:
 
 ## Browser support
 
-- **Chromium 111+ / Edge 111+ / Arc:** full motion.
-- **Safari 18+:** full motion (Next View Transitions for wordmark morph; GSAP for cover; CSS for everything else — all supported).
-- **Firefox:** full motion (GSAP is browser-agnostic; no native VT dependency for the cover animation). The wordmark morph between routes degrades to instant in Firefox via the existing fallback. Everything else works.
+- **Chromium 111+ / Edge 111+ / Arc:** full motion. GSAP cover transition, native VT wordmark morph, all CSS animations.
+- **Safari 18+:** GSAP cover transition works; CSS animations work. The native VT wordmark morph between routes requires Safari 18.2+ for stable same-document VT integration with Next's experimental flag — on Safari 18.0-18.1, the wordmark morph degrades to instant swap (acceptable). Next 16's `experimental.viewTransition` is still flagged as experimental upstream; behavior may shift in future Next releases.
+- **Firefox:** GSAP cover transition runs identically (GSAP is browser-agnostic). CSS animations work. The wordmark morph between routes degrades to instant in Firefox via the existing `if (document.startViewTransition)` guard. Everything else works.
 
 ---
 
@@ -435,17 +486,17 @@ Screen readers:
 ### New files
 
 - **`src/components/transition/TransitionProvider.tsx`** (~100 lines).
-  Context provider with the phase state machine. Consumes `useRouter` from `next/navigation`. Exposes `startTransition`, `onCoverComplete`, `onExitComplete`, `registerDisposer`, `unregisterDisposer`. Throws if `useTransition` called outside the provider.
+  Context provider with the phase state machine. Consumes `useRouter` from `next/navigation`. Exposes `startTransition`, `onCoverComplete`, `onExitComplete`, `registerDisposer`, `unregisterDisposer`. Throws if `useRouteTransition` is called outside the provider.
 
 - **`src/components/transition/TransitionCover.tsx`** (~150 lines).
-  The cover overlay element. Owns the GSAP timelines (cover phase + reveal phase). Subscribes to `phase` from context: when phase becomes `"covering"`, plays the cover timeline; when phase becomes `"exiting"`, plays the reveal timeline. Calls `onCoverComplete` / `onExitComplete` from timeline `onComplete`.
-  Internal refs: `borderRef`, `fillRef`. No `pageContentRef` — the timeline targets the body's first element (which is the page content) via a query selector; safer than threading a ref through the layout tree.
+  The cover overlay element. Owns the GSAP timelines (cover phase + reveal phase). Subscribes to `phase` from context: when phase becomes `"covering"`, plays the cover timeline; when phase becomes `"exiting"`, plays the reveal timeline. Calls `onCoverComplete` / `onExitComplete` from the appropriate timeline `onComplete` (hold tween for cover, page-content tween for reveal).
+  Internal refs: `borderRef`, `fillRef`. The page-content tween targets `[data-page-root]` (the `<main>` wrap in layout.tsx) via a stable selector — never the body's first element.
 
 - **`src/components/transition/TransitionLink.tsx`** (~30 lines).
   Wraps `next/link`'s `Link`. Intercepts click, calls `startTransition`. Active-route detection via `usePathname`.
 
-- **`src/components/transition/useTransition.ts`** (~10 lines).
-  Hook that consumes the context.
+- **`src/components/transition/useRouteTransition.ts`** (~10 lines).
+  Hook that consumes the context. Named `useRouteTransition` (not `useTransition`) to avoid name collision with React 19's built-in `useTransition` from `react`. Throws if called outside the provider.
 
 - **`src/components/chrome/Sitebar.tsx`** (~120 lines).
   The top pill. Three columns: wordmark+discipline (left), live clock+date (center), availability (right). Live clock uses `setInterval` at 60s, cleaned up on unmount.
@@ -483,6 +534,7 @@ Screen readers:
   - Wrap `<html>` body content in `<TransitionProvider>`.
   - Mount chrome fixtures: `<Sitebar />`, `<Nav />`, `<Logo />`, `<BackButton />`, `<CTAPill />`. Remove the existing `<Frame />`.
   - Mount `<TransitionCover />` at z-100 (above everything except the Preloader at z-10000).
+  - **Wrap `{children}` in `<main data-page-root>{children}</main>`** so the TransitionCover GSAP timeline can target a stable selector. The `data-page-root` attribute is the single source of truth for what gets blur/scale/opacity-animated during a transition.
   - Keep `<Folio />`, `<PaperGrain />`, `<Preloader />`, `<RouteAnnouncer />`.
   - Keep the existing theme init script in `<head>`.
   - Mount `<IntroAnimation />` at the body root (no DOM, only effects).
@@ -522,29 +574,27 @@ Screen readers:
 
 ## Implementation order
 
-Each step ships independently and is visually verifiable.
+Each step ships independently and is visually verifiable. **Reduced-motion overrides are written inline as part of every step that introduces motion**, not deferred to a final step — a step is not "done" until both the full-motion and reduced-motion paths work.
 
-1. **TransitionProvider + TransitionCover + TransitionLink scaffolding.** No visible behavior yet — provider mounted, cover invisible. Verify the state machine ticks through phases when `startTransition` is called manually (devtools).
+1. **TransitionProvider + TransitionCover + TransitionLink scaffolding.** No visible behavior yet — provider mounted, cover invisible. Verify the state machine ticks through phases when `startTransition` is called manually (devtools). Includes the `<main data-page-root>{children}</main>` wrap in layout.tsx.
 
-2. **Wire BackButton + Nav links to use TransitionLink.** Now route changes run through the state machine but with no animation. Verify navigation still works end-to-end.
+2. **Wire BackButton + Nav links to use TransitionLink.** Route changes run through the state machine but with no animation. Verify navigation still works end-to-end. The existing `Frame.tsx` is still in place at this step — chrome replacement happens in step 4.
 
-3. **GSAP cover timeline.** The cover overlay actually animates. Verify cover-then-reveal sequence renders correctly on each route change.
+3. **GSAP cover timeline + reduced-motion fallback.** The cover overlay animates against `[data-page-root]`. The existing `Frame.tsx` chrome is still rendered above the cover (z-50 below cover's z-100, so visually correct). Includes the reduced-motion code path (single 100ms tween, state-machine preserved). Verify cover-then-reveal sequence renders correctly on each route change; verify reduced-motion path is functional and disposers still fire.
 
-4. **Sitebar + Logo + CTAPill + BackButton positioning.** Chrome fixtures in place, theme-aware, but static (no intro).
+4. **Chrome replacement: Sitebar + Logo + Nav + CTAPill + BackButton.** Removes `Frame.tsx`. The new chrome layer replaces the existing top frame across all routes. Theme-aware (light/dark via existing tokens). Static at this step — no intro animation yet. Verify all routes render with the new chrome and no visual regressions.
 
-5. **Replace HomeView with IndexCarousel (image faces only first).** The home renders 3 cards with media pieces (LA28, Sift, Gyeol); concept pieces render placeholder text until step 6.
+5. **Replace HomeView with IndexCarousel (image faces only first).** The home renders the 7-piece carousel (3-slot frame), image pieces (LA28, Sift, Gyeol) render real media; the 4 concept pieces render a temporary placeholder pending step 6. Includes the reduced-motion override for carousel transitions (instant swap). Keyboard navigation (arrow keys, Tab) works.
 
-6. **ConceptPlate card faces.** The 4 concept pieces now render typographic plates inside the carousel frames.
+6. **ConceptPlate card faces.** The 4 concept pieces now render typographic plates inside the carousel frames per §"Concept piece face" below.
 
-7. **DisciplineTicker + tagline bottom bar.** The home's bottom strip is complete.
+7. **DisciplineTicker + tagline bottom bar.** The home's bottom strip is complete. Includes reduced-motion override (marquee paused).
 
-8. **Crosshair lines decoration.** Subtle background detail.
+8. **Crosshair lines decoration.** Subtle background detail. No motion.
 
-9. **IntroAnimation.** First-session entrance choreography lands.
+9. **IntroAnimation + Preloader handoff.** First-session entrance choreography lands. Includes reduced-motion path (intro skipped, final state immediate, sessionStorage still written). Verify on first session-load that the Preloader handoff event fires correctly and the intro waits for it.
 
-10. **Reduced-motion overrides** across the cover timeline, intro, and carousel.
-
-Steps 1-4 are foundational; the page is navigable + cinematic after step 3. Steps 5-7 build the visible home. Steps 8-9 are polish. Step 10 is non-optional but goes last because it's cleanest to write the overrides once all the motion is in place.
+Steps 1-4 are foundational; the page is navigable + cinematic after step 3 (and chrome lands in step 4 without breaking transitions). Steps 5-7 build the visible home. Steps 8-9 are polish. Each step lands reduced-motion as it lands its motion.
 
 ---
 
