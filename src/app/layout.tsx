@@ -82,7 +82,7 @@ export default function RootLayout({
         <RouteAnnouncer />
         <Preloader />
         <Frame />
-        {children}
+        <main id="main" data-page-root>{children}</main>
         <Folio />
         <PaperGrain />
       </body>
