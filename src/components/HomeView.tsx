@@ -148,11 +148,16 @@ export default function HomeView({ pieces }: Props) {
     let raf = 0;
     const tick = () => {
       const p = cursorPos.current;
-      const k = 0.18;
+      const k = 0.22;
       p.tx += (p.x - p.tx) * k;
       p.ty += (p.y - p.ty) * k;
       if (cursorRef.current) {
-        cursorRef.current.style.transform = `translate3d(${p.tx}px, ${p.ty}px, 0)`;
+        // Snap to a 2px grid so the cursor moves in stepped pixel
+        // increments rather than subpixel-smooth — gives the cursor
+        // an 8-bit "pixel-coded" feel that matches the cloud mark.
+        const sx = Math.round(p.tx / 2) * 2;
+        const sy = Math.round(p.ty / 2) * 2;
+        cursorRef.current.style.transform = `translate3d(${sx}px, ${sy}px, 0)`;
       }
       raf = requestAnimationFrame(tick);
     };
@@ -372,9 +377,11 @@ export default function HomeView({ pieces }: Props) {
         </span>
       </footer>
 
-      {/* ─── Custom cursor — fixed, follows the pointer ─── */}
+      {/* ─── Custom cursor — pixel cloud that follows the pointer ─── */}
       <div ref={cursorRef} className="obys__cursor" aria-hidden>
-        <div className="obys__cursor-ring" />
+        <div className="obys__cursor-mark">
+          <CloudGlyph size={6} />
+        </div>
       </div>
 
       <style>{`
@@ -422,12 +429,12 @@ export default function HomeView({ pieces }: Props) {
           align-items: baseline;
           color: var(--o-ink);
           font-family: var(--font-stack-sans);
-          font-weight: 700;
-          /* Match the nav cluster's size — wordmark sits alongside the
-             nav as a chrome element, still bold + uppercase so it reads
-             as the brand mark, just at nav scale. */
+          /* Normal weight — wordmark sits flat alongside the nav as
+             one chrome element. Uppercase + 0 tracking still signal
+             "brand mark", but it no longer outweighs the nav. */
+          font-weight: 400;
           font-size: clamp(12px, 0.95vw, 14px);
-          letter-spacing: -0.01em;
+          letter-spacing: 0.02em;
           line-height: 1;
           text-transform: uppercase;
           margin: 0;
@@ -705,7 +712,11 @@ export default function HomeView({ pieces }: Props) {
           justify-self: end;
         }
 
-        /* ─── Custom cursor ─── */
+        /* ─── Custom cursor — pixel cloud ───────────────────────
+           The cloud monogram IS the cursor. Same 8×5 silhouette as
+           the favicon/OG card/wordmark stamp. Sized 6px tall at rest,
+           scales up via integer steps on link/media hover. Edges stay
+           crisp via shape-rendering: crispEdges on each rect. */
         .obys__cursor {
           position: fixed;
           top: 0;
@@ -716,40 +727,28 @@ export default function HomeView({ pieces }: Props) {
           z-index: 9999;
           will-change: transform;
         }
-        .obys__cursor-ring {
+        .obys__cursor-mark {
           position: absolute;
-          left: -10px;
-          top: -10px;
-          width: 20px;
-          height: 20px;
-          border: 1px solid var(--o-ink);
-          border-radius: 999px;
-          background: transparent;
-          transition:
-            width 240ms var(--o-ease),
-            height 240ms var(--o-ease),
-            left 240ms var(--o-ease),
-            top 240ms var(--o-ease),
-            background-color 240ms var(--o-ease),
-            border-color 240ms var(--o-ease);
+          /* Translate-from-center: SVG width is size*8/5, height is
+             size. For size=6 that's ~10px × 6px. Offset by half to
+             center the mark on the cursor's tracked position. */
+          left: -5px;
+          top: -3px;
+          color: var(--o-ink);
+          image-rendering: pixelated;
+          transform-origin: center center;
+          transform: scale(1);
+          transition: transform 200ms var(--o-ease);
         }
-        /* Hover-state changes driven by body[data-cursor] attribute,
-           set by onMouseEnter handlers on interactive elements. */
-        body[data-cursor="link"] .obys__cursor-ring {
-          width: 36px;
-          height: 36px;
-          left: -18px;
-          top: -18px;
-          border-color: var(--o-ink);
-          background: rgba(0, 0, 0, 0.04);
+        body[data-cursor="link"] .obys__cursor-mark {
+          /* Integer scale = stays pixel-crisp. 1.667 ≈ 10/6 (cloud
+             goes from 6px tall to ~10px tall on link hover). */
+          transform: scale(1.667);
         }
-        body[data-cursor="media"] .obys__cursor-ring {
-          width: 56px;
-          height: 56px;
-          left: -28px;
-          top: -28px;
-          border-color: var(--o-ink);
-          background: rgba(0, 0, 0, 0.03);
+        body[data-cursor="media"] .obys__cursor-mark {
+          /* 2x scale on media hover — cloud reads as 12px tall, big
+             enough to feel like "zoom in" without dominating. */
+          transform: scale(2);
         }
         @media (pointer: coarse) {
           .obys__cursor { display: none; }
