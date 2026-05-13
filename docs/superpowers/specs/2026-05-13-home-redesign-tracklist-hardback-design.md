@@ -1,7 +1,7 @@
 # Home redesign — Tracklist Hardback
 
 **Date:** 2026-05-13
-**Status:** Design (draft, pre-implementation)
+**Status:** SUPERSEDED on 2026-05-13 by [2026-05-13-agency-portfolio-redesign-design.md](2026-05-13-agency-portfolio-redesign-design.md). User said "tracklist dead for now" — direction shifted to an agency-portfolio register. This document is preserved in case the Tracklist Hardback returns; do not implement from it without re-approval.
 **Author:** Ryan Jun (with Claude)
 **Scope:** Refine the home page (`/`) of the personal portfolio. No changes to sub-pages or sub-page architecture.
 
