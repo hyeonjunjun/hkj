@@ -21,6 +21,14 @@ import { useEffect, useState } from "react";
 const SESSION_KEY = "rj-curtain-shown";
 const TOTAL_MS = 2800;
 
+// Sticky flag visible across the module + window so any consumer can
+// read it synchronously without waiting for the rj-preloader-done event.
+function markPreloaderDone() {
+  if (typeof window === "undefined") return;
+  (window as unknown as { __rjPreloaderDone?: boolean }).__rjPreloaderDone = true;
+  window.dispatchEvent(new CustomEvent("rj-preloader-done"));
+}
+
 // Cloud-shape sparse grid. Hand-laid: rows × cols of characters.
 // Empty space = ' '; chars cluster to suggest cumulus + drift.
 const CLOUD: ReadonlyArray<string> = [
@@ -63,9 +71,13 @@ export default function Preloader() {
 
     // Bail-out paths just return — phase stays "idle" which renders
     // null. No setState needed for hiding; the early-exit is enough.
-    if (sessionStorage.getItem(SESSION_KEY)) return;
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      markPreloaderDone();
+      return;
+    }
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       sessionStorage.setItem(SESSION_KEY, "1");
+      markPreloaderDone();
       return;
     }
 
@@ -77,6 +89,7 @@ export default function Preloader() {
     const fadeAt = setTimeout(() => setPhase("fade"), TOTAL_MS - 600);
     const doneAt = setTimeout(() => {
       sessionStorage.setItem(SESSION_KEY, "1");
+      markPreloaderDone();
       setPhase("done");
     }, TOTAL_MS);
 
