@@ -96,8 +96,16 @@ export default function HomeView({ pieces }: Props) {
   // Hidden on touch devices. Hidden when prefers-reduced-motion. The
   // cursor's hover-state changes are driven by `data-cursor-state`
   // attribute set on body via onMouseEnter handlers.
+  //
+  // Direction-aware "speed-line wake": behind the cursor dot, a 1-2px
+  // line extends in the direction opposite to velocity, length scaled
+  // by cursor speed. The wake is a separate element rotated each
+  // frame; velocity is smoothed via lerp so the line doesn't jitter
+  // on micro-movements.
   const cursorRef = useRef<HTMLDivElement | null>(null);
+  const cursorLineRef = useRef<HTMLDivElement | null>(null);
   const cursorPos = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
+  const cursorVel = useRef({ vx: 0, vy: 0 });
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -107,16 +115,42 @@ export default function HomeView({ pieces }: Props) {
     const tick = () => {
       const p = cursorPos.current;
       const k = 0.22;
+      const prevTx = p.tx;
+      const prevTy = p.ty;
       p.tx += (p.x - p.tx) * k;
       p.ty += (p.y - p.ty) * k;
+
+      // Velocity = per-frame change in smoothed position. We lerp the
+      // velocity vector itself so direction changes smoothly rather
+      // than snapping. Lerp factor 0.25 — fast enough to feel
+      // responsive, slow enough to ride out micro-jitter.
+      const targetVx = p.tx - prevTx;
+      const targetVy = p.ty - prevTy;
+      const v = cursorVel.current;
+      v.vx += (targetVx - v.vx) * 0.25;
+      v.vy += (targetVy - v.vy) * 0.25;
+
       if (cursorRef.current) {
         // Snap to a 2px grid so the cursor moves in stepped pixel
-        // increments rather than subpixel-smooth — gives the cursor
-        // an 8-bit "pixel-coded" feel that matches the cloud mark.
+        // increments — pixel-coded feel that matches the Departure
+        // Mono and pixel-square dot.
         const sx = Math.round(p.tx / 2) * 2;
         const sy = Math.round(p.ty / 2) * 2;
         cursorRef.current.style.transform = `translate3d(${sx}px, ${sy}px, 0)`;
       }
+
+      // Speed-line wake: width = speed × scale (clamped). Rotation =
+      // velocity angle + 180° so the line points OPPOSITE to motion
+      // (cursor leads, line trails behind). Below a small threshold
+      // the line collapses to 0 width.
+      if (cursorLineRef.current) {
+        const speed = Math.sqrt(v.vx * v.vx + v.vy * v.vy);
+        const length = speed < 0.45 ? 0 : Math.min(speed * 4.5, 44);
+        const angleDeg = (Math.atan2(v.vy, v.vx) * 180) / Math.PI;
+        cursorLineRef.current.style.width = `${length}px`;
+        cursorLineRef.current.style.transform = `rotate(${angleDeg + 180}deg)`;
+      }
+
       raf = requestAnimationFrame(tick);
     };
 
@@ -336,9 +370,12 @@ export default function HomeView({ pieces }: Props) {
         </span>
       </footer>
 
-      {/* ─── Custom cursor — placeholder pixel dot. The trail variation
-          will build on top of this base position marker. ─── */}
+      {/* ─── Custom cursor — pixel dot + speed-line wake.
+          The line element is rendered BEFORE the dot so the dot
+          sits on top of the line's anchor point. The line's width
+          and rotation are driven each frame in the rAF tick. ─── */}
       <div ref={cursorRef} className="obys__cursor" aria-hidden>
+        <div ref={cursorLineRef} className="obys__cursor-line" />
         <div className="obys__cursor-dot" />
       </div>
 
@@ -701,6 +738,41 @@ export default function HomeView({ pieces }: Props) {
           height: 12px;
           left: -6px;
           top: -6px;
+        }
+
+        /* Speed-line wake: extends from the cursor in the opposite
+           direction of velocity. The left edge of the element is the
+           cursor anchor (transform-origin: left center); width grows
+           with speed; rotation set each frame by the rAF tick. The
+           gradient fades the far end to transparent so the wake reads
+           as a comet tail rather than a flat stick. */
+        .obys__cursor-line {
+          position: absolute;
+          left: 0;
+          top: -1px;
+          height: 2px;
+          width: 0;
+          /* Solid at the cursor end (left, anchor), transparent at the
+             far end (right). Rotation moves the whole element, so the
+             gradient direction rotates with it — the cursor end stays
+             solid in screen space regardless of direction. */
+          background: linear-gradient(
+            to right,
+            var(--o-ink) 0%,
+            transparent 100%
+          );
+          transform-origin: left center;
+          will-change: transform, width;
+          pointer-events: none;
+        }
+        /* When hovering interactive elements, the wake fades back —
+           the bigger cursor dot is the focus, the wake stays quiet. */
+        body[data-cursor="link"] .obys__cursor-line,
+        body[data-cursor="media"] .obys__cursor-line {
+          opacity: 0.5;
+        }
+        .obys__cursor-line {
+          transition: opacity 200ms var(--o-ease);
         }
         @media (pointer: coarse) {
           .obys__cursor { display: none; }
