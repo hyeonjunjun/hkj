@@ -5,6 +5,7 @@ import Image from "next/image";
 import { PIECES } from "@/constants/pieces";
 import { computeSlot } from "./carouselSlot";
 import { ConceptPlate } from "./ConceptPlate";
+import { CrosshairLines } from "./CrosshairLines";
 
 const COUNT = PIECES.length;
 
@@ -35,6 +36,7 @@ export function IndexCarousel() {
 
   return (
     <section className="carousel" aria-label="Work carousel">
+      <CrosshairLines />
       {PIECES.map((piece, pieceIndex) => {
         const { role } = computeSlot(pieceIndex, activeIndex, COUNT);
         return (
