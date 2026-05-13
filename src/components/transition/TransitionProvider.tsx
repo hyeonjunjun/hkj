@@ -41,6 +41,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const onCoverComplete = useCallback(() => {
+    if (phaseRef.current !== "covering") return;
     // Run disposers first so any in-flight rAF / observer / timeline is cleaned up
     disposers.current.forEach((fn, key) => {
       try {
@@ -59,6 +60,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const onExitComplete = useCallback(() => {
+    if (phaseRef.current !== "exiting") return;
     phaseRef.current = "idle";
     pendingPathRef.current = null;
     setPhase("idle");
