@@ -1,34 +1,52 @@
 @import "tailwindcss";
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
+/*
+ * Color tokens are theme-conditional. Default = light (warm paper, pure
+ * black ink). Adding `data-theme="dark"` to the root flips to the
+ * Krantz-line dark register (pure black ground, cool off-white type).
+ *
+ * Non-color tokens (type scale, spacing, easing) stay at :root.
+ *
+ * The .obys home component used to define its own local --o-* vars
+ * to flip light-on-dark; those now reference the global tokens
+ * directly so the theme toggle affects every surface uniformly.
+ */
+
 :root {
-  /* Krantz-line dark register: pure black ground, cool off-white type,
-     monochrome (no accent). The page is the composition; nothing
-     decorative competes. juliakrantz.com uses #000 + #F8F8F8 + alpha
-     steps on a single fg value — we mirror that exactly so the
-     hairline grid reads as drawn lines rather than tinted edges.
+  /* Light register (default) — warm paper, pure black ink. The token
+     names (--paper, --ink) match the codebase vocabulary regardless
+     of which theme is active. */
+  --paper:     #FBFAF6;
+  --paper-2:   #F4F3EE;
+  --paper-3:   #E8E7E1;
 
-     Token names retained (--paper = ground, --ink = text); the
-     codebase already speaks that vocabulary. */
-  --paper: #000000;
-  /* pure black ground */
-  --paper-2: #0A0A0A;
-  /* lifted cell hover */
-  --paper-3: #161616;
-  /* hairline-adjacent surface */
+  --ink:       #000000;
+  --ink-2:     rgba(0, 0, 0, 0.84);
+  --ink-3:     rgba(0, 0, 0, 0.45);
+  --ink-4:     rgba(0, 0, 0, 0.30);
 
-  --ink: #F8F8F8;
-  /* primary — titles, mark, sym */
-  --ink-2: rgba(248, 248, 248, 0.92);
-  /* prose */
-  --ink-3: rgba(248, 248, 248, 0.45);
-  /* chrome — labels, meta, nav */
-  --ink-4: rgba(248, 248, 248, 0.30);
-  /* faintest — folio, sub-meta */
+  --ink-hair:  rgba(0, 0, 0, 0.12);
+  --ink-ghost: rgba(0, 0, 0, 0.04);
+}
 
-  --ink-hair: rgba(248, 248, 248, 0.12);
-  /* hairline rules — Krantz value */
+:root[data-theme="dark"] {
+  /* Dark register (Krantz line) — pure black ground, cool off-white
+     ink with alpha steps. Same token names; only the values change. */
+  --paper:     #000000;
+  --paper-2:   #0A0A0A;
+  --paper-3:   #161616;
+
+  --ink:       #F8F8F8;
+  --ink-2:     rgba(248, 248, 248, 0.92);
+  --ink-3:     rgba(248, 248, 248, 0.45);
+  --ink-4:     rgba(248, 248, 248, 0.30);
+
+  --ink-hair:  rgba(248, 248, 248, 0.12);
   --ink-ghost: rgba(248, 248, 248, 0.04);
+}
+
+:root {
 
   /* Solari amber — restored for the departure-board direction. Used
      ONLY on truly-live elements: the live clock, the LIVE status on

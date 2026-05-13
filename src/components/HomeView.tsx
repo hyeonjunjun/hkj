@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Piece } from "@/constants/pieces";
 import { CONTACT_EMAIL } from "@/constants/contact";
 import NowPlaying from "@/components/NowPlaying";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /**
  * HomeView — organic media on a digital editorial surface.
@@ -264,6 +265,13 @@ export default function HomeView({ pieces }: Props) {
           >
             Contact
           </Link>
+          <div
+            className="obys__theme-slot"
+            onMouseEnter={cursorTo("link")}
+            onMouseLeave={cursorLeave}
+          >
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -385,15 +393,19 @@ export default function HomeView({ pieces }: Props) {
       </div>
 
       <style>{`
-        /* ─── Local light register ─── */
+        /* ─── Local vars track the global theme tokens ──────────
+           Previously the home overrode globals to force a light
+           register. Now that globals are theme-conditional, the
+           --o-* locals just reference them — the theme toggle on
+           the root flips both home and sub-pages uniformly. */
         .obys {
-          --o-paper:   #FBFAF6;
-          --o-paper-2: #F4F3EE;
-          --o-ink:     #000000;
-          --o-ink-2:   rgba(0, 0, 0, 0.84);
-          --o-ink-3:   rgba(0, 0, 0, 0.45);
-          --o-ink-4:   rgba(0, 0, 0, 0.30);
-          --o-hair:    rgba(0, 0, 0, 0.12);
+          --o-paper:   var(--paper);
+          --o-paper-2: var(--paper-2);
+          --o-ink:     var(--ink);
+          --o-ink-2:   var(--ink-2);
+          --o-ink-3:   var(--ink-3);
+          --o-ink-4:   var(--ink-4);
+          --o-hair:    var(--ink-hair);
           --o-ease:    cubic-bezier(0.2, 0.7, 0.2, 1);
           --o-wipe:    cubic-bezier(0.65, 0, 0.35, 1);
 
@@ -464,12 +476,16 @@ export default function HomeView({ pieces }: Props) {
         .obys__topnav {
           justify-self: end;
           display: grid;
-          grid-template-columns: auto auto auto;
-          column-gap: clamp(36px, 5vw, 72px);
+          grid-template-columns: auto auto auto auto;
+          column-gap: clamp(24px, 3.6vw, 56px);
           align-items: baseline;
           font-family: var(--font-stack-sans);
           font-size: clamp(12px, 0.95vw, 14px);
           color: var(--o-ink);
+        }
+        .obys__theme-slot {
+          display: inline-flex;
+          align-items: baseline;
         }
         .obys__nav-cluster {
           display: inline-flex;

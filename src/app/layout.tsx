@@ -28,11 +28,30 @@ export const metadata: Metadata = {
   },
 };
 
+// Theme init — runs synchronously in <head> before any CSS evaluation
+// so the correct theme is applied on first paint. Default is light
+// (the user's stated preference); only sets data-theme="dark" if a
+// dark preference is stored. System preference is deliberately
+// ignored — taste overrides OS.
+const themeInitScript = `
+(function() {
+  try {
+    var t = localStorage.getItem('rj-theme');
+    if (t === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         {/* Skip link is the first focusable element — ahead of the
             masthead — so keyboard users land on it before tabbing

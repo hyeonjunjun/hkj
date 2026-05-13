@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /**
  * Frame — sticky horizontal top nav.
@@ -78,22 +79,25 @@ export default function Frame() {
         rj
       </Link>
 
-      <nav aria-label="Primary" className="frame__nav">
-        {NAV.map((item) => {
-          const active = isActive(pathname, item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="frame__link"
-              data-active={active ? "" : undefined}
-              aria-current={active ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="frame__cluster">
+        <nav aria-label="Primary" className="frame__nav">
+          {NAV.map((item) => {
+            const active = isActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="frame__link"
+                data-active={active ? "" : undefined}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <ThemeToggle />
+      </div>
 
       <style>{`
         .frame {
@@ -141,11 +145,16 @@ export default function Frame() {
         }
         .frame__mark:hover { opacity: 0.65; }
 
-        .frame__nav {
+        .frame__cluster {
           display: flex;
           align-items: baseline;
           gap: clamp(20px, 2.6vw, 36px);
           justify-self: end;
+        }
+        .frame__nav {
+          display: flex;
+          align-items: baseline;
+          gap: clamp(20px, 2.6vw, 36px);
         }
         .frame__link {
           font-family: var(--font-stack-mono);
