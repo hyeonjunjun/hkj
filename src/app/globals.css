@@ -464,6 +464,22 @@ a:active {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Shared mark across routes — the wordmark on / (.obys__wordmark)
+   and the masthead mark on sub-pages (.frame__mark) both carry
+   `view-transition-name: rj-mark`. The browser animates the morph
+   between their positions, sizes, and contents on navigation. The
+   duration is slightly longer than the root crossfade so the mark
+   reads as anchoring the whole transition. */
+::view-transition-group(rj-mark) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(rj-mark),
+::view-transition-new(rj-mark) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   ::view-transition-old(root),

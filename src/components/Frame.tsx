@@ -142,6 +142,10 @@ export default function Frame() {
           color: var(--ink);
           justify-self: start;
           transition: opacity 180ms var(--ease);
+          /* Shared element across routes — paired with the home's
+             .obys__wordmark via the same name. The browser captures
+             both ends and animates the morph on navigation. */
+          view-transition-name: rj-mark;
         }
         .frame__mark:hover { opacity: 0.65; }
 

@@ -438,6 +438,10 @@ export default function HomeView({ pieces }: Props) {
           text-transform: uppercase;
           margin: 0;
           gap: 0.2em;
+          /* Shared element across routes — the same name is set on
+             Frame's .frame__mark. The browser captures both and
+             animates between their positions/sizes on navigation. */
+          view-transition-name: rj-mark;
         }
         .obys__reg {
           font-size: 0.7em;
