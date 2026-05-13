@@ -236,23 +236,24 @@ export default function HomeView({ pieces }: Props) {
             </Link>
             <span className="obys__nav-sep">,</span>
             <Link
-              href="/studio"
+              href="/about"
               className="obys__nav-link"
               onMouseEnter={cursorTo("link")}
               onMouseLeave={cursorLeave}
             >
               About
             </Link>
+            <span className="obys__nav-sep">,</span>
+            <Link
+              href="/contact"
+              className="obys__nav-link"
+              onMouseEnter={cursorTo("link")}
+              onMouseLeave={cursorLeave}
+            >
+              Contact
+            </Link>
           </div>
           <span className="obys__time tabular">{timeLabel}</span>
-          <Link
-            href="/contact"
-            className="obys__nav-link obys__nav-link--right"
-            onMouseEnter={cursorTo("link")}
-            onMouseLeave={cursorLeave}
-          >
-            Contact
-          </Link>
           <div
             className="obys__theme-slot"
             onMouseEnter={cursorTo("link")}
@@ -319,8 +320,9 @@ export default function HomeView({ pieces }: Props) {
         <aside className="obys__side">
           <div className="obys__intro">
             <p className="obys__intro-text">
-              A design-engineering studio of one. Working between
-              interface and identity, sketch to deployment.
+              A multidisciplinary practice — design, engineering,
+              direction. Working between interface and identity,
+              sketch to deployment.
             </p>
             <p className="obys__intro-contact">
               <span>Contact:</span>
@@ -456,7 +458,7 @@ export default function HomeView({ pieces }: Props) {
         .obys__topnav {
           justify-self: end;
           display: grid;
-          grid-template-columns: auto auto auto auto;
+          grid-template-columns: auto auto auto;
           column-gap: clamp(24px, 3.6vw, 56px);
           align-items: baseline;
           font-family: var(--font-stack-sans);

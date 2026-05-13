@@ -8,7 +8,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 /**
  * Frame — sticky horizontal top nav.
  *
- *   ┌─ rj ─────────────────── Work  Studio  Contact ─┐
+ *   ┌─ rj ─────────────────── Work  About  Contact ─┐
  *   └──────────────────────────────────────────────────┘
  *
  * Minimal masthead — initials wordmark left ("rj" for Ryan Jun),
@@ -23,7 +23,7 @@ type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
   { href: "/work",    label: "Work" },
-  { href: "/studio",  label: "Studio" },
+  { href: "/about",   label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 

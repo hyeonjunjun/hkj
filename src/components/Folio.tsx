@@ -14,7 +14,7 @@ import { PIECES } from "@/constants/pieces";
  *   /                  (suppressed — home carries its own identity)
  *   /work              WORK / INDEX / {N}
  *   /work/[slug]       §{number} / {title}
- *   /studio            STUDIO / NEW YORK
+ *   /about             ABOUT / NEW YORK
  *   /contact           CONTACT
  *
  * Slash-as-separator (borrowed from cathydolle.com's "01/ARD" pattern)
@@ -28,7 +28,7 @@ function resolveLabel(pathname: string | null): string | null {
   // caption; a corner stamp would duplicate signal. Folio kicks in on
   // every other route.
   if (pathname === "/") return null;
-  if (pathname === "/studio") return "STUDIO / NEW YORK";
+  if (pathname === "/about") return "ABOUT / NEW YORK";
   if (pathname === "/contact") return "CONTACT";
   if (pathname === "/work") {
     const n = PIECES.length;

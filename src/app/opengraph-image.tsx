@@ -94,7 +94,7 @@ export default async function Image() {
             }}
           >
             <span style={{ color: ACCENT }}>◆</span>
-            <span>Design engineer · Studio of one</span>
+            <span>Multidisciplinary · Design · Engineering · Direction</span>
           </div>
         </div>
 

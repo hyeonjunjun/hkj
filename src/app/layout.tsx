@@ -11,10 +11,10 @@ import Preloader from "@/components/Preloader";
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyeonjunjun.com"),
   title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
-  description: "Ryan Jun — design engineer, New York.",
+  description: "Ryan Jun — multidisciplinary practice. Design, engineering, direction. New York.",
   openGraph: {
     title: "Ryan Jun",
-    description: "Design engineer, New York.",
+    description: "Multidisciplinary practice. Design, engineering, direction. New York.",
     url: "https://hyeonjunjun.com",
     siteName: "Ryan Jun",
     locale: "en_US",

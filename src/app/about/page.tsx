@@ -1,37 +1,38 @@
 import { CONTACT_EMAIL } from "@/constants/contact";
 
 /**
- * /studio — practice positioning, in the home's mono register.
+ * /about — multidisciplinary practice, in the home's mono register.
  *
  * Single editorial column. Top: eyebrow + display title + lede.
- * Middle: three numbered practice notes ("Practice" section).
- * Bottom: a facts line ("Currently" section). Hairline rules
- * separate sections; everything composes from the .t-* utility
- * classes. No sans, no italics, no inline-style typography.
+ * Middle: three numbered practice notes. Bottom: a facts ledger.
+ * Hairline rules separate sections; everything composes from the
+ * .t-* utility classes. No sans, no italics, no inline typography.
  *
- * The lede here speaks about the WORK; the home's lede speaks
- * about HOW HE LISTENS. They complement, don't duplicate.
+ * Voice: multidisciplinary creative — designer + engineer + creative
+ * direction. Music-coded sensibility (BTS, Fred Again) is allowed to
+ * surface in the practice notes; the lede stays plain.
  */
-export default function StudioPage() {
+export default function AboutPage() {
   return (
-    <main id="main" className="studio">
-      <header className="studio__head">
-        <p className="t-eyebrow">Studio</p>
-        <h1 className="t-display studio__title">A studio of one.</h1>
-        <p className="t-prose studio__lede">
-          ryan jun designs and engineers interface and identity —
-          one set of hands, sketch to deployment.
+    <main id="main" className="about">
+      <header className="about__head">
+        <p className="t-eyebrow">About</p>
+        <h1 className="t-display about__title">A multidisciplinary practice.</h1>
+        <p className="t-prose about__lede">
+          ryan jun designs, engineers, and directs — across interface,
+          identity, and the spaces between. one set of hands, sketch to
+          deployment, brief to release.
         </p>
       </header>
 
       <hr className="t-rule" />
 
-      <section className="studio__notes" aria-label="Practice">
-        <header className="studio__sec-head">
+      <section className="about__notes" aria-label="Practice">
+        <header className="about__sec-head">
           <span className="t-section">Practice</span>
           <span className="t-meta">03 notes</span>
         </header>
-        <ol className="studio__list" role="list">
+        <ol className="about__list" role="list">
           <Note num="01" heading="Concept to code">
             most engagements begin with editing — subtract first, then
             compose what remains until the system reads as one decision
@@ -41,26 +42,28 @@ export default function StudioPage() {
             the interface is shipped, not handed off. typography, motion,
             and state are made in the same tool that compiles them.
           </Note>
-          <Note num="03" heading="Quiet by design">
-            atmosphere lives in whitespace and type. never in color-shift
-            or theatrical framing.
+          <Note num="03" heading="Music as a load-bearing input">
+            atmosphere, restraint, and tracklist-as-grammar — the way bts
+            and fred again sequence a release informs how a site sequences
+            attention. composition before color, before chrome.
           </Note>
         </ol>
       </section>
 
       <hr className="t-rule" />
 
-      <section className="studio__facts" aria-label="Currently">
-        <header className="studio__sec-head">
+      <section className="about__facts" aria-label="Currently">
+        <header className="about__sec-head">
           <span className="t-section">Currently</span>
-          <span className="t-meta">2026.05.10</span>
+          <span className="t-meta">2026.05.12</span>
         </header>
-        <dl className="studio__ledger">
+        <dl className="about__ledger">
           <Row label="Based">new york</Row>
           <Row label="Status">selective for q3 2026</Row>
+          <Row label="Practice">design · engineering · direction</Row>
           <Row label="Founded">2021</Row>
           <Row label="Contact">
-            <a href={`mailto:${CONTACT_EMAIL}`} className="studio__email">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="about__email">
               {CONTACT_EMAIL}
             </a>
           </Row>
@@ -68,7 +71,7 @@ export default function StudioPage() {
       </section>
 
       <style>{`
-        .studio {
+        .about {
           padding: clamp(80px, 12vh, 140px) var(--margin-page) clamp(56px, 8vh, 96px);
           max-width: 920px;
           margin-inline: auto;
@@ -76,27 +79,22 @@ export default function StudioPage() {
           row-gap: clamp(48px, 6vh, 80px);
         }
 
-        /* Header — eyebrow + title + lede stacked tight. */
-        .studio__head {
+        .about__head {
           display: grid;
           row-gap: clamp(14px, 1.6vh, 22px);
           max-width: 56ch;
         }
-        .studio__title {
-          /* Override t-display caps off — title is sentence case
-             at this scale for editorial reading. */
+        .about__title {
           text-transform: none;
           letter-spacing: -0.03em;
         }
-        .studio__lede {
+        .about__lede {
           color: var(--ink-2);
           text-transform: lowercase;
           max-width: 48ch;
         }
 
-        /* Section header — label + meta, hairline below already
-           comes from the parent .t-rule sibling. */
-        .studio__sec-head {
+        .about__sec-head {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
@@ -104,8 +102,7 @@ export default function StudioPage() {
           padding-bottom: clamp(12px, 1.4vh, 18px);
         }
 
-        /* Numbered notes — inline-grid rows: number / body. */
-        .studio__list {
+        .about__list {
           list-style: none;
           margin: 0;
           padding: 0;
@@ -113,9 +110,7 @@ export default function StudioPage() {
           row-gap: clamp(20px, 2.4vh, 32px);
         }
 
-        /* Currently — label/value rows, similar microtype to home
-           active block. */
-        .studio__ledger {
+        .about__ledger {
           margin: 0;
           display: grid;
           grid-template-columns: clamp(80px, 12vw, 120px) 1fr;
@@ -123,7 +118,7 @@ export default function StudioPage() {
           column-gap: 24px;
           max-width: 56ch;
         }
-        .studio__email {
+        .about__email {
           color: var(--ink);
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
@@ -131,11 +126,11 @@ export default function StudioPage() {
           background-repeat: no-repeat;
           transition: background-size 200ms var(--ease);
         }
-        .studio__email:hover { background-size: 100% 1px; }
+        .about__email:hover { background-size: 100% 1px; }
 
         @media (max-width: 720px) {
-          .studio { row-gap: clamp(32px, 5vh, 56px); }
-          .studio__ledger {
+          .about { row-gap: clamp(32px, 5vh, 56px); }
+          .about__ledger {
             grid-template-columns: 1fr;
             row-gap: 12px;
           }
@@ -190,9 +185,9 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <>
       <dt className="t-meta dim">{label}</dt>
-      <dd className="t-meta studio__row-val">{children}</dd>
+      <dd className="t-meta about__row-val">{children}</dd>
       <style>{`
-        .studio__row-val {
+        .about__row-val {
           color: var(--ink);
           text-transform: lowercase;
           margin: 0;
