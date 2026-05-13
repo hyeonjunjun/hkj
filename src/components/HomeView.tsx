@@ -3,6 +3,7 @@
 
 import { IndexCarousel } from "@/components/home/IndexCarousel";
 import { DisciplineTicker } from "@/components/home/DisciplineTicker";
+import { IntroAnimation } from "@/components/home/IntroAnimation";
 
 const TAGLINE = "Design, engineering, direction — one practice across surfaces.";
 
@@ -17,6 +18,8 @@ export default function HomeView() {
         </div>
         <p className="t-meta home__tagline">{TAGLINE}</p>
       </footer>
+
+      <IntroAnimation />
 
       <style>{`
         .home {
