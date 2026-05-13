@@ -18,12 +18,12 @@ export default function Footer() {
   return (
     <footer className="footer" aria-label="Colophon">
       <div className="footer__row">
-        <span className="footer__location">New York</span>
+        <span className="t-meta footer__location">New York</span>
 
-        <span className="footer__contact">
+        <span className="t-meta footer__contact">
           <span className="footer__contact-label">New business</span>
           <span className="footer__contact-sep" aria-hidden>·</span>
-          <CopyEmailLink className="footer__email" email={CONTACT_EMAIL} />
+          <CopyEmailLink className="t-meta footer__email" email={CONTACT_EMAIL} />
         </span>
 
         <ul className="footer__socials">
@@ -31,7 +31,7 @@ export default function Footer() {
             <li key={n.label} className="footer__social-item">
               {i > 0 && <span className="footer__social-sep" aria-hidden>/</span>}
               <a
-                className="footer__social"
+                className="t-meta footer__social"
                 href={n.href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -56,19 +56,8 @@ export default function Footer() {
           gap: clamp(20px, 3vw, 48px);
         }
 
-        /* All chrome — Geist Mono uppercase, one size, the only
-           register the footer speaks in. Tight tracking; mono letters
-           are wide enough that 0.06em reads as deliberate. */
-        .footer__location,
-        .footer__contact,
-        .footer__contact-label,
-        .footer__social {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1.4;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-        }
+        /* Typography is owned by .t-meta on each chrome element. The
+           selectors below only set color and layout — never font. */
         .footer__location { color: var(--ink-3); }
 
         .footer__contact {
@@ -83,11 +72,6 @@ export default function Footer() {
         .footer__contact-sep { color: var(--ink-4); }
 
         .footer__email {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1.4;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
           color: var(--ink);
           transition: color 180ms var(--ease);
         }
@@ -120,6 +104,9 @@ export default function Footer() {
         .footer__social:hover {
           color: var(--ink);
           background-size: 100% 1px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .footer__email, .footer__social { transition: none; }
         }
 
         @media (max-width: 720px) {

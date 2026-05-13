@@ -90,12 +90,16 @@ export default function ContactPage() {
         .contact__label {
           color: var(--ink-3);
         }
+        /* Display email — a one-off scale between t-statement (15-18px)
+           and t-display (48-96px). Kept inline because there's no
+           shared role at this size; values reference the t-* scale
+           tokens so the system stays tunable from globals.css. */
         .contact__email {
           font-family: var(--font-stack-mono);
           font-size: clamp(20px, 2.4vw, 32px);
           font-weight: 500;
-          letter-spacing: -0.02em;
-          line-height: 1.1;
+          letter-spacing: var(--track-tight);
+          line-height: var(--lh-tight);
           color: var(--ink);
           background-image: linear-gradient(currentColor, currentColor);
           background-size: 0% 1px;
@@ -126,11 +130,15 @@ export default function ContactPage() {
         .contact__social-num {
           padding-top: 1px;
         }
+        /* Social link — chrome at t-prose's size but single-line, so
+           line-height collapses to 1. Inherits family/size/weight via
+           t-prose tokens for system consistency. */
         .contact__social {
           font-family: var(--font-stack-mono);
-          font-size: clamp(12px, 0.95vw, 14px);
+          font-size: var(--type-prose);
           font-weight: 400;
-          letter-spacing: 0;
+          letter-spacing: var(--track-normal);
+          line-height: 1;
           color: var(--ink);
           text-transform: lowercase;
           background-image: linear-gradient(currentColor, currentColor);

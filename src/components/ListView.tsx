@@ -106,14 +106,17 @@ function ListStyle() {
         color: var(--ink-3);
       }
 
-      /* Title — sans reading register */
+      /* Title — mono row register, lowercase to match the home setlist.
+         The t-row class would give weight 500; we want 400 here so the
+         row reads as data, not heading. */
       .listview__title {
-        font-family: var(--font-stack-sans);
-        font-size: var(--type-title);
+        font-family: var(--font-stack-mono);
+        font-size: var(--type-row);
         font-weight: 400;
-        letter-spacing: 0;
+        letter-spacing: var(--track-snug);
         color: var(--ink);
         line-height: 1.3;
+        text-transform: lowercase;
       }
 
       /* Type / sector — mono microtype, same register as the rest of

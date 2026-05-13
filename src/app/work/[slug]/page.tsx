@@ -96,7 +96,7 @@ function CaseStudyPage({ piece }: { piece: Piece }) {
         <section className="case__next-block" aria-label="Next project">
           <Link href={`/work/${nextPiece.slug}`} className="case__next">
             <span className="t-eyebrow case__next-label">Next</span>
-            <span className="case__next-title">{nextPiece.title}</span>
+            <span className="t-statement case__next-title">{nextPiece.title}</span>
             <span className="case__next-arrow" aria-hidden>→</span>
           </Link>
         </section>
@@ -119,7 +119,7 @@ function Row({
   return (
     <div className="case__ledger-cell">
       <span className="t-meta dim case__ledger-key">{label}</span>
-      <span className={`case__ledger-val${mono ? " tabular" : ""}`}>
+      <span className={`t-row case__ledger-val${mono ? " tabular" : ""}`}>
         {value}
       </span>
     </div>
@@ -226,13 +226,13 @@ function PageStyle() {
         align-content: start;
       }
       .case__ledger-val {
-        font-family: var(--font-stack-mono);
-        font-size: clamp(11px, 0.85vw, 13px);
-        line-height: 1.4;
-        letter-spacing: 0;
+        /* Typography from .t-row (className) — override weight to 400
+           since ledger values read as data, not titles, and force
+           lowercase to match the home register. */
+        font-weight: 400;
+        text-transform: lowercase;
         color: var(--ink);
         margin: 0;
-        text-transform: lowercase;
       }
 
       /* Editorial body — mono prose paragraphs at 13-14.5px,
@@ -263,17 +263,15 @@ function PageStyle() {
         color: var(--ink-3);
       }
       .case__next-title {
-        font-family: var(--font-stack-mono);
-        font-size: clamp(15px, 1.2vw, 18px);
+        /* Typography from .t-statement; override to make it a title
+           (weight 500, ink-1) rather than a positioning sentence. */
         font-weight: 500;
-        letter-spacing: -0.01em;
-        line-height: 1.2;
         color: var(--ink);
         text-transform: lowercase;
       }
       .case__next-arrow {
         font-family: var(--font-stack-mono);
-        font-size: 16px;
+        font-size: var(--type-statement);
         color: var(--ink-3);
         transition: transform 200ms var(--ease), color 180ms var(--ease);
       }

@@ -214,12 +214,15 @@ function PlateStyle() {
         color: var(--ink-3);
         font-variant-numeric: tabular-nums;
       }
+      /* Plate caption title — mono row register, lowercase. Matches
+         the home setlist titles and the /work list-view titles. */
       .cat-plate__title {
-        font-family: var(--font-stack-sans);
-        font-size: var(--type-title);
+        font-family: var(--font-stack-mono);
+        font-size: var(--type-row);
         font-weight: 400;
-        letter-spacing: 0;
+        letter-spacing: var(--track-snug);
         color: var(--ink);
+        text-transform: lowercase;
         text-wrap: balance;
       }
       .cat-plate[data-placeholder] .cat-plate__title { color: var(--ink-3); }

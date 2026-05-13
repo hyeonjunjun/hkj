@@ -41,8 +41,8 @@ export default function WorkIndex({ pieces }: Props) {
   return (
     <main id="main" className="workidx">
       <header className="workidx__head">
-        <p className="workidx__eyebrow">Work</p>
-        <h1 className="workidx__title">Selected work and projects.</h1>
+        <p className="t-eyebrow workidx__eyebrow">Work</p>
+        <h1 className="t-display workidx__title">Selected work and projects.</h1>
       </header>
 
       <div className="workidx__toolbar">
@@ -76,22 +76,12 @@ export default function WorkIndex({ pieces }: Props) {
           max-width: 720px;
           margin-bottom: clamp(28px, 3.5vw, 48px);
         }
-        .workidx__eyebrow {
-          font-family: var(--font-stack-mono);
-          font-size: var(--type-nav);
-          line-height: 1;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--ink-3);
-          margin: 0;
-        }
+        /* Typography from .t-eyebrow and .t-display utility classes;
+           only layout/whitespace lives in these selectors so the
+           page reads as a sibling of /about, /contact, /notes. */
+        .workidx__eyebrow { margin: 0; }
         .workidx__title {
-          font-family: var(--font-stack-sans);
-          font-weight: 380;
-          font-size: var(--type-display);
-          line-height: 1.1;
-          letter-spacing: -0.02em;
-          color: var(--ink);
+          text-transform: none;
           margin: 0;
         }
 
