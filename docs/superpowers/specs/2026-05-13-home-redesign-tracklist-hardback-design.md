@@ -78,13 +78,25 @@ The recent brief evolution: the user has asked to move from BTS and Fred Again a
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+**ASCII above is schematic only.** Vertical stacking of SIDE A → plate → SIDE B in the diagram represents which column they live in (the left/setlist column), not their actual position. The center plate stays in the center column — `grid-template-columns: 0.8fr 4fr 1fr` is unchanged from current.
+
 **Specifics:**
 
-- **SIDE A label** sits above the case-study tracklist. Class: `t-eyebrow`. Copy: "SIDE A".
-- **SIDE B label** sits above the personal tracklist, preceded by a hairline rule (`t-rule`). Copy: "SIDE B".
+- **SIDE A label** sits above the case-study tracklist in the left column. Class: `t-eyebrow`. Copy: **"SIDE A"** (committed; not deferred).
+- **SIDE B label** sits above the personal tracklist in the left column, preceded by a hairline rule (`t-rule`). Copy: **"SIDE B"** (committed).
 - **Personal rows render dimmer** — title color drops from `--ink` (active) / `--ink-2` (default) to `--ink-3`. Row meta drops to `--ink-4`. Indent: `clamp(8px, 1vw, 16px)` from the case-study row's left edge.
 - **Row gap tightens** from current ~12px to ~6-8px to fit 7 rows + 2 labels in the same vertical space. The right column stays at its current width; only the left column changes.
 - **Center plate is shared between SIDE A and SIDE B**. Personal pieces (Sift, Gyeol) have real covers — the plate renders their image as it does today.
+
+**Vertical fit (reference: 1366×768 laptop, smallest supported desktop):**
+
+Available viewport: 768px. Subtract top row (48px) + bottom row (40px) + container padding (top 24, bottom 24) = ~632px for the body.
+
+Left column allocation: SIDE A eyebrow (14px line) + 5 case-study rows × 28px (line-height 1.15 at type-row 13-15px, plus 6px gap) = 14 + 5×28 = 154px. Then hairline rule (12px gap) + SIDE B eyebrow (14px) + 2 personal rows × 28px = 12 + 14 + 56 = 82px. Total left column = 236px, comfortably inside 632px.
+
+Center plate: fills the remaining ~400px of vertical space at aspect ratio 4/3 — frame width is the constraint, not height. Confirmed fit at 1366×768. At 1440×900 there's additional breathing room.
+
+If the row+labels math fails on any common viewport during implementation, the fallback is to tighten the row line-height (currently 1.15) to 1.1, not to relax the single-viewport rule.
 
 **Edge cases:**
 
@@ -115,14 +127,31 @@ Today the center plate renders piece media if available, "In development" placeh
 
 - **Top-left:** piece code (`§02`). Class: `t-code` + `tabular`.
 - **Top-right:** status (`concept`, `wip`, `shipped`). Class: `t-meta`. When status is `wip`, color flips to `--accent` (amber) to match the existing live tag.
-- **Middle (anchor):** piece title at display-monumental scale. `font-size: clamp(80px, 9vw, 160px)`, `font-weight: 500`, `letter-spacing: -0.04em` (track-tightest), `line-height: 0.95`, `text-transform: uppercase`, mono. Wraps onto multiple lines if needed.
-- **Bottom-left:** sector lockup (`Brand · Product · Identity`). Class: `t-meta`.
+- **Middle (anchor):** piece title at display-monumental scale. `font-size: clamp(80px, 9vw, 160px)`, `font-weight: 500`, `letter-spacing: -0.04em` (track-tightest), `line-height: 0.95`, `text-transform: uppercase`, mono. Wraps onto multiple lines if needed; `overflow-wrap: anywhere` allows a single long word to break rather than overflow the frame.
+- **Bottom-left:** sector lockup (`Brand · Product · Identity`). Class: `t-meta`. Renders empty string gracefully if `piece.sector` is undefined.
 
-**Frame:** 1px hairline (`--ink-hair`) matches the existing image plate frame. Aspect ratio: same as the existing plate frame's default (`coverAspect ?? "4 / 3"`).
+**Frame:** 1px hairline (`--ink-hair`) matches the existing image plate frame. Aspect ratio: `4 / 3` (constant for typographic plates — `coverAspect` is not relevant when there is no cover).
 
 **Background:** `--paper` ground (whichever theme is active). No decorative texture. The type carries the plate.
 
 **Light/dark behavior:** all colors use existing tokens (`--ink`, `--ink-3`, `--accent`), so light and dark themes render identically without per-theme overrides.
+
+**ConceptPlate component contract:**
+
+```ts
+interface ConceptPlateProps {
+  piece: Piece;          // requires: piece.title, piece.number, piece.status, piece.sector?
+  className?: string;    // optional passthrough for parent layout slots
+}
+```
+
+The title's per-letter spans (for M2) are emitted by ConceptPlate so the structure is unified — see Motion §M2 for the markup. The component is server-renderable; no `"use client"` required at this layer (the parent HomeView already opts in).
+
+**Accessibility:**
+
+- The title's parent element carries `aria-label={piece.title}` so screen readers announce the title as one word, not letter-by-letter. Each per-letter span carries `aria-hidden="true"`.
+- The plate frame carries `role="img"` and an `aria-label` describing the piece (`${piece.title} — ${piece.sector}`).
+- Keyboard focus path: rows in the setlist are anchors; focusing a row triggers the same active-slug change as hover (see Motion §M1 for trigger).
 
 **Pieces affected:**
 
@@ -139,40 +168,167 @@ When a real asset later lands for any concept, dropping a `cover` field on the p
 
 Five moves. Each ships independently; later moves don't block earlier ones.
 
+**Activation model (applies to M1, M2, M4):**
+
+Today the active piece swaps on row hover. Confirmed unchanged in this design — hover is the trigger. Keyboard `:focus-visible` on a row produces the same swap (existing behavior). No auto-rotation. Click navigates to `/work/[slug]` via the row's Link.
+
 **M1. View Transition slice on plate swap.**
 
 The center plate currently swaps via key-remount + cross-fade. New behavior: horizontal **slice wipe** when active piece changes.
 
-- Implementation: per-plate `view-transition-name: plate-${slug}` on the plate root. On slug change, the browser captures old and new states.
-- CSS keyframes for `::view-transition-old(.plate-*)` and `::view-transition-new(.plate-*)`: outgoing masks out left-to-right via `clip-path: inset(0 0 0 0 → 0 0 0 100%)` over 380ms; incoming reveals right-to-left via `clip-path: inset(0 100% 0 0 → 0 0 0 0)` over 380ms, intersecting at the midpoint.
-- Easing: `cubic-bezier(0.22, 1, 0.36, 1)` (matches existing wordmark route transition).
-- Browser support: View Transitions API works in Chromium-based browsers and Safari TP. Firefox without VT just falls back to the prior cross-fade — graceful.
-- Reduced motion: `transition-duration: 1ms` override on the VT pseudo-elements.
+- **Trigger:** State-driven swap, so the View Transition is initiated explicitly via `document.startViewTransition(() => setActiveSlug(next))` in the hover handler. Next.js's `experimental.viewTransition` config exposes the `<ViewTransition>` wrapper for route transitions (used by the existing wordmark morph); same-document state changes use `document.startViewTransition` directly. The flag in `next.config.ts` does not auto-wrap state updates.
+- **Naming:** a single shared `view-transition-name: plate` on the plate frame (the `<div class="obys__plate-frame">` containing either the image or the ConceptPlate). Same-name VTs swap the old and new captures of the same element — exactly the slice-wipe behavior we want, no per-slug enumeration of CSS rules.
+- **Keyframes:** in `globals.css`:
 
-**M2. Per-letter title reveal on typographic plate.**
+  ```css
+  ::view-transition-old(plate) {
+    animation: plate-out 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  ::view-transition-new(plate) {
+    animation: plate-in 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes plate-out {
+    from { clip-path: inset(0 0 0 0); }
+    to   { clip-path: inset(0 0 0 100%); }
+  }
+  @keyframes plate-in {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0 0 0); }
+  }
+  ```
 
-When the active piece changes to one rendering a typographic plate, the title performs a letter-stagger reveal.
+  The outgoing plate's content collapses to the right edge; the incoming plate reveals from the left edge. They cross at the midpoint.
 
-- Implementation: split title into `<span>`s per character (whitespace preserved). Each span starts at `transform: translateY(0.6em); opacity: 0`. On mount/activeSlug change, stagger 20ms per letter, `cubic-bezier(0.2, 0.7, 0.2, 1)` ease, 280ms total reveal regardless of word length.
-- Stagger uses CSS `animation-delay: calc(var(--i) * 20ms)` with `--i` set inline per span — no JS animation loop.
-- Reduced motion: spans render at final state immediately.
+- **Re-entrancy:** if the user hovers multiple rows quickly, only the latest VT runs. The browser auto-skips queued transitions (well-defined behavior).
+- **Reduced motion:** `@media (prefers-reduced-motion: reduce) { ::view-transition-old(plate), ::view-transition-new(plate) { animation: none; } }` — instant swap.
+- **Browser support:**
+  - **Chromium 111+ / Edge 111+:** full support.
+  - **Safari 18.0+:** same-document View Transitions supported (released stable). The slice wipe works.
+  - **Firefox (no VT support as of 2026):** the `document.startViewTransition` check inside HomeView gates the call. If unavailable, the state update happens directly — plate swaps **instantly**, no fade or wipe (intentional: degrading gracefully without simulating an animation that the API would have given us).
+
+**M2. Per-letter title reveal on initial mount.**
+
+The typographic plate's title performs a letter-stagger reveal **only on the first render of the page**. Subsequent plate swaps via M1 do not re-trigger M2 — those swaps are handled entirely by the VT slice wipe, and the new title appears at its final state inside the new VT capture. This avoids the M1/M2 collision the reviewer flagged.
+
+- **Implementation:** ConceptPlate emits the title as one parent `<h2 aria-label={piece.title} className="concept-plate__title">` containing one `<span aria-hidden="true" style={{ "--i": index }}>` per character (whitespace preserved). The animation is **gated** by a `[data-initial-render]` attribute on `<html>` so it only runs during the first 1500ms after page mount:
+
+  ```css
+  /* Default state: title is fully visible, no animation. Subsequent
+     ConceptPlate mounts/re-renders (after the gate is removed) render
+     here — no flicker, no replay. */
+  .concept-plate__title span {
+    display: inline-block;
+  }
+
+  /* During the initial-render window, letters animate in. */
+  :where([data-initial-render]) .concept-plate__title span {
+    opacity: 0;
+    transform: translateY(0.6em);
+    animation: letter-rise 280ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation-delay: calc(var(--i) * 20ms);
+  }
+  @keyframes letter-rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  ```
+
+  HomeView's mount effect adds `data-initial-render` to `<html>` immediately and removes it after 1500ms. By the time any subsequent plate swap (M1) fires, the gate is gone — M1 alone handles the swap, M2 is dormant. This is the explicit answer to the M1/M2 collision: M2 is **strictly first-paint only**, the CSS rule guarantees it.
+
+- **Duration math:** each letter animates over 280ms; staggered 20ms per index; total = 280 + (n − 1) × 20 ms. "AI HARDWARE BRAND" (17 visible chars + spaces) = 280 + 19×20 = ~660ms total to last letter at full state. The 1500ms gate window comfortably covers the longest concept title.
+- **Reduced motion:** the `:where([data-initial-render])` rule is wrapped in `@media (prefers-reduced-motion: no-preference) { ... }` so it never applies under reduce-motion. Under reduce, letters render at default (visible, no transform) from frame 0.
 
 **M3. Radial theme-toggle wipe.**
 
 Today the toggle flips `data-theme="dark"` on `<html>`. New behavior: clicking the toggle launches a **clip-path circle wipe** from the click position.
 
-- Implementation: on click, capture `e.clientX/Y`, write to CSS custom properties `--wipe-x` and `--wipe-y` on `<html>`. Then add a transient `[data-theme-wiping]` attribute that runs a 600ms keyframe: a pseudo-element overlay covers the page with the *new* theme's `--paper`, with `clip-path: circle(0% at var(--wipe-x) var(--wipe-y))` animating to `circle(150% at var(--wipe-x) var(--wipe-y))`. At the keyframe midpoint (300ms), swap `data-theme`. At end (600ms), remove the overlay.
-- Why a pseudo-element overlay rather than a direct `clip-path` on `<html>`: the toggle itself needs to stay clickable during the wipe, and clipping the whole HTML element would also clip the toggle's wipe origin.
-- Browser support: `clip-path: circle()` is universal.
-- Reduced motion: instant theme swap, no wipe.
+- **Mechanism (revised):** the data-theme flip happens **immediately at t=0**, so the new theme's tokens (paper, ink) are live as the wipe runs. The wipe is a **shrinking overlay painted with the OLD theme's paper color** — it shrinks to a single point at the click position over 600ms, revealing the new theme underneath.
+- **Implementation:**
+
+  In ThemeToggle's click handler:
+
+  ```ts
+  // Module-scope ref so re-entrancy can clear an in-flight wipe.
+  let wipeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function apply(next: Theme, e: MouseEvent) {
+    const root = document.documentElement;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduce) {
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("rj-theme", next); } catch {}
+      return;
+    }
+
+    // Re-entrancy: cancel any in-flight wipe. Toggling the attribute off
+    // and back on across a tick forces the CSS animation to restart from
+    // the new click position rather than continue with the prior origin.
+    if (wipeTimer) {
+      clearTimeout(wipeTimer);
+      root.removeAttribute("data-theme-wiping");
+      wipeTimer = null;
+    }
+
+    // Read the current --paper as a resolved color BEFORE flipping theme.
+    const oldPaper = getComputedStyle(root).getPropertyValue("--paper").trim();
+    root.style.setProperty("--wipe-paper-from", oldPaper);
+    root.style.setProperty("--wipe-x", `${e.clientX}px`);
+    root.style.setProperty("--wipe-y", `${e.clientY}px`);
+
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("rj-theme", next); } catch {}
+
+    // Force a reflow so the attribute removal above is committed before
+    // we re-add it below — without this, the CSS animation does not
+    // restart on a rapid second click.
+    void root.offsetWidth;
+
+    root.setAttribute("data-theme-wiping", "");
+    wipeTimer = setTimeout(() => {
+      root.removeAttribute("data-theme-wiping");
+      root.style.removeProperty("--wipe-paper-from");
+      root.style.removeProperty("--wipe-x");
+      root.style.removeProperty("--wipe-y");
+      wipeTimer = null;
+    }, 600);
+  }
+  ```
+
+  In `globals.css`:
+
+  ```css
+  html[data-theme-wiping]::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: var(--wipe-paper-from);
+    clip-path: circle(150% at var(--wipe-x) var(--wipe-y));
+    animation: theme-wipe 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    z-index: 9000;             /* above PaperGrain, below cursor (z 10000) */
+    pointer-events: none;       /* clicks pass through to the toggle */
+  }
+  @keyframes theme-wipe {
+    to { clip-path: circle(0% at var(--wipe-x) var(--wipe-y)); }
+  }
+  ```
+
+- **Risks addressed:**
+  - **Z-index:** overlay at `9000` sits above page content, PaperGrain (z 5), and Frame (z 50); below cursor (z 10000) and Preloader (z 10000). Preloader runs only on first-visit, so no z-stack conflict in practice.
+  - **Pointer-events:** `none` on the overlay — clicks pass through; the toggle itself stays responsive even mid-wipe.
+  - **Re-entrancy (committed):** rapid second click cancels the in-flight wipe and restarts from the new click position. The handler clears the timeout, removes `[data-theme-wiping]`, forces a reflow (`void root.offsetWidth`), then re-adds the attribute to restart the CSS animation. Without the reflow the attribute-toggle is batched and the animation does not restart.
+  - **FOUC on initial paint:** unchanged. The inline `<head>` script in `layout.tsx` already sets `data-theme` synchronously before paint. M3 only activates on user clicks.
+  - **Mobile (≤640px):** wipe runs identically — the radial `circle(150% at x y)` from a small viewport's toggle position covers the screen fine. No mobile-specific behavior change.
+- **Reduced motion:** instant theme swap, no overlay, no wipe (early-return in the handler).
 
 **M4. Tonearm row hover underbar.**
 
-The current row hover does a color shift, number scale, and hairline rule via `::after`. Refine the hairline rule into a **2px amber tonearm bar** that slides in from the left.
+The current row hover does a color shift, number scale, and hairline rule via `::after`. Refine the hairline rule into a **2px tonearm bar** that slides in from the left.
 
-- Implementation: existing `::after` element. Change `height: 1px` → `2px`. Color: `--accent`. Add `transform-origin: left center; transform: scaleX(0); transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1)`. On hover: `transform: scaleX(1)`. On exit: `transform-origin: right center; transform: scaleX(0)` — slides out the opposite direction. (Two `::after` rules with state-based origin, or a single `::after` with JS swap. CSS-only approach: use `:not(:hover)::after { transform-origin: right }` as the exit state.)
-- LA28's existing live amber pulse persists. The tonearm bar appears on hover regardless of `wip` status; on LA28 the bar reads as an extension of the live pulse.
-- Reduced motion: `transition: none`; bar appears at full scale immediately on hover.
+- **Color (committed):** `--ink` in light theme (off-black, legible on warm paper), `--accent` (amber) in dark theme. CSS rule: `.obys__setlist-link::after { background: var(--ink); } :root[data-theme="dark"] .obys__setlist-link::after { background: var(--accent); }`.
+- **Slide-in behavior:** existing `::after` element. Change `height: 1px` → `2px`. `transform-origin: left center; transform: scaleX(0); transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1)`. On hover/focus: `transform: scaleX(1)`.
+- **Exit behavior (revised):** the bar collapses left-to-right when hover ends — same `transform-origin: left`, scaling back to `scaleX(0)`. The two-direction "tonearm lifts off the groove from the right" idea is dropped; the simpler left-to-left animation reads cleanly enough and avoids the two-pseudo-element complexity the reviewer flagged. The metaphor stays — the needle drops, the needle lifts — but the lift direction matches the drop direction.
+- **LA28 interaction:** LA28's existing live amber pulse persists (whole row pulses opacity at 2.6s). The tonearm bar appears on hover regardless of `wip` status; on LA28 the bar reads as an extension of the pulse.
+- **Reduced motion:** `transition: none`; the bar appears at full scale immediately on hover.
 
 **M5. Cursor wake.**
 
@@ -189,22 +345,26 @@ Existing speed-line cursor wake stays. No changes.
   - Add SIDE A / SIDE B eyebrow labels with hairline rule between.
   - Personal rows render with dimmer ink classes and indent — CSS-only, no new component.
   - Tighten row gap.
-  - The center plate component (currently inline `<PlateMedia>` or similar) needs to branch on `piece.cover` to render either media or `<ConceptPlate>`. Both branches set `view-transition-name: plate-${piece.slug}` on the frame.
+  - The center plate frame branches on `piece.cover` to render either the existing media plate or `<ConceptPlate piece={piece} />`. The frame element (single shared parent) carries `view-transition-name: plate` — one static name, not per-slug.
+  - Wrap the hover-driven `setActiveSlug` call in `document.startViewTransition(() => setActiveSlug(next))` when the API is available; fall back to a plain state update otherwise. The startViewTransition wrapper is what makes M1 actually run — the `view-transition-name` alone does nothing without an explicit transition call.
+  - On mount, add a `[data-initial-render]` attribute to `<html>` (or to HomeView's root) and remove it after 1500ms via `setTimeout`. This attribute gates M2 — see ConceptPlate notes.
 
 - **`src/components/ConceptPlate.tsx`** (new, ~60 lines)
   - Single-purpose component: renders the typographic plate for a piece without media. Inputs: `piece`. Outputs: a framed plate with code, status, title (per-letter spans), sector lockup.
   - All typography from `t-*` classes plus inline overrides for the monumental title size.
   - Per-letter spans generated server-side (deterministic; no animation flicker on hydration).
+  - **M2 gating:** the per-letter animation is scoped to `:where([data-initial-render]) .concept-plate__title span` — it only runs while the initial-render attribute is present on `<html>` (first 1500ms after mount). Subsequent ConceptPlate mounts or re-renders triggered by slug changes never re-trigger M2, because the gating attribute has been removed by then. This is the explicit answer to the "ConceptPlate remount" concern: M2 fires once per page load, period.
 
 - **`src/components/ThemeToggle.tsx`** (changed)
-  - On click, capture coordinates, set `--wipe-x` / `--wipe-y` custom properties, add `[data-theme-wiping]` to `<html>`, defer `data-theme` swap to midpoint via `setTimeout` (300ms), remove `[data-theme-wiping]` at end (600ms).
-  - Honor `prefers-reduced-motion` — skip the wipe entirely.
+  - On click: (1) capture the current `--paper` value via `getComputedStyle(root).getPropertyValue("--paper")` BEFORE flipping; (2) write `--wipe-paper-from`, `--wipe-x`, `--wipe-y` to `<html>` style; (3) set `data-theme` to the new value immediately (t=0, not deferred); (4) add `[data-theme-wiping]` to `<html>`; (5) start a 600ms cleanup timer that removes the attribute and the inline CSS vars.
+  - **Re-entrancy:** clicking the toggle again during an in-flight wipe cancels the running timer, removes `[data-theme-wiping]` synchronously (forcing the animation to abort), then proceeds with the new wipe from the new click position. The wipe never queues — only one wipe runs at a time, latest click wins.
+  - Honor `prefers-reduced-motion` — early-return on the wipe (still flips `data-theme` and writes localStorage).
 
 - **`src/app/globals.css`** (changed)
-  - Add `::view-transition-group(.plate-*)`, `::view-transition-old(.plate-*)`, `::view-transition-new(.plate-*)` rules implementing M1.
-  - Add `[data-theme-wiping]::before` pseudo-element overlay for M3.
-  - Add `@keyframes` for the theme wipe and the per-letter title reveal.
-  - Add reduced-motion overrides for all new motion.
+  - Add `::view-transition-old(plate)` and `::view-transition-new(plate)` rules with the slice-wipe `@keyframes` (M1). Single shared name, not a glob — VT does not support glob selectors.
+  - Add `html[data-theme-wiping]::before` pseudo-element overlay with the `theme-wipe` keyframe (M3).
+  - Add the per-letter title `letter-rise` keyframe, scoped under `:where([data-initial-render])` so it only runs during the first 1500ms (M2).
+  - Add reduced-motion overrides for all new motion (animation: none on the VT pseudo-elements, instant theme swap on `[data-theme-wiping]`, instant final state on letter-rise).
 
 ### Unchanged
 
@@ -253,7 +413,7 @@ The current data already represents the design's needs. No migration.
 - Already enabled in `next.config.ts` via `experimental.viewTransition: true`.
 - The existing route transition (shared wordmark across `/` and sub-pages) uses the same API. Adding plate VT extends an existing pattern rather than introducing a new motion stack.
 - No new dependency, no bundle size cost.
-- Firefox falls back to default cross-fade — graceful.
+- Firefox (no VT) falls back to instant swap via the `if (document.startViewTransition)` guard — visually less rich than Chromium/Safari, but the rest of the home reads identically.
 
 ---
 
@@ -264,16 +424,16 @@ This is a frontend visual change. Verification is primarily manual:
 1. **Build passes** — `npx tsc --noEmit`, `npx eslint`, `npx next build` all clean.
 2. **Visual check, light theme** — load `/`, verify SIDE A / SIDE B split renders, all 7 rows fit in one viewport, personal rows render dimmer, concept plates show typographic treatment, LA28/Sift/Gyeol still show image plates.
 3. **Visual check, dark theme** — toggle, verify same as above with inverted ground.
-4. **Motion check** — hover each setlist row, verify the plate slice wipe fires, the title (on concept plates) does a per-letter reveal, the row's tonearm bar slides in/out.
+4. **Motion check** — hover (or keyboard-focus) each setlist row, verify the plate slice wipe fires on every active-slug change, the row's tonearm bar slides in on hover/focus and collapses on exit. The per-letter title reveal only fires on initial page load — confirm it on first paint and verify it does NOT re-fire on subsequent row hovers (intentional).
 5. **Theme wipe** — click the theme toggle from different positions on the page, verify the wipe radiates from the click point.
 6. **Reduced motion** — toggle `prefers-reduced-motion` in devtools or OS, verify all motion becomes instant.
 7. **Mobile (≤640px)** — verify the stack layout renders, no horizontal overflow, SIDE A / SIDE B labels remain.
 8. **Existing tests** — `npx vitest run` should still pass; no test file is being changed.
 
 Cross-browser:
-- Chrome / Edge / Arc (Chromium): full motion experience.
-- Safari TP: full motion experience.
-- Firefox: graceful fallback (no plate slice, no theme wipe — default cross-fade and instant theme swap).
+- Chrome / Edge / Arc (Chromium 111+): full motion experience.
+- Safari 18+: full motion experience (same-document View Transitions are stable).
+- Firefox (no VT support as of 2026): plate swap is **instant** (no slice, no fade — the code path skips `document.startViewTransition` when undefined). Theme wipe is instant. All other motion (cursor wake, per-letter reveal on initial mount, tonearm hover) works since they're CSS animations.
 
 ---
 
@@ -289,9 +449,9 @@ Cross-browser:
 
 ## Open decisions
 
-- **Side label copy.** "SIDE A / SIDE B" is the proposed copy. Alternatives: "CASE STUDIES / PERSONAL", "A / B", "SELECTED / ARCHIVE". Decision deferred to implementation; default is "SIDE A / SIDE B" because it carries the music-coded register most directly.
-- **Tonearm color in light theme.** Amber on a light ground may read too soft. If so, override to `--ink` in light theme. Decide during implementation visual review.
-- **Per-letter reveal on image plates.** Currently scoped to typographic plates only. If hover transitions on image plates feel flat by comparison, could add a brief title overlay on image plates too. Deferred — see how it reads first.
+(Decisions previously here have been resolved and folded into the design above. Remaining items below are visual polish that requires implementation review to decide:)
+
+- **Per-letter reveal on image plates.** Currently scoped to typographic plates only. If hover transitions on image plates feel flat by comparison, could add a brief title overlay on image plates too. Decide during implementation visual QA — not a blocker.
 
 ---
 
