@@ -33,7 +33,6 @@ type Props = {
 
 export default function Status({ status, label }: Props) {
   const text = label ?? status;
-  const live = status === "wip";
 
   return (
     <span className="status" data-status={status}>

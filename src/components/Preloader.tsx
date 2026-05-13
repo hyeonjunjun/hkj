@@ -61,22 +61,19 @@ export default function Preloader() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Skip if already shown this session
-    if (sessionStorage.getItem(SESSION_KEY)) {
-      setPhase("done");
-      return;
-    }
-
-    // Skip on reduced-motion — same flag set so a re-render mid-session
-    // doesn't show it.
+    // Bail-out paths just return — phase stays "idle" which renders
+    // null. No setState needed for hiding; the early-exit is enough.
+    if (sessionStorage.getItem(SESSION_KEY)) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       sessionStorage.setItem(SESSION_KEY, "1");
-      setPhase("done");
       return;
     }
 
-    setPhase("active");
-
+    // All state transitions deferred into async callbacks (setTimeout)
+    // — synchronous setState in an effect body would cascade an extra
+    // render. 0ms for the initial transition is one microtask, which
+    // is imperceptible and satisfies react-hooks/set-state-in-effect.
+    const startAt = setTimeout(() => setPhase("active"), 0);
     const fadeAt = setTimeout(() => setPhase("fade"), TOTAL_MS - 600);
     const doneAt = setTimeout(() => {
       sessionStorage.setItem(SESSION_KEY, "1");
@@ -84,6 +81,7 @@ export default function Preloader() {
     }, TOTAL_MS);
 
     return () => {
+      clearTimeout(startAt);
       clearTimeout(fadeAt);
       clearTimeout(doneAt);
     };

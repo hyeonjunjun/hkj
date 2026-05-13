@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * ThemeToggle — light / dark theme switcher.
@@ -8,33 +8,48 @@ import { useEffect, useState } from "react";
  *   light · dark
  *   ─────
  *
- * The active theme is underlined; clicking the other label flips
- * the root's data-theme attribute and persists the choice in
- * localStorage. The inline init script in layout.tsx applies the
- * stored theme before paint so there's no flash on load.
+ * Reads the active theme from `<html data-theme>` via
+ * useSyncExternalStore — the idiomatic React 19 way to bind UI to an
+ * external store (here, the document element). A MutationObserver on
+ * `data-theme` drives re-renders when the attribute changes from any
+ * source (this component, the inline init script, devtools).
  *
- * Default theme is light (the user prefers it). System preference
+ * Default theme is light (the user's preference); system preference
  * (prefers-color-scheme: dark) is deliberately ignored — the user's
  * stated taste overrides OS defaults.
  *
- * Renders nothing on first paint until the component reads the
- * actual current theme from the root element (avoids hydration
- * mismatch between server-rendered HTML and client state).
+ * Renders nothing during SSR and on hydration so the server output
+ * (null) matches the first client render. After hydration commits,
+ * useSyncExternalStore detects the snapshot diff and schedules a
+ * second render with the actual theme — no hydration mismatch warning.
  */
 
 type Theme = "light" | "dark";
 const STORAGE_KEY = "rj-theme";
 
-export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme | null>(null);
+function subscribe(callback: () => void): () => void {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => observer.disconnect();
+}
 
-  useEffect(() => {
-    // The inline script in <head> has already set data-theme by the
-    // time we mount. Read it back rather than computing it again, so
-    // we stay in sync with the actual rendered state.
-    const current = document.documentElement.getAttribute("data-theme");
-    setTheme(current === "dark" ? "dark" : "light");
-  }, []);
+function getSnapshot(): Theme {
+  return document.documentElement.getAttribute("data-theme") === "dark"
+    ? "dark"
+    : "light";
+}
+
+function getServerSnapshot(): Theme | null {
+  return null;
+}
+
+export default function ThemeToggle() {
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  if (!theme) return null;
 
   const apply = (next: Theme) => {
     document.documentElement.setAttribute("data-theme", next);
@@ -43,10 +58,9 @@ export default function ThemeToggle() {
     } catch {
       // localStorage may be unavailable in private mode
     }
-    setTheme(next);
+    // MutationObserver picks up the attribute change and triggers
+    // useSyncExternalStore to re-render with the new snapshot.
   };
-
-  if (!theme) return null;
 
   return (
     <div className="theme-toggle" role="group" aria-label="Theme">

@@ -34,14 +34,20 @@ function FlapDigit({ value }: { value: string }) {
 
   useEffect(() => {
     if (value === shown) return;
-    setFlipping(true);
+    // Defer the state changes into async callbacks so they don't fire
+    // synchronously inside the effect body (which would cascade an
+    // immediate re-render). 0ms is one microtask — imperceptible, and
+    // satisfies the react-hooks/set-state-in-effect rule.
+    //
     // Swap the rendered character at the midpoint of the flip — the
     // moment the flap is at scaleY ~0, when the eye can't read what's
     // there. This gives the illusion of a single mechanical action
     // ending on the new value.
+    const startFlip = setTimeout(() => setFlipping(true), 0);
     const swap = setTimeout(() => setShown(value), 160);
     const stop = setTimeout(() => setFlipping(false), 320);
     return () => {
+      clearTimeout(startFlip);
       clearTimeout(swap);
       clearTimeout(stop);
     };

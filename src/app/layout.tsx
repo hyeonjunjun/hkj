@@ -63,6 +63,10 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* The no-page-custom-font rule is a Pages-Router-era check;
+            in App Router, layout.tsx is the universal head and the
+            font does load for every page. Disabling for this one line. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Departure+Mono&display=swap"
