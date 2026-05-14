@@ -31,8 +31,8 @@ The mechanic also tacitly demonstrates contemporary spatial / AR UI fluency — 
 | Route / isolation | `app/v/cloud-gazing/page.tsx` on master, fully isolated from existing routes |
 
 Auto-mode picks on previously-deferred items (override anytime in implementation):
-- **Animal roster, v0:** sheep, dog, cat, dragon, whale, bunny, turtle, pointing-hand (8 SDFs).
-- **Project silhouettes:** one man-made silhouette per portfolio piece. Black-and-white SVG → 256×256 grayscale SDF.
+- **Animal roster, v0:** sheep, dog, cat, dragon, whale, bunny, turtle, pointing-hand (8 painted hero sprites).
+- **Project silhouettes:** one man-made silhouette per portfolio piece. Workflow: black-and-white SVG of the top profile → used as the top-edge mask while painting the cloud sprite in Procreate / Photoshop. Final asset is a transparent PNG/WebP sprite with painted internal shading.
 
 ---
 
@@ -149,15 +149,24 @@ Roster v0: 8 animals + N project shapes. Estimated ~30 min per painted cloud onc
 **Guardrails:**
 - DPR capped at 1.5 on retina screens
 - Max 5 layered shader passes
-- Max 3 FBM octaves per shape
-- All shape SDFs share one texture atlas → 1 texture bind per shape pass
+- Max 3 FBM octaves in the Tier 1 cumulus shader
+- All hero sprites packed into a single texture atlas → 1 texture bind for all hero clouds in a pass
 - Pointer + time updates via Three.js uniforms only — never React state
 - `useFrame` lerps pointer toward target each frame
 - RAF paused when `document.hidden`
 - Cloud population capped at 12 simultaneous shapes
 
-**Graceful degradation:**
-- `prefers-reduced-motion` or detected mobile / low-end GPU → swap shader-noise clouds for static painted sprites (the C-fallback). Same scene graph, same architecture, simpler material. Animation reduced to UV scroll only.
+**Graceful degradation triggers (any of):**
+- `window.matchMedia('(prefers-reduced-motion: reduce)').matches`
+- `navigator.hardwareConcurrency <= 4`
+- coarse pointer detected (`window.matchMedia('(pointer: coarse)').matches`) — mobile / touch
+- runtime fps probe drops below 30fps sustained for 3s after first paint
+
+**Fallback behavior:**
+- Disable edge-breathing displacement on hero sprites (static silhouettes)
+- Reduce Tier 1 cumulus shader to 1 FBM octave or replace with a static painted backdrop
+- Drop bloom post-pass; rely on baked highlights in the sprites
+- Same scene graph, same architecture, simpler materials
 
 ---
 
@@ -203,11 +212,17 @@ Roster v0: 8 animals + N project shapes. Estimated ~30 min per painted cloud onc
 Each component has one clear purpose, communicates through props, and is independently testable:
 
 - **`Sky`** — composes the Canvas, owns the RAF, owns the shared uniforms (`uTime`, `uPointer`). Knows nothing about projects.
-- **`CloudLayer`** — given a list of `Cloud` descriptors, renders them at a given depth. Knows nothing about hit-testing or panels.
-- **`Cloud`** — given an SDF id + drift descriptor, renders one shape. Reports hover state up.
+- **`SkyDome`** — gradient backdrop, owns the mood clock.
+- **`CumulusField`** — Tier 1 ambient cumulus shader pass. Pure visual layer.
+- **`HeroCloudLayer`** — given a list of `HeroCloud` descriptors, renders them at a given depth. Knows nothing about hit-testing or panels.
+- **`HeroCloud`** — given a sprite id + drift descriptor + parallax depth, renders one painted-sprite cloud and reports hover state up.
+- **`DesignedCloud`** — Tier 2b discrete designed cloud (sharper-edged sprite). Same interface as `HeroCloud`.
 - **`useCloudPopulation`** — pure logic that produces the current population of clouds (animals + projects). Easily unit-testable.
 - **`usePointerUniform`** — pointer → smoothed ref → uniform. Pure, isolated.
+- **`GazeTag`** — given an anchor position and a label, renders the glass hover tag. Knows nothing about cloud internals.
 - **`ProjectPanel`** — given a project slug, renders the case content. Knows nothing about clouds.
+
+**Hash routing:** `ProjectPanel` is controlled by URL hash. On mount, if `window.location.hash` matches a project slug, the panel pops open. `popstate` listener handles back/forward navigation. This means `/v/cloud-gazing#<project-slug>` deep-links cleanly on direct load.
 
 This boundary means: the sky can be developed and tuned without ever touching project panel logic, and vice versa. Either piece can be replaced independently.
 
@@ -215,12 +230,12 @@ This boundary means: the sky can be developed and tuned without ever touching pr
 
 ## 9. Phasing (intent, not a plan)
 
-1. **Sky-only spike** — sky dome + one cloud layer + one shape + pointer parallax. Validate the look and the performance floor.
-2. **Population & roster** — full animal SDF atlas, spawning/cycling, drift mix.
-3. **Hover & tags** — hit-testing, glass tag reveal.
-4. **Project panel** — anomaly clouds, click → panel rise, hash routing.
-5. **Mood & polish** — mood clock, bloom tuning, cirrus, atmospheric tint.
-6. **Fallback path** — reduced-motion / mobile sprite fallback.
+1. **Sky-only spike** — sky dome + Tier 1 cumulus + one painted hero cloud (whale, per the WuWa reference) + pointer parallax. Validate the look and the performance floor against the reference screenshot.
+2. **Population & roster** — full animal sprite atlas (8 hero clouds), spawning/cycling, drift mix.
+3. **Hover & tags** — hit-testing on sprite alpha bounds with generous radius, glass tag reveal.
+4. **Project panel** — anomaly clouds, click → panel rise, hash routing including deep-link on mount.
+5. **Mood & polish** — mood clock, bloom tuning, cirrus, atmospheric tint, occasional Tier 2b designed cloud.
+6. **Fallback path** — reduced-motion / mobile sprite fallback with the guardrail triggers from §6.
 
 Each phase ships a working `/v/cloud-gazing` page. We can stop after any phase and still have a usable experience.
 
