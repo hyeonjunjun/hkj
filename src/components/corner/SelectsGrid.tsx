@@ -67,7 +67,11 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
           column-gap: clamp(16px, 2vw, 28px);
           row-gap: clamp(36px, 5vh, 64px);
           padding: 0 var(--margin-page);
-          transition: grid-template-columns 360ms var(--ease);
+          /* No CSS transition on grid-template-columns — View Transitions
+             (per-tile, via view-transition-name in SelectTile) handle
+             the column reflow smoothly. CSS-transitioned grid columns
+             on top of view-transition snapshots was the source of the
+             visible reorganization. */
         }
         /* When the Now Playing panel is open, the grid reflows from
            4 to 3 cols. This is the "shifts layout responsively without
@@ -118,7 +122,6 @@ interface TileProps {
 
 function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
   const number = `[${piece.number}]`;
-  const isWip = piece.status === "wip";
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Only intercept on the peek breakpoint. Below it, let the link
@@ -190,11 +193,6 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
             </div>
           )}
 
-          {isWip && (
-            <span className="select-tile__live" aria-label="Live — in progress">
-              <span className="select-tile__live-dot" aria-hidden />
-            </span>
-          )}
         </div>
       </Link>
 
@@ -315,43 +313,6 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
           text-transform: uppercase;
         }
 
-        /* Live indicator — small dark-glass circle holding a pulsing
-           amber dot. No text, no box, no padding — reads as "live now"
-           the way a music app shows a now-playing marker. Replaces the
-           prior boxed LIVE / CONCEPT tag (whose height + padding made
-           the chrome heavier than the signal warranted). CONCEPT
-           pieces no longer get a tile marker — the "in progress"
-           placeholder + the Now Playing panel both surface that. */
-        .select-tile__live {
-          position: absolute;
-          bottom: 10px;
-          right: 10px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: rgba(0, 0, 0, 0.45);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          display: grid;
-          place-content: center;
-          border: 1px solid rgba(255, 255, 255, 0.10);
-        }
-        .select-tile__live-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--accent);
-          box-shadow: 0 0 0 0 rgba(232, 178, 90, 0.5);
-          animation: select-tile-live 2.4s ease-in-out infinite;
-        }
-        @keyframes select-tile-live {
-          0%   { box-shadow: 0 0 0 0 rgba(232, 178, 90, 0.45); }
-          70%  { box-shadow: 0 0 0 5px transparent; }
-          100% { box-shadow: 0 0 0 0 transparent; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .select-tile__live-dot { animation: none; }
-        }
 
         @media (prefers-reduced-motion: reduce) {
           .select-tile { animation: none; opacity: 1; transform: none; }

@@ -46,8 +46,12 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
     "Shipped";
 
   return (
-    <aside className="np-panel" aria-label={`Now playing: ${piece.title}`}>
-      <div className="np-panel__inner" key={piece.slug /* re-mount per piece so anim plays */}>
+    <aside
+      className="np-panel"
+      aria-label={`Now playing: ${piece.title}`}
+      style={{ viewTransitionName: "corner-rail" }}
+    >
+      <div className="np-panel__inner">
         <header className="np-panel__head">
           <span className="t-warmth np-panel__head-title">
             <span className="np-panel__head-dot" data-live={isWip ? "" : undefined} aria-hidden />
@@ -136,11 +140,9 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
           padding: clamp(20px, 2.6vh, 32px) clamp(20px, 2.4vw, 32px) clamp(48px, 6vh, 80px);
           display: grid;
           row-gap: clamp(16px, 2vh, 24px);
-          animation: np-panel-fade 360ms var(--ease);
-        }
-        @keyframes np-panel-fade {
-          0%   { opacity: 0; transform: translateX(6px); }
-          100% { opacity: 1; transform: translateX(0); }
+          /* No CSS keyframe entrance — View Transitions (corner-rail
+             name) drive the slide-in/out animation. Running both was
+             the source of the panel-appearance jank. */
         }
 
         .np-panel__head {
@@ -304,7 +306,6 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .np-panel__inner { animation: none; }
           .np-panel__head-dot[data-live] { animation: none; }
           .np-panel__close { transition: none; }
           .np-panel__cta { transition: color 180ms var(--ease); }
