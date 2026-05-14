@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* ─── Self-hosted typeface ──────────────────────────────────────────────────
+ * Departure Mono — the chrome typeface. Free MIT-licensed font by Helena
+ * Zhang (departuremono.com). NOT on Google Fonts; the file is shipped in
+ * /public/fonts and registered here so it loads from origin without an
+ * external network round-trip (and without ORB-blocking issues).
+ */
+@font-face {
+  font-family: "Departure Mono";
+  src: url("/fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 /*
  * Color tokens are theme-conditional. Default = light (warm paper, pure
@@ -64,9 +78,15 @@
      the type scale below: every role is mono-styled. */
   /* Departure Mono leads the mono stack — subtle dot-matrix character
      that pairs with the pixel-coded register (favicon, theme toggle).
-     Geist Mono is the fallback before system mono kicks in. */
-  --font-stack-mono: "Departure Mono", var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
-  --font-stack-sans: var(--font-geist-sans), -apple-system, "SF Pro Text", system-ui, sans-serif;
+     Geist Mono is the fallback before system mono kicks in.
+     Note: the var(...) calls include an explicit fallback inside the
+     var() so the chain stays valid even when read at :root (where
+     next/font's --font-geist-mono is NOT yet defined — those classes
+     ride on <body>, not <html>). Without the fallback, the whole
+     font-family value becomes invalid at :root level and Tailwind
+     preflight's ui-sans-serif default takes over via inheritance. */
+  --font-stack-mono: "Departure Mono", var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  --font-stack-sans: var(--font-geist-sans, "Geist"), -apple-system, "SF Pro Text", system-ui, sans-serif;
 
   /* ── Type scale ──────────────────────────────────────────
      Ten roles. Every text element on the site is one of these.

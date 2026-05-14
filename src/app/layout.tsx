@@ -56,26 +56,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        {/* Departure Mono — the chrome typeface. Subtle dot-matrix
-            character pairs with the pixel-coded register (favicon
-            monogram, theme toggle). Geist Mono stays as fallback. */}
-        <link
-          rel="preconnect"
-          href="https://fonts.googleapis.com"
-        />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        {/* The no-page-custom-font rule is a Pages-Router-era check;
-            in App Router, layout.tsx is the universal head and the
-            font does load for every page. Disabling for this one line. */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Departure+Mono&display=swap"
-        />
+        {/* Departure Mono is self-hosted via @font-face in globals.css —
+            Google Fonts does not host it. Geist Mono stays as fallback. */}
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         {/* Skip link is the first focusable element — ahead of the
