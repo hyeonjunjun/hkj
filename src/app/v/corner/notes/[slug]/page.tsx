@@ -2,19 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CORNER_NOTES } from "@/constants/corner-notes";
-import { Masthead } from "@/components/corner/Masthead";
-import { AudioFixture } from "@/components/corner/AudioFixture";
-import { CornerColophon } from "@/components/corner/CornerColophon";
+import { CornerNav } from "@/components/corner/CornerNav";
+import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
- * /v/corner/[slug] — single-note detail page.
+ * /v/corner/notes/[slug] — single-note detail page.
  *
- * Reuses Masthead + AudioFixture for continuity. The note title block
- * carries `view-transition-name: corner-note-<slug>` so the row-to-
- * detail transition morphs the title into place.
+ * The note title block carries `view-transition-name: corner-note-<slug>`
+ * so the row-to-detail transition morphs the title into place from the
+ * feed page.
  *
- * Body content lives in /src/constants/corner-notes.tsx as JSX. MDX is
- * deferred until the writing volume justifies the dependency.
+ * Body content lives in /src/constants/corner-notes.tsx as JSX.
  */
 
 interface Params {
@@ -47,59 +45,57 @@ export default async function NoteDetailPage({
   const number = `N${String(note.number).padStart(3, "0")}`;
 
   return (
-    <article className="corner-detail">
-      <section className="corner-detail__top" aria-label="Masthead">
-        <Masthead />
-        <AudioFixture />
-      </section>
+    <div className="corner-detail">
+      <CornerNav />
+      <article className="corner-detail__article">
+        <header className="corner-detail__head">
+          <div className="corner-detail__meta">
+            <span className="t-code tabular">{number}</span>
+            <span className="t-sep" aria-hidden>·</span>
+            <time className="t-meta tabular" dateTime={note.date}>{note.date}</time>
+            <span className="t-sep" aria-hidden>·</span>
+            <span className="t-meta">{note.category}</span>
+          </div>
+          <h1
+            className="t-display corner-detail__title"
+            style={{ viewTransitionName: `corner-note-${note.slug}` }}
+          >
+            {note.title}
+          </h1>
+          {note.lede && (
+            <p className="t-statement corner-detail__lede">{note.lede}</p>
+          )}
+        </header>
 
-      <header className="corner-detail__head">
-        <div className="corner-detail__meta">
-          <span className="t-code tabular">{number}</span>
-          <span className="t-sep" aria-hidden>·</span>
-          <time className="t-meta tabular" dateTime={note.date}>{note.date}</time>
-          <span className="t-sep" aria-hidden>·</span>
-          <span className="t-meta">{note.category}</span>
-        </div>
-        <h1
-          className="t-display corner-detail__title"
-          style={{ viewTransitionName: `corner-note-${note.slug}` }}
-        >
-          {note.title}
-        </h1>
-        {note.lede && (
-          <p className="t-statement corner-detail__lede">{note.lede}</p>
-        )}
-      </header>
+        <hr className="t-rule" />
 
-      <hr className="t-rule" />
+        <div className="corner-detail__body t-prose">{note.body}</div>
 
-      <div className="corner-detail__body t-prose">{note.body}</div>
-
-      <nav className="corner-detail__back" aria-label="Back to corner">
-        <Link href="/v/corner" className="t-meta corner-detail__back-link">
-          ← back to corner
-        </Link>
-      </nav>
-
-      <CornerColophon />
+        <nav className="corner-detail__back" aria-label="Back to notes">
+          <Link href="/v/corner/notes" className="t-meta corner-detail__back-link">
+            ← back to notes
+          </Link>
+        </nav>
+      </article>
+      <CornerAudio />
 
       <style>{`
         .corner-detail {
-          padding:
-            clamp(120px, 16vh, 200px)
-            var(--margin-page)
-            clamp(80px, 10vh, 128px);
-          max-width: 760px;
-          margin-inline: auto;
+          min-height: 100vh;
           display: grid;
-          row-gap: clamp(56px, 8vh, 96px);
+          grid-template-rows: auto 1fr;
+          row-gap: clamp(48px, 8vh, 96px);
+          padding-bottom: clamp(120px, 16vh, 200px);
           position: relative;
           z-index: 2;
         }
-        .corner-detail__top {
+        .corner-detail__article {
+          padding: 0 var(--margin-page);
+          max-width: 760px;
+          margin-inline: auto;
+          width: 100%;
           display: grid;
-          row-gap: clamp(20px, 2.6vh, 32px);
+          row-gap: clamp(40px, 6vh, 72px);
         }
         .corner-detail__head {
           display: grid;
@@ -116,8 +112,6 @@ export default async function NoteDetailPage({
           text-transform: none;
           letter-spacing: -0.025em;
           color: var(--ink);
-          /* Display role; clamp drops to a readable size for note titles
-             vs. the full hero-scale of the home wordmark. */
           font-size: clamp(28px, 5vw, 56px);
         }
         .corner-detail__lede {
@@ -132,9 +126,7 @@ export default async function NoteDetailPage({
           display: grid;
           row-gap: 1.15em;
         }
-        .corner-detail__body p {
-          margin: 0;
-        }
+        .corner-detail__body p { margin: 0; }
         .corner-detail__back {
           padding-top: clamp(24px, 3vh, 40px);
         }
@@ -151,6 +143,6 @@ export default async function NoteDetailPage({
           .corner-detail__back-link { transition: none; }
         }
       `}</style>
-    </article>
+    </div>
   );
 }

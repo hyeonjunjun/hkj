@@ -1,9 +1,15 @@
 // src/components/chrome/Logo.tsx
 "use client";
 
+import { usePathname } from "next/navigation";
 import { TransitionLink } from "@/components/transition/TransitionLink";
 
 export function Logo() {
+  const pathname = usePathname();
+  // /v/corner uses its own editorial masthead inside CornerNav (which
+  // also owns the shared rj-mark view-transition-name); a second
+  // bottom-left Logo would be duplicate identity chrome.
+  if (pathname?.startsWith("/v/corner")) return null;
   return (
     <TransitionLink
       href="/"

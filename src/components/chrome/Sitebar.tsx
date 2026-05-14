@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { TransitionLink } from "@/components/transition/TransitionLink";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const RESERVE_PX = 120; // width carved out for BackButton when off-home
+const NEXT_AVAILABILITY = "23 MAY 2026";
 
 const ROUTES = [
   { href: "/", label: "Index" },
@@ -40,6 +40,11 @@ export function Sitebar() {
     return () => clearInterval(id);
   }, []);
 
+  // The /v/corner experience renders its own editorial nav. Hide the
+  // global Sitebar there to avoid duplicate top-line chrome. Early-
+  // return placed AFTER hooks so hook order stays stable across paths.
+  if (pathname?.startsWith("/v/corner")) return null;
+
   return (
     <header
       className="sitebar"
@@ -72,26 +77,33 @@ export function Sitebar() {
             </TransitionLink>
           </span>
         ))}
-        <span className="sitebar__theme">
-          <ThemeToggle />
+        <span className="t-footnote sitebar__next-avail">
+          <span className="t-sep" aria-hidden>·</span>
+          <span aria-label={`Next availability ${NEXT_AVAILABILITY}`}>
+            Next · {NEXT_AVAILABILITY}
+          </span>
         </span>
       </nav>
 
       <style>{`
         .sitebar {
           position: fixed;
-          top: var(--margin-page);
-          left: var(--margin-page);
-          right: var(--margin-page);
-          height: 32px;
+          /* Small breathing from the top edge — sits as a thin pill at
+             the top of the viewport with side padding scaled to the
+             page margin token. Height bumped to 36 so internal text
+             has air around it instead of crowding the top/bottom. */
+          top: 12px;
+          left: clamp(12px, 1.5vw, 24px);
+          right: clamp(12px, 1.5vw, 24px);
+          height: 36px;
           display: grid;
           grid-template-columns: 1fr auto 1fr;
           align-items: center;
-          gap: clamp(16px, 2vw, 32px);
-          padding: 0 16px;
+          gap: clamp(24px, 3vw, 48px);
+          padding: 0 clamp(16px, 2vw, 28px);
           background: var(--ink);
           color: var(--paper);
-          border-radius: 4px;
+          border-radius: 2px;
           z-index: 50;
           pointer-events: auto;
         }
@@ -107,26 +119,25 @@ export function Sitebar() {
           gap: 0;
         }
         .sitebar .t-footnote { color: var(--paper); }
-        .sitebar .t-sep { color: var(--paper); opacity: 0.5; margin: 0 0.4em; }
+        .sitebar .t-sep { color: var(--paper); opacity: 0.5; margin: 0 0.55em; }
         .sitebar__nav-cell { display: inline-flex; align-items: baseline; }
-        .sitebar__nav-sep { color: var(--paper); opacity: 0.4; }
+        .sitebar__nav-sep { color: var(--paper); opacity: 0.4; margin: 0 0.4em; }
         .sitebar__nav-link {
           color: var(--paper);
           opacity: 0.7;
           text-transform: uppercase;
           transition: opacity 180ms var(--ease);
-          padding: 0 6px;
+          padding: 0 10px;
         }
         .sitebar__nav-link:hover { opacity: 1; }
-        .sitebar__theme { margin-left: 12px; }
-        /* ThemeToggle ships its own colors via .theme-toggle / __btn /
-           __sep classes. Force the inverse register inside the dark
-           Sitebar pill so its labels stay legible. */
-        .sitebar__theme .theme-toggle { color: var(--paper); }
-        .sitebar__theme .theme-toggle__btn { color: var(--paper); opacity: 0.6; }
-        .sitebar__theme .theme-toggle__btn:hover,
-        .sitebar__theme .theme-toggle__btn[data-active] { color: var(--paper); opacity: 1; }
-        .sitebar__theme .theme-toggle__sep { color: var(--paper); opacity: 0.4; }
+        .sitebar__next-avail {
+          display: inline-flex;
+          align-items: baseline;
+          color: var(--paper);
+          opacity: 0.65;
+          padding-left: 10px;
+          gap: 0.4em;
+        }
         @media (max-width: 760px) {
           /* Drop the center clock and shrink to a single row: nav only,
              since the brand wordmark and clock are nice-to-have, not
@@ -142,13 +153,12 @@ export function Sitebar() {
           .sitebar__nav { justify-self: end; }
           .sitebar__nav-link { padding: 0 4px; font-size: 8px; }
           .sitebar__nav-sep { margin: 0 0.2em; }
-          .sitebar__theme { margin-left: 8px; }
-          .sitebar__theme .theme-toggle { font-size: 9px; }
+          .sitebar__next-avail { font-size: 8px; padding-left: 4px; }
         }
         @media (max-width: 420px) {
-          /* Even tighter: drop the theme toggle so nav fits. The toggle
-             is still reachable on every desktop viewport. */
-          .sitebar__theme { display: none; }
+          /* Tightest layout: drop the availability indicator so nav
+             fits. The date is still visible at every wider viewport. */
+          .sitebar__next-avail { display: none; }
         }
       `}</style>
     </header>

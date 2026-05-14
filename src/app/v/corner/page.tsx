@@ -1,83 +1,57 @@
 import type { Metadata } from "next";
-import { Masthead } from "@/components/corner/Masthead";
-import { IdentityStrip } from "@/components/corner/IdentityStrip";
-import { AudioFixture } from "@/components/corner/AudioFixture";
-import { NotesFeed } from "@/components/corner/NotesFeed";
-import { CornerColophon } from "@/components/corner/CornerColophon";
+import { CornerNav } from "@/components/corner/CornerNav";
+import { ProjectSlider } from "@/components/corner/ProjectSlider";
+import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
- * /v/corner — the corner portfolio.
+ * /v/corner — index home.
  *
- * A separate exploration route off the main /. The current iteration
- * on / stays untouched; this is where the corner direction is
- * developed and shipped for the May 23 networking event.
+ * Single-section editorial homepage:
+ *   nav (full-bleed editorial) → project slider → corner audio (fixed)
  *
- * Composition (top → bottom):
- *   masthead → audio fixture → identity strip → notes feed → colophon
+ * No middle column, no notes feed, no identity strip — those live at
+ * /v/corner/notes and /v/corner/about. The home IS the work index.
  *
- * Reuses the existing typography system (t-* classes), color register,
- * PaperGrain (rendered globally in root layout). Adds only the corner-
- * specific components in /src/components/corner/.
+ * Intentionally no max-width container on the outer wrapper — the
+ * nav and slider both stretch edge-to-edge for the "no container"
+ * editorial register.
  */
 
 export const metadata: Metadata = {
-  title: "Corner",
+  title: "Index — Ryan Jun",
   description:
-    "A quiet corner — notes from Ryan Jun's multidisciplinary practice.",
+    "Index of selected work. Multidisciplinary practice from New York.",
 };
 
-export default function CornerPage() {
+export default function CornerIndexPage() {
   return (
-    <article className="corner">
-      <section className="corner__header" aria-label="Masthead">
-        <Masthead />
-        <IdentityStrip />
-      </section>
-
-      <section className="corner__audio" aria-label="Now playing">
-        <AudioFixture />
-      </section>
-
-      <section className="corner__feed" aria-label="Notes">
-        <NotesFeed />
-      </section>
-
-      <CornerColophon />
+    <div className="corner-index">
+      <CornerNav />
+      <main className="corner-index__main">
+        <ProjectSlider />
+      </main>
+      <CornerAudio />
 
       <style>{`
-        .corner {
-          /* Pull off the global Sitebar (fixed at top: 12px, ~36px tall)
-             and provide generous breathing room above the masthead. */
-          padding:
-            clamp(120px, 16vh, 200px)
-            var(--margin-page)
-            clamp(80px, 10vh, 128px);
-          max-width: 760px;
-          margin-inline: auto;
+        .corner-index {
+          /* Full-bleed: the index home has no centering container.
+             Sections own their own horizontal padding. */
+          min-height: 100vh;
           display: grid;
-          /* Flora-level discipline: three sections, no section labels,
-             trust the typography to provide hierarchy. */
-          row-gap: clamp(72px, 11vh, 128px);
+          grid-template-rows: auto 1fr;
+          row-gap: clamp(48px, 8vh, 96px);
+          padding-bottom: clamp(120px, 16vh, 200px);
           position: relative;
-          z-index: 2; /* above PaperGrain (z=1) */
+          z-index: 2;
         }
-
-        .corner__header {
+        .corner-index__main {
           display: grid;
-          row-gap: clamp(20px, 2.6vh, 32px);
-        }
-        .corner__audio,
-        .corner__feed {
-          display: grid;
-        }
-
-        @media (max-width: 720px) {
-          .corner {
-            padding-top: clamp(96px, 12vh, 140px);
-            row-gap: clamp(56px, 8vh, 88px);
-          }
+          /* The slider section owns its own padding via .corner-slider__head
+             and .corner-slider__track padding-inline. */
+          align-content: start;
+          row-gap: clamp(32px, 4vh, 56px);
         }
       `}</style>
-    </article>
+    </div>
   );
 }
