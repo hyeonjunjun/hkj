@@ -86,7 +86,7 @@ Three is enough variety to feel alive, not so many you can't fill them. Robin Re
 - Title in `t-row` weight, sentence case
 - Arrow glyph that's also the click target
 
-**Detail page** (`/notes/[slug]` or `/§NNN`):
+**Detail page** (`/notes/[slug]` — slug is canonical; the §NNN number is presentational only):
 - Same masthead and audio fixture as home (continuity)
 - Above the fold: note header — number, date, category, title
 - Body: long-form text in `t-prose` with mono support for code/quotes
@@ -113,7 +113,7 @@ Three is enough variety to feel alive, not so many you can't fill them. Robin Re
 - Faux progress: `mm:ss / mm:ss` showing a position that advances slowly toward the runtime, then rotates to the next track
 
 **Rotation:**
-- Curated playlist of N tracks (5–12), held in `playlist.ts`
+- Curated playlist of **8 tracks** target (held in `playlist.ts`)
 - A track "plays" for its declared runtime, then rotates to the next
 - Tab-visibility-aware: rotation pauses when `document.hidden`
 - No persistent state across refreshes (each load picks up wherever the rotation is in real time, computed from a fixed epoch)
@@ -167,7 +167,10 @@ This is the simplest CMS — files on disk. No DB, no headless CMS. Ryan can wri
 - Audio fixture: no setState per frame; rotation runs off a single timestamp computation
 - View transitions on masthead from `/` → `/notes/[slug]` and back
 - Preloader runs once per session (existing behavior)
-- Accessibility: notes feed is semantic `<ol>` with `<li>`, audio fixture has `aria-label="now playing"` and no auto-emitted noise (it's silent anyway)
+- Accessibility:
+  - Notes feed is semantic `<ol>` with `<li>`
+  - Audio fixture is `aria-hidden="true"` for the rotating track display (announcing a new title every ~12s is disruptive). A single sr-only `<span>` adjacent to the fixture explains: *"This is a silent music-metadata fixture. No audio plays. Track titles rotate visually for atmosphere."*
+  - PixelEQ bars are decorative; mark `aria-hidden`
 
 ## 11. Phasing — 9-day sprint to May 23
 
@@ -175,8 +178,8 @@ Sketch only; details belong in the implementation plan from writing-plans skill.
 
 | Days | Phase | Deliverable |
 |---|---|---|
-| Thu–Fri May 14–15 | **Identity** | One-breath statement of who/what/want. Masthead lockup decided. Initial playlist curated (5–12 tracks). |
-| Sat–Sun May 16–17 | **Skeleton** | Page scaffolded: `Masthead`, `AudioFixture` static (no rotation yet), `IdentityStrip`, empty `NotesFeed`. Reuses existing typography + color. |
+| Thu–Fri May 14–15 | **Identity** (hardest content task — do not slip) | One-breath statement of who/what/want. Masthead lockup decided. Initial playlist curated (8 tracks). |
+| Sat–Sun May 16–17 | **Skeleton + retire prior** | Page scaffolded: `Masthead`, `AudioFixture` static (no rotation yet), `IdentityStrip`, empty `NotesFeed`. Reuses existing typography + color. **Retire** prior home components no longer in use (single-viewport hero, 3-column body, AR panoramic exploration, cloud-gazing scaffolding if any). |
 | Mon May 18 | **Audio rotation** | `useRotatingPlaylist` working, PixelEQ wired, click affordance shipped. |
 | Tue May 19 | **Notes feed** | MDX content pipeline, frontmatter loader, `NoteRow` + feed rendering with 1 seed note. |
 | Wed May 20 | **Note detail** | `/notes/[slug]` route, MDX rendering, view transitions wired. |
