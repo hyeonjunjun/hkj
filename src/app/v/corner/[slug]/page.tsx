@@ -48,18 +48,21 @@ export default async function NoteDetailPage({
 
   return (
     <article className="corner-detail">
-      <div className="corner-detail__top">
+      <section className="corner-detail__masthead-section" aria-label="Masthead">
         <Masthead />
+      </section>
+
+      <section className="corner-detail__audio-section" aria-label="Now playing">
+        <span className="t-section corner-detail__section-label">Now Playing</span>
         <AudioFixture />
-      </div>
+      </section>
 
       <header className="corner-detail__head">
+        <span className="t-section corner-detail__section-label">{note.category}</span>
         <div className="corner-detail__meta">
           <span className="t-code tabular">{number}</span>
           <span className="t-sep" aria-hidden>·</span>
           <time className="t-meta tabular" dateTime={note.date}>{note.date}</time>
-          <span className="t-sep" aria-hidden>·</span>
-          <span className="t-meta">{note.category}</span>
         </div>
         <h1
           className="t-display corner-detail__title"
@@ -87,24 +90,34 @@ export default async function NoteDetailPage({
       <style>{`
         .corner-detail {
           padding:
-            clamp(96px, 12vh, 160px)
+            clamp(120px, 16vh, 200px)
             var(--margin-page)
-            clamp(56px, 8vh, 96px);
+            clamp(80px, 10vh, 128px);
           max-width: 760px;
           margin-inline: auto;
           display: grid;
-          row-gap: clamp(28px, 3.5vh, 48px);
+          row-gap: clamp(72px, 11vh, 128px);
           position: relative;
           z-index: 2;
         }
-        .corner-detail__top {
+        .corner-detail__section-label {
+          display: block;
+          color: var(--ink-3);
+          margin-bottom: clamp(16px, 2vh, 24px);
+        }
+        .corner-detail__masthead-section,
+        .corner-detail__audio-section {
           display: grid;
-          row-gap: clamp(16px, 2vh, 28px);
+        }
+        .corner-detail__audio-section {
+          padding-top: clamp(20px, 2.5vh, 32px);
+          border-top: 1px solid var(--ink-ghost);
         }
         .corner-detail__head {
           display: grid;
           row-gap: clamp(12px, 1.4vh, 18px);
-          padding-top: clamp(20px, 2vh, 28px);
+          padding-top: clamp(28px, 3vh, 40px);
+          border-top: 1px solid var(--ink-ghost);
         }
         .corner-detail__meta {
           display: inline-flex;
