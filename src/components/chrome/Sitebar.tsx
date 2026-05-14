@@ -2,8 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { TransitionLink } from "@/components/transition/TransitionLink";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const RESERVE_PX = 120; // width carved out for BackButton when off-home
+
+const ROUTES = [
+  { href: "/", label: "Index" },
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
 
 function formatNYC(now: Date): { time: string; date: string } {
   const time = new Intl.DateTimeFormat("en-US", {
@@ -50,9 +59,23 @@ export function Sitebar() {
       <span className="t-footnote tabular sitebar__center">
         {stamp.date} <span className="t-sep">·</span> NYC {stamp.time}
       </span>
-      <span className="t-footnote sitebar__right">
-        Selective for q3 2026
-      </span>
+      <nav className="sitebar__nav" aria-label="Primary">
+        {ROUTES.map((route, i) => (
+          <span key={route.href} className="sitebar__nav-cell">
+            {i > 0 && <span className="t-sep sitebar__nav-sep" aria-hidden>·</span>}
+            <TransitionLink
+              href={route.href}
+              className="t-footnote sitebar__nav-link"
+              showActiveIndicator
+            >
+              {route.label}
+            </TransitionLink>
+          </span>
+        ))}
+        <span className="sitebar__theme">
+          <ThemeToggle />
+        </span>
+      </nav>
 
       <style>{`
         .sitebar {
@@ -77,18 +100,44 @@ export function Sitebar() {
         }
         .sitebar__left { justify-self: start; }
         .sitebar__center { justify-self: center; }
-        .sitebar__right { justify-self: end; }
+        .sitebar__nav {
+          justify-self: end;
+          display: inline-flex;
+          align-items: baseline;
+          gap: 0;
+        }
         .sitebar .t-footnote { color: var(--paper); }
         .sitebar .t-sep { color: var(--paper); opacity: 0.5; margin: 0 0.4em; }
+        .sitebar__nav-cell { display: inline-flex; align-items: baseline; }
+        .sitebar__nav-sep { color: var(--paper); opacity: 0.4; }
+        .sitebar__nav-link {
+          color: var(--paper);
+          opacity: 0.7;
+          text-transform: uppercase;
+          transition: opacity 180ms var(--ease);
+          padding: 0 6px;
+        }
+        .sitebar__nav-link:hover { opacity: 1; }
+        .sitebar__theme { margin-left: 12px; }
+        /* ThemeToggle ships its own colors via .theme-toggle / __btn /
+           __sep classes. Force the inverse register inside the dark
+           Sitebar pill so its labels stay legible. */
+        .sitebar__theme .theme-toggle { color: var(--paper); }
+        .sitebar__theme .theme-toggle__btn { color: var(--paper); opacity: 0.6; }
+        .sitebar__theme .theme-toggle__btn:hover,
+        .sitebar__theme .theme-toggle__btn[data-active] { color: var(--paper); opacity: 1; }
+        .sitebar__theme .theme-toggle__sep { color: var(--paper); opacity: 0.4; }
         @media (max-width: 640px) {
           .sitebar {
-            grid-template-columns: 1fr;
+            grid-template-columns: auto 1fr;
             height: auto;
             padding: 6px 12px;
           }
           .sitebar[data-off-home] { padding-left: 12px; }
           .sitebar__left { display: none; }
-          .sitebar__right { display: none; }
+          .sitebar__center { justify-self: start; }
+          .sitebar__nav { gap: 0; }
+          .sitebar__nav-link { padding: 0 4px; }
         }
       `}</style>
     </header>

@@ -9,21 +9,23 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Legacy work-index aliases
+      // Legacy work-index aliases.
       { source: "/works",      destination: "/work",    permanent: true },
       { source: "/lab",        destination: "/work",    permanent: true },
       { source: "/lab/:slug",  destination: "/work/:slug", permanent: true },
 
-      // Old route names retained as 308 aliases for any external links.
-      { source: "/about",      destination: "/studio",  permanent: true },
-      { source: "/colophon",   destination: "/studio",  permanent: true },
-      { source: "/shelf",      destination: "/studio",  permanent: true },
-      { source: "/bookmarks",  destination: "/studio",  permanent: true },
+      // /studio was renamed to /about — alias old URL forward.
+      { source: "/studio",     destination: "/about",   permanent: true },
+
+      // Old route names retained as 308 aliases. Targets must be live routes
+      // (do not redirect to deleted routes — Next runs redirects before
+      // handlers, so a stale target masks the real page).
+      { source: "/colophon",   destination: "/about",   permanent: true },
+      { source: "/shelf",      destination: "/about",   permanent: true },
+      { source: "/bookmarks",  destination: "/about",   permanent: true },
       { source: "/garden",     destination: "/work",    permanent: true },
-      { source: "/notes",      destination: "/work",    permanent: true },
-      { source: "/notes/:slug", destination: "/work",    permanent: true },
-      { source: "/journal",    destination: "/work",    permanent: true },
-      { source: "/journal/:slug", destination: "/work", permanent: true },
+      { source: "/journal",    destination: "/notes",   permanent: true },
+      { source: "/journal/:slug", destination: "/notes", permanent: true },
       { source: "/classic",    destination: "/",        permanent: true },
     ];
   },

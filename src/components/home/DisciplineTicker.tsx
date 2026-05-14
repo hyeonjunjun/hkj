@@ -45,10 +45,6 @@ export function DisciplineTicker() {
           color: var(--ink-4);
         }
         @media (prefers-reduced-motion: reduce) {
-          /* react-fast-marquee emits an inner element with class
-             "rfm-marquee" (verify in the DOM at implementation time).
-             Plain CSS — not styled-jsx :global — works here because
-             we're using a bare <style> tag, not <style jsx>. */
           .rfm-marquee {
             animation-play-state: paused !important;
           }

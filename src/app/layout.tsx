@@ -4,7 +4,6 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import { Sitebar } from "@/components/chrome/Sitebar";
-import { Nav } from "@/components/chrome/Nav";
 import { Logo } from "@/components/chrome/Logo";
 import { CTAPill } from "@/components/chrome/CTAPill";
 import { BackButton } from "@/components/chrome/BackButton";
@@ -89,7 +88,6 @@ export default function RootLayout({
           <RouteAnnouncer />
           <Preloader />
           <Sitebar />
-          <Nav />
           <Logo />
           <CTAPill />
           <BackButton />
