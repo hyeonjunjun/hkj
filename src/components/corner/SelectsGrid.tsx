@@ -151,7 +151,7 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
       data-active={isActive ? "" : undefined}
     >
       <Link
-        href={`/work/${piece.slug}`}
+        href={`/v/corner/work/${piece.slug}`}
         className="select-tile__link"
         onClick={handleClick}
         aria-pressed={isActive}

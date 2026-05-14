@@ -118,7 +118,7 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
 
         <hr className="t-rule" />
 
-        <Link href={`/work/${piece.slug}`} className="np-panel__cta t-warmth">
+        <Link href={`/v/corner/work/${piece.slug}`} className="np-panel__cta t-warmth">
           <span>Open project</span>
           <span aria-hidden>→</span>
         </Link>
