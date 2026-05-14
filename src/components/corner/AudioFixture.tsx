@@ -1,19 +1,19 @@
 "use client";
 
-import { LEDPanel } from "./LEDPanel";
+import { WalkmanDevice } from "./WalkmanDevice";
 
 /**
  * AudioFixture — the corner's signature audio "device."
  *
- * v1 (single-line text fixture) was replaced by a dot-matrix LED
- * panel as of 2026-05-14. This module stays as the named export so
- * the pages (and any future surface) can keep importing
- * `AudioFixture` while the internal implementation evolves.
+ * Implementation has moved through:
+ *   v0: single-line text fixture (▶ track — artist · mm:ss)
+ *   v1: dot-matrix LED panel (NOTHING-coded)
+ *   v2: Walkman-style USB-stick device (Sony NW-E series form)
  *
- * If we ever want to ship a side-by-side comparison or a swappable
- * "compact" mode, that decision lives here — not in the route.
+ * This module stays as the named export so the pages can keep
+ * importing `AudioFixture` while the visual implementation evolves.
  */
 
 export function AudioFixture() {
-  return <LEDPanel />;
+  return <WalkmanDevice />;
 }
