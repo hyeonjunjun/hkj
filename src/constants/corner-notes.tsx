@@ -12,6 +12,7 @@
  */
 
 import type { ReactNode } from "react";
+import { NoteImage, NoteVideo } from "@/components/corner/NoteMedia";
 
 export type CornerCategory = "project" | "process" | "log";
 
@@ -110,6 +111,13 @@ export const CORNER_NOTES: ReadonlyArray<CornerNote> = [
           color you noticed, a phrase you overheard, a sound, a smell.
           most of them evaporate within hours.
         </p>
+
+        <NoteImage
+          alt="Sift home screen — capture surface with recent items"
+          caption="figure 1 — capture surface. one tap drops a thing in. on-device clustering happens overnight."
+          aspect="9/16"
+        />
+
         <p>
           sift gives you one capture surface — text, image, voice — and
           uses on-device AI to cluster captures into a personal taste
@@ -117,6 +125,13 @@ export const CORNER_NOTES: ReadonlyArray<CornerNote> = [
           a scrapbook. the AI is invisible: you don&apos;t prompt it,
           you just keep dropping things in.
         </p>
+
+        <NoteVideo
+          alt="Sift taste-map exploration — browsing clusters by swipe"
+          caption="figure 2 — taste-map. eight weeks of captures cluster into roughly seven recurring registers."
+          aspect="9/16"
+        />
+
         <p>
           i designed and built it solo over six weeks. swift + core ml
           on-device, no server. shipped to TestFlight with 60 early

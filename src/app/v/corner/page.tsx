@@ -29,21 +29,16 @@ export const metadata: Metadata = {
 export default function CornerPage() {
   return (
     <article className="corner">
-      <section className="corner__masthead-section" aria-label="Masthead">
+      <section className="corner__header" aria-label="Masthead">
         <Masthead />
-      </section>
-
-      <section className="corner__audio-section" aria-label="Now playing">
-        <span className="t-section corner__section-label">Now Playing</span>
-        <AudioFixture />
-      </section>
-
-      <section className="corner__identity-section" aria-label="About">
-        <span className="t-section corner__section-label">About</span>
         <IdentityStrip />
       </section>
 
-      <section className="corner__feed-section" aria-label="Notes">
+      <section className="corner__audio" aria-label="Now playing">
+        <AudioFixture />
+      </section>
+
+      <section className="corner__feed" aria-label="Notes">
         <NotesFeed />
       </section>
 
@@ -60,41 +55,26 @@ export default function CornerPage() {
           max-width: 760px;
           margin-inline: auto;
           display: grid;
-          /* Sections breathe — each is its own block, not a stacked
-             tight column. Spec asks for "expanded spacing to feel
-             like a full section." */
-          row-gap: clamp(96px, 14vh, 168px);
+          /* Flora-level discipline: three sections, no section labels,
+             trust the typography to provide hierarchy. */
+          row-gap: clamp(72px, 11vh, 128px);
           position: relative;
           z-index: 2; /* above PaperGrain (z=1) */
         }
 
-        .corner__section-label {
-          display: block;
-          color: var(--ink-3);
-          margin-bottom: clamp(20px, 2.5vh, 32px);
-        }
-
-        .corner__masthead-section,
-        .corner__audio-section,
-        .corner__identity-section,
-        .corner__feed-section {
+        .corner__header {
           display: grid;
+          row-gap: clamp(20px, 2.6vh, 32px);
         }
-
-        /* Each non-masthead section gets a hairline rule above it as a
-           quiet "new section" marker. The masthead doesn't need one;
-           it's the page anchor. */
-        .corner__audio-section,
-        .corner__identity-section,
-        .corner__feed-section {
-          padding-top: clamp(20px, 2.5vh, 32px);
-          border-top: 1px solid var(--ink-ghost);
+        .corner__audio,
+        .corner__feed {
+          display: grid;
         }
 
         @media (max-width: 720px) {
           .corner {
             padding-top: clamp(96px, 12vh, 140px);
-            row-gap: clamp(64px, 10vh, 100px);
+            row-gap: clamp(56px, 8vh, 88px);
           }
         }
       `}</style>
