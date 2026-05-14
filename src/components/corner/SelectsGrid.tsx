@@ -2,42 +2,58 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { PIECES, type Piece } from "@/constants/pieces";
+import type { Piece } from "@/constants/pieces";
 
 /**
  * SelectsGrid — ethan&tom-style project grid.
  *
- * Replaces the horizontal slider as the default view of /v/corner.
- * Layout: 4-column responsive grid, each tile is a fixed-aspect media
- * block with a numbered editorial caption ABOVE it:
- *
+ * Each tile: numbered editorial caption ABOVE a 16:9 media block.
  *   [01] LA28
  *        BRAND · CAMPAIGN · PERSONAL
- *   ┌────────────────────────────┐
- *   │                            │
- *   │       [media: video        │
- *   │        or image, or        │
- *   │        typographic         │
- *   │        placeholder]        │
- *   │                            │
- *   └────────────────────────────┘
+ *   ┌──────────────────────────────┐
+ *   │       [media or "in progress"]│
+ *   └──────────────────────────────┘
  *
- * Each tile is a Link to /work/[slug]. Hover state: media lightens
- * slightly + scales 1.02×, caption shifts 2px right. Stagger-fade-in
- * on first paint, ~50ms per tile.
+ * Peek-then-navigate interaction (desktop):
+ *   - First click on a tile  → calls `onPeek(slug)` to open the Now
+ *     Playing panel beside the grid. Default link nav is prevented.
+ *   - Click on a different tile while panel is open → swaps panel
+ *     contents (still peek, no nav).
+ *   - Click on the active tile a second time → allows default nav
+ *     to /work/[slug]. Panel can be opened deeper.
  *
- * Visible status (WIP / CONCEPT) renders as a small tag in the bottom-
- * right corner of the media — non-intrusive but informative.
+ * Below 960px, peek is disabled and clicks navigate directly — the
+ * panel needs side-by-side room to read as "shift not overlay."
+ *
+ * Status tag (LIVE / CONCEPT) anchored bottom-right of the media.
  */
 
-const SORTED: Piece[] = [...PIECES].sort((a, b) => a.order - b.order);
+const PEEK_MIN_WIDTH = "(min-width: 960px)";
 
-export function SelectsGrid() {
+interface Props {
+  pieces: ReadonlyArray<Piece>;
+  activeSlug: string | null;
+  onPeek: (slug: string) => void;
+  /** True when a panel is open beside the grid; grid reflows to 3 cols. */
+  panelOpen?: boolean;
+}
+
+export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
   return (
-    <section className="selects-grid" aria-label="Selects — visual project index">
+    <section
+      className="selects-grid"
+      data-panel-open={panelOpen ? "" : undefined}
+      aria-label="Selects — visual project index"
+    >
       <div className="selects-grid__inner">
-        {SORTED.map((piece, i) => (
-          <SelectTile key={piece.slug} piece={piece} index={i} />
+        {pieces.map((piece, i) => (
+          <SelectTile
+            key={piece.slug}
+            piece={piece}
+            index={i}
+            isActive={activeSlug === piece.slug}
+            onPeek={onPeek}
+          />
         ))}
       </div>
 
@@ -51,10 +67,26 @@ export function SelectsGrid() {
           column-gap: clamp(16px, 2vw, 28px);
           row-gap: clamp(36px, 5vh, 64px);
           padding: 0 var(--margin-page);
+          transition: grid-template-columns 360ms var(--ease);
+        }
+        /* When the Now Playing panel is open, the grid reflows from
+           4 to 3 cols. This is the "shifts layout responsively without
+           covering content" behavior. */
+        .selects-grid[data-panel-open] .selects-grid__inner {
+          grid-template-columns: repeat(3, 1fr);
+          padding-right: 0;
+        }
+        @media (max-width: 1280px) {
+          .selects-grid[data-panel-open] .selects-grid__inner {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
         @media (max-width: 1080px) {
           .selects-grid__inner {
             grid-template-columns: repeat(3, 1fr);
+          }
+          .selects-grid[data-panel-open] .selects-grid__inner {
+            grid-template-columns: repeat(2, 1fr);
           }
         }
         @media (max-width: 720px) {
@@ -69,6 +101,9 @@ export function SelectsGrid() {
             grid-template-columns: 1fr;
           }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .selects-grid__inner { transition: none; }
+        }
       `}</style>
     </section>
   );
@@ -77,20 +112,42 @@ export function SelectsGrid() {
 interface TileProps {
   piece: Piece;
   index: number;
+  isActive: boolean;
+  onPeek: (slug: string) => void;
 }
 
-function SelectTile({ piece, index }: TileProps) {
+function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
   const number = `[${piece.number}]`;
   const isWip = piece.status === "wip";
   const isConcept = piece.status === "concept";
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Only intercept on the peek breakpoint. Below it, let the link
+    // navigate normally — the side panel has no room and would cover
+    // content.
+    if (typeof window === "undefined") return;
+    if (!window.matchMedia(PEEK_MIN_WIDTH).matches) return;
+    if (isActive) {
+      // Second click on the active tile → allow default navigation.
+      return;
+    }
+    e.preventDefault();
+    onPeek(piece.slug);
+  };
 
   return (
     <article
       className="select-tile"
       style={{ animationDelay: `${200 + index * 50}ms` }}
       data-status={piece.status}
+      data-active={isActive ? "" : undefined}
     >
-      <Link href={`/work/${piece.slug}`} className="select-tile__link">
+      <Link
+        href={`/work/${piece.slug}`}
+        className="select-tile__link"
+        onClick={handleClick}
+        aria-pressed={isActive}
+      >
         <header className="select-tile__caption">
           <span className="t-warmth select-tile__number">{number}</span>
           <span className="select-tile__lines">
@@ -124,8 +181,7 @@ function SelectTile({ piece, index }: TileProps) {
             />
           ) : (
             <div className="select-tile__placeholder" aria-hidden>
-              <span className="t-warmth select-tile__placeholder-title">{piece.title}</span>
-              <span className="t-warmth select-tile__placeholder-sector">{piece.sector}</span>
+              <span className="t-warmth select-tile__placeholder-text">in progress</span>
             </div>
           )}
 
@@ -141,6 +197,7 @@ function SelectTile({ piece, index }: TileProps) {
         .select-tile {
           opacity: 0;
           animation: select-tile-in 720ms var(--ease) both;
+          transition: opacity 240ms var(--ease);
         }
         @keyframes select-tile-in {
           0%   { opacity: 0; transform: translateY(8px); }
@@ -197,8 +254,17 @@ function SelectTile({ piece, index }: TileProps) {
           border: 1px solid var(--ink-ghost);
           transition: border-color 320ms var(--ease);
         }
+        /* Active (peeking) tile: amber rim so the panel binds visually
+           to its source. */
+        .select-tile[data-active] .select-tile__media {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px var(--accent);
+        }
         .select-tile__link:hover .select-tile__media {
           border-color: var(--ink-hair);
+        }
+        .select-tile[data-active] .select-tile__link:hover .select-tile__media {
+          border-color: var(--accent);
         }
         .select-tile__video,
         .select-tile__image {
@@ -235,19 +301,12 @@ function SelectTile({ piece, index }: TileProps) {
             ),
             var(--paper-2);
         }
-        .select-tile__placeholder-title {
-          color: var(--ink-2);
-          font-size: 18px;
+        .select-tile__placeholder-text {
+          color: var(--ink-3);
+          font-size: 12px;
           font-weight: 500;
-          letter-spacing: -0.01em;
-          line-height: 1.1;
-          text-transform: uppercase;
-        }
-        .select-tile__placeholder-sector {
-          color: var(--ink-4);
-          font-size: 9px;
-          font-weight: 400;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.18em;
+          line-height: 1;
           text-transform: uppercase;
         }
 

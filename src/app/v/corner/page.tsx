@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { CornerNav } from "@/components/corner/CornerNav";
-import { SelectsGrid } from "@/components/corner/SelectsGrid";
+import { IndexShell } from "@/components/corner/IndexShell";
 import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
  * /v/corner — Selects (default view).
  *
- * ethan&tom-style numbered project grid in the dark corner register.
- * 4-column responsive grid of tiles, each with a numbered editorial
- * caption ABOVE the media. The companion text-only ledger view lives
- * at /v/corner/list (Index tab).
+ * ethan&tom-style numbered project grid + Spotify-style right-rail
+ * "Now Playing" panel that peeks project details on first click and
+ * shifts the grid layout without covering content.
  */
 
 export const metadata: Metadata = {
@@ -23,7 +22,7 @@ export default function CornerSelectsPage() {
     <div className="corner-page" data-page="corner">
       <CornerNav />
       <main className="corner-page__main">
-        <SelectsGrid />
+        <IndexShell />
       </main>
       <CornerAudio />
 

@@ -9,6 +9,9 @@ export function BackButton() {
   const { startTransition, isTransitioning } = useRouteTransition();
 
   if (pathname === "/") return null;
+  // /v/corner is being explored as a full homepage concept — no
+  // back-to-index affordance there (the editorial nav owns navigation).
+  if (pathname?.startsWith("/v/corner")) return null;
 
   return (
     <button

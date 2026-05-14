@@ -28,16 +28,16 @@ const TABS = [
   { href: "/v/corner/about",  label: "Info"    },
 ] as const;
 
-const GMT_FORMATTER = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "UTC",
+const EST_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "America/New_York",
   hour: "2-digit",
   minute: "2-digit",
   second: "2-digit",
   hour12: false,
 });
 
-function gmtNow(): string {
-  return GMT_FORMATTER.format(new Date());
+function estNow(): string {
+  return EST_FORMATTER.format(new Date());
 }
 
 export function CornerNav() {
@@ -45,7 +45,7 @@ export function CornerNav() {
   const [time, setTime] = useState<string | null>(null);
 
   useEffect(() => {
-    const tick = () => setTime(gmtNow());
+    const tick = () => setTime(estNow());
     tick();
     // Align to the next whole-second boundary so the timestamp flips on
     // the actual second.
@@ -87,8 +87,8 @@ export function CornerNav() {
         })}
       </nav>
 
-      <span className="corner-nav__time t-warmth tabular" aria-label={time ? `Current GMT time ${time}` : "Loading time"}>
-        {time ?? "—:—:—"} <span className="corner-nav__time-suffix">(GMT)</span>
+      <span className="corner-nav__time t-warmth tabular" aria-label={time ? `Current Eastern time ${time}` : "Loading time"}>
+        {time ?? "—:—:—"} <span className="corner-nav__time-suffix">(EST)</span>
       </span>
 
       <style>{`
