@@ -53,6 +53,12 @@ export function CTAPill() {
           color: var(--paper);
           text-transform: uppercase;
         }
+        @media (max-width: 760px) {
+          /* Vertical-center overhang collides with content on narrow
+             viewports. Hide on mobile — contact reachable via the
+             Contact nav link. */
+          .cta-pill { display: none; }
+        }
       `}</style>
     </a>
   );

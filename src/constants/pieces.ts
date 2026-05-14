@@ -39,8 +39,6 @@ export interface Piece {
   image?: string;
   /** Home catalog frame media. Leave undefined for the typographic fallback. */
   cover?: CatalogCover;
-  /** "cover" fills the frame; "center" lets portrait assets breathe on a paper field. */
-  coverFit?: "cover" | "center";
   /** Aspect ratio string for the home strip frame (e.g. "16 / 9", "4 / 5", "1 / 1"). */
   coverAspect?: string;
   tags: string[];
@@ -143,7 +141,7 @@ export const PIECES: Piece[] = [
     status: "concept",
     year: 2026,
     started: "2026-03",
-    coverAspect: "4 / 5",
+    coverAspect: "16 / 9",
     tags: ["brand", "product", "identity"],
     runtime: "02:14",
     client: "Concept",
@@ -181,7 +179,7 @@ export const PIECES: Piece[] = [
     status: "concept",
     year: 2026,
     started: "2026-04",
-    coverAspect: "1 / 1",
+    coverAspect: "16 / 9",
     tags: ["creative-code", "music", "tool"],
     runtime: "03:32",
     client: "Concept",
@@ -221,8 +219,9 @@ export const PIECES: Piece[] = [
     started: "2025-09",
     image: "/images/sift-v2.webp",
     cover: { kind: "image", src: "/images/sift-v2.webp" },
-    coverFit: "center",
-    coverAspect: "9 / 16",
+    // Source is 1024×486 (2.1:1 landscape) — frame matches asset so
+    // we render the full interface instead of a center-crop strip.
+    coverAspect: "2 / 1",
     tags: ["mobile", "ai", "product"],
     runtime: "06:42",
     client: "Self",
@@ -244,7 +243,10 @@ export const PIECES: Piece[] = [
     started: "2026-02",
     image: "/images/gyeol-rain.webp",
     cover: { kind: "image", src: "/images/gyeol-rain.webp" },
-    coverAspect: "3 / 4",
+    // Source plates are 1344×768 (~16:9 landscape). The earlier 3/4
+    // portrait frame center-cropped a vertical sliver and dropped most
+    // of the brand context. 16/9 shows the full frame.
+    coverAspect: "16 / 9",
     tags: ["brand", "ecommerce", "3d"],
     runtime: "08:24",
     client: "Gyeol",

@@ -127,17 +127,28 @@ export function Sitebar() {
         .sitebar__theme .theme-toggle__btn:hover,
         .sitebar__theme .theme-toggle__btn[data-active] { color: var(--paper); opacity: 1; }
         .sitebar__theme .theme-toggle__sep { color: var(--paper); opacity: 0.4; }
-        @media (max-width: 640px) {
+        @media (max-width: 760px) {
+          /* Drop the center clock and shrink to a single row: nav only,
+             since the brand wordmark and clock are nice-to-have, not
+             load-bearing chrome on small viewports. */
           .sitebar {
-            grid-template-columns: auto 1fr;
-            height: auto;
-            padding: 6px 12px;
+            grid-template-columns: 1fr;
+            height: 32px;
+            padding: 0 12px;
           }
-          .sitebar[data-off-home] { padding-left: 12px; }
+          .sitebar[data-off-home] { padding-left: 88px; }
           .sitebar__left { display: none; }
-          .sitebar__center { justify-self: start; }
-          .sitebar__nav { gap: 0; }
-          .sitebar__nav-link { padding: 0 4px; }
+          .sitebar__center { display: none; }
+          .sitebar__nav { justify-self: end; }
+          .sitebar__nav-link { padding: 0 4px; font-size: 8px; }
+          .sitebar__nav-sep { margin: 0 0.2em; }
+          .sitebar__theme { margin-left: 8px; }
+          .sitebar__theme .theme-toggle { font-size: 9px; }
+        }
+        @media (max-width: 420px) {
+          /* Even tighter: drop the theme toggle so nav fits. The toggle
+             is still reachable on every desktop viewport. */
+          .sitebar__theme { display: none; }
         }
       `}</style>
     </header>

@@ -10,6 +10,7 @@ import { BackButton } from "@/components/chrome/BackButton";
 import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
 import Preloader from "@/components/Preloader";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { TransitionCover } from "@/components/transition/TransitionCover";
 
@@ -67,6 +68,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <TransitionProvider>
+          <SmoothScroll />
           <RouteAnnouncer />
           <Preloader />
           <Sitebar />

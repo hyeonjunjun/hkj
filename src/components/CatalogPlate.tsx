@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { Piece } from "@/constants/pieces";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { ConceptPlate } from "@/components/home/ConceptPlate";
 
 /**
  * CatalogPlate — homepage Grid View project card per spec §06.
@@ -23,11 +24,11 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
  */
 type Props = {
   piece: Piece;
-  /** Natural aspect ratio override (e.g. "16 / 9", "3 / 4"). Defaults to 4 / 5 portrait. */
+  /** Natural aspect ratio override (e.g. "16 / 9", "21 / 9"). Defaults to 16 / 9 landscape. */
   aspect?: string;
 };
 
-export default function CatalogPlate({ piece, aspect = "4 / 5" }: Props) {
+export default function CatalogPlate({ piece, aspect = "16 / 9" }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
 
@@ -96,9 +97,13 @@ export default function CatalogPlate({ piece, aspect = "4 / 5" }: Props) {
             className="cat-plate__media"
             style={{ objectFit: "cover" }}
           />
+        ) : !piece.placeholder ? (
+          // Concept piece without media: render the typographic plate
+          // used by the home carousel for visual consistency.
+          <ConceptPlate piece={piece} />
         ) : (
           <div className="cat-plate__placeholder">
-            <span>In development</span>
+            <span>Reserved</span>
           </div>
         )}
 

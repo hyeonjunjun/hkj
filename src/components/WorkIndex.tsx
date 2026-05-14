@@ -53,7 +53,7 @@ export default function WorkIndex({ pieces }: Props) {
         <section className="workidx__grid" aria-label="Catalog">
           {pieces.map((p) => (
             <div key={p.slug} className="workidx__cell">
-              <CatalogPlate piece={p} aspect={p.coverAspect ?? "3 / 4"} />
+              <CatalogPlate piece={p} aspect={p.coverAspect ?? "16 / 9"} />
             </div>
           ))}
         </section>
@@ -91,19 +91,23 @@ export default function WorkIndex({ pieces }: Props) {
           margin-bottom: clamp(20px, 2.4vw, 32px);
         }
 
+        /* NaughtyDuk-style work grid: 2-up landscape tiles with a
+           clear column gutter and a generous-but-tight vertical
+           rhythm. Wider gutter than the previous --gap-plates scale
+           so the pair reads as two beats, not a stitched pair. */
         .workidx__grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: var(--gap-plates) calc(var(--gap-plates) * 1.4);
-          row-gap: var(--space-row);
-          margin-bottom: var(--space-row);
+          column-gap: clamp(24px, 3vw, 56px);
+          row-gap: clamp(64px, 8vw, 112px);
+          margin-bottom: clamp(64px, 8vw, 112px);
         }
         .workidx__cell { display: block; }
 
         @media (max-width: 760px) {
           .workidx__grid {
             grid-template-columns: 1fr;
-            row-gap: clamp(40px, 8vh, 64px);
+            row-gap: clamp(48px, 9vw, 72px);
           }
         }
       `}</style>

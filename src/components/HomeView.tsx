@@ -1,7 +1,7 @@
 // src/components/HomeView.tsx
 "use client";
 
-import { IndexCarousel } from "@/components/home/IndexCarousel";
+import { WebGLGallery } from "@/components/gallery/WebGLGallery";
 import { DisciplineTicker } from "@/components/home/DisciplineTicker";
 import { IntroAnimation } from "@/components/home/IntroAnimation";
 
@@ -10,7 +10,7 @@ const TAGLINE = "Design, engineering, direction — one practice across surfaces
 export default function HomeView() {
   return (
     <div className="home">
-      <IndexCarousel />
+      <WebGLGallery />
 
       <footer className="home__bottom">
         <div className="home__ticker">

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import type { Piece } from "@/constants/pieces";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { ConceptPlate } from "@/components/home/ConceptPlate";
 
 type Props = { piece: Piece };
 
@@ -11,7 +12,7 @@ type Props = { piece: Piece };
  * CaseHero — full-bleed cover plate at the top of /work/[slug].
  *
  * Sharp corners, paper-2 fill, natural aspect ratio derived from
- * piece.coverAspect (falls back to 4 / 5). The hero respects the
+ * piece.coverAspect (falls back to 16 / 9). The hero respects the
  * page-margin gutter; it is full-width within those gutters, not
  * full-viewport edge-to-edge.
  *
@@ -31,7 +32,7 @@ export default function CaseHero({ piece }: Props) {
   const reduced = useReducedMotion();
   const [playing, setPlaying] = useState(false);
 
-  const aspect = piece.coverAspect ?? "4 / 5";
+  const aspect = piece.coverAspect ?? "16 / 9";
   const isVideo = piece.cover?.kind === "video";
 
   const togglePlay = () => {
@@ -106,9 +107,9 @@ export default function CaseHero({ piece }: Props) {
             priority
           />
         ) : (
-          <div className="case-hero__empty" aria-hidden>
-            <span className="plate-mark">In development · {piece.year}</span>
-          </div>
+          // Concept piece without media: render the typographic plate
+          // (same component the home carousel uses for these pieces).
+          <ConceptPlate piece={piece} />
         )}
       </div>
 

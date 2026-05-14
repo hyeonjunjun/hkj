@@ -93,10 +93,12 @@
      Don't add an eleventh without retiring one. Names are role-
      based, not size-based: a future scale rebalance reuses the
      names. */
-  --type-monument: clamp(36px, 5.5vw, 48px);
+  --type-monument: clamp(28px, 5.5vw, 48px);
   /* page-anchor wordmark — OBYS-tier */
-  --type-display: clamp(48px, 9vw, 96px);
-  /* hero name — used ONCE */
+  --type-display: clamp(26px, 9vw, 96px);
+  /* hero name — used ONCE. Min sized to fit "multidisciplinary" (17
+     mono chars) at ~327px content width on 375px viewports without
+     wrapping mid-word: 26px × 0.6 × 17 ≈ 265px. */
   --type-statement: clamp(15px, 1.4vw, 18px);
   /* hero positioning sentence */
   --type-row: clamp(13px, 1vw, 15px);
@@ -290,6 +292,10 @@ a {
   letter-spacing: var(--track-tightest);
   line-height: var(--lh-tight);
   color: var(--ink);
+  /* Safety net: very narrow viewports can still cut a single long
+     word ("multidisciplinary") even at the clamped minimum. Allow
+     break-anywhere so the layout never horizontally overflows. */
+  overflow-wrap: anywhere;
 }
 
 /* ── t-statement ── hero positioning sentence. Body register at
