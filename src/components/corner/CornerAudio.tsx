@@ -81,7 +81,11 @@ export function CornerAudio() {
         <span
           className="corner-audio-fixed__bar"
           style={{
-            background: `linear-gradient(90deg, var(--ink) 0, var(--ink) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) 100%)`,
+            /* Use backgroundImage (non-shorthand) instead of background
+               so it doesn't reset background-clip on re-render — React
+               warns about mixing shorthand + non-shorthand for the same
+               property family. */
+            backgroundImage: `linear-gradient(90deg, var(--ink) 0, var(--ink) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) 100%)`,
             backgroundClip: "text",
             WebkitBackgroundClip: "text",
             color: "transparent",
