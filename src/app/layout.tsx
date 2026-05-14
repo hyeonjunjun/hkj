@@ -5,7 +5,6 @@ import "./globals.css";
 import RouteAnnouncer from "@/components/RouteAnnouncer";
 import { Sitebar } from "@/components/chrome/Sitebar";
 import { Logo } from "@/components/chrome/Logo";
-import { CTAPill } from "@/components/chrome/CTAPill";
 import { BackButton } from "@/components/chrome/BackButton";
 import Folio from "@/components/Folio";
 import PaperGrain from "@/components/PaperGrain";
@@ -58,7 +57,18 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {/* Departure Mono is self-hosted via @font-face in globals.css —
-            Google Fonts does not host it. Geist Mono stays as fallback. */}
+            Google Fonts does not host it. Geist Mono stays as fallback.
+
+            Switzer (Fontshare) — closest free analog to Spotify Sans.
+            Loaded via Fontshare's CDN. Used by the /v/corner experience
+            via the `t-warmth` role for moments that need humanist warmth
+            (rail track titles, identity prose). The mono stack remains
+            primary across the rest of the site. */}
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link
+          rel="stylesheet"
+          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap"
+        />
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
         {/* Skip link is the first focusable element — ahead of the
@@ -73,7 +83,6 @@ export default function RootLayout({
           <Preloader />
           <Sitebar />
           <Logo />
-          <CTAPill />
           <BackButton />
           <TransitionCover />
           <main id="main" data-page-root>{children}</main>

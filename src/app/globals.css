@@ -28,36 +28,39 @@
  */
 
 :root {
-  /* Light register (default) — warm paper, pure black ink. The token
-     names (--paper, --ink) match the codebase vocabulary regardless
-     of which theme is active. */
+  /* Soft editorial — warm paper, warm charcoal ink (NOT pure black).
+     The shift from #000 to #1a1816 reads as "ink on paper" instead
+     of "data terminal." All ink-N steps derive from the same warm
+     base so the register stays cohesive across opacity tiers. */
   --paper:     #FBFAF6;
   --paper-2:   #F4F3EE;
   --paper-3:   #E8E7E1;
 
-  --ink:       #000000;
-  --ink-2:     rgba(0, 0, 0, 0.84);
-  --ink-3:     rgba(0, 0, 0, 0.45);
-  --ink-4:     rgba(0, 0, 0, 0.30);
+  --ink:       #1a1816;
+  --ink-2:     rgba(26, 24, 22, 0.92);
+  --ink-3:     rgba(26, 24, 22, 0.55);
+  --ink-4:     rgba(26, 24, 22, 0.35);
 
-  --ink-hair:  rgba(0, 0, 0, 0.12);
-  --ink-ghost: rgba(0, 0, 0, 0.04);
+  --ink-hair:  rgba(26, 24, 22, 0.14);
+  --ink-ghost: rgba(26, 24, 22, 0.05);
 }
 
 :root[data-theme="dark"] {
-  /* Dark register (Krantz line) — pure black ground, cool off-white
-     ink with alpha steps. Same token names; only the values change. */
-  --paper:     #000000;
-  --paper-2:   #0A0A0A;
-  --paper-3:   #161616;
+  /* Dark register — warm-charcoal ground, warm off-white ink. The
+     ground takes the same hue as the light register's ink so a theme
+     toggle reads as inversion within the same family, not a jump to
+     a different palette. */
+  --paper:     #1a1816;
+  --paper-2:   #221f1c;
+  --paper-3:   #2b2723;
 
-  --ink:       #F8F8F8;
-  --ink-2:     rgba(248, 248, 248, 0.92);
-  --ink-3:     rgba(248, 248, 248, 0.45);
-  --ink-4:     rgba(248, 248, 248, 0.30);
+  --ink:       #F8F8F6;
+  --ink-2:     rgba(248, 248, 246, 0.92);
+  --ink-3:     rgba(248, 248, 246, 0.55);
+  --ink-4:     rgba(248, 248, 246, 0.35);
 
-  --ink-hair:  rgba(248, 248, 248, 0.12);
-  --ink-ghost: rgba(248, 248, 248, 0.04);
+  --ink-hair:  rgba(248, 248, 246, 0.14);
+  --ink-ghost: rgba(248, 248, 246, 0.05);
 }
 
 :root {
@@ -76,17 +79,27 @@
      stack for any rare component that opts out of mono (almost
      nothing should). The mono-only commitment is enforced by
      the type scale below: every role is mono-styled. */
-  /* Departure Mono leads the mono stack — subtle dot-matrix character
-     that pairs with the pixel-coded register (favicon, theme toggle).
-     Geist Mono is the fallback before system mono kicks in.
+  /* Geist Mono leads the primary mono stack — modern humanist mono
+     that's readable at body sizes (15–18px), unlike Departure Mono's
+     pixel/dot-matrix character which fights readability above ~11px.
+     Departure Mono is preserved on a separate "chrome" stack used by
+     the small caps roles (.t-meta / .t-footnote / .t-code etc.) where
+     its pixel character reads as "technical data" not "noise."
      Note: the var(...) calls include an explicit fallback inside the
      var() so the chain stays valid even when read at :root (where
      next/font's --font-geist-mono is NOT yet defined — those classes
      ride on <body>, not <html>). Without the fallback, the whole
      font-family value becomes invalid at :root level and Tailwind
      preflight's ui-sans-serif default takes over via inheritance. */
-  --font-stack-mono: "Departure Mono", var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  --font-stack-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+  --font-stack-chrome: "Departure Mono", var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
   --font-stack-sans: var(--font-geist-sans, "Geist"), -apple-system, "SF Pro Text", system-ui, sans-serif;
+  /* Switzer — closest free analog to Spotify Sans (humanist, single-
+     story 'a', generous x-height). Used by the `t-warmth` role in the
+     /v/corner experience for moments where we want Spotify-rail-style
+     humanist warmth without leaving the design system. Loaded from
+     Fontshare via a stylesheet link in layout.tsx. */
+  --font-stack-spotify: "Switzer", "Inter", "Helvetica Neue", -apple-system, "SF Pro Text", system-ui, sans-serif;
 
   /* ── Type scale ──────────────────────────────────────────
      Ten roles. Every text element on the site is one of these.
@@ -141,10 +154,10 @@
   /* mono caps, tight */
   --track-loosest: 0.10em;
   /* mono caps, comfortable */
-  --track-section: 0.16em;
-  /* section labels */
-  --track-eyebrow: 0.20em;
-  /* eyebrows — max */
+  --track-section: 0.12em;
+  /* section labels — relaxed from 0.16em for softer editorial register */
+  --track-eyebrow: 0.16em;
+  /* eyebrows — relaxed from 0.20em */
 
   /* ── Line-height scale ───────────────────────────────────
      Five steps. Display is tightest; prose is loosest. */
@@ -347,9 +360,11 @@ a {
 }
 
 /* ── t-meta ── meta lines under section labels (count, last-
-   updated). Always caps, looser tracking, dimmer ink. */
+   updated). Always caps, looser tracking, dimmer ink. Uses the
+   chrome (Departure Mono) stack so the small caps register reads
+   as "ledger data" not just smaller body text. */
 .t-meta {
-  font-family: var(--font-stack-mono);
+  font-family: var(--font-stack-chrome);
   font-size: var(--type-meta);
   font-weight: 400;
   letter-spacing: var(--track-loosest);
@@ -361,7 +376,7 @@ a {
 /* ── t-caption ── captions, sub-meta on rows, hover detail.
    Same size as t-meta but case-sensitive (allows mixed case). */
 .t-caption {
-  font-family: var(--font-stack-mono);
+  font-family: var(--font-stack-chrome);
   font-size: var(--type-caption);
   font-weight: 400;
   letter-spacing: var(--track-loose);
@@ -372,7 +387,7 @@ a {
 /* ── t-footnote ── footer build info, last deploy. The faintest
    readable type on the page. */
 .t-footnote {
-  font-family: var(--font-stack-mono);
+  font-family: var(--font-stack-chrome);
   font-size: var(--type-footnote);
   font-weight: 400;
   letter-spacing: var(--track-eyebrow);
@@ -384,7 +399,7 @@ a {
 /* ── t-eyebrow ── above-the-name eyebrow on the hero. The widest
    tracking on the page. Weight 500 separates it from t-footnote. */
 .t-eyebrow {
-  font-family: var(--font-stack-mono);
+  font-family: var(--font-stack-chrome);
   font-size: var(--type-eyebrow);
   font-weight: 500;
   letter-spacing: var(--track-eyebrow);
@@ -396,7 +411,7 @@ a {
 /* ── t-code ── alphanumeric codes (RJ-26-01). Always tabular,
    weight 500, ink-2 (one shade off pure to read as data). */
 .t-code {
-  font-family: var(--font-stack-mono);
+  font-family: var(--font-stack-chrome);
   font-size: var(--type-meta);
   font-weight: 500;
   letter-spacing: var(--track-loose);
@@ -405,6 +420,18 @@ a {
   color: var(--ink-2);
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ── t-warmth ── humanist sans for moments that need Spotify-rail
+   warmth: rail track titles, identity prose, prose ledes. Uses the
+   Switzer stack defined above; falls back to Inter / system humanist.
+   Rare role — most text on the site stays mono. */
+.t-warmth {
+  font-family: var(--font-stack-spotify);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+  color: var(--ink);
 }
 
 /* ── Hairline rule — section dividers. The board's framing element. */
@@ -425,6 +452,32 @@ a {
   user-select: none;
 }
 
+/* ─── /v/corner page register ─────────────────────────────────────────
+   The corner experience is dark-by-default regardless of the global
+   theme toggle. Reference: ethan&tom (pure black canvas), Spotify
+   (charcoal). Re-declare the paper/ink tokens on a `data-page="corner"`
+   wrapper so children automatically inherit the corner palette.
+
+   The corner uses HIGHER contrast than the dark-tracklist register
+   elsewhere — full white ink on near-black ground reads as music app
+   and director's portfolio rather than warm-paper inversion. */
+[data-page="corner"] {
+  --paper:     #000000;
+  --paper-2:   #0a0a0a;
+  --paper-3:   #141414;
+
+  --ink:       #ffffff;
+  --ink-2:     rgba(255, 255, 255, 0.92);
+  --ink-3:     rgba(255, 255, 255, 0.55);
+  --ink-4:     rgba(255, 255, 255, 0.32);
+
+  --ink-hair:  rgba(255, 255, 255, 0.12);
+  --ink-ghost: rgba(255, 255, 255, 0.04);
+
+  background: var(--paper);
+  color: var(--ink);
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 
@@ -442,11 +495,6 @@ a {
    between paint and animation start. */
 html.intro-pending .sitebar {
   clip-path: inset(0 100% 0 0);
-}
-html.intro-pending .carousel__card {
-  opacity: 0.4;
-  filter: blur(6px) saturate(0);
-  transform: scale(0.96);
 }
 html.intro-pending .home__bottom {
   opacity: 0;

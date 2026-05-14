@@ -1,29 +1,28 @@
 import type { Metadata } from "next";
 import { CornerNav } from "@/components/corner/CornerNav";
-import { SelectsGrid } from "@/components/corner/SelectsGrid";
+import { IndexLedger } from "@/components/corner/IndexLedger";
 import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
- * /v/corner — Selects (default view).
+ * /v/corner/list — Index (text-only ledger view).
  *
- * ethan&tom-style numbered project grid in the dark corner register.
- * 4-column responsive grid of tiles, each with a numbered editorial
- * caption ABOVE the media. The companion text-only ledger view lives
- * at /v/corner/list (Index tab).
+ * Companion to /v/corner (Selects). Same projects, no media — a high-
+ * density typographic ledger that lets the body of work read at a
+ * glance. Reference: ethan&tom Index view.
  */
 
 export const metadata: Metadata = {
-  title: "Selects — Ryan Jun",
+  title: "Index — Ryan Jun",
   description:
-    "Selected work — multidisciplinary practice from New York.",
+    "Text ledger of selected work.",
 };
 
-export default function CornerSelectsPage() {
+export default function CornerIndexPage() {
   return (
     <div className="corner-page" data-page="corner">
       <CornerNav />
       <main className="corner-page__main">
-        <SelectsGrid />
+        <IndexLedger />
       </main>
       <CornerAudio />
 

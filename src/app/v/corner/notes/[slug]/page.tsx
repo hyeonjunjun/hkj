@@ -45,7 +45,7 @@ export default async function NoteDetailPage({
   const number = `N${String(note.number).padStart(3, "0")}`;
 
   return (
-    <div className="corner-detail">
+    <div className="corner-detail" data-page="corner">
       <CornerNav />
       <article className="corner-detail__article">
         <header className="corner-detail__head">

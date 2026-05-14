@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function CornerNotesPage() {
   return (
-    <div className="corner-notes-page">
+    <div className="corner-notes-page" data-page="corner">
       <CornerNav />
       <main className="corner-notes-page__main">
         <NotesFeed />
