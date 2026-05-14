@@ -130,8 +130,8 @@ function Styles() {
             -45deg,
             transparent 0,
             transparent 14px,
-            rgba(255,255,255,0.035) 14px,
-            rgba(255,255,255,0.035) 15px
+            var(--ink-ghost) 14px,
+            var(--ink-ghost) 15px
           ),
           var(--paper-2);
       }

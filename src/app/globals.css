@@ -453,15 +453,33 @@ a {
 }
 
 /* ─── /v/corner page register ─────────────────────────────────────────
-   The corner experience is dark-by-default regardless of the global
-   theme toggle. Reference: ethan&tom (pure black canvas), Spotify
-   (charcoal). Re-declare the paper/ink tokens on a `data-page="corner"`
-   wrapper so children automatically inherit the corner palette.
+   The corner experience uses its own paper/ink tokens, redeclared on
+   a `data-page="corner"` wrapper so children automatically inherit
+   the corner palette. Light-by-default (2026-05-14 switch); when the
+   global theme toggle is set to dark, the corner inverts to a high-
+   contrast pure-black register.
 
-   The corner uses HIGHER contrast than the dark-tracklist register
-   elsewhere — full white ink on near-black ground reads as music app
-   and director's portfolio rather than warm-paper inversion. */
+   Light variant is high-contrast (near-black ink on white) rather
+   than the rest of the site's warm-paper register — keeps the
+   ethan&tom / Spotify / editorial coding regardless of theme. */
 [data-page="corner"] {
+  --paper:     #ffffff;
+  --paper-2:   #f6f6f4;
+  --paper-3:   #ececea;
+
+  --ink:       #0b0b0a;
+  --ink-2:     rgba(11, 11, 10, 0.92);
+  --ink-3:     rgba(11, 11, 10, 0.55);
+  --ink-4:     rgba(11, 11, 10, 0.32);
+
+  --ink-hair:  rgba(11, 11, 10, 0.12);
+  --ink-ghost: rgba(11, 11, 10, 0.04);
+
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:root[data-theme="dark"] [data-page="corner"] {
   --paper:     #000000;
   --paper-2:   #0a0a0a;
   --paper-3:   #141414;
@@ -473,9 +491,6 @@ a {
 
   --ink-hair:  rgba(255, 255, 255, 0.12);
   --ink-ghost: rgba(255, 255, 255, 0.04);
-
-  background: var(--paper);
-  color: var(--ink);
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */

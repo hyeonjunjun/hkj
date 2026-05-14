@@ -294,13 +294,16 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
           gap: 8px;
           text-align: center;
           padding: 20px;
+          /* Placeholder diagonal hatch sits over --paper-2; ink-ghost
+             token automatically inverts with theme (light: 4% dark on
+             white, dark: 4% white on black). */
           background:
             repeating-linear-gradient(
               -45deg,
               transparent 0,
               transparent 12px,
-              rgba(255,255,255,0.035) 12px,
-              rgba(255,255,255,0.035) 13px
+              var(--ink-ghost) 12px,
+              var(--ink-ghost) 13px
             ),
             var(--paper-2);
         }

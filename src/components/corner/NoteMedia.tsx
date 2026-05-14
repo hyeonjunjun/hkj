@@ -174,27 +174,19 @@ function NoteMediaStyles() {
         place-content: center;
         gap: 6px;
         text-align: center;
+        /* Diagonal hatch uses ink-ghost so it inverts cleanly when the
+           page register changes (light: dark hatch on white; dark:
+           light hatch on black). */
         background:
           repeating-linear-gradient(
             -45deg,
             transparent 0,
             transparent 10px,
-            rgba(0, 0, 0, 0.025) 10px,
-            rgba(0, 0, 0, 0.025) 11px
+            var(--ink-ghost) 10px,
+            var(--ink-ghost) 11px
           ),
           var(--paper-2);
         color: var(--ink-3);
-      }
-      :root[data-theme="dark"] .note-media__placeholder {
-        background:
-          repeating-linear-gradient(
-            -45deg,
-            transparent 0,
-            transparent 10px,
-            rgba(255, 255, 255, 0.03) 10px,
-            rgba(255, 255, 255, 0.03) 11px
-          ),
-          var(--paper-2);
       }
       .note-media__caption {
         color: var(--ink-3);

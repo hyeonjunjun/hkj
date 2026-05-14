@@ -190,22 +190,11 @@ export function ProjectCard({ piece, index }: Props) {
               -45deg,
               transparent 0,
               transparent 14px,
-              rgba(0,0,0,0.03) 14px,
-              rgba(0,0,0,0.03) 15px
+              var(--ink-ghost) 14px,
+              var(--ink-ghost) 15px
             ),
             var(--paper-2);
           color: var(--ink-3);
-        }
-        :root[data-theme="dark"] .corner-card__placeholder {
-          background:
-            repeating-linear-gradient(
-              -45deg,
-              transparent 0,
-              transparent 14px,
-              rgba(255,255,255,0.035) 14px,
-              rgba(255,255,255,0.035) 15px
-            ),
-            var(--paper-2);
         }
         .corner-card__placeholder .t-display {
           font-size: clamp(20px, 3vw, 32px);

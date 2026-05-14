@@ -216,8 +216,8 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
               -45deg,
               transparent 0,
               transparent 12px,
-              rgba(255,255,255,0.035) 12px,
-              rgba(255,255,255,0.035) 13px
+              var(--ink-ghost) 12px,
+              var(--ink-ghost) 13px
             ),
             var(--paper-2);
         }
