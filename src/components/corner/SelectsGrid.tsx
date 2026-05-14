@@ -119,7 +119,6 @@ interface TileProps {
 function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
   const number = `[${piece.number}]`;
   const isWip = piece.status === "wip";
-  const isConcept = piece.status === "concept";
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Only intercept on the peek breakpoint. Below it, let the link
@@ -138,7 +137,13 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
   return (
     <article
       className="select-tile"
-      style={{ animationDelay: `${200 + index * 50}ms` }}
+      style={{
+        animationDelay: `${200 + index * 50}ms`,
+        // view-transition-name lets the browser morph this tile from
+        // its 4-col position to its 3-col position when the panel
+        // opens. Each tile is a separately-captured element.
+        viewTransitionName: `corner-tile-${piece.slug}`,
+      }}
       data-status={piece.status}
       data-active={isActive ? "" : undefined}
     >
@@ -185,9 +190,9 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
             </div>
           )}
 
-          {(isWip || isConcept) && (
-            <span className={`select-tile__tag${isWip ? " is-live" : ""}`}>
-              <span className="t-warmth">{isWip ? "LIVE" : "CONCEPT"}</span>
+          {isWip && (
+            <span className="select-tile__live" aria-label="Live — in progress">
+              <span className="select-tile__live-dot" aria-hidden />
             </span>
           )}
         </div>
@@ -310,28 +315,42 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
           text-transform: uppercase;
         }
 
-        .select-tile__tag {
+        /* Live indicator — small dark-glass circle holding a pulsing
+           amber dot. No text, no box, no padding — reads as "live now"
+           the way a music app shows a now-playing marker. Replaces the
+           prior boxed LIVE / CONCEPT tag (whose height + padding made
+           the chrome heavier than the signal warranted). CONCEPT
+           pieces no longer get a tile marker — the "in progress"
+           placeholder + the Now Playing panel both surface that. */
+        .select-tile__live {
           position: absolute;
           bottom: 10px;
           right: 10px;
-          padding: 3px 7px;
-          background: rgba(0, 0, 0, 0.55);
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.45);
           backdrop-filter: blur(6px);
-          border: 1px solid var(--ink-hair);
-          border-radius: 1px;
+          -webkit-backdrop-filter: blur(6px);
+          display: grid;
+          place-content: center;
+          border: 1px solid rgba(255, 255, 255, 0.10);
         }
-        .select-tile__tag.is-live {
+        .select-tile__live-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
           background: var(--accent);
-          border-color: var(--accent);
+          box-shadow: 0 0 0 0 rgba(232, 178, 90, 0.5);
+          animation: select-tile-live 2.4s ease-in-out infinite;
         }
-        .select-tile__tag.is-live .t-warmth {
-          color: #000;
+        @keyframes select-tile-live {
+          0%   { box-shadow: 0 0 0 0 rgba(232, 178, 90, 0.45); }
+          70%  { box-shadow: 0 0 0 5px transparent; }
+          100% { box-shadow: 0 0 0 0 transparent; }
         }
-        .select-tile__tag .t-warmth {
-          color: var(--ink);
-          font-size: 8.5px;
-          font-weight: 600;
-          letter-spacing: 0.14em;
+        @media (prefers-reduced-motion: reduce) {
+          .select-tile__live-dot { animation: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,38 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { flushSync } from "react-dom";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { SelectsGrid } from "./SelectsGrid";
 import { NowPlayingPanel } from "./NowPlayingPanel";
+
+/**
+ * Wrap a state mutation in document.startViewTransition so the browser
+ * captures before/after states and morphs between them. flushSync is
+ * required so React applies the state change synchronously inside the
+ * transition callback — otherwise the browser captures the OLD state
+ * twice.
+ *
+ * Falls back to a plain mutation when the API isn't available
+ * (Firefox, older browsers). The existing CSS transition on
+ * grid-template-columns is the fallback animation in those cases.
+ */
+function runViewTransition(mutate: () => void): void {
+  if (typeof document === "undefined") {
+    mutate();
+    return;
+  }
+  const startVT = (document as Document & {
+    startViewTransition?: (cb: () => void) => unknown;
+  }).startViewTransition;
+  if (typeof startVT !== "function") {
+    mutate();
+    return;
+  }
+  startVT.call(document, () => {
+    flushSync(mutate);
+  });
+}
 
 /**
  * IndexShell — owns the peek state for /v/corner.
@@ -40,11 +69,11 @@ export function IndexShell() {
   const active = activeSlug ? SORTED.find((p) => p.slug === activeSlug) ?? null : null;
 
   const onPeek = useCallback((slug: string) => {
-    setActiveSlug(slug);
+    runViewTransition(() => setActiveSlug(slug));
   }, []);
 
   const onClose = useCallback(() => {
-    setActiveSlug(null);
+    runViewTransition(() => setActiveSlug(null));
   }, []);
 
   return (
