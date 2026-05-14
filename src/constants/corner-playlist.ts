@@ -1,12 +1,15 @@
 /**
  * Zero-audio playlist — metadata for the silent audio fixture on the
  * corner portfolio. Tracks rotate visually; the page never emits sound.
- * 8-track target per spec; expand later as the rotation deepens.
  *
- * Runtime is in seconds. The fixture computes the current track by
- * dividing real time (since a fixed epoch) by the cumulative runtime
- * of the playlist, so navigation between pages picks up wherever the
- * rotation actually is — not from zero on every mount.
+ * Current source: Ryan's "currently on loop" set (received 2026-05-14
+ * via Spotify links). Track titles + artists pulled from Spotify
+ * oEmbed metadata. Runtimes in seconds.
+ *
+ * Rotation logic: total runtime sums all tracks; position is derived
+ * from real time elapsed since CORNER_PLAYLIST_EPOCH (Unix ms),
+ * modulo the total. Everyone sees the same track at the same wall-
+ * clock moment.
  */
 
 export interface CornerTrack {
@@ -17,14 +20,15 @@ export interface CornerTrack {
 }
 
 export const CORNER_PLAYLIST: ReadonlyArray<CornerTrack> = [
-  { title: "Adore U",                artist: "Fred Again..",            runtime: 214 },
-  { title: "Marilyn Monroe",         artist: "Sevdaliza",               runtime: 254 },
-  { title: "Spring Day",             artist: "BTS",                     runtime: 274 },
-  { title: "Houdini",                artist: "Dua Lipa",                runtime: 187 },
-  { title: "Delilah (pull me out of this)", artist: "Fred Again..",     runtime: 220 },
-  { title: "Pink + White",           artist: "Frank Ocean",             runtime: 184 },
-  { title: "Run",                    artist: "BTS",                     runtime: 234 },
-  { title: "Kyoto",                  artist: "Phoebe Bridgers",         runtime: 187 },
+  { title: "SWIM with RM (Chill Hip Hop Remix)", artist: "BTS",                            runtime: 163 },
+  { title: "Trivia 轉 : Seesaw",                  artist: "BTS",                            runtime: 246 },
+  { title: "Do For Love",                         artist: "2Pac",                           runtime: 281 },
+  { title: "too pretty to be this dumb",          artist: "ava rae",                        runtime: 225 },
+  { title: "ketamina",                            artist: "yaego, KUČKA",                   runtime: 270 },
+  { title: "recuérdame (eterno)",                 artist: "yaego",                          runtime: 352 },
+  { title: "I Luv U",                             artist: "Fred again.., Wallfacer",        runtime: 197 },
+  { title: "Run",                                 artist: "BTS",                            runtime: 235 },
+  { title: "季节性梦见你",                          artist: "白浩贤BlueC, 邹沛沛",              runtime: 193 },
 ];
 
 /**
