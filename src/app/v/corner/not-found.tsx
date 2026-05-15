@@ -30,11 +30,11 @@ export default function CornerNotFound() {
           </p>
           <nav className="corner-404__links">
             <Link href="/v/corner" className="t-warmth corner-404__link">
-              <span>Selects</span>
+              <span>Index</span>
               <span aria-hidden>→</span>
             </Link>
             <Link href="/v/corner/list" className="t-warmth corner-404__link">
-              <span>Index</span>
+              <span>Projects</span>
               <span aria-hidden>→</span>
             </Link>
             <Link href="/v/corner/notes" className="t-warmth corner-404__link">

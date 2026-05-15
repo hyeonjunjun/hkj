@@ -12,9 +12,9 @@ import { CornerAudio } from "@/components/corner/CornerAudio";
  */
 
 export const metadata: Metadata = {
-  title: "Index — Ryan Jun",
+  title: "Projects — Ryan Jun",
   description:
-    "Text ledger of selected work.",
+    "Full projects list — text ledger of selected work.",
 };
 
 export default function CornerIndexPage() {

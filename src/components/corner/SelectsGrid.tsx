@@ -43,7 +43,7 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
     <section
       className="selects-grid"
       data-panel-open={panelOpen ? "" : undefined}
-      aria-label="Selects — visual project index"
+      aria-label="Index — visual project grid"
     >
       <div className="selects-grid__inner">
         {pieces.map((piece, i) => (
@@ -61,28 +61,32 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
         .selects-grid {
           width: 100%;
         }
+        /* 5-column grid at desktop (ethan&tom density), with a tighter
+           --grid-gutter than var(--margin-page) so the grid hugs the
+           viewport edges. Set as a local CSS var so panel-open + media
+           queries can override consistently. */
         .selects-grid__inner {
+          --grid-gutter: clamp(14px, 1.8vw, 28px);
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          column-gap: clamp(16px, 2vw, 28px);
+          grid-template-columns: repeat(5, 1fr);
+          column-gap: clamp(12px, 1.4vw, 22px);
           row-gap: clamp(36px, 5vh, 64px);
-          padding: 0 var(--margin-page);
+          padding: 0 var(--grid-gutter);
           /* No CSS transition on grid-template-columns — View Transitions
              (per-tile, via view-transition-name in SelectTile) handle
-             the column reflow smoothly. CSS-transitioned grid columns
-             on top of view-transition snapshots was the source of the
-             visible reorganization. */
+             the column reflow smoothly. */
         }
-        /* When the Now Playing panel is open, the grid reflows from
-           4 to 3 cols. This is the "shifts layout responsively without
-           covering content" behavior. */
+        /* When the Now Playing panel is open, drop to 4 cols. */
         .selects-grid[data-panel-open] .selects-grid__inner {
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(4, 1fr);
           padding-right: 0;
         }
-        @media (max-width: 1280px) {
+        @media (max-width: 1440px) {
+          .selects-grid__inner {
+            grid-template-columns: repeat(4, 1fr);
+          }
           .selects-grid[data-panel-open] .selects-grid__inner {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
           }
         }
         @media (max-width: 1080px) {
@@ -96,7 +100,7 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
         @media (max-width: 720px) {
           .selects-grid__inner {
             grid-template-columns: repeat(2, 1fr);
-            column-gap: 14px;
+            column-gap: 12px;
             row-gap: 32px;
           }
         }

@@ -45,7 +45,7 @@ export default function CornerAboutPage() {
             Available for collaboration, commission, and full-time roles.
             Selected work at{" "}
             <Link href="/v/corner" className="corner-about__inline-link">
-              /selects
+              /index
             </Link>
             ; ongoing entries at{" "}
             <Link href="/v/corner/notes" className="corner-about__inline-link">
@@ -189,7 +189,7 @@ export default function CornerAboutPage() {
 
         <p className="corner-about__back-row">
           <Link href="/v/corner" className="t-warmth corner-about__back-link">
-            ← Back to selects
+            ← Back to index
           </Link>
         </p>
       </main>

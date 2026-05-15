@@ -27,8 +27,6 @@ import { useRotatingPlaylist } from "./useRotatingPlaylist";
  * Reduced-motion-safe: skips the scan sweep but preserves the fade-in.
  */
 
-const PROGRESS_CELLS = 28;
-
 function formatMMSS(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
@@ -38,7 +36,6 @@ function formatMMSS(seconds: number): string {
 export function CornerAudio() {
   const { track, trackIndex, positionSeconds } = useRotatingPlaylist();
   const [showHint, setShowHint] = useState(false);
-  const [expanded, setExpanded] = useState(false);
   const [booted, setBooted] = useState(false);
 
   // Boot phase ends ~900ms after mount. After that, normal stable
@@ -55,20 +52,11 @@ export function CornerAudio() {
     return () => clearTimeout(id);
   }, [showHint]);
 
-  const filled = Math.min(
-    PROGRESS_CELLS,
-    Math.max(0, Math.round((positionSeconds / track.runtime) * PROGRESS_CELLS)),
-  );
-  const bar = "█".repeat(filled) + "░".repeat(PROGRESS_CELLS - filled);
-
   return (
     <aside
       className="corner-audio-fixed"
       aria-label="Now playing"
-      data-expanded={expanded ? "" : undefined}
       data-booted={booted ? "" : undefined}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
     >
       {/* The LCD scan-line: a thin gradient that sweeps top-to-bottom
           across the widget content area during the boot phase, fading
@@ -130,18 +118,23 @@ export function CornerAudio() {
           ?
         </button>
       </div>
-      <div className="corner-audio-fixed__row corner-audio-fixed__row--bar" aria-hidden>
+      <div
+        className="corner-audio-fixed__progress"
+        role="progressbar"
+        aria-label="Track progress"
+        aria-valuemin={0}
+        aria-valuemax={track.runtime}
+        aria-valuenow={Math.round(positionSeconds)}
+      >
         <span
-          className="corner-audio-fixed__bar"
-          style={{
-            backgroundImage: `linear-gradient(90deg, var(--ink) 0, var(--ink) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) ${(filled / PROGRESS_CELLS) * 100}%, var(--ink-hair) 100%)`,
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          {bar}
-        </span>
+          className="corner-audio-fixed__progress-fill"
+          style={{ transform: `scaleX(${positionSeconds / track.runtime})` }}
+        />
+        <span
+          className="corner-audio-fixed__progress-head"
+          style={{ left: `${(positionSeconds / track.runtime) * 100}%` }}
+          aria-hidden
+        />
       </div>
 
       {showHint && (
@@ -216,11 +209,13 @@ export function CornerAudio() {
            opacity ramp. Once .corner-audio-fixed[data-booted] is set,
            the override below makes everything fully visible. */
         .corner-audio-fixed__row,
+        .corner-audio-fixed__progress,
         .corner-audio-fixed__hint {
           opacity: 0;
           transition: opacity 320ms var(--ease);
         }
         .corner-audio-fixed[data-booted] .corner-audio-fixed__row,
+        .corner-audio-fixed[data-booted] .corner-audio-fixed__progress,
         .corner-audio-fixed[data-booted] .corner-audio-fixed__hint {
           opacity: 1;
         }
@@ -326,24 +321,59 @@ export function CornerAudio() {
           color: var(--ink);
         }
 
-        .corner-audio-fixed__row--bar {
-          font-family: var(--font-stack-chrome);
-          font-size: 8px;
-          line-height: 1;
-          color: var(--ink-3);
-          overflow: hidden;
-          white-space: nowrap;
-          max-height: 0;
-          transition:
-            max-height 240ms var(--ease),
-            opacity 200ms var(--ease) 40ms;
+        /* ── Progress bar (always visible) ──────────────────────────
+           Slim 2px rail under the now-playing row. Track = --ink-hair
+           (just-perceivable at the corner's contrast). Fill = --accent
+           (warm Solari amber) since the now-playing IS the live signal
+           the accent is reserved for. Smooth scaleX transform animation
+           — no per-frame layout work. A tiny playhead dot at the fill
+           edge gives a Spotify-style cursor without being draggable. */
+        .corner-audio-fixed__progress {
+          position: relative;
+          width: 100%;
+          height: 2px;
+          background: var(--ink-hair);
+          border-radius: 1px;
+          overflow: visible;
+          margin-top: 2px;
         }
-        .corner-audio-fixed[data-expanded][data-booted] .corner-audio-fixed__row--bar {
-          max-height: 16px;
+        .corner-audio-fixed__progress-fill {
+          position: absolute;
+          inset: 0;
+          background: var(--accent);
+          border-radius: 1px;
+          transform-origin: left center;
+          transform: scaleX(0);
+          transition: transform 360ms cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: transform;
+        }
+        .corner-audio-fixed__progress-head {
+          position: absolute;
+          top: 50%;
+          width: 6px;
+          height: 6px;
+          margin-left: -3px;
+          margin-top: -3px;
+          border-radius: 50%;
+          background: var(--accent);
+          box-shadow: 0 0 0 2px var(--paper);
+          pointer-events: none;
+          transition: left 360ms cubic-bezier(0.4, 0, 0.2, 1),
+                      opacity 200ms var(--ease);
+          opacity: 0;
+        }
+        .corner-audio-fixed:hover .corner-audio-fixed__progress-head {
           opacity: 1;
         }
-        .corner-audio-fixed__bar {
-          letter-spacing: 0;
+        .corner-audio-fixed[data-booted] .corner-audio-fixed__progress-fill {
+          /* No transition during boot — let the scan reveal it. After
+             boot, smooth time-driven advancement. */
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .corner-audio-fixed__progress-fill,
+          .corner-audio-fixed__progress-head {
+            transition: none;
+          }
         }
 
         .corner-audio-fixed__hint {

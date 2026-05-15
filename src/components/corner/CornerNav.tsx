@@ -22,11 +22,14 @@ import Link from "next/link";
  */
 
 const TABS = [
-  { href: "/v/corner",             label: "Selects" },
-  { href: "/v/corner/list",        label: "Index"   },
-  { href: "/v/corner/photography", label: "Photo"   },
-  { href: "/v/corner/notes",       label: "Notes"   },
-  { href: "/v/corner/about",       label: "Info"    },
+  // 2026-05-14 rename: Selects -> Index (the grid view is the index
+  // we lead with) and Index -> Projects (the text ledger is the
+  // exhaustive projects list).
+  { href: "/v/corner",             label: "Index"    },
+  { href: "/v/corner/list",        label: "Projects" },
+  { href: "/v/corner/photography", label: "Photo"    },
+  { href: "/v/corner/notes",       label: "Notes"    },
+  { href: "/v/corner/about",       label: "Info"     },
 ] as const;
 
 const EST_FORMATTER = new Intl.DateTimeFormat("en-GB", {

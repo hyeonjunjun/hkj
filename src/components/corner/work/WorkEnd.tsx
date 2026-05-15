@@ -21,7 +21,7 @@ export function WorkEnd({ next }: Props) {
     <footer className="work-end">
       <Link href="/v/corner" className="t-warmth work-end__back">
         <span aria-hidden>←</span>
-        <span>Back to selects</span>
+        <span>Back to index</span>
       </Link>
 
       {next && (
