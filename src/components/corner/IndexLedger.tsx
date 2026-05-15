@@ -76,7 +76,12 @@ function LedgerRow({ piece, index }: RowProps) {
     >
       <span className="ledger-row__num t-warmth">{number}</span>
       <span className="ledger-row__lines">
-        <span className="ledger-row__title t-warmth">{piece.title.toUpperCase()}</span>
+        <span
+          className="ledger-row__title t-warmth"
+          style={{ viewTransitionName: `corner-project-${piece.slug}` }}
+        >
+          {piece.title.toUpperCase()}
+        </span>
         <span className="ledger-row__sector t-warmth">{piece.sector.toUpperCase()}</span>
       </span>
       <style>{`

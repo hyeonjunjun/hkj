@@ -662,3 +662,17 @@ a:active {
     animation-duration: 1ms;
   }
 }
+
+/* ─── Index ↔ Projects fold transition ─────────────────────────────────
+   When the user navigates between /v/corner (grid) and /v/corner/list
+   (ledger), each project title carries the shared name
+   `corner-project-<slug>` on both views. The browser interpolates the
+   title from its grid position to its ledger row position — the title
+   "flies." Everything else on the tile (number, sector, media) has no
+   matching destination so it falls under the root cross-fade and
+   appears to fold away while the title moves to its new home.
+
+   The default named-group animation (250ms ease) gives a clean morph;
+   no per-name override needed. The existing root rules earlier in
+   this file (200ms out + 350ms in with 80ms delay) handle the cross-
+   fade of unnamed tile body content. */

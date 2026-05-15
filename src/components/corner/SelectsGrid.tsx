@@ -166,7 +166,12 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
         <header className="select-tile__caption">
           <span className="t-warmth select-tile__number">{number}</span>
           <span className="select-tile__lines">
-            <span className="t-warmth select-tile__title">{piece.title}</span>
+            <span
+              className="t-warmth select-tile__title"
+              style={{ viewTransitionName: `corner-project-${piece.slug}` }}
+            >
+              {piece.title}
+            </span>
             <span className="t-warmth select-tile__sector">
               {piece.sector.toUpperCase()}
             </span>
