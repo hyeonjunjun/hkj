@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRotatingPlaylist } from "./useRotatingPlaylist";
+import { CORNER_PLAYLIST } from "@/constants/corner-playlist";
 
 /**
  * CornerAudio — compact Spotify-style now-playing fixture pinned to
@@ -51,6 +52,15 @@ export function CornerAudio() {
     const id = setTimeout(() => setShowHint(false), 4200);
     return () => clearTimeout(id);
   }, [showHint]);
+
+  // Queue ordering — show the next N tracks in playlist order starting
+  // after the currently playing one. Wraps the array end so the queue
+  // is always full.
+  const QUEUE_LENGTH = 7;
+  const queue = Array.from({ length: QUEUE_LENGTH }, (_, i) => {
+    const idx = (trackIndex + i + 1) % CORNER_PLAYLIST.length;
+    return { piece: CORNER_PLAYLIST[idx], idx };
+  });
 
   return (
     <aside
@@ -149,6 +159,29 @@ export function CornerAudio() {
           )}
         </p>
       )}
+
+      {/* Queue dropdown — Spotify-style upcoming-tracks list that
+          slides up above the widget on hover. Stays open while the
+          cursor is inside the bridge or the queue itself so it's not
+          jumpy. Tracks link out to Spotify when a URL exists. */}
+      <div className="corner-audio-fixed__queue" aria-hidden role="presentation">
+        <div className="corner-audio-fixed__queue-head">
+          <span className="t-warmth corner-audio-fixed__queue-title">Queue</span>
+          <span className="t-warmth corner-audio-fixed__queue-meta tabular">
+            {String(queue.length).padStart(2, "0")} upcoming
+          </span>
+        </div>
+        <ol className="corner-audio-fixed__queue-list">
+          {queue.map(({ piece, idx }) => (
+            <li
+              key={`${idx}-${piece.title}`}
+              className="corner-audio-fixed__queue-item"
+            >
+              <QueueRow track={piece} />
+            </li>
+          ))}
+        </ol>
+      </div>
 
       <span className="sr-only">
         Silent music-metadata fixture. No audio is emitted from this page.
@@ -406,6 +439,121 @@ export function CornerAudio() {
           text-transform: uppercase;
         }
 
+        /* ── Queue dropdown ────────────────────────────────────────
+           Spotify-style "upcoming tracks" panel anchored above the
+           widget. Hidden by default; slides up + fades in on widget
+           hover. Two reveal triggers:
+             - hover the widget itself
+             - keyboard focus inside the widget
+           Animated opacity + translateY so it has a real entrance,
+           not just an instant pop-in. Allows hover to span the small
+           gap between widget and queue via a top: calc() offset that
+           overlaps with a pseudo-bridge. */
+        .corner-audio-fixed__queue {
+          position: absolute;
+          /* sit above the widget with an 8px bridge that pseudo-extends
+             the hover hit area; bridged via the negative top + bottom
+             padding pattern below. */
+          left: 0;
+          right: 0;
+          bottom: calc(100% + 8px);
+          padding: 10px 12px 12px;
+          background: var(--paper);
+          color: var(--ink-2);
+          border: 1px solid var(--ink-hair);
+          border-radius: 4px;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          box-shadow:
+            0 -8px 24px rgba(0, 0, 0, 0.06),
+            0 -2px 6px rgba(0, 0, 0, 0.04);
+          opacity: 0;
+          transform: translateY(6px);
+          pointer-events: none;
+          transition:
+            opacity 200ms var(--ease),
+            transform 240ms var(--ease);
+          z-index: 1;
+        }
+        /* Invisible bridge so the cursor can travel from the widget
+           into the queue without the queue hiding mid-traverse. */
+        .corner-audio-fixed__queue::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 100%;
+          height: 10px;
+        }
+        .corner-audio-fixed:hover .corner-audio-fixed__queue,
+        .corner-audio-fixed:focus-within .corner-audio-fixed__queue {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+        .corner-audio-fixed__queue-head {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 2px 4px 8px;
+          border-bottom: 1px solid var(--ink-ghost);
+          margin-bottom: 4px;
+        }
+        .corner-audio-fixed__queue-title {
+          color: var(--ink);
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: -0.005em;
+        }
+        .corner-audio-fixed__queue-meta {
+          color: var(--ink-3);
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .corner-audio-fixed__queue-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          row-gap: 1px;
+        }
+        .corner-audio-fixed__queue-item {
+          list-style: none;
+        }
+        .queue-row {
+          display: flex;
+          align-items: baseline;
+          padding: 4px 6px;
+          font-family: var(--font-stack-spotify);
+          font-size: 11px;
+          line-height: 1.3;
+          letter-spacing: -0.005em;
+          color: inherit;
+          border-radius: 2px;
+          transition: background 160ms var(--ease);
+          text-decoration: none;
+        }
+        .queue-row--link {
+          cursor: pointer;
+        }
+        .queue-row--link:hover {
+          background: var(--ink-ghost);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .corner-audio-fixed__queue {
+            transition: opacity 200ms var(--ease);
+            transform: none;
+          }
+        }
+        @media (max-width: 540px) {
+          .corner-audio-fixed__queue {
+            display: none;
+          }
+        }
+
         .sr-only {
           position: absolute;
           width: 1px;
@@ -448,4 +596,61 @@ function TrackContent({ track }: { track: { title: string; artist: string } }) {
       <span className="corner-audio-fixed__artist">{track.artist}</span>
     </>
   );
+}
+
+/**
+ * QueueRow — single upcoming-track line inside the queue dropdown.
+ * Title · Artist on the left, runtime (mm:ss) tabular on the right.
+ * Whole row is a link when the track has a Spotify URL.
+ */
+function QueueRow({
+  track,
+}: {
+  track: { title: string; artist: string; runtime: number; url?: string };
+}) {
+  const runtime = `${Math.floor(track.runtime / 60)}:${String(
+    track.runtime % 60,
+  ).padStart(2, "0")}`;
+  const inner = (
+    <>
+      <span className="queue-row__text">
+        <span className="queue-row__title">{track.title}</span>
+        <span className="queue-row__sep" aria-hidden>·</span>
+        <span className="queue-row__artist">{track.artist}</span>
+      </span>
+      <span className="queue-row__time tabular">{runtime}</span>
+      <style>{`
+        .queue-row__text {
+          flex: 1 1 auto;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .queue-row__title { color: var(--ink); font-weight: 500; }
+        .queue-row__sep { color: var(--ink-4); margin: 0 0.35em; }
+        .queue-row__artist { color: var(--ink-3); font-weight: 400; }
+        .queue-row__time {
+          flex: 0 0 auto;
+          color: var(--ink-3);
+          font-size: 10px;
+          margin-left: 8px;
+        }
+      `}</style>
+    </>
+  );
+  if (track.url) {
+    return (
+      <a
+        href={track.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="queue-row queue-row--link"
+        aria-label={`Open ${track.title} by ${track.artist} on Spotify`}
+      >
+        {inner}
+      </a>
+    );
+  }
+  return <span className="queue-row">{inner}</span>;
 }
