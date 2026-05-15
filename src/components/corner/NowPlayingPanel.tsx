@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect } from "react";
 import type { Piece } from "@/constants/pieces";
+import { SleepingCat } from "./SleepingCat";
 
 /**
  * NowPlayingPanel — right-rail Spotify-style detail pane that surfaces
@@ -90,7 +91,8 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
             />
           ) : (
             <div className="np-panel__placeholder" aria-hidden>
-              <span className="t-warmth np-panel__placeholder-text">in progress</span>
+              <SleepingCat size={64} className="np-panel__placeholder-cat" />
+              <span className="t-warmth np-panel__placeholder-text">project incoming</span>
             </div>
           )}
         </div>
@@ -211,21 +213,18 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
           inset: 0;
           display: grid;
           place-content: center;
-          background:
-            repeating-linear-gradient(
-              -45deg,
-              transparent 0,
-              transparent 12px,
-              var(--ink-ghost) 12px,
-              var(--ink-ghost) 13px
-            ),
-            var(--paper-2);
+          justify-items: center;
+          gap: 12px;
+          background: var(--paper-2);
+        }
+        .np-panel__placeholder-cat {
+          color: var(--ink-3);
         }
         .np-panel__placeholder-text {
           color: var(--ink-3);
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 500;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
         }
 

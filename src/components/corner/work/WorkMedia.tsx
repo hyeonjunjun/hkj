@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { WorkMedia as WorkMediaType } from "@/constants/work-content";
+import { SleepingCat } from "../SleepingCat";
 
 /**
  * WorkMediaFrame — single-media renderer used by the project detail
@@ -81,7 +82,8 @@ function MediaInner({ media, priority }: { media: WorkMediaType; priority?: bool
   }
   return (
     <div className="work-media__placeholder" aria-label={media.alt}>
-      <span className="t-warmth work-media__placeholder-text">in progress</span>
+      <SleepingCat size={72} className="work-media__placeholder-cat" />
+      <span className="t-warmth work-media__placeholder-text">project incoming</span>
       <span className="t-warmth work-media__placeholder-alt">{media.alt}</span>
     </div>
   );
@@ -122,22 +124,18 @@ function Styles() {
         inset: 0;
         display: grid;
         place-content: center;
-        gap: 8px;
+        justify-items: center;
+        gap: 14px;
         text-align: center;
         padding: 24px;
-        background:
-          repeating-linear-gradient(
-            -45deg,
-            transparent 0,
-            transparent 14px,
-            var(--ink-ghost) 14px,
-            var(--ink-ghost) 15px
-          ),
-          var(--paper-2);
+        background: var(--paper-2);
+      }
+      .work-media__placeholder-cat {
+        color: var(--ink-3);
       }
       .work-media__placeholder-text {
         color: var(--ink-2);
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 500;
         letter-spacing: 0.18em;
         text-transform: uppercase;

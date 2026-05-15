@@ -48,8 +48,8 @@ export interface WorkContent {
  * authored; pieces without a custom entry render a sensible default.
  */
 export const WORK_CONTENT: Record<string, WorkContent> = {
-  la28: {
-    slug: "la28",
+  aurebor: {
+    slug: "aurebor",
     credits: {
       role: "Brand · Direction · Engineering",
       delivered: "2026-04 → present",
@@ -57,58 +57,19 @@ export const WORK_CONTENT: Record<string, WorkContent> = {
     sections: [
       {
         kind: "hero",
-        media: { kind: "video", src: "/assets/aurebor_jeju.mp4", alt: "LA28 atmospheric reel", aspect: "16 / 9" },
+        media: { kind: "video", src: "/assets/aurebor_jeju.mp4", alt: "AURÉBOR — Jeju atmospheric reel", aspect: "16 / 9" },
         full: true,
       },
       {
         kind: "prose",
         heading: "Brief",
         body: (
-          <>
-            <p>
-              LA28 is a personal concept for the Los Angeles 2028 Olympic
-              brand campaign. The IOC&apos;s direction emphasises
-              athletic spectacle; this counter-proposal frames the
-              Olympics as a *weather event* — atmosphere first, identity
-              following the air the games breathe in.
-            </p>
-            <p>
-              The work is brand, campaign, and product extending across
-              motion film, editorial print, signage, and a live brand
-              site. Built solo over six weeks.
-            </p>
-          </>
+          <p>
+            AURÉBOR is an atmospheric brand experiment captured on
+            location in Jeju. Full case study incoming; for now this is
+            the hero reel.
+          </p>
         ),
-      },
-      {
-        kind: "media",
-        media: { kind: "placeholder", alt: "Brand mark studies — chrome inversions across 12 weather states", aspect: "3 / 2" },
-        caption: "Brand mark studies — chrome inversions across 12 weather states.",
-      },
-      {
-        kind: "prose",
-        heading: "Direction",
-        body: (
-          <>
-            <p>
-              The brand inverts. Default state is silver-on-paper; in
-              live mode, it inverts to amber-on-black during medal
-              moments. A single mark — a tilted, atmospheric &ldquo;28&rdquo;
-              — carries the whole identity across surfaces.
-            </p>
-          </>
-        ),
-      },
-      {
-        kind: "media-pair",
-        left: { kind: "placeholder", alt: "Print poster — opening ceremony", aspect: "3 / 4" },
-        right: { kind: "placeholder", alt: "Print poster — closing ceremony", aspect: "3 / 4" },
-        caption: "Print posters — opening and closing ceremonies.",
-      },
-      { kind: "divider" },
-      {
-        kind: "quote",
-        text: "The Olympics aren't an event. They're weather. The brand should change with the air.",
       },
     ],
   },

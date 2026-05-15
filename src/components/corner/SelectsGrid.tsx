@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Piece } from "@/constants/pieces";
+import { SleepingCat } from "./SleepingCat";
 
 /**
  * SelectsGrid — ethan&tom-style project grid.
@@ -201,7 +202,8 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
             />
           ) : (
             <div className="select-tile__placeholder" aria-hidden>
-              <span className="t-warmth select-tile__placeholder-text">in progress</span>
+              <SleepingCat size={56} className="select-tile__placeholder-cat" />
+              <span className="t-warmth select-tile__placeholder-text">project incoming</span>
             </div>
           )}
 
@@ -299,31 +301,28 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
         }
 
         .select-tile__placeholder {
+          /* Blank, quiet empty-state. Just the paper-2 fill, a small
+             centered sleeping cat, and "project incoming" beneath.
+             The diagonal hatch was dropped — it competed with the cat
+             for attention. */
           position: absolute;
           inset: 0;
           display: grid;
           place-content: center;
-          gap: 8px;
+          gap: 12px;
+          justify-items: center;
           text-align: center;
           padding: 20px;
-          /* Placeholder diagonal hatch sits over --paper-2; ink-ghost
-             token automatically inverts with theme (light: 4% dark on
-             white, dark: 4% white on black). */
-          background:
-            repeating-linear-gradient(
-              -45deg,
-              transparent 0,
-              transparent 12px,
-              var(--ink-ghost) 12px,
-              var(--ink-ghost) 13px
-            ),
-            var(--paper-2);
+          background: var(--paper-2);
+        }
+        .select-tile__placeholder-cat {
+          color: var(--ink-3);
         }
         .select-tile__placeholder-text {
           color: var(--ink-3);
-          font-size: 12px;
+          font-size: 10.5px;
           font-weight: 500;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.16em;
           line-height: 1;
           text-transform: uppercase;
         }
