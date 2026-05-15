@@ -2,14 +2,14 @@
  * Zero-audio playlist — metadata for the silent audio fixture on the
  * corner portfolio. Tracks rotate visually; the page never emits sound.
  *
- * Current source: Ryan's "currently on loop" set (received 2026-05-14
- * via Spotify links). Track titles + artists pulled from Spotify
- * oEmbed metadata. Runtimes in seconds.
+ * Source: Ryan's "currently on loop" set (received 2026-05-14 via
+ * Spotify links). Titles + artists pulled from Spotify oEmbed metadata;
+ * cover thumbnails are the oEmbed `thumbnail_url` (Spotify CDN, 300px
+ * jpegs). The `url` field is the public Spotify track page — used to
+ * make the now-playing title clickable so visitors can open it in
+ * their own Spotify / browser.
  *
- * Rotation logic: total runtime sums all tracks; position is derived
- * from real time elapsed since CORNER_PLAYLIST_EPOCH (Unix ms),
- * modulo the total. Everyone sees the same track at the same wall-
- * clock moment.
+ * Runtimes in seconds. Rotation logic in useRotatingPlaylist.ts.
  */
 
 export interface CornerTrack {
@@ -17,25 +17,82 @@ export interface CornerTrack {
   artist: string;
   /** Track runtime in seconds. */
   runtime: number;
+  /** Public Spotify track URL — opened on click. Undefined disables the link. */
+  url?: string;
+  /** Album cover thumbnail URL (300px JPEG from Spotify CDN). */
+  cover?: string;
 }
 
 export const CORNER_PLAYLIST: ReadonlyArray<CornerTrack> = [
-  { title: "SWIM with RM (Chill Hip Hop Remix)", artist: "BTS",                            runtime: 163 },
-  { title: "Trivia 轉 : Seesaw",                  artist: "BTS",                            runtime: 246 },
-  { title: "Do For Love",                         artist: "2Pac",                           runtime: 281 },
-  { title: "too pretty to be this dumb",          artist: "ava rae",                        runtime: 225 },
-  { title: "ketamina",                            artist: "yaego, KUČKA",                   runtime: 270 },
-  { title: "recuérdame (eterno)",                 artist: "yaego",                          runtime: 352 },
-  { title: "I Luv U",                             artist: "Fred again.., Wallfacer",        runtime: 197 },
-  { title: "Run",                                 artist: "BTS",                            runtime: 235 },
-  { title: "季节性梦见你",                          artist: "白浩贤BlueC, 邹沛沛",              runtime: 193 },
+  {
+    title: "SWIM with RM (Chill Hip Hop Remix)",
+    artist: "BTS",
+    runtime: 163,
+    url: "https://open.spotify.com/track/7EytKcb3klVPpN5IW1sj1Y",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02dd898ec5b8a2107a1ab9f47b",
+  },
+  {
+    title: "Trivia 轉 : Seesaw",
+    artist: "BTS",
+    runtime: 246,
+    url: "https://open.spotify.com/track/0mZI1NpihIVcho2f9MmqSW",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02af396dce4438624ec801ff1a",
+  },
+  {
+    title: "Do For Love",
+    artist: "2Pac",
+    runtime: 281,
+    url: "https://open.spotify.com/track/4AE7Lj39VnSZNOmGH2iZaq",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e028e0ff34ad21955b6f4da9b86",
+  },
+  {
+    title: "too pretty to be this dumb",
+    artist: "ava rae",
+    runtime: 225,
+    url: "https://open.spotify.com/track/6pMy7eL3rd4a7QYCgG5ebB",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024e2cfc31403fb6dc9af6b316",
+  },
+  {
+    title: "ketamina",
+    artist: "yaego, KUČKA",
+    runtime: 270,
+    url: "https://open.spotify.com/track/0mzHbZ09hL9uUeV7rJ1ylR",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029074414dfe975acf68a2e155",
+  },
+  {
+    title: "recuérdame (eterno)",
+    artist: "yaego",
+    runtime: 352,
+    url: "https://open.spotify.com/track/3i1f2dVTf3TZvgYsnspNVx",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02468dbd34b58a09350dead6d4",
+  },
+  {
+    title: "I Luv U",
+    artist: "Fred again.., Wallfacer",
+    runtime: 197,
+    url: "https://open.spotify.com/track/3cegNfTneBkgIoPJ5yngNT",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024018b70099d433d9c8aabb12",
+  },
+  {
+    // No Spotify URL provided — title labelled but autosearch returned
+    // no match. Paste a track URL here when convenient; cover + link
+    // will activate automatically.
+    title: "Run",
+    artist: "BTS",
+    runtime: 235,
+  },
+  {
+    title: "季节性梦见你",
+    artist: "白浩贤BlueC, 邹沛沛",
+    runtime: 193,
+    url: "https://open.spotify.com/track/2CCdiYBdqrb5pUVzDOvWJm",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0223646c98b1e0299819b0dcde",
+  },
 ];
 
 /**
  * Rotation epoch — fixed Unix ms timestamp. Position within the
  * playlist is computed from real time elapsed since this moment.
- * Picking a date in the past means the rotation is "in progress"
- * on first load; everyone sees the same track at the same wall-
- * clock moment.
+ * Everyone sees the same track at the same wall-clock moment.
  */
 export const CORNER_PLAYLIST_EPOCH = 1700000000000; // 2023-11-14

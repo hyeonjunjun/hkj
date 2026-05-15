@@ -22,10 +22,11 @@ import Link from "next/link";
  */
 
 const TABS = [
-  { href: "/v/corner",        label: "Selects" },
-  { href: "/v/corner/list",   label: "Index"   },
-  { href: "/v/corner/notes",  label: "Notes"   },
-  { href: "/v/corner/about",  label: "Info"    },
+  { href: "/v/corner",             label: "Selects" },
+  { href: "/v/corner/list",        label: "Index"   },
+  { href: "/v/corner/photography", label: "Photo"   },
+  { href: "/v/corner/notes",       label: "Notes"   },
+  { href: "/v/corner/about",       label: "Info"    },
 ] as const;
 
 const EST_FORMATTER = new Intl.DateTimeFormat("en-GB", {
@@ -102,13 +103,20 @@ export function CornerNav() {
           grid-template-columns: auto 1fr auto;
           align-items: center;
           column-gap: clamp(16px, 2vw, 32px);
-          background: var(--paper);
-          /* No hairline rule below; ethan&tom keeps it clean and lets
-             whitespace separate the nav from the content. */
+          /* Transparent background so mix-blend-mode on the text below
+             can blend against whatever scrolls under the nav (grid,
+             media, prose) rather than against a paper plate. The text
+             color is white + mix-blend-mode: difference so the type
+             always reads as the inverted color of whatever is behind. */
+          background: transparent;
+          mix-blend-mode: difference;
         }
 
         .corner-nav__mark {
-          color: var(--ink);
+          /* color: white + mix-blend-mode: difference on the parent
+             nav = text inverts against whatever's behind. White over
+             paper appears black; white over black media reads white. */
+          color: #fff;
           font-size: 15px;
           font-weight: 500;
           letter-spacing: -0.01em;
@@ -131,8 +139,14 @@ export function CornerNav() {
           display: inline-flex;
           align-items: baseline;
         }
+        /* Nav text colors are hardcoded rgba(255,255,255,...) because
+           token vars (--ink, --ink-3) don't invert correctly under
+           mix-blend-mode: difference applied at the .corner-nav level.
+           Difference math wants the source to be pure white for the
+           output to read as the inverse of whatever's behind. Alpha
+           steps signal hover/active states. */
         .corner-nav__sep {
-          color: var(--ink-4);
+          color: rgba(255, 255, 255, 0.30);
           margin: 0 14px;
           font-family: var(--font-stack-spotify);
           font-size: 13px;
@@ -140,7 +154,7 @@ export function CornerNav() {
           user-select: none;
         }
         .corner-nav__tab {
-          color: var(--ink-3);
+          color: rgba(255, 255, 255, 0.55);
           font-size: 13px;
           font-weight: 500;
           letter-spacing: -0.005em;
@@ -150,10 +164,10 @@ export function CornerNav() {
           transition: color 200ms var(--ease);
         }
         .corner-nav__tab:hover {
-          color: var(--ink);
+          color: #fff;
         }
         .corner-nav__tab.is-active {
-          color: var(--ink);
+          color: #fff;
         }
         .corner-nav__tab.is-active::after {
           content: "";
@@ -162,19 +176,19 @@ export function CornerNav() {
           right: 0;
           bottom: 0;
           height: 1px;
-          background: var(--ink);
+          background: #fff;
         }
 
         .corner-nav__time {
           justify-self: end;
-          color: var(--ink);
+          color: #fff;
           font-size: 13px;
           font-weight: 500;
           letter-spacing: -0.005em;
           white-space: nowrap;
         }
         .corner-nav__time-suffix {
-          color: var(--ink-3);
+          color: rgba(255, 255, 255, 0.55);
           margin-left: 4px;
           font-size: 12px;
         }

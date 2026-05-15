@@ -141,7 +141,11 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
     <article
       className="select-tile"
       style={{
-        animationDelay: `${200 + index * 50}ms`,
+        // Stagger entrance is delayed to ~900ms (after the CornerAudio
+        // LCD boot finishes) + 60ms per tile so the grid cascades in
+        // *after* the audio fixture has revealed its data. Choreographed
+        // entrance sequence for first paint.
+        animationDelay: `${900 + index * 60}ms`,
         // view-transition-name lets the browser morph this tile from
         // its 4-col position to its 3-col position when the panel
         // opens. Each tile is a separately-captured element.
