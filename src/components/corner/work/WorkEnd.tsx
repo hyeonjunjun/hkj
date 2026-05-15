@@ -19,13 +19,13 @@ interface Props {
 export function WorkEnd({ next }: Props) {
   return (
     <footer className="work-end">
-      <Link href="/v/corner" className="t-warmth work-end__back">
+      <Link href="/" className="t-warmth work-end__back">
         <span aria-hidden>←</span>
         <span>Back to index</span>
       </Link>
 
       {next && (
-        <Link href={`/v/corner/work/${next.slug}`} className="t-warmth work-end__next">
+        <Link href={`/work/${next.slug}`} className="t-warmth work-end__next">
           <span className="work-end__next-label">
             <span className="work-end__next-eyebrow">Next ↗</span>
             <span className="work-end__next-line">

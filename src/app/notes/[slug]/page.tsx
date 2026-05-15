@@ -26,7 +26,7 @@ function relativeDaysAgo(dateStr: string): string {
 }
 
 /**
- * /v/corner/notes/[slug] — single-note detail page.
+ * /notes/[slug] — single-note detail page.
  *
  * The note title block carries `view-transition-name: corner-note-<slug>`
  * so the row-to-detail transition morphs the title into place from the
@@ -99,7 +99,7 @@ export default async function NoteDetailPage({
         <div className="corner-detail__body t-prose">{note.body}</div>
 
         <nav className="corner-detail__back" aria-label="Back to notes">
-          <Link href="/v/corner/notes" className="t-meta corner-detail__back-link">
+          <Link href="/notes" className="t-meta corner-detail__back-link">
             ← back to notes
           </Link>
         </nav>

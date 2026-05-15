@@ -70,7 +70,7 @@ function LedgerRow({ piece, index }: RowProps) {
   const number = `[${piece.number}]`;
   return (
     <Link
-      href={`/v/corner/work/${piece.slug}`}
+      href={`/work/${piece.slug}`}
       className="ledger-row"
       style={{ animationDelay: `${120 + index * 30}ms` }}
     >

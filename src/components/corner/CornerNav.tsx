@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 /**
- * CornerNav — ethan&tom-style editorial masthead for /v/corner.
+ * CornerNav — ethan&tom-style editorial masthead for /.
  *
  *   ryan jun                Selects / Index / Notes / Info        21:11:43 (GMT)
  *
@@ -24,7 +24,7 @@ import Link from "next/link";
 /**
  * Tabs.
  *
- * Index and Projects share the same route (/v/corner) — Projects is a
+ * Index and Projects share the same route (/) — Projects is a
  * `?view=projects` view of the same page. The toggle is handled below
  * as an in-page state change wrapped in startViewTransition so the
  * fold animation fires without a route reload.
@@ -34,11 +34,11 @@ import Link from "next/link";
  * treated as in-page toggles.
  */
 const TABS = [
-  { href: "/v/corner",                   label: "Index",    viewToggle: "grid"    },
-  { href: "/v/corner?view=projects",     label: "Projects", viewToggle: "ledger"  },
-  { href: "/v/corner/photography",       label: "Photo"                           },
-  { href: "/v/corner/notes",             label: "Notes"                           },
-  { href: "/v/corner/about",             label: "Info"                            },
+  { href: "/",                   label: "Index",    viewToggle: "grid"    },
+  { href: "/?view=projects",     label: "Projects", viewToggle: "ledger"  },
+  { href: "/photography",       label: "Photo"                           },
+  { href: "/notes",             label: "Notes"                           },
+  { href: "/about",             label: "Info"                            },
 ] as const;
 
 const EST_FORMATTER = new Intl.DateTimeFormat("en-GB", {
@@ -94,7 +94,7 @@ export function CornerNav() {
   return (
     <header className="corner-nav" role="banner">
       <Link
-        href="/v/corner"
+        href="/"
         className="corner-nav__mark t-warmth"
         aria-label="Ryan Jun — Index"
       >
@@ -104,14 +104,14 @@ export function CornerNav() {
       <nav className="corner-nav__tabs" aria-label="Primary">
         {TABS.map((t, i) => {
           // Active-state logic:
-          //   Index/Projects: only on /v/corner, distinguish by the
+          //   Index/Projects: only on /, distinguish by the
           //     `view` search param (grid vs ledger).
           //   Other tabs: active when path matches or starts with href.
           const viewToggle = "viewToggle" in t ? t.viewToggle : undefined;
           const isActive = viewToggle
-            ? pathname === "/v/corner" && currentView === viewToggle
+            ? pathname === "/" && currentView === viewToggle
             : pathname === t.href ||
-              (t.href !== "/v/corner" && pathname.startsWith(t.href));
+              (t.href !== "/" && pathname.startsWith(t.href));
 
           return (
             <span key={t.href} className="corner-nav__tab-cell">

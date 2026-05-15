@@ -8,10 +8,11 @@ export function BackButton() {
   const pathname = usePathname();
   const { startTransition, isTransitioning } = useRouteTransition();
 
-  if (pathname === "/") return null;
-  // /v/corner is being explored as a full homepage concept — no
-  // back-to-index affordance there (the editorial nav owns navigation).
-  if (pathname?.startsWith("/v/corner")) return null;
+  // BackButton only appears inside the legacy archive (the preserved
+  // old portfolio). On /legacy it would go nowhere; everywhere else
+  // (the corner) the CornerNav owns navigation.
+  if (!pathname?.startsWith("/legacy")) return null;
+  if (pathname === "/legacy") return null;
 
   return (
     <button
@@ -19,7 +20,7 @@ export function BackButton() {
       className="back-btn"
       aria-label="Return to index"
       onClick={() => {
-        if (!isTransitioning) startTransition("/");
+        if (!isTransitioning) startTransition("/legacy");
       }}
     >
       <span aria-hidden>←</span>

@@ -53,7 +53,7 @@ function runViewTransition(mutate: () => void): void {
 }
 
 /**
- * IndexShell — owns the peek state for /v/corner.
+ * IndexShell — owns the peek state for /.
  *
  * Composition (when panel is closed):
  *

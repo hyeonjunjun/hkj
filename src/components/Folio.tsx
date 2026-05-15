@@ -26,25 +26,27 @@ import { NOTES } from "@/constants/notes";
  */
 function resolveLabel(pathname: string | null): string | null {
   if (!pathname) return null;
-  // Homepage carries its identity through the masthead and the hero
-  // caption; a corner stamp would duplicate signal. Folio kicks in on
-  // every other route.
-  if (pathname === "/") return null;
-  if (pathname === "/about") return "ABOUT / NEW YORK";
-  if (pathname === "/notes") {
+  // Folio is only shown on legacy routes (the corner has its own
+  // page-stamp affordances via CornerNav + the t-footnote colophon).
+  // Suppressed on /legacy itself — the home carries its identity
+  // through the masthead.
+  if (!pathname.startsWith("/legacy")) return null;
+  if (pathname === "/legacy") return null;
+  if (pathname === "/legacy/about") return "ABOUT / NEW YORK";
+  if (pathname === "/legacy/notes") {
     const n = NOTES.length;
     return `NOTES / ${String(n).padStart(2, "0")}`;
   }
-  if (pathname === "/contact") return "CONTACT";
-  if (pathname === "/work") {
+  if (pathname === "/legacy/contact") return "CONTACT";
+  if (pathname === "/legacy/work") {
     const n = PIECES.length;
     return `WORK / INDEX / ${String(n).padStart(2, "0")}`;
   }
-  if (pathname.startsWith("/work/")) {
-    const slug = pathname.slice("/work/".length);
+  if (pathname.startsWith("/legacy/work/")) {
+    const slug = pathname.slice("/legacy/work/".length);
     const piece = PIECES.find((p) => p.slug === slug && !p.placeholder);
     if (!piece) return null;
-    return `§${piece.number} / ${piece.title.toUpperCase()}`;
+    return `[${piece.number}] / ${piece.title.toUpperCase()}`;
   }
   return null;
 }

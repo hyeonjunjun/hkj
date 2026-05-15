@@ -96,7 +96,7 @@
   --font-stack-sans: var(--font-geist-sans, "Geist"), -apple-system, "SF Pro Text", system-ui, sans-serif;
   /* Switzer — closest free analog to Spotify Sans (humanist, single-
      story 'a', generous x-height). Used by the `t-warmth` role in the
-     /v/corner experience for moments where we want Spotify-rail-style
+     / experience for moments where we want Spotify-rail-style
      humanist warmth without leaving the design system. Loaded from
      Fontshare via a stylesheet link in layout.tsx. */
   --font-stack-spotify: "Switzer", "Inter", "Helvetica Neue", -apple-system, "SF Pro Text", system-ui, sans-serif;
@@ -467,7 +467,7 @@ a {
   user-select: none;
 }
 
-/* ─── /v/corner page register ─────────────────────────────────────────
+/* ─── / page register ─────────────────────────────────────────
    The corner experience uses its own paper/ink tokens, redeclared on
    a `data-page="corner"` wrapper so children automatically inherit
    the corner palette. Light-by-default (2026-05-14 switch); when the
@@ -615,7 +615,7 @@ a:active {
   }
 }
 
-/* ─── /v/corner peek transitions ──────────────────────────────────────────
+/* ─── / peek transitions ──────────────────────────────────────────
    The corner experience uses View Transitions for the in-page peek
    (clicking a tile opens the Now Playing rail and reflows the grid).
    The default route-transition timings above (200/350ms) are too slow
@@ -679,7 +679,7 @@ a:active {
 }
 
 /* ─── Index ↔ Projects fold transition ─────────────────────────────────
-   When the user navigates between /v/corner (grid) and /v/corner/list
+   When the user navigates between / (grid) and /list
    (ledger), each project title carries the shared name
    `corner-project-<slug>` on both views. The browser interpolates the
    title from its grid position to its ledger row position — the title

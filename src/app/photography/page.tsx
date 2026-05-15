@@ -4,7 +4,7 @@ import { CornerNav } from "@/components/corner/CornerNav";
 import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
- * /v/corner/photography — the Photo tab.
+ * /photography — the Photo tab.
  *
  * Reserved for real photographs Ryan has taken (personal documentary,
  * studio stills, ambient shots). Distinct from the Selects grid
@@ -32,8 +32,8 @@ export default function CornerPhotographyPage() {
           <h1 className="t-warmth corner-photo__title">A gallery is being curated.</h1>
           <p className="t-warmth corner-photo__lede">
             Real photographs — documentary, studio, ambient — coming
-            shortly. In the meantime, <Link href="/v/corner" className="corner-photo__inline-link">selected
-            work</Link> and <Link href="/v/corner/notes" className="corner-photo__inline-link">notes</Link> live
+            shortly. In the meantime, <Link href="/" className="corner-photo__inline-link">selected
+            work</Link> and <Link href="/notes" className="corner-photo__inline-link">notes</Link> live
             elsewhere on the corner.
           </p>
         </header>

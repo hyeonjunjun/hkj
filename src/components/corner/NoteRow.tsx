@@ -30,7 +30,7 @@ export function NoteRow({ note, vtAnchor }: Props) {
   const number = `[${String(note.number).padStart(3, "0")}]`;
   return (
     <li className="corner-row">
-      <Link href={`/v/corner/notes/${note.slug}`} className="corner-row__link">
+      <Link href={`/notes/${note.slug}`} className="corner-row__link">
         <span className="corner-row__num t-code tabular">{number}</span>
         <time className="corner-row__date t-meta tabular" dateTime={note.date}>
           {note.date}

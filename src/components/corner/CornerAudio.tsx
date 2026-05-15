@@ -6,7 +6,7 @@ import { CORNER_PLAYLIST } from "@/constants/corner-playlist";
 
 /**
  * CornerAudio — compact Spotify-style now-playing fixture pinned to
- * the bottom-right corner across /v/corner/*.
+ * the bottom-right corner across /*.
  *
  * Anatomy:
  *

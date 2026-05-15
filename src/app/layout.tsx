@@ -60,7 +60,7 @@ export default function RootLayout({
             Google Fonts does not host it. Geist Mono stays as fallback.
 
             Switzer (Fontshare) — closest free analog to Spotify Sans.
-            Loaded via Fontshare's CDN. Used by the /v/corner experience
+            Loaded via Fontshare's CDN. Used by the / experience
             via the `t-warmth` role for moments that need humanist warmth
             (rail track titles, identity prose). The mono stack remains
             primary across the rest of the site. */}

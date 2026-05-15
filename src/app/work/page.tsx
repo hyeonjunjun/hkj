@@ -1,6 +1,9 @@
-import { PIECES } from "@/constants/pieces";
-import WorkIndex from "@/components/WorkIndex";
+import { redirect } from "next/navigation";
 
-export default function WorkPage() {
-  return <WorkIndex pieces={PIECES} />;
+/**
+ * /work — the corner doesn't have a separate work index; the home
+ * IS the index (project grid + ledger toggle). Redirect to /.
+ */
+export default function WorkLegacyPage() {
+  redirect("/");
 }

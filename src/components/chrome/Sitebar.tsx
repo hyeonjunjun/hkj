@@ -8,10 +8,10 @@ const RESERVE_PX = 120; // width carved out for BackButton when off-home
 const NEXT_AVAILABILITY = "23 MAY 2026";
 
 const ROUTES = [
-  { href: "/", label: "Index" },
-  { href: "/work", label: "Work" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/legacy", label: "Index" },
+  { href: "/legacy/work", label: "Work" },
+  { href: "/legacy/about", label: "About" },
+  { href: "/legacy/contact", label: "Contact" },
 ];
 
 function formatNYC(now: Date): { time: string; date: string } {
@@ -32,7 +32,7 @@ function formatNYC(now: Date): { time: string; date: string } {
 
 export function Sitebar() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isHome = pathname === "/legacy";
   const [stamp, setStamp] = useState(() => formatNYC(new Date()));
 
   useEffect(() => {
@@ -40,10 +40,10 @@ export function Sitebar() {
     return () => clearInterval(id);
   }, []);
 
-  // The /v/corner experience renders its own editorial nav. Hide the
-  // global Sitebar there to avoid duplicate top-line chrome. Early-
-  // return placed AFTER hooks so hook order stays stable across paths.
-  if (pathname?.startsWith("/v/corner")) return null;
+  // The corner (everything outside /legacy) renders its own editorial
+  // nav inside CornerNav. Only show the global Sitebar on /legacy
+  // routes — these are the preserved old pages.
+  if (!pathname?.startsWith("/legacy")) return null;
 
   return (
     <header

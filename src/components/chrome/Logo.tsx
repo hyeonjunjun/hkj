@@ -6,13 +6,14 @@ import { TransitionLink } from "@/components/transition/TransitionLink";
 
 export function Logo() {
   const pathname = usePathname();
-  // /v/corner uses its own editorial masthead inside CornerNav (which
-  // also owns the shared rj-mark view-transition-name); a second
-  // bottom-left Logo would be duplicate identity chrome.
-  if (pathname?.startsWith("/v/corner")) return null;
+  // The corner (everything outside /legacy) renders its own editorial
+  // masthead inside CornerNav which owns the shared rj-mark
+  // view-transition-name. Show this bottom-left Logo only on /legacy
+  // routes so the legacy site keeps its identity affordance.
+  if (!pathname?.startsWith("/legacy")) return null;
   return (
     <TransitionLink
-      href="/"
+      href="/legacy"
       className="logo"
       aria-label="Ryan Jun — home"
     >

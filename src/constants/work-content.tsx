@@ -1,5 +1,5 @@
 /**
- * Work content registry — structured section data for /v/corner/work/[slug].
+ * Work content registry — structured section data for /work/[slug].
  *
  * Each project's detail page is composed from an ordered array of
  * sections of varying kinds (hero, media, media-pair, prose, quote,

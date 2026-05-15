@@ -1,5 +1,5 @@
 /**
- * Corner notes — seed content for /v/corner. Each note is a small
+ * Corner notes — seed content for /. Each note is a small
  * unit of thinking-in-public: project notes (case-study writeups),
  * process notes (short fragments), log notes (terse changelog).
  *
