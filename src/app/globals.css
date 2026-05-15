@@ -434,6 +434,21 @@ a {
   color: var(--ink);
 }
 
+/* ── t-voice ── editorial italic for first-person Ryan-voice sentences.
+   The single use of Newsreader on the site: when a sentence is in
+   Ryan's voice (a stake, a credit, a brief), it gets t-voice. When
+   it's a label, description, or attributable to no one in particular,
+   it stays mono. Over time visitors learn the rule and Newsreader
+   italic becomes the "Ryan-voice serif" — a typographic signature. */
+.t-voice {
+  font-family: "Newsreader", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
 /* ── Hairline rule — section dividers. The board's framing element. */
 .t-rule {
   height: 1px;

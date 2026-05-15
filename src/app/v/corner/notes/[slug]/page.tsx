@@ -6,6 +6,26 @@ import { CornerNav } from "@/components/corner/CornerNav";
 import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
+ * relativeDaysAgo — turn an ISO date into a "written X days ago"-style
+ * label. Day math is intentionally rough (24h buckets, UTC noon
+ * anchor): the value is a sense, not a clock.
+ */
+function relativeDaysAgo(dateStr: string): string {
+  const then = new Date(dateStr + "T12:00:00Z").getTime();
+  const now = Date.now();
+  const d = Math.max(0, Math.round((now - then) / (1000 * 60 * 60 * 24)));
+  if (d === 0) return "today";
+  if (d === 1) return "yesterday";
+  if (d < 30) return `${d} days ago`;
+  if (d < 365) {
+    const months = Math.round(d / 30);
+    return months === 1 ? "1 month ago" : `${months} months ago`;
+  }
+  const years = Math.round(d / 365);
+  return years === 1 ? "1 year ago" : `${years} years ago`;
+}
+
+/**
  * /v/corner/notes/[slug] — single-note detail page.
  *
  * The note title block carries `view-transition-name: corner-note-<slug>`
@@ -42,7 +62,12 @@ export default async function NoteDetailPage({
   const note = CORNER_NOTES.find((n) => n.slug === slug);
   if (!note) notFound();
 
-  const number = `N${String(note.number).padStart(3, "0")}`;
+  const number = `[${String(note.number).padStart(3, "0")}]`;
+
+  // "written X days ago" — computed against the note's date stamp at
+  // request time. Helper lives at module scope so the call here isn't
+  // a render-time impurity flag.
+  const daysAgo = relativeDaysAgo(note.date);
 
   return (
     <div className="corner-detail" data-page="corner">
@@ -55,6 +80,8 @@ export default async function NoteDetailPage({
             <time className="t-meta tabular" dateTime={note.date}>{note.date}</time>
             <span className="t-sep" aria-hidden>·</span>
             <span className="t-meta">{note.category}</span>
+            <span className="t-sep" aria-hidden>·</span>
+            <span className="t-meta dim">written {daysAgo}</span>
           </div>
           <h1
             className="t-display corner-detail__title"
@@ -63,7 +90,7 @@ export default async function NoteDetailPage({
             {note.title}
           </h1>
           {note.lede && (
-            <p className="t-statement corner-detail__lede">{note.lede}</p>
+            <p className="t-voice corner-detail__lede">{note.lede}</p>
           )}
         </header>
 
@@ -115,9 +142,9 @@ export default async function NoteDetailPage({
           font-size: clamp(28px, 5vw, 56px);
         }
         .corner-detail__lede {
-          color: var(--ink-2);
-          font-style: italic;
-          font-family: "Newsreader", Georgia, serif;
+          /* Inherits Newsreader italic + ink-2 from t-voice; this just
+             adds the measure constraint and statement-level sizing. */
+          font-size: var(--type-statement);
           max-width: 56ch;
         }
         .corner-detail__body {

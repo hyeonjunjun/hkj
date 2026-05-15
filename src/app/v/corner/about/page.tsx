@@ -36,12 +36,15 @@ export default function CornerAboutPage() {
       <main className="corner-about__main">
         {/* Hero ledger row */}
         <header className="corner-about__head">
-          <span className="t-warmth corner-about__eyebrow">Currently</span>
+          <span className="t-warmth corner-about__eyebrow">
+            Currently
+            <span className="corner-about__est" aria-label="established 2026">(est. 2026)</span>
+          </span>
           <h1 className="t-warmth corner-about__title">
             designing, building, and directing a multidisciplinary practice
             from <span className="corner-about__accent">new york</span>.
           </h1>
-          <p className="t-warmth corner-about__subline">
+          <p className="t-voice corner-about__subline">
             Available for collaboration, commission, and full-time roles.
             Selected work at{" "}
             <Link href="/v/corner" className="corner-about__inline-link">
@@ -57,12 +60,13 @@ export default function CornerAboutPage() {
 
         <hr className="t-rule" />
 
-        {/* Bio */}
+        {/* Bio — first-person prose in t-voice (italic Newsreader). The
+            rule: anywhere Ryan speaks in first person, it's t-voice. */}
         <section className="corner-about__section" aria-label="Bio">
           <h2 className="t-warmth corner-about__section-h">Bio</h2>
-          <div className="corner-about__prose t-warmth">
+          <div className="corner-about__prose t-voice">
             <p>
-              I&apos;m Ryan Jun (Hyeon Jun), a multidisciplinary creative
+              I&apos;m Ryan Jun (Hyeonjoon), a multidisciplinary creative
               working at the intersection of design, engineering, and direction.
               The practice is small — one person — and that&apos;s deliberate:
               I make the kind of work that lives across surfaces (brand, code,
@@ -72,18 +76,30 @@ export default function CornerAboutPage() {
             </p>
             <p>
               I&apos;m currently based in New York and studying at Parsons.
-              Before this I was based in Korea, where the texture and grain
-              of physical materials taught me more about digital craft than
-              any tool has. My references are atmospheric music, world-building,
-              editorial print, and the small games that punch above their
-              budget — Wuthering Waves, BTS releases, Fred Again, Studio
-              Daikoku, Aino, ethan&amp;tom.
             </p>
             <p>
               Right now I&apos;m building a portfolio of concepts — projects
               I&apos;d want to ship if I were the studio you hired to ship
               them. The corner you&apos;re on is part of that — the form is
               the argument.
+            </p>
+          </div>
+        </section>
+
+        <hr className="t-rule" />
+
+        {/* Currently reading — Maciej Cegłowski move. One book, hand-
+            updated. A time-anchored detail that says "this site is
+            tended." */}
+        <section className="corner-about__section" aria-label="Currently reading">
+          <h2 className="t-warmth corner-about__section-h">Currently reading</h2>
+          <div className="corner-about__reading">
+            <p className="t-voice corner-about__reading-line">
+              <span className="corner-about__reading-title">
+                Designing Design
+              </span>
+              {" "}— Kenya Hara. Picked back up this month after a long
+              break from it; rereading the chapter on emptiness.
             </p>
           </div>
         </section>
@@ -173,7 +189,7 @@ export default function CornerAboutPage() {
         {/* Colophon */}
         <section className="corner-about__section" aria-label="Colophon">
           <h2 className="t-warmth corner-about__section-h">Colophon</h2>
-          <div className="corner-about__prose t-warmth">
+          <div className="corner-about__prose t-voice">
             <p>
               This corner is built in Next.js 16 with React Three Fiber
               reserved for project surfaces, GSAP and the View Transitions
@@ -184,6 +200,7 @@ export default function CornerAboutPage() {
               rotates a curated playlist as metadata only — no audio plays;
               the silence is the joke.
             </p>
+            <BuildInfoLine />
           </div>
         </section>
 
@@ -224,6 +241,17 @@ export default function CornerAboutPage() {
           letter-spacing: 0.16em;
           text-transform: uppercase;
           line-height: 1;
+          display: inline-flex;
+          align-items: baseline;
+          gap: 10px;
+        }
+        .corner-about__est {
+          /* (est. 2026) — a year-anchored marker after the eyebrow.
+             Quieter weight + dim color signal it's metadata, not lede. */
+          color: var(--ink-4);
+          letter-spacing: 0.1em;
+          font-weight: 400;
+          text-transform: none;
         }
         .corner-about__title {
           color: var(--ink);
@@ -239,13 +267,27 @@ export default function CornerAboutPage() {
           color: var(--accent);
         }
         .corner-about__subline {
-          color: var(--ink-3);
+          /* Inherits Newsreader italic + ink-2 from t-voice. Size and
+             measure override below. */
           font-size: 13px;
-          font-weight: 400;
-          letter-spacing: -0.005em;
           line-height: 1.5;
           margin: 0;
           max-width: 64ch;
+        }
+        .corner-about__reading {
+          max-width: 64ch;
+        }
+        .corner-about__reading-line {
+          color: var(--ink-2);
+          font-size: 14px;
+          line-height: 1.55;
+          margin: 0;
+        }
+        .corner-about__reading-title {
+          color: var(--ink);
+          font-style: normal;
+          font-family: var(--font-stack-spotify);
+          font-weight: 600;
         }
         .corner-about__inline-link {
           color: var(--ink);
@@ -446,5 +488,54 @@ function PracticeCol({ heading, lines }: PracticeColProps) {
         }
       `}</style>
     </div>
+  );
+}
+
+/**
+ * BuildInfoLine — small build-stamp at the bottom of the colophon.
+ *
+ * Surfaces NEXT_PUBLIC_BUILD_HASH (a 7-char short hash) and the
+ * optional NEXT_PUBLIC_BUILD_SUBJECT (commit subject) when wired by
+ * the build pipeline. Falls back to "—" placeholders in dev so the
+ * line never disappears; the structure is the design, the values
+ * are the proof of life.
+ */
+function BuildInfoLine() {
+  const hash = process.env.NEXT_PUBLIC_BUILD_HASH?.slice(0, 7);
+  const subject = process.env.NEXT_PUBLIC_BUILD_SUBJECT;
+  return (
+    <p className="build-info t-footnote dim">
+      <span className="build-info__label">build</span>
+      <span className="t-sep" aria-hidden>·</span>
+      <span className="tabular">{hash ?? "—"}</span>
+      {subject && (
+        <>
+          <span className="t-sep" aria-hidden>·</span>
+          <span className="build-info__subject">{subject}</span>
+        </>
+      )}
+      <style>{`
+        .build-info {
+          margin: 12px 0 0;
+          display: inline-flex;
+          align-items: baseline;
+          gap: 6px;
+          flex-wrap: wrap;
+          font-family: var(--font-stack-chrome);
+          letter-spacing: 0.04em;
+          color: var(--ink-4);
+        }
+        .build-info__label {
+          text-transform: uppercase;
+          letter-spacing: 0.14em;
+        }
+        .build-info__subject {
+          font-family: var(--font-stack-mono);
+          letter-spacing: -0.005em;
+          text-transform: none;
+          color: var(--ink-3);
+        }
+      `}</style>
+    </p>
   );
 }

@@ -13,21 +13,16 @@
 
 export function IdentityStrip() {
   return (
-    <p className="corner-identity">
+    <p className="corner-identity t-voice">
       <span className="corner-identity__verb">currently</span>
       {" "}
       designing, building, and directing a multidisciplinary practice
       from <span className="corner-identity__place">new york</span>.
       <style>{`
         .corner-identity {
-          /* t-statement size but italic for the editorial accent */
-          font-family: "Newsreader", Georgia, serif;
-          font-style: italic;
+          /* Inherits italic Newsreader from t-voice. Size override pushes
+             it to t-statement scale for the masthead role. */
           font-size: var(--type-statement);
-          font-weight: 400;
-          letter-spacing: -0.005em;
-          line-height: 1.45;
-          color: var(--ink-2);
           max-width: 52ch;
         }
         .corner-identity__verb {

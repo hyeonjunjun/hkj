@@ -34,7 +34,7 @@ function formatMMSS(seconds: number): string {
 }
 
 export function CornerAudio() {
-  const { track, trackIndex, positionSeconds } = useRotatingPlaylist();
+  const { track, trackIndex, positionSeconds, rotationCount } = useRotatingPlaylist();
   const [showHint, setShowHint] = useState(false);
   const [booted, setBooted] = useState(false);
 
@@ -140,6 +140,13 @@ export function CornerAudio() {
       {showHint && (
         <p className="corner-audio-fixed__hint t-warmth" role="status">
           no audio. (copyright.) the titles rotate. click to open on spotify.
+          {rotationCount > 0 && (
+            <>
+              {" "}<span className="corner-audio-fixed__rotation tabular">
+                rotation {rotationCount.toLocaleString()} since 2023-11-14
+              </span>
+            </>
+          )}
         </p>
       )}
 
@@ -384,6 +391,19 @@ export function CornerAudio() {
           font-size: 10.5px;
           letter-spacing: -0.005em;
           font-weight: 400;
+        }
+        .corner-audio-fixed__rotation {
+          /* "rotation X since 2023-11-14" — a small time-anchored
+             marker that shows the silent fixture has been alive for
+             months. Lower contrast so it doesn't compete with the
+             main hint sentence. */
+          display: block;
+          margin-top: 4px;
+          color: var(--ink-3);
+          font-family: var(--font-stack-chrome);
+          font-size: 9px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
         }
 
         .sr-only {

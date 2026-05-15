@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { flushSync } from "react-dom";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 /**
@@ -21,15 +22,24 @@ import Link from "next/link";
  * black/white discipline matches the dark corner register.
  */
 
+/**
+ * Tabs.
+ *
+ * Index and Projects share the same route (/v/corner) — Projects is a
+ * `?view=projects` view of the same page. The toggle is handled below
+ * as an in-page state change wrapped in startViewTransition so the
+ * fold animation fires without a route reload.
+ *
+ * All other tabs (Photo, Notes, Info) are real route changes handled
+ * by Next.js. The `viewToggle` flag marks the tabs that should be
+ * treated as in-page toggles.
+ */
 const TABS = [
-  // 2026-05-14 rename: Selects -> Index (the grid view is the index
-  // we lead with) and Index -> Projects (the text ledger is the
-  // exhaustive projects list).
-  { href: "/v/corner",             label: "Index"    },
-  { href: "/v/corner/list",        label: "Projects" },
-  { href: "/v/corner/photography", label: "Photo"    },
-  { href: "/v/corner/notes",       label: "Notes"    },
-  { href: "/v/corner/about",       label: "Info"     },
+  { href: "/v/corner",                   label: "Index",    viewToggle: "grid"    },
+  { href: "/v/corner?view=projects",     label: "Projects", viewToggle: "ledger"  },
+  { href: "/v/corner/photography",       label: "Photo"                           },
+  { href: "/v/corner/notes",             label: "Notes"                           },
+  { href: "/v/corner/about",             label: "Info"                            },
 ] as const;
 
 const EST_FORMATTER = new Intl.DateTimeFormat("en-GB", {
@@ -46,7 +56,34 @@ function estNow(): string {
 
 export function CornerNav() {
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [time, setTime] = useState<string | null>(null);
+  const currentView =
+    searchParams?.get("view") === "projects" ? "ledger" : "grid";
+
+  /**
+   * Tab-click handler for the Index/Projects toggle. Wraps router
+   * .replace in startViewTransition + flushSync so the fold animation
+   * fires inside a single transition without a route reload. Falls
+   * back to plain replace when the API isn't available.
+   */
+  const onViewToggle = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Only intercept on the /v/corner route itself — on other pages
+    // we want a real navigation back to the index.
+    if (pathname !== "/v/corner") return;
+    e.preventDefault();
+    const start = (document as Document & {
+      startViewTransition?: (cb: () => void) => unknown;
+    }).startViewTransition;
+    if (typeof start === "function") {
+      start.call(document, () => {
+        flushSync(() => router.replace(href, { scroll: false }));
+      });
+    } else {
+      router.replace(href, { scroll: false });
+    }
+  };
 
   useEffect(() => {
     const tick = () => setTime(estNow());
@@ -73,9 +110,15 @@ export function CornerNav() {
 
       <nav className="corner-nav__tabs" aria-label="Primary">
         {TABS.map((t, i) => {
-          const isActive =
-            pathname === t.href ||
-            (t.href !== "/v/corner" && pathname.startsWith(t.href));
+          // Active-state logic:
+          //   Index/Projects: only on /v/corner, distinguish by the
+          //     `view` search param (grid vs ledger).
+          //   Other tabs: active when path matches or starts with href.
+          const viewToggle = "viewToggle" in t ? t.viewToggle : undefined;
+          const isActive = viewToggle
+            ? pathname === "/v/corner" && currentView === viewToggle
+            : pathname === t.href ||
+              (t.href !== "/v/corner" && pathname.startsWith(t.href));
           return (
             <span key={t.href} className="corner-nav__tab-cell">
               {i > 0 && <span className="corner-nav__sep" aria-hidden>/</span>}
@@ -83,6 +126,8 @@ export function CornerNav() {
                 href={t.href}
                 className={`corner-nav__tab t-warmth${isActive ? " is-active" : ""}`}
                 aria-current={isActive ? "page" : undefined}
+                onClick={viewToggle ? onViewToggle(t.href) : undefined}
+                scroll={false}
               >
                 {t.label}
               </Link>

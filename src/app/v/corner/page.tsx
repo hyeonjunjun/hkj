@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { CornerNav } from "@/components/corner/CornerNav";
 import { IndexShell } from "@/components/corner/IndexShell";
 import { CornerAudio } from "@/components/corner/CornerAudio";
 
 /**
- * /v/corner — Selects (default view).
+ * /v/corner — single page for both Index (grid) and Projects (ledger).
  *
- * ethan&tom-style numbered project grid + Spotify-style right-rail
- * "Now Playing" panel that peeks project details on first click and
- * shifts the grid layout without covering content.
+ * The two views are not separate routes: the IndexShell client
+ * component reads the `?view=projects` search param via
+ * useSearchParams and renders the IndexLedger when present, the
+ * SelectsGrid otherwise. Tab clicks in CornerNav update the URL
+ * inside startViewTransition so the fold animation fires without a
+ * route navigation / loading flash.
+ *
+ * useSearchParams requires Suspense; wrapping IndexShell here keeps
+ * any pre-render bail-out localized.
  */
 
 export const metadata: Metadata = {
@@ -17,12 +24,14 @@ export const metadata: Metadata = {
     "Index of selected work — multidisciplinary practice from New York.",
 };
 
-export default function CornerSelectsPage() {
+export default function CornerIndexPage() {
   return (
     <div className="corner-page" data-page="corner">
       <CornerNav />
       <main className="corner-page__main">
-        <IndexShell />
+        <Suspense fallback={null}>
+          <IndexShell />
+        </Suspense>
       </main>
       <CornerAudio />
 

@@ -2,9 +2,11 @@
 
 import { useCallback, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { useSearchParams } from "next/navigation";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { SelectsGrid } from "./SelectsGrid";
 import { NowPlayingPanel } from "./NowPlayingPanel";
+import { IndexLedger } from "./IndexLedger";
 
 /**
  * Wrap a state mutation in document.startViewTransition so the browser
@@ -81,6 +83,8 @@ function runViewTransition(mutate: () => void): void {
 const SORTED: ReadonlyArray<Piece> = [...PIECES].sort((a, b) => a.order - b.order);
 
 export function IndexShell() {
+  const searchParams = useSearchParams();
+  const view = searchParams?.get("view") === "projects" ? "ledger" : "grid";
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const active = activeSlug ? SORTED.find((p) => p.slug === activeSlug) ?? null : null;
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -151,20 +155,25 @@ export function IndexShell() {
   return (
     <div
       className="index-shell"
-      data-open={active ? "" : undefined}
+      data-open={active && view === "grid" ? "" : undefined}
+      data-view={view}
       ref={shellRef}
       onKeyDown={onKeyDown}
     >
       <div className="index-shell__main">
-        <SelectsGrid
-          pieces={SORTED}
-          activeSlug={activeSlug}
-          onPeek={onPeek}
-          panelOpen={Boolean(active)}
-        />
+        {view === "grid" ? (
+          <SelectsGrid
+            pieces={SORTED}
+            activeSlug={activeSlug}
+            onPeek={onPeek}
+            panelOpen={Boolean(active)}
+          />
+        ) : (
+          <IndexLedger />
+        )}
       </div>
-      <div className="index-shell__rail" aria-hidden={!active}>
-        {active && <NowPlayingPanel piece={active} onClose={onClose} />}
+      <div className="index-shell__rail" aria-hidden={!active || view !== "grid"}>
+        {active && view === "grid" && <NowPlayingPanel piece={active} onClose={onClose} />}
       </div>
 
       <style>{`
