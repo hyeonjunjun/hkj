@@ -12,6 +12,7 @@ import Preloader from "@/components/Preloader";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import { TransitionCover } from "@/components/transition/TransitionCover";
+import { CommitStamp } from "@/components/corner/CommitStamp";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hyeonjunjun.com"),
@@ -87,6 +88,7 @@ export default function RootLayout({
           <TransitionCover />
           <main id="main" data-page-root>{children}</main>
           <Folio />
+          <CommitStamp />
           <PaperGrain />
         </TransitionProvider>
       </body>
