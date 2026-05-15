@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { CornerNav } from "@/components/corner/CornerNav";
 import { IndexShell } from "@/components/corner/IndexShell";
 import { CornerAudio } from "@/components/corner/CornerAudio";
+import { VestaboardNote } from "@/components/corner/VestaboardNote";
 
 /**
  * / — single page for both Index (grid) and Projects (ledger).
@@ -29,6 +30,7 @@ export default function CornerIndexPage() {
     <div className="corner-page" data-page="corner">
       <CornerNav />
       <main className="corner-page__main">
+        <VestaboardNote />
         <Suspense fallback={null}>
           <IndexShell />
         </Suspense>
@@ -48,6 +50,7 @@ export default function CornerIndexPage() {
         .corner-page__main {
           display: grid;
           align-content: start;
+          row-gap: clamp(28px, 4vh, 56px);
         }
       `}</style>
     </div>
