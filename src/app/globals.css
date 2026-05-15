@@ -475,6 +475,13 @@ a {
   --ink-hair:  rgba(11, 11, 10, 0.12);
   --ink-ghost: rgba(11, 11, 10, 0.04);
 
+  /* Edge gutter for surfaces that hug the viewport (CornerNav, the
+     SelectsGrid). Tighter than --margin-page so the grid + nav read
+     as ethan&tom-density. Content pages (about, notes, work detail)
+     still use --margin-page to preserve their narrower editorial
+     measure inside a centered column. */
+  --corner-gutter: clamp(14px, 1.8vw, 28px);
+
   background: var(--paper);
   color: var(--ink);
 }

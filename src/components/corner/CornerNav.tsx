@@ -101,7 +101,10 @@ export function CornerNav() {
           top: 0;
           z-index: 30;
           width: 100%;
-          padding: clamp(16px, 1.8vh, 22px) var(--margin-page);
+          /* Horizontal padding uses --corner-gutter so the nav edges
+             align with the SelectsGrid edges. Vertical padding stays
+             on its own clamp. */
+          padding: clamp(16px, 1.8vh, 22px) var(--corner-gutter);
           display: grid;
           grid-template-columns: auto 1fr auto;
           align-items: center;

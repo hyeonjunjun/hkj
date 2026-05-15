@@ -61,17 +61,16 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
         .selects-grid {
           width: 100%;
         }
-        /* 5-column grid at desktop (ethan&tom density), with a tighter
-           --grid-gutter than var(--margin-page) so the grid hugs the
-           viewport edges. Set as a local CSS var so panel-open + media
-           queries can override consistently. */
+        /* 5-column grid at desktop (ethan&tom density). Horizontal
+           padding consumes the shared --corner-gutter token defined
+           on [data-page="corner"] in globals.css so the grid edges
+           align with the CornerNav edges. */
         .selects-grid__inner {
-          --grid-gutter: clamp(14px, 1.8vw, 28px);
           display: grid;
           grid-template-columns: repeat(5, 1fr);
           column-gap: clamp(12px, 1.4vw, 22px);
           row-gap: clamp(36px, 5vh, 64px);
-          padding: 0 var(--grid-gutter);
+          padding: 0 var(--corner-gutter);
           /* No CSS transition on grid-template-columns — View Transitions
              (per-tile, via view-transition-name in SelectTile) handle
              the column reflow smoothly. */
