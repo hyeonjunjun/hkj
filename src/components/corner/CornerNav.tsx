@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -53,7 +53,27 @@ function estNow(): string {
   return EST_FORMATTER.format(new Date());
 }
 
+/**
+ * Public CornerNav export. The inner component reads useSearchParams()
+ * (for the Index/Projects active-tab indicator); Next.js's static
+ * prerender of /_not-found and other corner pages requires that any
+ * useSearchParams() consumer sit inside a Suspense boundary, otherwise
+ * the whole page bails to CSR and the build fails. Wrapping the inner
+ * impl here keeps every page-level consumer Suspense-safe.
+ *
+ * The fallback is null — the nav renders empty in the prerendered HTML
+ * for ~one tick, then the client hydrates with the full nav. Acceptable
+ * trade for static prerender across the corner.
+ */
 export function CornerNav() {
+  return (
+    <Suspense fallback={null}>
+      <CornerNavInner />
+    </Suspense>
+  );
+}
+
+function CornerNavInner() {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const router = useRouter();
