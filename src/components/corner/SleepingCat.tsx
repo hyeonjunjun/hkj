@@ -1,17 +1,18 @@
 /**
- * SleepingCat — minimal SVG illustration of a curled-up sleeping cat.
+ * SleepingCat — pixel-art illustration of a curled-up sleeping cat.
  *
  * Used as the personality-laden empty-state for project tiles and
- * media placeholders that don't yet have hero assets. Replaces the
- * prior diagonal-stripe hatch with a quieter, hand-drawn-feel mark
- * (Ryan-coded, not generic).
+ * media placeholders that don't yet have hero assets. The pixel-art
+ * register echoes Departure Mono's chrome (small caps / catalog
+ * labels) — both share the dot-matrix sensibility, so the cat reads
+ * as part of the same visual family rather than a different language.
  *
- * Stroke uses currentColor so the parent's `color` cascade tints the
- * cat. Recommended parent color: var(--ink-3) or var(--ink-4) so it
- * sits as a quiet detail rather than competing for attention.
- *
- * The "z" floating above the cat marks it as sleeping — a small
- * editorial detail that rewards a closer look.
+ * Implementation: a 14×9 pixel grid encoded as a string array, with
+ * each `#` cell rendered as a 1×1 SVG `<rect>` and each `z` cell
+ * rendered at reduced opacity (the sleep marks are visually quieter
+ * than the body). `shape-rendering="crispEdges"` keeps the pixels
+ * sharp at any scale; `currentColor` lets the parent's color cascade
+ * tint the cat (default: --ink-3).
  */
 
 interface Props {
@@ -20,42 +21,56 @@ interface Props {
   className?: string;
 }
 
+// 14 cols × 9 rows. `#` = body pixel, `z` = sleep mark (drawn at lower
+// opacity), `.` = empty. Left side is the head + ears; tail wraps on
+// the right; sleep "z z" floats above the head.
+const PATTERN = [
+  ".##.##........",
+  "######...z....",
+  "######..z.z...",
+  "##############",
+  "#............#",
+  "#..........###",
+  "#............#",
+  ".############.",
+  "..############",
+];
+
+const W = PATTERN[0].length;
+const H = PATTERN.length;
+
 export function SleepingCat({ size = 56, className }: Props) {
   return (
     <svg
       width={size}
-      height={size * (40 / 80)}
-      viewBox="0 0 80 40"
+      height={size * (H / W)}
+      viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label="A sleeping cat"
+      aria-label="A pixel-art sleeping cat"
       className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      shapeRendering="crispEdges"
+      fill="currentColor"
     >
-      {/* Body — a curled loaf shape. One continuous path. */}
-      <path d="M 8 30 C 8 16, 22 14, 32 14 C 52 14, 64 18, 66 24 C 67 30, 58 34, 44 34 C 26 34, 12 34, 8 30 Z" />
-
-      {/* Left ear */}
-      <path d="M 18 18 L 16 9 L 24 16" />
-
-      {/* Right ear */}
-      <path d="M 28 14 L 30 7 L 34 14" />
-
-      {/* Closed eye — a soft downward arc */}
-      <path d="M 20 22 q 2.5 1.6 5 0" />
-
-      {/* Whisker hint — small line under the eye */}
-      <path d="M 14 26 l 4 0.5" />
-
-      {/* Tail curling around the body */}
-      <path d="M 64 24 C 70 22, 72 16, 66 14 C 62 13, 60 16, 62 19" />
-
-      {/* z z — sleeping marker, drawn as two stacked z paths */}
-      <path d="M 44 8 L 50 8 L 44 13 L 50 13" strokeWidth="0.9" />
-      <path d="M 53 4 L 58 4 L 53 8 L 58 8" strokeWidth="0.8" opacity="0.7" />
+      {PATTERN.flatMap((row, y) =>
+        Array.from(row, (cell, x) => {
+          if (cell === "#") {
+            return <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" />;
+          }
+          if (cell === "z") {
+            return (
+              <rect
+                key={`${x}-${y}`}
+                x={x}
+                y={y}
+                width="1"
+                height="1"
+                opacity="0.5"
+              />
+            );
+          }
+          return null;
+        }),
+      )}
     </svg>
   );
 }
