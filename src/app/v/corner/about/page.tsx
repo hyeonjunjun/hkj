@@ -66,16 +66,13 @@ export default function CornerAboutPage() {
           <h2 className="t-warmth corner-about__section-h">Bio</h2>
           <div className="corner-about__prose t-voice">
             <p>
-              I&apos;m Ryan Jun (Hyeonjoon), a multidisciplinary creative
-              working at the intersection of design, engineering, and direction.
-              The practice is small — one person — and that&apos;s deliberate:
-              I make the kind of work that lives across surfaces (brand, code,
-              motion, sound, narrative), and the way I make it is one set of
-              hands holding the whole composition rather than handing it off
-              between disciplines.
+              Hey I&apos;m Ryan Jun (Hyeonjoon)! I am a multidisciplinary creative
+              working at the intersection of design, engineering, and creative direction.
+              I will be studying at Parsons starting this upcoming fall in the MFA D&T Program.
             </p>
             <p>
-              I&apos;m currently based in New York and studying at Parsons.
+              My philosophy is driven by curiosity and a passion for discovering how to design things that make us move.
+              Whether that be our hearts, minds, or feet!
             </p>
             <p>
               Right now I&apos;m building a portfolio of concepts — projects

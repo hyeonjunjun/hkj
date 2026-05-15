@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { flushSync } from "react-dom";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { TransitionLink } from "@/components/transition/TransitionLink";
+import { useRouteTransition } from "@/components/transition/useRouteTransition";
 
 /**
  * CornerNav — ethan&tom-style editorial masthead for /v/corner.
@@ -57,32 +58,28 @@ function estNow(): string {
 export function CornerNav() {
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const { startTransition, isTransitioning } = useRouteTransition();
   const [time, setTime] = useState<string | null>(null);
   const currentView =
     searchParams?.get("view") === "projects" ? "ledger" : "grid";
 
   /**
-   * Tab-click handler for the Index/Projects toggle. Wraps router
-   * .replace in startViewTransition + flushSync so the fold animation
-   * fires inside a single transition without a route reload. Falls
-   * back to plain replace when the API isn't available.
+   * Index/Projects tab click handler. Routes through the site-wide
+   * GSAP cover-and-reveal transition system (TransitionProvider) so
+   * the wipe matches every other route change. The default
+   * TransitionLink blocks clicks where pathname === href, which is
+   * always true for these two tabs (both live at /v/corner with
+   * different `?view=` queries), so we bypass it with a direct
+   * startTransition call from useRouteTransition.
+   *
+   * Honors modifier-key clicks (open in new tab, etc.) by leaving
+   * them to the browser.
    */
   const onViewToggle = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Only intercept on the /v/corner route itself — on other pages
-    // we want a real navigation back to the index.
-    if (pathname !== "/v/corner") return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    const start = (document as Document & {
-      startViewTransition?: (cb: () => void) => unknown;
-    }).startViewTransition;
-    if (typeof start === "function") {
-      start.call(document, () => {
-        flushSync(() => router.replace(href, { scroll: false }));
-      });
-    } else {
-      router.replace(href, { scroll: false });
-    }
+    if (isTransitioning) return;
+    startTransition(href);
   };
 
   useEffect(() => {
@@ -104,9 +101,18 @@ export function CornerNav() {
 
   return (
     <header className="corner-nav" role="banner">
-      <Link href="/v/corner" className="corner-nav__mark t-warmth" aria-label="Ryan Jun — Index">
+      {/* Masthead uses TransitionLink so clicking "ryan jun" from any
+          sub-route runs the site-wide cover wipe back to /v/corner.
+          TransitionLink suppresses the click when already on /v/corner
+          (pathname === href), so the masthead is effectively a no-op
+          when at the index. */}
+      <TransitionLink
+        href="/v/corner"
+        className="corner-nav__mark t-warmth"
+        aria-label="Ryan Jun — Index"
+      >
         ryan jun
-      </Link>
+      </TransitionLink>
 
       <nav className="corner-nav__tabs" aria-label="Primary">
         {TABS.map((t, i) => {
@@ -119,18 +125,36 @@ export function CornerNav() {
             ? pathname === "/v/corner" && currentView === viewToggle
             : pathname === t.href ||
               (t.href !== "/v/corner" && pathname.startsWith(t.href));
+
+          // Index/Projects share a pathname; TransitionLink's pathname-
+          // based isActive check would block one of them. Use plain
+          // Link with our own click handler that calls startTransition
+          // directly. Other tabs are real route changes — let
+          // TransitionLink handle them so the wipe stays uniform.
+          const linkEl = viewToggle ? (
+            <Link
+              href={t.href}
+              className={`corner-nav__tab t-warmth${isActive ? " is-active" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+              onClick={onViewToggle(t.href)}
+              scroll={false}
+            >
+              {t.label}
+            </Link>
+          ) : (
+            <TransitionLink
+              href={t.href}
+              className={`corner-nav__tab t-warmth${isActive ? " is-active" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {t.label}
+            </TransitionLink>
+          );
+
           return (
             <span key={t.href} className="corner-nav__tab-cell">
               {i > 0 && <span className="corner-nav__sep" aria-hidden>/</span>}
-              <Link
-                href={t.href}
-                className={`corner-nav__tab t-warmth${isActive ? " is-active" : ""}`}
-                aria-current={isActive ? "page" : undefined}
-                onClick={viewToggle ? onViewToggle(t.href) : undefined}
-                scroll={false}
-              >
-                {t.label}
-              </Link>
+              {linkEl}
             </span>
           );
         })}
