@@ -91,23 +91,23 @@ export default function WorkIndex({ pieces }: Props) {
           margin-bottom: clamp(20px, 2.4vw, 32px);
         }
 
-        /* NaughtyDuk-style work grid: 2-up landscape tiles with a
-           clear column gutter and a generous-but-tight vertical
-           rhythm. Wider gutter than the previous --gap-plates scale
-           so the pair reads as two beats, not a stitched pair. */
+        /* Tight 2-up grid — significantly reduced padding so the
+           catalog reads as a continuous register rather than discrete
+           chapters. Earlier 64–112px row-gap created strong vertical
+           separation; this brings projects into a single visual flow. */
         .workidx__grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          column-gap: clamp(24px, 3vw, 56px);
-          row-gap: clamp(64px, 8vw, 112px);
-          margin-bottom: clamp(64px, 8vw, 112px);
+          column-gap: clamp(8px, 1vw, 16px);
+          row-gap: clamp(16px, 2vw, 32px);
+          margin-bottom: clamp(24px, 3vw, 48px);
         }
         .workidx__cell { display: block; }
 
         @media (max-width: 760px) {
           .workidx__grid {
             grid-template-columns: 1fr;
-            row-gap: clamp(48px, 9vw, 72px);
+            row-gap: clamp(16px, 3vw, 32px);
           }
         }
       `}</style>

@@ -51,7 +51,7 @@ export function WebGLGallery() {
       <Canvas
         className="webgl-gallery__canvas"
         data-active={active}
-        camera={{ fov: 50, position: [0, 0, 6.5], near: 0.1, far: 100 }}
+        camera={{ fov: 50, position: [0, 0, 8], near: 0.1, far: 100 }}
         gl={{ powerPreference: "high-performance", antialias: false, alpha: true }}
         dpr={[1, 2]}
       >

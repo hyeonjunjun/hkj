@@ -8,36 +8,27 @@ import { GalleryTile } from "./GalleryTile";
 import type { Piece } from "@/constants/pieces";
 
 // ── World-unit constants ───────────────────────────────────────────────────
-// Tile dims from the NaughtyDuk bundle. Inter-tile gap returned to the
-// bundle's 0.05 (effectively flush). Camera pulled forward from the
-// bundle's z=8 to z=6.5 so tiles dominate the viewport — NaughtyDuk's
-// visual has tiles spanning ~50% of viewport width each with the sides
-// cropped at viewport edges, which the bundle's z=8 + same tile dims
-// doesn't reproduce on standard 16:9 (tiles read at ~42% width with
-// large empty borders framing them).
+// Locked to verified NaughtyDuk bundle values.
 const TILE_W = 5.6;
 const TILE_H = 3.22;
 const TILE_GAP_X = 0.05;
-const TILE_GAP_Y = 0.1;
+const TILE_GAP_Y = 0.05;
 const STRIDE_X = TILE_W + TILE_GAP_X;
 const STRIDE_Y = TILE_H + TILE_GAP_Y;
-const CAMERA_Z = 6.5;
+const CAMERA_Z = 8;
 const CAMERA_FOV_DEG = 50;
 
-// Smooth-scroll feel
-const LERP_FACTOR = 0.12;
-const VELOCITY_DAMPING = 0.92;
+const LERP_FACTOR = 0.10;
+const VELOCITY_DAMPING = 0.95;
+const PROJECT_MS = 220;
 const DRAG_THRESHOLD_PX = 4;
 
-// Wrap a world-space offset into [-span/2, span/2) so tile positions
-// loop continuously past either end of the carousel.
-function wrapWorld(v: number, span: number): number {
-  const half = span / 2;
-  let x = v % span;
-  if (x > half) x -= span;
-  else if (x < -half) x += span;
-  return x;
-}
+// We render three side-by-side copies of the piece array so the carousel
+// always has tiles visible on both sides of the viewport center. With a
+// single copy plus per-tile imperative wrap there was a path where side
+// tiles silently failed to render; this approach uses purely declarative
+// positions via React props, eliminating that class of bug.
+const COPY_INDICES = [-1, 0, 1] as const;
 
 type Props = {
   pieces: Piece[];
@@ -46,14 +37,8 @@ type Props = {
 };
 
 export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
-  // Imperative mesh refs — each tile's position.x (or .y on mobile) is
-  // written from useFrame each frame so we can wrap them through the
-  // total span and produce an infinite loop without duplicating tiles.
-  const tileMeshes = useRef<(THREE.Mesh | null)[]>([]);
+  const groupRef = useRef<THREE.Group>(null!);
 
-  // Two-value smooth scroll: targetX = where we want to be, currentX =
-  // where we actually are (lerps toward target each frame). Both
-  // accumulate without bound — looping happens in the per-tile wrap.
   const targetXRef = useRef(0);
   const currentXRef = useRef(0);
   const velocityRef = useRef(0);
@@ -126,12 +111,10 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
     );
   }, [size.height]);
 
-  const snapToNearest = useCallback((extraVelocity = 0) => {
+  const snapToNearest = useCallback((velocityWorldPerMs = 0) => {
     const stride = mobileRef.current ? STRIDE_Y : STRIDE_X;
-    // Velocity-biased snap: a hard flick lands one tile further.
-    const lookahead = extraVelocity * 0.1;
-    const raw = (targetXRef.current + lookahead) / stride;
-    const idx = Math.round(raw);
+    const projected = targetXRef.current + velocityWorldPerMs * PROJECT_MS;
+    const idx = Math.round(projected / stride);
     targetXRef.current = idx * stride;
   }, []);
 
@@ -180,8 +163,7 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch {}
-      const velocityPerFrame = velocityRef.current * 16.67;
-      snapToNearest(velocityPerFrame * 1000);
+      snapToNearest(velocityRef.current);
     };
 
     canvas.addEventListener("pointerdown", onDown);
@@ -196,7 +178,7 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
     };
   }, [gl, pixelsPerUnit, snapToNearest]);
 
-  // Wheel scroll (desktop)
+  // Wheel
   useEffect(() => {
     if (mobile) return;
     const canvas = gl.domElement;
@@ -219,7 +201,7 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
     };
   }, [gl, mobile, pixelsPerUnit, snapToNearest]);
 
-  // Keyboard nav
+  // Keyboard
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = document.activeElement;
@@ -241,8 +223,6 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Per-frame: lerp current → target, write tile positions with wrap,
-  // update HUD active index. The wrap is what makes the carousel loop.
   useFrame(() => {
     const span = visibleSpan();
     visibleWidthRef.current = span.worldWidth;
@@ -258,22 +238,30 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
 
     const stride = mobileRef.current ? STRIDE_Y : STRIDE_X;
     const totalSpan = pieces.length * stride;
-    const axis: "x" | "y" = mobileRef.current ? "y" : "x";
-    const otherAxis: "x" | "y" = mobileRef.current ? "x" : "y";
-    const direction = mobileRef.current ? -1 : 1;
+    const half = totalSpan / 2;
 
-    for (let i = 0; i < pieces.length; i++) {
-      const mesh = tileMeshes.current[i];
-      if (!mesh) continue;
-      const offsetWorld = wrapWorld(
-        i * stride - currentXRef.current,
-        totalSpan,
-      );
-      mesh.position[axis] = direction * offsetWorld;
-      mesh.position[otherAxis] = 0;
+    // Modular wrap of currentX into [-half, half) so the carousel loops
+    // through the three rendered copies indefinitely. Both target and
+    // current stay in lockstep so the lerp doesn't fight the wrap.
+    while (currentXRef.current > half) {
+      currentXRef.current -= totalSpan;
+      targetXRef.current -= totalSpan;
+    }
+    while (currentXRef.current < -half) {
+      currentXRef.current += totalSpan;
+      targetXRef.current += totalSpan;
     }
 
-    // Active index from wrapped position
+    if (groupRef.current) {
+      if (mobileRef.current) {
+        groupRef.current.position.y = -currentXRef.current;
+        groupRef.current.position.x = 0;
+      } else {
+        groupRef.current.position.x = -currentXRef.current;
+        groupRef.current.position.y = 0;
+      }
+    }
+
     const rawIdx = Math.round(currentXRef.current / stride);
     const idx = ((rawIdx % pieces.length) + pieces.length) % pieces.length;
     if (idx !== activeIndexRef.current) {
@@ -282,36 +270,36 @@ export function Gallery3D({ pieces, onActiveChange, onTileClick }: Props) {
     }
   });
 
+  // Three copies of the piece array — left, center, right — at
+  // offsets of (-length, 0, +length) strides. The single groupRef
+  // moves them all together; the modular wrap of currentX guarantees
+  // there's always at least one copy's content visible at the viewport.
   return (
-    <>
-      {pieces.map((piece, i) => {
-        const stride = mobile ? STRIDE_Y : STRIDE_X;
-        const totalSpan = pieces.length * stride;
-        // Initial position uses the same wrap so the very first frame
-        // doesn't flash with tiles stacked or strung out off-screen.
-        const initialOffset = wrapWorld(i * stride, totalSpan);
-        const initial: [number, number, number] = mobile
-          ? [0, -initialOffset, 0]
-          : [initialOffset, 0, 0];
-        return (
-          <GalleryTile
-            key={piece.slug}
-            piece={piece}
-            initialPosition={initial}
-            tileWidth={TILE_W}
-            tileHeight={TILE_H}
-            isMobile={mobile}
-            warpIntensityRef={warpIntensityRef}
-            visibleWidthRef={visibleWidthRef}
-            meshRef={(el) => {
-              tileMeshes.current[i] = el;
-            }}
-            onClick={() => {
-              if (!hasDraggedRef.current) onTileClick(piece.slug);
-            }}
-          />
-        );
-      })}
-    </>
+    <group ref={groupRef}>
+      {COPY_INDICES.map((copyIdx) =>
+        pieces.map((piece, i) => {
+          const stride = mobile ? STRIDE_Y : STRIDE_X;
+          const offset = (i + copyIdx * pieces.length) * stride;
+          const pos: [number, number, number] = mobile
+            ? [0, -offset, 0]
+            : [offset, 0, 0];
+          return (
+            <GalleryTile
+              key={`${piece.slug}-${copyIdx}`}
+              piece={piece}
+              position={pos}
+              tileWidth={TILE_W}
+              tileHeight={TILE_H}
+              isMobile={mobile}
+              warpIntensityRef={warpIntensityRef}
+              visibleWidthRef={visibleWidthRef}
+              onClick={() => {
+                if (!hasDraggedRef.current) onTileClick(piece.slug);
+              }}
+            />
+          );
+        }),
+      )}
+    </group>
   );
 }

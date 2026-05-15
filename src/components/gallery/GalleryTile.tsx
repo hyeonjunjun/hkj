@@ -1,102 +1,84 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { Piece } from "@/constants/pieces";
 
-// ── Shaders ────────────────────────────────────────────────────────────────
-// Single-texture variant of the NaughtyDuk shaders — image/video/canvas
-// all bind to uMainTexture. Cylindrical warp on the vertex side, rounded-
-// corner SDF + UV cover-fit on the fragment side.
-
-const VERT = /* glsl */ `
-  uniform float uWarpIntensity;
-  uniform float uVisibleWidth;
-  uniform float uIsMobile;
-  varying vec2 vUv;
-
-  void main() {
-    vUv = uv;
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    float axis = uIsMobile > 0.5 ? worldPos.y : worldPos.x;
-    float n = axis / (uVisibleWidth * 0.5);
-    float z = -uWarpIntensity * n * n * 2.0;
-    worldPos.z += z;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(worldPos.xyz, 1.0);
-  }
-`;
-
-const FRAG = /* glsl */ `
-  uniform sampler2D uMainTexture;
-  uniform vec2 uUvScale;
-  uniform vec2 uUvOffset;
-  uniform vec2 uTileSize;
-  uniform float uCornerRadius;
-  varying vec2 vUv;
-
-  float roundedBoxSDF(vec2 p, vec2 b, float r) {
-    vec2 q = abs(p) - b + r;
-    return length(max(q, 0.0)) - r;
-  }
-
-  void main() {
-    vec2 pixelPos = (vUv - 0.5) * uTileSize;
-    float dist = roundedBoxSDF(pixelPos, uTileSize * 0.5, uCornerRadius);
-    if (dist > 0.0) discard;
-
-    vec2 uv = vUv * uUvScale + uUvOffset;
-    gl_FragColor = texture2D(uMainTexture, uv);
-  }
-`;
-
-const PLANE_SEGMENTS = 32;
-
-// Generated typographic plate for concept-only pieces — black ground +
-// paper text so the tile reads as a distinct card against the body bg
-// in both themes. Same 16:9 aspect as the tile so cover-fit is identity.
+// ── Concept-piece fallback ─────────────────────────────────────────────────
+// Editorial-slug placeholder for pieces without cover media. Drawn at 2×
+// density (2048×1152) so type reads sharp on DPR-2. The register flips
+// the old "system display" pattern (dark plate, billboard caps title)
+// into a paper-tone card with proper-case title — feels like a "to be
+// published" placeholder in an editorial layout, not a missing-asset
+// warning. Components arranged as: §code | status at top, title centered
+// vertically with proper case, sector + year as small meta below.
 function makeConceptTexture(piece: Piece): THREE.CanvasTexture {
-  const w = 1024;
-  const h = 576;
+  const w = 2048;
+  const h = 1152;
   const cv = document.createElement("canvas");
   cv.width = w;
   cv.height = h;
   const ctx = cv.getContext("2d")!;
-  ctx.fillStyle = "#000";
+
+  // Paper-2 ground — slightly darker than body --paper so the tile
+  // reads as a card without needing strong contrast.
+  ctx.fillStyle = "#F4F3EE";
   ctx.fillRect(0, 0, w, h);
 
-  ctx.fillStyle = "rgba(248, 248, 248, 0.55)";
-  ctx.font = "500 22px ui-monospace, 'Geist Mono', monospace";
+  // Hairline inset border (matches --ink-hair at 14% ink). Defines
+  // the card edge against the body paper bg.
+  ctx.strokeStyle = "rgba(26, 24, 22, 0.14)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, w - 2, h - 2);
+
+  const pad = 80;
+
+  // ── Top row: §code | status ────────────────────────────────────────────
+  ctx.fillStyle = "rgba(26, 24, 22, 0.55)"; // --ink-3
+  ctx.font = "500 36px ui-monospace, 'Geist Mono', monospace";
   ctx.textBaseline = "top";
-  ctx.fillText(`§${piece.number}`, 32, 28);
+  ctx.fillText(`§${piece.number}`, pad, pad);
 
   const status =
     piece.status === "wip" ? "LIVE" : piece.status.toUpperCase();
   const sw = ctx.measureText(status).width;
   ctx.fillStyle =
-    piece.status === "wip" ? "#E8B25A" : "rgba(248, 248, 248, 0.55)";
-  ctx.fillText(status, w - 32 - sw, 28);
+    piece.status === "wip" ? "#E8B25A" : "rgba(26, 24, 22, 0.55)";
+  ctx.fillText(status, w - pad - sw, pad);
 
-  ctx.fillStyle = "#F8F8F8";
-  ctx.font = "500 96px ui-monospace, 'Geist Mono', monospace";
+  // ── Hero: proper-case title, left-aligned, vertically centered ─────────
+  ctx.fillStyle = "#1a1816"; // --ink
+  ctx.font = "500 124px ui-monospace, 'Geist Mono', monospace";
   ctx.textBaseline = "middle";
-  const lines = wrap(ctx, piece.title.toUpperCase(), w - 64);
-  const lineH = 100;
+  const lines = wrap(ctx, piece.title, w - pad * 2);
+  const lineH = 140;
   const totalH = lines.length * lineH;
-  let y = h / 2 - totalH / 2 + lineH / 2;
+  const titleStartY = h / 2 - totalH / 2 + lineH / 2;
+  let y = titleStartY;
   for (const line of lines) {
-    ctx.fillText(line, 32, y);
+    ctx.fillText(line, pad, y);
     y += lineH;
   }
 
+  // ── Sector — small mono caps under the title ───────────────────────────
   if (piece.sector) {
-    ctx.fillStyle = "rgba(248, 248, 248, 0.55)";
-    ctx.font = "400 18px ui-monospace, 'Geist Mono', monospace";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillText(piece.sector, 32, h - 32);
+    ctx.fillStyle = "rgba(26, 24, 22, 0.55)";
+    ctx.font = "400 32px ui-monospace, 'Geist Mono', monospace";
+    ctx.textBaseline = "top";
+    const sectorY = titleStartY + (lines.length - 0.5) * lineH + 36;
+    ctx.fillText(piece.sector.toUpperCase(), pad, sectorY);
   }
 
+  // ── Bottom-left: year ──────────────────────────────────────────────────
+  ctx.fillStyle = "rgba(26, 24, 22, 0.35)"; // --ink-4
+  ctx.font = "400 28px ui-monospace, 'Geist Mono', monospace";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(String(piece.year), pad, h - pad);
+
   const tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
@@ -117,54 +99,31 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[
   return lines.length ? lines : [text];
 }
 
-// UV cover-fit: scale + offset so the texture renders cropped-to-fill.
-function coverUv(
-  srcW: number,
-  srcH: number,
-  tileW: number,
-  tileH: number,
-): { scale: [number, number]; offset: [number, number] } {
-  const srcAspect = srcW / srcH;
-  const tileAspect = tileW / tileH;
-  if (srcAspect > tileAspect) {
-    const s = tileAspect / srcAspect;
-    return { scale: [s, 1], offset: [(1 - s) / 2, 0] };
-  } else {
-    const s = srcAspect / tileAspect;
-    return { scale: [1, s], offset: [0, (1 - s) / 2] };
-  }
-}
-
 type Props = {
   piece: Piece;
-  initialPosition: [number, number, number];
+  position: [number, number, number];
   tileWidth: number;
   tileHeight: number;
   isMobile: boolean;
   warpIntensityRef: React.RefObject<number>;
   visibleWidthRef: React.RefObject<number>;
-  meshRef: (el: THREE.Mesh | null) => void;
   onClick: () => void;
 };
 
+// Stripped-down version: dead-simple meshBasicMaterial with a texture.
+// No shader, no warp, no SDF rounded corners — this is a debug-friendly
+// baseline to isolate whether the multi-tile bug lives in the shader/
+// uniforms path or somewhere structural. If three tiles render with
+// this, the previous shader code was the bug. If still one, the issue
+// is deeper (React, R3F reconciler, scene graph, etc.).
 export function GalleryTile({
   piece,
-  initialPosition,
+  position,
   tileWidth,
   tileHeight,
-  isMobile,
-  warpIntensityRef,
-  visibleWidthRef,
-  meshRef,
   onClick,
 }: Props) {
-  const matRef = useRef<THREE.ShaderMaterial>(null!);
-  const { size } = useThree();
-
-  // Build the bound texture once per piece. Videos autoplay (muted),
-  // images load via TextureLoader, concept-only pieces get a generated
-  // black-plate canvas texture.
-  const { tex, videoEl, srcW, srcH } = useMemo(() => {
+  const { tex, videoEl } = useMemo(() => {
     if (piece.cover?.kind === "video") {
       const v = document.createElement("video");
       v.src = piece.cover.src;
@@ -179,66 +138,22 @@ export function GalleryTile({
       t.minFilter = THREE.LinearFilter;
       t.magFilter = THREE.LinearFilter;
       t.colorSpace = THREE.SRGBColorSpace;
-      // We don't know intrinsic dims until loadedmetadata — use the
-      // piece's declared aspect, which we've verified matches sources.
-      return { tex: t, videoEl: v, srcW: 16, srcH: 9 };
+      return { tex: t as THREE.Texture, videoEl: v as HTMLVideoElement | null };
     }
     if (piece.cover?.kind === "image") {
       const loader = new THREE.TextureLoader();
       const t = loader.load(piece.cover.src);
+      t.minFilter = THREE.LinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.generateMipmaps = false;
       t.colorSpace = THREE.SRGBColorSpace;
-      const [aw, ah] = (piece.coverAspect ?? "16 / 9")
-        .split("/")
-        .map((s) => parseFloat(s.trim()));
-      return { tex: t, videoEl: null as HTMLVideoElement | null, srcW: aw, srcH: ah };
+      return { tex: t as THREE.Texture, videoEl: null as HTMLVideoElement | null };
     }
     return {
-      tex: makeConceptTexture(piece),
+      tex: makeConceptTexture(piece) as THREE.Texture,
       videoEl: null as HTMLVideoElement | null,
-      srcW: 16,
-      srcH: 9,
     };
   }, [piece]);
-
-  const uv = useMemo(
-    () => coverUv(srcW, srcH, tileWidth, tileHeight),
-    [srcW, srcH, tileWidth, tileHeight],
-  );
-
-  const uniforms = useMemo<Record<string, THREE.IUniform>>(
-    () => ({
-      uMainTexture: { value: tex },
-      uUvScale: { value: new THREE.Vector2(...uv.scale) },
-      uUvOffset: { value: new THREE.Vector2(...uv.offset) },
-      uWarpIntensity: { value: 0 },
-      uVisibleWidth: { value: visibleWidthRef.current ?? 16 },
-      uIsMobile: { value: isMobile ? 1 : 0 },
-      uTileSize: {
-        value: new THREE.Vector2(
-          size.width * 0.35,
-          size.height * 0.35,
-        ),
-      },
-      uCornerRadius: { value: 12 },
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tex, uv],
-  );
-
-  // Sync dynamic uniforms each frame.
-  useFrame(() => {
-    if (!matRef.current) return;
-    matRef.current.uniforms.uWarpIntensity.value = warpIntensityRef.current ?? 0;
-    matRef.current.uniforms.uVisibleWidth.value = visibleWidthRef.current ?? 16;
-    matRef.current.uniforms.uIsMobile.value = isMobile ? 1 : 0;
-    matRef.current.uniforms.uTileSize.value.set(
-      size.width * 0.35,
-      size.height * 0.35,
-    );
-    if (videoEl && tex instanceof THREE.VideoTexture) {
-      tex.needsUpdate = true;
-    }
-  });
 
   useEffect(() => {
     return () => {
@@ -250,31 +165,10 @@ export function GalleryTile({
     };
   }, [tex, videoEl]);
 
-  const handleEnter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-  };
-  const handleLeave = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-  };
-
   return (
-    <mesh
-      ref={meshRef}
-      position={initialPosition}
-      onPointerEnter={handleEnter}
-      onPointerLeave={handleLeave}
-      onClick={onClick}
-    >
-      <planeGeometry
-        args={[tileWidth, tileHeight, PLANE_SEGMENTS, PLANE_SEGMENTS]}
-      />
-      <shaderMaterial
-        ref={matRef}
-        vertexShader={VERT}
-        fragmentShader={FRAG}
-        uniforms={uniforms}
-        transparent
-      />
+    <mesh position={position} onClick={onClick}>
+      <planeGeometry args={[tileWidth, tileHeight]} />
+      <meshBasicMaterial map={tex} toneMapped={false} />
     </mesh>
   );
 }

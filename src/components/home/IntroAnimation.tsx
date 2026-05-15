@@ -67,19 +67,10 @@ export function IntroAnimation() {
         },
         0,
       );
-      tl.fromTo(
-        ".carousel__card",
-        { scale: 0.96, filter: "blur(6px) saturate(0)", opacity: 0.4 },
-        {
-          scale: 1,
-          filter: "blur(0px) saturate(1)",
-          opacity: 1,
-          duration: 0.7,
-          ease: "power2.out",
-          stagger: 0.08,
-        },
-        1.0,
-      );
+      // The home centerpiece is the WebGL gallery now — its own intro
+      // (cylindrical warp tween) lives in Gallery3D. The legacy
+      // .carousel__card tween was attached to the deleted IndexCarousel
+      // and now no-ops with a GSAP "target not found" warning.
       tl.fromTo(
         ".home__bottom",
         { opacity: 0 },
