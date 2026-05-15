@@ -5,44 +5,58 @@ import {
   VESTABOARD_EPOCH,
   VESTABOARD_FRAMES,
   VESTABOARD_INTERVAL_MS,
-  type VestaboardFrame,
 } from "@/constants/vestaboard-notes";
 
 /**
- * VestaboardNote — split-flap message board fixture.
+ * VestaboardNote — single-line slot-reel message board.
  *
- * Inspired by Vestaboard's smart flip-disc display. Renders the
- * current message as a grid of fixed-width character cards. When the
- * frame changes (on a shared timer), each card flips to its new
- * character with a staggered scaleY collapse-and-expand — the
- * Solari mechanism borrowed from LiveTime, applied per-character.
+ * Two frames live in VESTABOARD_FRAMES (availability + send-a-message
+ * invitation). They alternate on the shared VESTABOARD_INTERVAL_MS
+ * clock. On each swap every character "spins" through random letters
+ * and symbols, slowing down before settling on its final value — like
+ * a slot machine reel.
  *
- * Content comes from VESTABOARD_FRAMES in /constants/vestaboard-notes.
- * Edit that file to publish a new message. The frame index is derived
- * from real time (modulo the frame count) so all visitors see the
- * same frame at the same wall-clock moment.
+ * Stagger: leftmost cells settle first, rightmost cells settle last,
+ * so the row reads "spinning down" left-to-right. Blanks don't spin
+ * (they'd flash distractingly across the gaps); they hold a space.
  *
- * Sizing: 22-character row width is the canonical Vestaboard. Rows
- * pad with spaces; characters outside [A–Z 0–9 · . , ! ? & ’ space]
- * still render but the family-feel is sharpest with the canonical set.
+ * The flip aesthetic from the prior multi-row board is preserved on
+ * the cell card (warm-black background, amber Departure Mono char,
+ * inset highlights). The animation is what changed: scaleY flip →
+ * cycling random characters with a decay-easing rate.
  *
- * Reduced-motion: characters update without the flip — content swaps
- * silently per tick.
+ * Reduced-motion: no spin. Characters swap instantly to their target.
  */
 
-const ROW_WIDTH = 22;
-const FLIP_DURATION_MS = 320;
-const FLIP_SWAP_MS = 160;
-const CHAR_STAGGER_MS = 22;
+const ROW_WIDTH = 32;
 
-function frameIndexFor(timeMs: number, frameCount: number): number {
-  if (frameCount === 0) return 0;
-  const elapsed = Math.max(0, timeMs - VESTABOARD_EPOCH);
-  return Math.floor(elapsed / VESTABOARD_INTERVAL_MS) % frameCount;
+/** Total spin duration for the LEFTMOST cell, in ms. */
+const SPIN_BASE_MS = 500;
+/** Additional spin time per cell index — produces the left-to-right
+ *  settle. The rightmost cell ends ~500+(32*30)=1460ms after start. */
+const SPIN_STAGGER_MS = 30;
+
+/** Character set used while spinning. Excludes the target itself so
+ *  the settle reads clearly. Same Departure-Mono-friendly set as the
+ *  rest of the corner. */
+const SPIN_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·!?&*+";
+
+function randomChar(exclude: string): string {
+  let c = SPIN_CHARS[Math.floor(Math.random() * SPIN_CHARS.length)];
+  if (c === exclude) {
+    c = SPIN_CHARS[(SPIN_CHARS.indexOf(c) + 1) % SPIN_CHARS.length];
+  }
+  return c;
 }
 
-function padRow(line: string): string {
-  const upper = line.toUpperCase();
+function frameAt(nowMs: number): string {
+  const elapsed = Math.max(0, nowMs - VESTABOARD_EPOCH);
+  const idx = Math.floor(elapsed / VESTABOARD_INTERVAL_MS) % VESTABOARD_FRAMES.length;
+  return VESTABOARD_FRAMES[idx] ?? VESTABOARD_FRAMES[0];
+}
+
+function padRow(s: string): string {
+  const upper = s.toUpperCase();
   if (upper.length >= ROW_WIDTH) return upper.slice(0, ROW_WIDTH);
   const pad = ROW_WIDTH - upper.length;
   const left = Math.floor(pad / 2);
@@ -50,63 +64,59 @@ function padRow(line: string): string {
   return " ".repeat(left) + upper + " ".repeat(right);
 }
 
-function framePadded(frame: VestaboardFrame): string[] {
-  return frame.lines.map(padRow);
-}
-
 export function VestaboardNote() {
-  // Stable initial render: frame 0 on SSR, then the real frame after
-  // mount. Avoids hydration mismatch from Date.now().
-  const [frameIdx, setFrameIdx] = useState(0);
+  // SSR-stable: serve frame 0 on first render; client effect picks up
+  // the time-based frame on mount. Avoids hydration mismatch.
+  const [target, setTarget] = useState(() => padRow(VESTABOARD_FRAMES[0]));
 
   useEffect(() => {
-    const tick = () => setFrameIdx(frameIndexFor(Date.now(), VESTABOARD_FRAMES.length));
+    const tick = () => setTarget(padRow(frameAt(Date.now())));
     tick();
-    // Align to the next frame boundary so the flip fires on the
-    // shared epoch boundary, not at an arbitrary offset since mount.
+    // Align to the next frame boundary so swaps fire on the shared
+    // epoch rather than offset from mount.
     const elapsed = Date.now() - VESTABOARD_EPOCH;
-    const msToNextFrame = VESTABOARD_INTERVAL_MS - (elapsed % VESTABOARD_INTERVAL_MS);
+    const msToNext = VESTABOARD_INTERVAL_MS - (elapsed % VESTABOARD_INTERVAL_MS);
     let intervalId: ReturnType<typeof setInterval> | undefined;
     const timeoutId = setTimeout(() => {
       tick();
       intervalId = setInterval(tick, VESTABOARD_INTERVAL_MS);
-    }, msToNextFrame);
+    }, msToNext);
     return () => {
       clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
     };
   }, []);
 
-  const frame = VESTABOARD_FRAMES[frameIdx] ?? VESTABOARD_FRAMES[0];
-  const rows = useMemo(() => framePadded(frame), [frame]);
+  const chars = useMemo(() => Array.from(target), [target]);
 
   return (
-    <aside className="vestaboard" aria-label="Vestaboard note">
+    <aside className="vestaboard" aria-label="Note">
       <div className="vestaboard__head">
-        <span className="vestaboard__corner-tl" aria-hidden />
+        <span className="vestaboard__corner" aria-hidden />
         <span className="vestaboard__label">NOTE</span>
-        <span className="vestaboard__corner-tr" aria-hidden />
+        <span className="vestaboard__corner" aria-hidden />
       </div>
+
       <div className="vestaboard__board" role="status" aria-live="polite">
-        {rows.map((row, ri) => (
-          <div key={ri} className="vestaboard__row">
-            {Array.from(row, (ch, ci) => (
-              <Cell key={ci} ch={ch} delayMs={(ri * ROW_WIDTH + ci) * CHAR_STAGGER_MS} />
-            ))}
-          </div>
-        ))}
+        <div className="vestaboard__row">
+          {chars.map((ch, i) => (
+            <SpinCell
+              key={i}
+              target={ch}
+              durationMs={SPIN_BASE_MS + i * SPIN_STAGGER_MS}
+            />
+          ))}
+        </div>
       </div>
 
       <style>{`
         .vestaboard {
           display: grid;
           row-gap: 8px;
-          padding: 14px clamp(14px, 1.6vw, 22px) 16px;
+          padding: 12px clamp(12px, 1.4vw, 18px) 14px;
           background: var(--paper-2);
           border: 1px solid var(--ink-hair);
           border-radius: 3px;
-          /* Subtle drop shadow so the board reads as a physical object
-             sitting on the page surface. */
           box-shadow:
             0 1px 0 var(--ink-hair) inset,
             0 12px 24px rgba(0, 0, 0, 0.04),
@@ -120,14 +130,13 @@ export function VestaboardNote() {
           align-items: center;
           column-gap: 10px;
         }
-        .vestaboard__corner-tl,
-        .vestaboard__corner-tr {
+        .vestaboard__corner {
           display: block;
           width: 6px;
           height: 6px;
           border-radius: 50%;
           background: var(--ink-3);
-          opacity: 0.55;
+          opacity: 0.5;
         }
         .vestaboard__label {
           text-align: center;
@@ -138,10 +147,7 @@ export function VestaboardNote() {
           text-transform: uppercase;
           line-height: 1;
         }
-
         .vestaboard__board {
-          display: grid;
-          row-gap: 4px;
           padding: 8px;
           background: var(--paper-3);
           border-radius: 2px;
@@ -154,38 +160,82 @@ export function VestaboardNote() {
           grid-template-columns: repeat(${ROW_WIDTH}, 1fr);
           column-gap: 2px;
         }
+        @media (max-width: 640px) {
+          .vestaboard__row {
+            /* Cells shrink via clamp inside SpinCell; the grid retains
+               its 32 columns. */
+          }
+        }
       `}</style>
     </aside>
   );
 }
 
-interface CellProps {
-  ch: string;
-  delayMs: number;
+interface SpinCellProps {
+  target: string;
+  durationMs: number;
 }
 
-function Cell({ ch, delayMs }: CellProps) {
-  const [shown, setShown] = useState(ch);
-  const [flipping, setFlipping] = useState(false);
+function SpinCell({ target, durationMs }: SpinCellProps) {
+  const [shown, setShown] = useState(target);
+  const [spinning, setSpinning] = useState(false);
 
   useEffect(() => {
-    if (ch === shown) return;
-    const start = setTimeout(() => setFlipping(true), delayMs);
-    const swap = setTimeout(() => setShown(ch), delayMs + FLIP_SWAP_MS);
-    const stop = setTimeout(() => setFlipping(false), delayMs + FLIP_DURATION_MS);
-    return () => {
-      clearTimeout(start);
-      clearTimeout(swap);
-      clearTimeout(stop);
+    if (shown === target) return;
+
+    // Spaces don't spin (flashing random chars across blank gaps
+    // pollutes the row). Reduced-motion users also skip the reel.
+    // Both branches just snap to the target. setState in an effect
+    // body fires the react-hooks/set-state-in-effect rule, so the
+    // snap is deferred via a 0ms timeout that the cleanup can cancel.
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (target === " " || reducedMotion) {
+      const snapId = window.setTimeout(() => setShown(target), 0);
+      return () => window.clearTimeout(snapId);
+    }
+
+    let cancelled = false;
+    let elapsed = 0;
+    let interval = 40; // fast at the start, slows over time
+
+    const tick = () => {
+      if (cancelled) return;
+      if (elapsed >= durationMs) {
+        setShown(target);
+        setSpinning(false);
+        return;
+      }
+      setShown(randomChar(target));
+      elapsed += interval;
+      // Decay curve: each tick gets slightly longer. Empirical 1.12
+      // multiplier eases toward a max of ~260ms, producing the
+      // "reel slowing down" feel without ever pausing.
+      interval = Math.min(interval * 1.12, 260);
+      window.setTimeout(tick, interval);
     };
-  }, [ch, shown, delayMs]);
+
+    // setSpinning is deferred into the same timeout that kicks off the
+    // reel — setState synchronously in the effect body would trip
+    // react-hooks/set-state-in-effect.
+    const startId = window.setTimeout(() => {
+      setSpinning(true);
+      tick();
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(startId);
+    };
+  }, [target, durationMs, shown]);
 
   const isBlank = shown === " ";
 
   return (
     <span
       className={`vesta-cell${isBlank ? " is-blank" : ""}`}
-      data-flipping={flipping ? "" : undefined}
+      data-spinning={spinning ? "" : undefined}
       aria-hidden
     >
       <span className="vesta-cell__face">{shown}</span>
@@ -195,21 +245,19 @@ function Cell({ ch, delayMs }: CellProps) {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: clamp(14px, 1.3vw, 20px);
-          height: clamp(18px, 1.7vw, 26px);
+          width: clamp(12px, 1.1vw, 18px);
+          height: clamp(16px, 1.5vw, 24px);
           background: #0f0d0b;
           color: var(--accent);
           border-radius: 1px;
           font-family: var(--font-stack-chrome);
-          font-size: clamp(10px, 1vw, 14px);
+          font-size: clamp(9px, 0.9vw, 13px);
           line-height: 1;
           letter-spacing: 0;
-          /* Subtle inner edges so each card reads as a flap. */
           box-shadow:
             0 1px 0 rgba(255, 255, 255, 0.04) inset,
             0 -1px 0 rgba(0, 0, 0, 0.4) inset;
           overflow: hidden;
-          perspective: 240px;
         }
         :root[data-theme="dark"] .vesta-cell {
           background: #1a1816;
@@ -218,25 +266,14 @@ function Cell({ ch, delayMs }: CellProps) {
           background: #0a0807;
           color: transparent;
         }
+        .vesta-cell[data-spinning] {
+          /* Subtle brightness lift during the spin — the lit reel
+             effect. Removed when the cell settles. */
+          color: rgba(232, 178, 90, 0.95);
+        }
         .vesta-cell__face {
           display: block;
-          transform-origin: center;
-          backface-visibility: hidden;
-          will-change: transform;
-        }
-        .vesta-cell[data-flipping] .vesta-cell__face {
-          animation: vesta-flip ${FLIP_DURATION_MS}ms cubic-bezier(.4, 0, .2, 1);
-        }
-        @keyframes vesta-flip {
-          0%   { transform: scaleY(1); }
-          48%  { transform: scaleY(0.04); }
-          52%  { transform: scaleY(0.04); }
-          100% { transform: scaleY(1); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .vesta-cell[data-flipping] .vesta-cell__face {
-            animation: none;
-          }
+          will-change: contents;
         }
       `}</style>
     </span>

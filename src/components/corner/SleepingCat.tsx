@@ -1,18 +1,19 @@
 /**
- * SleepingCat — pixel-art illustration of a curled-up sleeping cat.
+ * SleepingCat — multi-color pixel-art bicolor sleeping cat.
  *
- * Used as the personality-laden empty-state for project tiles and
- * media placeholders that don't yet have hero assets. The pixel-art
- * register echoes Departure Mono's chrome (small caps / catalog
- * labels) — both share the dot-matrix sensibility, so the cat reads
- * as part of the same visual family rather than a different language.
+ * Reference: vector-stock pixel-art kitten lying on its side — brown
+ * head and tail with pink inner ears, white body with small brown
+ * patches, light gray shadow beneath. Used as the personality empty-
+ * state across project tiles and media placeholders.
  *
- * Implementation: a 14×9 pixel grid encoded as a string array, with
- * each `#` cell rendered as a 1×1 SVG `<rect>` and each `z` cell
- * rendered at reduced opacity (the sleep marks are visually quieter
- * than the body). `shape-rendering="crispEdges"` keeps the pixels
- * sharp at any scale; `currentColor` lets the parent's color cascade
- * tint the cat (default: --ink-3).
+ * Implementation: a 26×12 grid encoded in a string-array PATTERN
+ * where each character maps to a fixed palette color. Each cell is a
+ * 1×1 SVG <rect>; `shape-rendering="crispEdges"` keeps pixels sharp
+ * at any scale.
+ *
+ * Colors are intentionally fixed regardless of light/dark theme —
+ * the cat is a quaint moment of personality, not a system surface,
+ * so it keeps its own palette in both registers.
  */
 
 interface Props {
@@ -21,25 +22,43 @@ interface Props {
   className?: string;
 }
 
-// 14 cols × 9 rows. `#` = body pixel, `z` = sleep mark (drawn at lower
-// opacity), `.` = empty. Left side is the head + ears; tail wraps on
-// the right; sleep "z z" floats above the head.
+// Palette legend:
+//   K = outline (warm near-black)
+//   B = brown (head + tail markings)
+//   W = white fur (body)
+//   P = pink (inner ears + nose blush)
+//   G = light gray (cast shadow)
+//   . = transparent
+const PALETTE: Record<string, string> = {
+  K: "#1c1a18",
+  B: "#6e4d3a",
+  W: "#ffffff",
+  P: "#f0bdbd",
+  G: "#d4d4d4",
+};
+
+// 26 cols × 12 rows. Head on the left, tail on the right, shadow at
+// the bottom. The cat lies on its side; the visible (left) ear is
+// brown with a pink interior, the back ear shows just its outline.
 const PATTERN = [
-  ".##.##........",
-  "######...z....",
-  "######..z.z...",
-  "##############",
-  "#............#",
-  "#..........###",
-  "#............#",
-  ".############.",
-  "..############",
+  "......KK......K...........",
+  ".....KBBK....KBK..........",
+  "....KBPPBK..KBPK..........",
+  "....KBPPBBKKBBBK..........",
+  "...KKBBBBBBBBBBKKKK.......",
+  "..KWWKKKBBBBBBKWWWKK......",
+  ".KWWWPKK.KKKKKWWWWWWK.....",
+  ".KWWWWWWK....KWWBBWWK.....",
+  ".KWWWWWWK....KWWWWBWK.KKKK",
+  "..KKKWWWK....KWWWWWWKKBBBK",
+  "....KKKKK....KKKKKKKKBBBKK",
+  "..GGGGGGG....GGGGGGGGG.G..",
 ];
 
 const W = PATTERN[0].length;
 const H = PATTERN.length;
 
-export function SleepingCat({ size = 56, className }: Props) {
+export function SleepingCat({ size = 80, className }: Props) {
   return (
     <svg
       width={size}
@@ -49,26 +68,21 @@ export function SleepingCat({ size = 56, className }: Props) {
       aria-label="A pixel-art sleeping cat"
       className={className}
       shapeRendering="crispEdges"
-      fill="currentColor"
     >
       {PATTERN.flatMap((row, y) =>
         Array.from(row, (cell, x) => {
-          if (cell === "#") {
-            return <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" />;
-          }
-          if (cell === "z") {
-            return (
-              <rect
-                key={`${x}-${y}`}
-                x={x}
-                y={y}
-                width="1"
-                height="1"
-                opacity="0.5"
-              />
-            );
-          }
-          return null;
+          const fill = PALETTE[cell];
+          if (!fill) return null;
+          return (
+            <rect
+              key={`${x}-${y}`}
+              x={x}
+              y={y}
+              width="1"
+              height="1"
+              fill={fill}
+            />
+          );
         }),
       )}
     </svg>
