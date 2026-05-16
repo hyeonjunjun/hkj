@@ -25,9 +25,12 @@ import Link from "next/link";
  * Tabs.
  *
  * Index and Projects share the same route (/) — Projects is a
- * `?view=projects` view of the same page. The toggle is handled below
- * as an in-page state change wrapped in startViewTransition so the
- * fold animation fires without a route reload.
+ * `?view=projects` view of the same page. The toggle is a soft
+ * router.replace so the page component stays mounted and IndexShell
+ * re-reads useSearchParams. Next.js's experimental.viewTransition
+ * already wraps router transitions, so the paint swap happens there;
+ * we do NOT call document.startViewTransition explicitly (doing so
+ * inside a Next nav throws InvalidStateError).
  *
  * All other tabs (Photo, Notes, Info) are real route changes handled
  * by Next.js. The `viewToggle` flag marks the tabs that should be

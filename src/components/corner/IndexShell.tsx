@@ -15,23 +15,22 @@ import { IndexLedger } from "./IndexLedger";
  * Grid (single grid cell, same row/column). The inactive view is
  * translated 100% off-screen vertically. On view change a GSAP
  * timeline slides the outgoing view up (-100%) and the incoming
- * view in from below (100% → 0%), all wrapped in startViewTransition
- * so the browser also crossfades at the compositor level.
+ * view in from below (100% → 0%).
  *
  * Reference: ethan&tom's section transitions — outgoing y: -100%,
- * incoming y: 100% → 0%, 0.8s power2.inOut, wrapped in
- * document.startViewTransition. Keeps both sections in the DOM the
- * whole time; visibility is purely transform-based during animation
- * and pointer-events-based at rest.
+ * incoming y: 100% → 0%, 0.8s power2.inOut. Keeps both sections in
+ * the DOM the whole time; visibility is purely transform-based during
+ * animation and pointer-events-based at rest.
+ *
+ * Note: we intentionally do NOT call document.startViewTransition
+ * here. next.config.ts enables experimental.viewTransition, so Next
+ * already wraps the underlying router.replace in a transition. Adding
+ * a second nested one throws InvalidStateError. GSAP carries the
+ * actual visible slide; Next handles the paint swap.
  *
  * The peek state (NowPlayingPanel) only applies to the grid view —
  * the panel is hidden while the ledger is active.
  */
-
-type ViewTransitionResult = {
-  finished?: Promise<void>;
-  ready?: Promise<void>;
-};
 
 type View = "grid" | "ledger";
 
@@ -69,44 +68,27 @@ export function IndexShell() {
 
     isAnimating.current = true;
 
-    const runSlide = () => {
-      // Place incoming view at its start position (off-screen below)
-      // before React commits the new displayedView. setting the
-      // transform synchronously avoids a flash of the incoming view
-      // at y=0 during the first frame.
-      gsap.set(toEl, { yPercent: 100, autoAlpha: 1 });
-      gsap.set(fromEl, { autoAlpha: 1 });
+    // Place incoming view at its start position (off-screen below)
+    // before React commits the new displayedView. Setting the
+    // transform synchronously avoids a flash of the incoming view
+    // at y=0 during the first frame.
+    gsap.set(toEl, { yPercent: 100, autoAlpha: 1 });
+    gsap.set(fromEl, { autoAlpha: 1 });
 
-      // Commit React state inside the transition so the browser's
-      // View Transitions API captures both before and after.
-      flushSync(() => setDisplayedView(viewFromUrl));
+    flushSync(() => setDisplayedView(viewFromUrl));
 
-      const tl = gsap.timeline({
-        defaults: { duration: SLIDE_DURATION, ease: SLIDE_EASE },
-        onComplete: () => {
-          // Outgoing view stays parked off-screen (y = -100%) and
-          // becomes pointer-inert; incoming view sits at y = 0.
-          gsap.set(fromEl, { yPercent: -100, pointerEvents: "none" });
-          gsap.set(toEl, { yPercent: 0, pointerEvents: "auto" });
-          isAnimating.current = false;
-        },
-      });
-      tl.to(fromEl, { yPercent: -100 }, 0);
-      tl.to(toEl, { yPercent: 0 }, 0);
-    };
-
-    // Wrap in startViewTransition for the browser-level paint swap
-    // on top of the GSAP tween. Falls back to plain run when the API
-    // isn't available (Firefox); the GSAP tween still plays.
-    const startVT = (document as Document & {
-      startViewTransition?: (cb: () => void) => ViewTransitionResult;
-    }).startViewTransition;
-    if (typeof startVT === "function") {
-      const result = startVT.call(document, runSlide);
-      result.finished?.catch(() => undefined);
-    } else {
-      runSlide();
-    }
+    const tl = gsap.timeline({
+      defaults: { duration: SLIDE_DURATION, ease: SLIDE_EASE },
+      onComplete: () => {
+        // Outgoing view stays parked off-screen (y = -100%) and
+        // becomes pointer-inert; incoming view sits at y = 0.
+        gsap.set(fromEl, { yPercent: -100, pointerEvents: "none" });
+        gsap.set(toEl, { yPercent: 0, pointerEvents: "auto" });
+        isAnimating.current = false;
+      },
+    });
+    tl.to(fromEl, { yPercent: -100 }, 0);
+    tl.to(toEl, { yPercent: 0 }, 0);
   }, [viewFromUrl, displayedView]);
 
   // Set initial positions of both views on mount: displayed at 0%,
