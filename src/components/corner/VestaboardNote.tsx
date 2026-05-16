@@ -32,10 +32,10 @@ import {
 const ROW_WIDTH = 32;
 
 /** Total spin duration for the LEFTMOST cell, in ms. */
-const SPIN_BASE_MS = 220;
+const SPIN_BASE_MS = 2000;
 /** Additional spin time per cell index — produces the left-to-right
- *  settle. The rightmost cell ends ~220+(32*7)=444ms after start. */
-const SPIN_STAGGER_MS = 7;
+ *  settle. The rightmost cell ends ~2000+(31*20)=2620ms after start. */
+const SPIN_STAGGER_MS = 20;
 
 /** Character set used while spinning. Excludes the target itself so
  *  the settle reads clearly. Same Departure-Mono-friendly set as the
@@ -199,7 +199,7 @@ function SpinCell({ target, durationMs }: SpinCellProps) {
 
     let cancelled = false;
     let elapsed = 0;
-    let interval = 28; // fast at the start, slows over time
+    let interval = 20; // fast at the start, slows over time
 
     const tick = () => {
       if (cancelled) return;
@@ -210,10 +210,10 @@ function SpinCell({ target, durationMs }: SpinCellProps) {
       }
       setShown(randomChar(target));
       elapsed += interval;
-      // Decay curve: each tick gets slightly longer. Capped at 110ms
-      // so the trailing cells don't drag — the reel slows but still
-      // settles inside the per-cell budget.
-      interval = Math.min(interval * 1.14, 110);
+      // Decay curve: each tick gets slightly longer. Gentle 1.10
+      // multiplier capped at 180ms eases the reel from a fast blur
+      // (~20ms ticks) into a visible slowdown over the ~2-3s budget.
+      interval = Math.min(interval * 1.1, 180);
       window.setTimeout(tick, interval);
     };
 
