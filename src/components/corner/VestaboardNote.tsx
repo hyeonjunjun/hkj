@@ -21,9 +21,10 @@ import {
  * (they'd flash distractingly across the gaps); they hold a space.
  *
  * The flip aesthetic from the prior multi-row board is preserved on
- * the cell card (warm-black background, amber Departure Mono char,
+ * the cell card (near-black background, white Departure Mono char,
  * inset highlights). The animation is what changed: scaleY flip →
- * cycling random characters with a decay-easing rate.
+ * cycling random characters with a decay-easing rate. Palette stays
+ * within the corner's black/white register — no amber.
  *
  * Reduced-motion: no spin. Characters swap instantly to their target.
  */
@@ -31,10 +32,10 @@ import {
 const ROW_WIDTH = 32;
 
 /** Total spin duration for the LEFTMOST cell, in ms. */
-const SPIN_BASE_MS = 500;
+const SPIN_BASE_MS = 220;
 /** Additional spin time per cell index — produces the left-to-right
- *  settle. The rightmost cell ends ~500+(32*30)=1460ms after start. */
-const SPIN_STAGGER_MS = 30;
+ *  settle. The rightmost cell ends ~220+(32*7)=444ms after start. */
+const SPIN_STAGGER_MS = 7;
 
 /** Character set used while spinning. Excludes the target itself so
  *  the settle reads clearly. Same Departure-Mono-friendly set as the
@@ -198,7 +199,7 @@ function SpinCell({ target, durationMs }: SpinCellProps) {
 
     let cancelled = false;
     let elapsed = 0;
-    let interval = 40; // fast at the start, slows over time
+    let interval = 28; // fast at the start, slows over time
 
     const tick = () => {
       if (cancelled) return;
@@ -209,10 +210,10 @@ function SpinCell({ target, durationMs }: SpinCellProps) {
       }
       setShown(randomChar(target));
       elapsed += interval;
-      // Decay curve: each tick gets slightly longer. Empirical 1.12
-      // multiplier eases toward a max of ~260ms, producing the
-      // "reel slowing down" feel without ever pausing.
-      interval = Math.min(interval * 1.12, 260);
+      // Decay curve: each tick gets slightly longer. Capped at 110ms
+      // so the trailing cells don't drag — the reel slows but still
+      // settles inside the per-cell budget.
+      interval = Math.min(interval * 1.14, 110);
       window.setTimeout(tick, interval);
     };
 
@@ -247,29 +248,29 @@ function SpinCell({ target, durationMs }: SpinCellProps) {
           justify-content: center;
           width: clamp(12px, 1.1vw, 18px);
           height: clamp(16px, 1.5vw, 24px);
-          background: #0f0d0b;
-          color: var(--accent);
+          background: #0d0d0d;
+          color: #f4f4f4;
           border-radius: 1px;
           font-family: var(--font-stack-chrome);
           font-size: clamp(9px, 0.9vw, 13px);
           line-height: 1;
           letter-spacing: 0;
           box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.04) inset,
-            0 -1px 0 rgba(0, 0, 0, 0.4) inset;
+            0 1px 0 rgba(255, 255, 255, 0.05) inset,
+            0 -1px 0 rgba(0, 0, 0, 0.5) inset;
           overflow: hidden;
         }
         :root[data-theme="dark"] .vesta-cell {
-          background: #1a1816;
+          background: #161616;
         }
         .vesta-cell.is-blank {
-          background: #0a0807;
+          background: #060606;
           color: transparent;
         }
         .vesta-cell[data-spinning] {
-          /* Subtle brightness lift during the spin — the lit reel
-             effect. Removed when the cell settles. */
-          color: rgba(232, 178, 90, 0.95);
+          /* Slight brightness lift during the spin — kept monochrome.
+             Reverts when the cell settles. */
+          color: #ffffff;
         }
         .vesta-cell__face {
           display: block;

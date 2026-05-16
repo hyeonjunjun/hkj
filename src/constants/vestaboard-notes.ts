@@ -19,10 +19,9 @@ export const VESTABOARD_FRAMES: ReadonlyArray<string> = [
   "FEEL FREE TO SEND ME A MESSAGE!",
 ];
 
-/** ms between frame swaps. ~18s — the per-character spin takes ~1.5s,
- *  so this leaves about 16s to read each line before the next reel
- *  begins. */
-export const VESTABOARD_INTERVAL_MS = 18_000;
+/** ms between frame swaps. ~12s — the per-character spin takes
+ *  ~0.45s, leaving ~11.5s to read each line before the next reel. */
+export const VESTABOARD_INTERVAL_MS = 12_000;
 
 /** Shared epoch — same value as the playlist so all rotating fixtures
  *  stay phase-locked across the site. */
