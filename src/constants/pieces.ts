@@ -18,9 +18,23 @@ export type PieceStatus = "concept" | "wip" | "shipped";
  */
 export type PieceCategory = "case-study" | "personal";
 
+/**
+ * Cover media for the index card.
+ *
+ *  - `focus` is the crop anchor — any CSS `object-position` value
+ *    (`"50% 30%"`, `"top right"`, `"center"`…). Defaults to `"center"`.
+ *  - `scale` overflows the frame multiplicatively (1.10 = 10% bigger) so
+ *    all four edges crop off symmetrically from center. Useful for
+ *    swallowing baked-in letterboxes / corner watermarks while keeping
+ *    the composition centered. Defaults to 1 (no overflow).
+ */
+interface CatalogCoverBase {
+  focus?: string;
+  scale?: number;
+}
 export type CatalogCover =
-  | { kind: "video"; src: string; poster?: string }
-  | { kind: "image"; src: string };
+  | (CatalogCoverBase & { kind: "video"; src: string; poster?: string })
+  | (CatalogCoverBase & { kind: "image"; src: string });
 
 export interface Piece {
   slug: string;
@@ -194,7 +208,14 @@ export const PIECES: Piece[] = [
     year: 2026,
     started: "2026-02",
     image: "/images/gyeol-rain.webp",
-    cover: { kind: "image", src: "/images/gyeol-rain.webp" },
+    cover: {
+      kind: "video",
+      src: "/assets/gyeol-broll-combined.mp4",
+      poster: "/images/gyeol-rain.webp",
+      // Source carries a Veo watermark + baked-in letterbox edges. Scale
+      // overflows from center so top/bottom strips clip off equally.
+      scale: 1.1,
+    },
     coverAspect: "16 / 9",
     tags: ["brand", "ecommerce", "3d"],
     runtime: "08:24",
@@ -224,6 +245,9 @@ export const PIECES: Piece[] = [
     cover: {
       kind: "video",
       src: "/assets/aurebor_jeju.mp4",
+      // Top + bottom letterbox bars and the bottom-right Veo watermark.
+      // Center-origin scale clips both strips off symmetrically.
+      scale: 1.1,
     },
     coverAspect: "16 / 9",
     tags: ["brand", "atmosphere", "wip"],

@@ -1,112 +1,102 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import gsap from "gsap";
 import { PIECES, type Piece } from "@/constants/pieces";
 import { SelectsGrid } from "./SelectsGrid";
 import { NowPlayingPanel } from "./NowPlayingPanel";
-import { IndexLedger } from "./IndexLedger";
 
 /**
- * IndexShell — owns the toggle between SelectsGrid and IndexLedger
- * on /. Both views are mounted simultaneously and stacked via CSS
- * Grid (single grid cell, same row/column). The inactive view is
- * translated 100% off-screen vertically. On view change a GSAP
- * timeline slides the outgoing view up (-100%) and the incoming
- * view in from below (100% → 0%).
+ * IndexShell — one grid, two registers.
  *
- * Reference: ethan&tom's section transitions — outgoing y: -100%,
- * incoming y: 100% → 0%, 0.8s power2.inOut. Keeps both sections in
- * the DOM the whole time; visibility is purely transform-based during
- * animation and pointer-events-based at rest.
+ *   ?view=projects  → media height folds to 0; titles stay put, stacking
+ *                     vertically with the grid's row-gap as padding.
+ *   default         → media at natural 16:9; tiles read as the gallery.
  *
- * Note: we intentionally do NOT call document.startViewTransition
- * here. next.config.ts enables experimental.viewTransition, so Next
- * already wraps the underlying router.replace in a transition. Adding
- * a second nested one throws InvalidStateError. GSAP carries the
- * actual visible slide; Next handles the paint swap.
- *
- * The peek state (NowPlayingPanel) only applies to the grid view —
- * the panel is hidden while the ledger is active.
+ * The transition is a per-tile height fold (staggered) driven by GSAP.
+ * Titles are not translated. The peek panel is grid-only and closes
+ * automatically when the URL flips to the projects view.
  */
 
 type View = "grid" | "ledger";
 
 const SORTED: ReadonlyArray<Piece> = [...PIECES].sort((a, b) => a.order - b.order);
 
-/** ms — duration of the slide. Matches ethan&tom (~0.8s). */
-const SLIDE_DURATION = 0.8;
-const SLIDE_EASE = "power2.inOut";
+const FOLD_DURATION = 0.7;
+const FOLD_EASE = "power2.inOut";
+const FOLD_STAGGER = 0.018;
 
 export function IndexShell() {
   const searchParams = useSearchParams();
-  const viewFromUrl: View =
+  const view: View =
     searchParams?.get("view") === "projects" ? "ledger" : "grid";
-
-  // displayedView lags viewFromUrl during the slide animation so both
-  // views remain in their proper visual positions until the GSAP
-  // tween completes. After the tween, displayedView catches up.
-  const [displayedView, setDisplayedView] = useState<View>(viewFromUrl);
 
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const active = activeSlug ? SORTED.find((p) => p.slug === activeSlug) ?? null : null;
 
   const shellRef = useRef<HTMLDivElement | null>(null);
-  const gridRef = useRef<HTMLDivElement | null>(null);
-  const ledgerRef = useRef<HTMLDivElement | null>(null);
-  const isAnimating = useRef(false);
+  const prevView = useRef<View | null>(null);
 
-  // Drive the slide whenever the URL view changes mid-session.
+  // Switching to the ledger closes any open peek so the panel doesn't
+  // dangle over a folded grid.
   useEffect(() => {
-    if (viewFromUrl === displayedView) return;
-    if (isAnimating.current) return;
-    const fromEl = displayedView === "grid" ? gridRef.current : ledgerRef.current;
-    const toEl = viewFromUrl === "grid" ? gridRef.current : ledgerRef.current;
-    if (!fromEl || !toEl) return;
+    if (view === "ledger" && activeSlug) setActiveSlug(null);
+  }, [view, activeSlug]);
 
-    isAnimating.current = true;
+  // Drive the fold. useLayoutEffect runs before paint so the first
+  // mount with view=ledger paints with media already at height 0 (no
+  // flash of natural-height tiles).
+  useLayoutEffect(() => {
+    const root = shellRef.current;
+    if (!root) return;
+    const media = Array.from(
+      root.querySelectorAll<HTMLElement>(".select-tile__media"),
+    );
+    if (media.length === 0) return;
 
-    // Place incoming view at its start position (off-screen below)
-    // before React commits the new displayedView. Setting the
-    // transform synchronously avoids a flash of the incoming view
-    // at y=0 during the first frame.
-    gsap.set(toEl, { yPercent: 100, autoAlpha: 1 });
-    gsap.set(fromEl, { autoAlpha: 1 });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isFirst = prevView.current === null;
 
-    flushSync(() => setDisplayedView(viewFromUrl));
-
-    const tl = gsap.timeline({
-      defaults: { duration: SLIDE_DURATION, ease: SLIDE_EASE },
-      onComplete: () => {
-        // Outgoing view stays parked off-screen (y = -100%) and
-        // becomes pointer-inert; incoming view sits at y = 0.
-        gsap.set(fromEl, { yPercent: -100, pointerEvents: "none" });
-        gsap.set(toEl, { yPercent: 0, pointerEvents: "auto" });
-        isAnimating.current = false;
-      },
-    });
-    tl.to(fromEl, { yPercent: -100 }, 0);
-    tl.to(toEl, { yPercent: 0 }, 0);
-  }, [viewFromUrl, displayedView]);
-
-  // Set initial positions of both views on mount: displayed at 0%,
-  // hidden parked at 100% (below) so the first slide-in has the
-  // right starting position regardless of which view loads first.
-  useEffect(() => {
-    if (!gridRef.current || !ledgerRef.current) return;
-    if (displayedView === "grid") {
-      gsap.set(gridRef.current, { yPercent: 0, pointerEvents: "auto" });
-      gsap.set(ledgerRef.current, { yPercent: 100, pointerEvents: "none" });
+    if (view === "ledger") {
+      if (reduced || isFirst) {
+        gsap.set(media, { height: 0 });
+      } else {
+        gsap.to(media, {
+          height: 0,
+          duration: FOLD_DURATION,
+          ease: FOLD_EASE,
+          stagger: FOLD_STAGGER,
+          overwrite: "auto",
+        });
+      }
     } else {
-      gsap.set(ledgerRef.current, { yPercent: 0, pointerEvents: "auto" });
-      gsap.set(gridRef.current, { yPercent: 100, pointerEvents: "none" });
+      if (reduced || isFirst) {
+        gsap.set(media, { clearProps: "height" });
+      } else {
+        // Unfold from 0 to the natural 16:9 height for each tile. After
+        // the tween, clear the inline height so aspect-ratio takes back
+        // over for any subsequent resize.
+        media.forEach((el, i) => {
+          const target = el.offsetWidth * 9 / 16;
+          gsap.fromTo(
+            el,
+            { height: 0 },
+            {
+              height: target,
+              duration: FOLD_DURATION,
+              ease: FOLD_EASE,
+              delay: i * FOLD_STAGGER,
+              overwrite: "auto",
+              onComplete: () => gsap.set(el, { clearProps: "height" }),
+            },
+          );
+        });
+      }
     }
-    // Intentional: only runs once on mount; subsequent toggles handled
-    // by the slide effect above.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    prevView.current = view;
+  }, [view]);
 
   const onPeek = useCallback((slug: string) => {
     setActiveSlug(slug);
@@ -116,7 +106,7 @@ export function IndexShell() {
     setActiveSlug(null);
   }, []);
 
-  // Keyboard navigation across tiles (grid view only).
+  // Keyboard navigation across tiles.
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Escape" && active) {
@@ -164,33 +154,27 @@ export function IndexShell() {
     [active, onClose],
   );
 
-  const railOpen = Boolean(active) && displayedView === "grid";
+  const railOpen = Boolean(active) && view === "grid";
 
   return (
     <div
       className="index-shell"
       data-open={railOpen ? "" : undefined}
-      data-view={displayedView}
+      data-view={view}
       ref={shellRef}
       onKeyDown={onKeyDown}
     >
       <div className="index-shell__main">
-        <div className="index-shell__viewport">
-          <div ref={gridRef} className="index-shell__view" data-active={displayedView === "grid" ? "" : undefined}>
-            <SelectsGrid
-              pieces={SORTED}
-              activeSlug={activeSlug}
-              onPeek={onPeek}
-              panelOpen={railOpen}
-            />
-          </div>
-          <div ref={ledgerRef} className="index-shell__view" data-active={displayedView === "ledger" ? "" : undefined}>
-            <IndexLedger />
-          </div>
-        </div>
+        <SelectsGrid
+          pieces={SORTED}
+          activeSlug={activeSlug}
+          onPeek={onPeek}
+          panelOpen={railOpen}
+          folded={view === "ledger"}
+        />
       </div>
       <div className="index-shell__rail" aria-hidden={!railOpen}>
-        {active && displayedView === "grid" && <NowPlayingPanel piece={active} onClose={onClose} />}
+        {active && view === "grid" && <NowPlayingPanel piece={active} onClose={onClose} />}
       </div>
 
       <style>{`
@@ -206,29 +190,6 @@ export function IndexShell() {
         .index-shell__main {
           min-width: 0;
         }
-
-        /* Viewport: stacks both views in the same grid cell so the
-           container sizes to the tallest. Overflow clips the off-
-           screen view during the slide. */
-        .index-shell__viewport {
-          display: grid;
-          position: relative;
-          overflow: hidden;
-          min-height: 0;
-        }
-        .index-shell__view {
-          grid-column: 1;
-          grid-row: 1;
-          width: 100%;
-          will-change: transform;
-        }
-        /* No transition on transform — GSAP owns the animation. The
-           class is just a presence flag; visibility is transform-based.
-           A non-active view is parked at y: 100% via GSAP. */
-        .index-shell__view:not([data-active]) {
-          pointer-events: none;
-        }
-
         .index-shell__rail {
           overflow: hidden;
           align-self: stretch;
@@ -241,17 +202,6 @@ export function IndexShell() {
           }
           .index-shell__rail {
             display: none;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          /* Reduced motion: views snap instead of sliding. GSAP
-             durations are ignored via gsap.matchMedia normally; for
-             this implementation we just rely on the
-             prefers-reduced-motion check inside the slide trigger
-             (see useEffect logic). */
-          .index-shell__view {
-            will-change: auto;
           }
         }
       `}</style>

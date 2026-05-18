@@ -1,9 +1,26 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Piece } from "@/constants/pieces";
+import type { CatalogCover, Piece } from "@/constants/pieces";
 import { SleepingCat } from "./SleepingCat";
+
+/**
+ * Resolve a cover's focus + scale into inline style. The scale lives on
+ * a CSS custom prop (`--cover-scale`) so the hover scale-up composes
+ * multiplicatively in the stylesheet instead of overwriting the base.
+ * Scale origin is centered (CSS default) so all four edges crop equally.
+ */
+function coverStyle(cover: CatalogCover): CSSProperties {
+  const style: Record<string, string | number> = {
+    objectPosition: cover.focus ?? "center",
+  };
+  if (cover.scale != null && cover.scale !== 1) {
+    style["--cover-scale"] = cover.scale;
+  }
+  return style as CSSProperties;
+}
 
 /**
  * SelectsGrid — ethan&tom-style project grid.
@@ -37,13 +54,16 @@ interface Props {
   onPeek: (slug: string) => void;
   /** True when a panel is open beside the grid; grid reflows to 3 cols. */
   panelOpen?: boolean;
+  /** True when the media has folded to height 0 (projects/ledger view). */
+  folded?: boolean;
 }
 
-export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
+export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen, folded }: Props) {
   return (
     <section
       className="selects-grid"
       data-panel-open={panelOpen ? "" : undefined}
+      data-folded={folded ? "" : undefined}
       aria-label="Index — visual project grid"
     >
       <div className="selects-grid__inner">
@@ -54,6 +74,7 @@ export function SelectsGrid({ pieces, activeSlug, onPeek, panelOpen }: Props) {
             index={i}
             isActive={activeSlug === piece.slug}
             onPeek={onPeek}
+            folded={!!folded}
           />
         ))}
       </div>
@@ -122,12 +143,15 @@ interface TileProps {
   index: number;
   isActive: boolean;
   onPeek: (slug: string) => void;
+  folded: boolean;
 }
 
-function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
+function SelectTile({ piece, index, isActive, onPeek, folded }: TileProps) {
   const number = `[${piece.number}]`;
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Ledger view: no peek, navigate straight to /work/[slug].
+    if (folded) return;
     // Only intercept on the peek breakpoint. Below it, let the link
     // navigate normally — the side panel has no room and would cover
     // content.
@@ -190,6 +214,7 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
               loop
               playsInline
               aria-hidden
+              style={coverStyle(piece.cover)}
             />
           ) : piece.cover?.kind === "image" ? (
             <Image
@@ -198,7 +223,7 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
               fill
               sizes="(max-width: 480px) 100vw, (max-width: 720px) 50vw, (max-width: 1080px) 33vw, 25vw"
               className="select-tile__image"
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", ...coverStyle(piece.cover) }}
             />
           ) : (
             <div className="select-tile__placeholder" aria-hidden>
@@ -291,12 +316,18 @@ function SelectTile({ piece, index, isActive, onPeek }: TileProps) {
           height: 100%;
           object-fit: cover;
           display: block;
+          /* Base zoom defaults to 1 (no overflow). Pieces can override via
+             --cover-scale on the element's inline style to crop edges
+             (used to swallow letterbox bars or corner watermarks). Origin
+             stays centered so all four edges crop equally; hover composes
+             multiplicatively against the base. */
+          transform: scale(var(--cover-scale, 1));
           transition: transform 720ms var(--ease), filter 720ms var(--ease);
           will-change: transform;
         }
         .select-tile__link:hover .select-tile__video,
         .select-tile__link:hover .select-tile__image {
-          transform: scale(1.04);
+          transform: scale(calc(var(--cover-scale, 1) * 1.04));
           filter: brightness(1.06);
         }
 

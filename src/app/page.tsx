@@ -3,20 +3,14 @@ import { Suspense } from "react";
 import { CornerNav } from "@/components/corner/CornerNav";
 import { IndexShell } from "@/components/corner/IndexShell";
 import { CornerAudio } from "@/components/corner/CornerAudio";
-import { VestaboardNote } from "@/components/corner/VestaboardNote";
 
 /**
  * / — single page for both Index (grid) and Projects (ledger).
  *
- * The two views are not separate routes: the IndexShell client
- * component reads the `?view=projects` search param via
- * useSearchParams and renders the IndexLedger when present, the
- * SelectsGrid otherwise. Tab clicks in CornerNav soft-update the URL
- * via router.replace; Next.js's experimental.viewTransition handles
- * the paint swap and GSAP carries the visible slide.
- *
- * useSearchParams requires Suspense; wrapping IndexShell here keeps
- * any pre-render bail-out localized.
+ * Not separate routes: IndexShell reads `?view=projects` via
+ * useSearchParams and folds each tile's media height to 0 in place
+ * (titles stay put, no slide). useSearchParams requires Suspense;
+ * wrapping IndexShell here keeps any pre-render bail-out localized.
  */
 
 export const metadata: Metadata = {
@@ -30,7 +24,6 @@ export default function CornerIndexPage() {
     <div className="corner-page" data-page="corner">
       <CornerNav />
       <main className="corner-page__main">
-        <VestaboardNote />
         <Suspense fallback={null}>
           <IndexShell />
         </Suspense>

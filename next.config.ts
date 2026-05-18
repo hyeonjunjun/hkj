@@ -31,7 +31,25 @@ function readBuildInfo() {
   return { sha, subject, isoDate };
 }
 
+/**
+ * Read the last N commits so CommitStamp can render an in-app history
+ * panel without needing a runtime API. Tab-separated to avoid having to
+ * escape JSON in the shell call; parsed client-side.
+ */
+function readBuildLog(): Array<{ sha: string; subject: string; isoDate: string }> {
+  const raw = safeGit("git log -50 --pretty=format:%H%x09%s%x09%cI");
+  if (!raw) return [];
+  return raw
+    .split("\n")
+    .map((line) => {
+      const [sha, subject, isoDate] = line.split("\t");
+      return { sha: sha || "", subject: subject || "", isoDate: isoDate || "" };
+    })
+    .filter((c) => c.sha);
+}
+
 const build = readBuildInfo();
+const buildLog = readBuildLog();
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -44,6 +62,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_BUILD_HASH: build.sha,
     NEXT_PUBLIC_BUILD_SUBJECT: build.subject,
     NEXT_PUBLIC_BUILD_DATE: build.isoDate,
+    NEXT_PUBLIC_BUILD_LOG: JSON.stringify(buildLog),
   },
   async redirects() {
     return [

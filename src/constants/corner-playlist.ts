@@ -74,12 +74,11 @@ export const CORNER_PLAYLIST: ReadonlyArray<CornerTrack> = [
     cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024018b70099d433d9c8aabb12",
   },
   {
-    // No Spotify URL provided — title labelled but autosearch returned
-    // no match. Paste a track URL here when convenient; cover + link
-    // will activate automatically.
     title: "Run",
     artist: "BTS",
     runtime: 235,
+    url: "https://open.spotify.com/track/3G1aAxWS2Nd17FQs4PWV6X",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02d5d5e874bde16f6ef86c99dc",
   },
   {
     title: "季节性梦见你",
@@ -87,6 +86,13 @@ export const CORNER_PLAYLIST: ReadonlyArray<CornerTrack> = [
     runtime: 193,
     url: "https://open.spotify.com/track/2CCdiYBdqrb5pUVzDOvWJm",
     cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0223646c98b1e0299819b0dcde",
+  },
+  {
+    title: "Run BTS",
+    artist: "BTS",
+    runtime: 191,
+    url: "https://open.spotify.com/track/69xohKu8C1fsflYAiSNbwM",
+    cover: "https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0217db30ce3f081d6818a8ad49",
   },
 ];
 

@@ -79,6 +79,10 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
               loop
               playsInline
               aria-hidden
+              style={{
+                objectPosition: piece.cover.focus ?? "center",
+                transform: piece.cover.scale && piece.cover.scale !== 1 ? `scale(${piece.cover.scale})` : undefined,
+              }}
             />
           ) : piece.cover?.kind === "image" ? (
             <Image
@@ -87,7 +91,11 @@ export function NowPlayingPanel({ piece, onClose }: Props) {
               fill
               sizes="(max-width: 960px) 100vw, 400px"
               className="np-panel__image"
-              style={{ objectFit: "cover" }}
+              style={{
+                objectFit: "cover",
+                objectPosition: piece.cover.focus ?? "center",
+                transform: piece.cover.scale && piece.cover.scale !== 1 ? `scale(${piece.cover.scale})` : undefined,
+              }}
             />
           ) : (
             <div className="np-panel__placeholder" aria-hidden>
