@@ -1,0 +1,518 @@
+/* /v2 — editorial-engineered archive
+   Baseline: 1lh of Archivo 16/1.55 = 24.8px.
+   Every block height + vertical spacing snaps to a multiple of --bl.
+   --------------------------------------------------------------------- */
+
+.v2-root {
+  /* paper register */
+  --paper:        #FBFAF6;
+  --paper-2:      #F4F3EE;
+
+  /* ink register */
+  --ink:          #1A1816;
+  --ink-2:        rgba(26, 24, 22, 0.55);
+  --ink-3:        rgba(26, 24, 22, 0.32);
+  --ink-hair:     rgba(26, 24, 22, 0.14);
+  --ink-ghost:    rgba(26, 24, 22, 0.05);
+
+  /* kind */
+  --kind-writing: #B0241A;
+  --kind-work:    #1A2E5A;
+  --kind-link:    #6B6B6B;
+  --kind-listen:  #C58A1A;
+  --kind-note:    #2E6B3A;
+
+  /* grid */
+  --bl:           24.8px;            /* 1lh of body Archivo 16/1.55 */
+  --spine-w:      calc(var(--bl) * 2);     /* 49.6px ≈ 48px */
+  --strip-h:      calc(var(--bl) * 2);
+  --gutter:       calc(var(--bl) * 1);
+  --edge:         calc(var(--bl) * 1.5);
+
+  /* type */
+  --t-micro:      0.62rem;
+  --t-mono:       0.72rem;
+  --t-body:       1rem;
+  --t-display:    clamp(1.5rem, 2.4vw, 2.2rem);   /* smaller than blit, per 2026-05-30 feedback */
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--archivo, "Archivo", system-ui, sans-serif);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: var(--spine-w) 1fr;
+  grid-template-rows: var(--strip-h) 1fr var(--strip-h);
+  grid-template-areas:
+    "spine   top"
+    "spine   recto"
+    "spine   bottom";
+}
+
+.v2-root,
+.v2-root * {
+  box-sizing: border-box;
+}
+
+/* hide root layout chrome while /v2 owns the surface ----------------- */
+html[data-surface="v2"] body > .sitebar,
+html[data-surface="v2"] body > .rj-logo,
+html[data-surface="v2"] body > .back-button,
+html[data-surface="v2"] body > .commit-stamp,
+html[data-surface="v2"] body > .paper-grain,
+html[data-surface="v2"] body > .preloader,
+html[data-surface="v2"] body > .transition-cover,
+html[data-surface="v2"] body > .folio,
+html[data-surface="v2"] [data-rj-chrome] {
+  display: none !important;
+}
+
+/* ============================== SPINE ============================== */
+.v2-spine {
+  grid-area: spine;
+  position: relative;
+  border-right: 1px solid var(--ink-hair);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--bl) 0;
+  gap: var(--bl);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background: var(--paper-2);
+}
+
+.v2-spine__code {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.v2-spine__kind {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+
+.v2-spine__date {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  margin-top: auto;
+}
+
+.v2-spine__hanko {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  color: var(--ink);
+  writing-mode: horizontal-tb;
+  margin: var(--bl) 0;
+}
+
+.v2-spine__count {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  padding-top: var(--bl);
+}
+
+/* ============================ TOP STRIP ============================ */
+.v2-top {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--edge);
+  border-bottom: 1px solid var(--ink-hair);
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+
+.v2-top__left,
+.v2-top__right { display: flex; gap: 0.8em; align-items: center; }
+
+.v2-top__sep { color: var(--ink-3); }
+
+.v2-top__hint {
+  color: var(--ink-3);
+  font-variant: tabular-nums;
+}
+
+/* ========================== BOTTOM STRIP ========================== */
+.v2-bottom {
+  grid-area: bottom;
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  padding: 0 var(--edge);
+  border-top: 1px solid var(--ink-hair);
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.v2-bottom::-webkit-scrollbar { display: none; }
+
+.v2-bottom__item {
+  color: var(--ink-3);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  font: inherit;
+  letter-spacing: inherit;
+  flex: 0 0 auto;
+  transition: color 160ms ease;
+  font-variant: tabular-nums;
+}
+.v2-bottom__item:hover { color: var(--ink); }
+
+.v2-bottom__item.is-active {
+  color: var(--ink);
+  border-bottom: 1px solid currentColor;
+}
+
+/* ============================== RECTO ============================== */
+.v2-recto {
+  grid-area: recto;
+  position: relative;
+  padding: var(--bl) var(--edge);
+  overflow: hidden;
+}
+
+.v2-view {
+  position: absolute;
+  inset: var(--bl) var(--edge);
+}
+
+/* baseline grid overlay (toggle with 'g') */
+.v2-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--bl) - 1px),
+    var(--ink-hair) calc(var(--bl) - 1px),
+    var(--ink-hair) var(--bl)
+  );
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+.v2-grid-overlay.is-on { opacity: 1; }
+
+/* ============================== HOME ============================== */
+.v2-home {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--bl);
+  height: 100%;
+}
+
+.v2-home__mark {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  font-weight: 800;
+  font-size: var(--t-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--ink);
+  align-self: start;
+  view-transition-name: rj-mark;
+}
+
+.v2-home__mark .v2-home__period { color: var(--kind-writing); }
+
+.v2-home__meta {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--bl) / 2);
+  justify-self: end;
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+.v2-home__legend {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--gutter);
+  align-content: center;
+  padding: calc(var(--bl) * 2) 0;
+}
+
+.v2-home__legend-cell {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--bl) / 2);
+  border-top: 1px solid var(--ink-hair);
+  padding-top: calc(var(--bl) / 2);
+}
+
+.v2-home__legend-glyph {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--kind);
+}
+.v2-home__legend-label {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  color: var(--ink-2);
+}
+.v2-home__legend-count {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-mono);
+  color: var(--ink);
+  font-variant: tabular-nums;
+}
+
+.v2-home__statement {
+  grid-column: 1 / 3;
+  grid-row: 3 / 4;
+  font-weight: 800;
+  font-size: var(--t-display);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--ink);
+  justify-self: end;
+  text-align: right;
+  max-width: 28ch;
+}
+
+.v2-home__statement em {
+  font-style: normal;
+  color: var(--kind-work);
+}
+
+.v2-home__cta {
+  grid-column: 1 / 2;
+  grid-row: 3 / 4;
+  align-self: end;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-mono);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition: gap 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.v2-home__cta:hover { gap: 1.2em; }
+.v2-home__cta::after {
+  content: "→";
+  font-size: 1.1em;
+  transform: translateY(-0.05em);
+}
+
+/* ============================ PROJECTS ============================ */
+.v2-projects {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--bl);
+  height: 100%;
+}
+
+.v2-projects__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--ink-hair);
+  padding-bottom: calc(var(--bl) / 2);
+}
+
+.v2-projects__title {
+  font-weight: 800;
+  font-size: var(--t-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  view-transition-name: rj-mark;
+}
+.v2-projects__title .v2-home__period { color: var(--kind-writing); }
+
+.v2-projects__count {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  font-variant: tabular-nums;
+}
+
+.v2-stamps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gutter);
+  align-content: start;
+  padding: var(--bl) 0;
+}
+
+.v2-stamp {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: calc(var(--bl) / 2);
+  padding: calc(var(--bl) / 2) calc(var(--bl) / 2) calc(var(--bl) / 2) calc(var(--bl) / 2);
+  border: 1px solid var(--ink-hair);
+  background: var(--paper);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  transition: background 200ms ease, border-color 200ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  min-height: calc(var(--bl) * 5);
+}
+
+.v2-stamp::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--bl) * 0.6);
+  height: 2px;
+  background: var(--kind);
+}
+
+.v2-stamp__code {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+  display: flex;
+  gap: 0.6em;
+  align-items: baseline;
+}
+
+.v2-stamp__code-num { color: var(--ink); font-variant: tabular-nums; }
+.v2-stamp__code-kind { color: var(--kind); }
+
+.v2-stamp__title {
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  text-transform: lowercase;
+  color: var(--ink);
+  align-self: end;
+}
+
+.v2-stamp__date {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  font-variant: tabular-nums;
+}
+
+.v2-stamp:hover {
+  background: var(--paper-2);
+  border-color: var(--ink-3);
+  transform: translateY(-2px);
+}
+
+.v2-projects__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: calc(var(--bl) / 2);
+  border-top: 1px solid var(--ink-hair);
+}
+
+.v2-projects__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-mono);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition: gap 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.v2-projects__back:hover { gap: 1.2em; }
+.v2-projects__back::before {
+  content: "←";
+  font-size: 1.1em;
+}
+
+.v2-projects__hint {
+  font-family: var(--geist-mono, "Geist Mono", ui-monospace, monospace);
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* ========================= VIEW TRANSITIONS ========================= */
+@keyframes v2-recto-out {
+  to { clip-path: inset(0 100% 0 0); }
+}
+@keyframes v2-recto-in {
+  from { clip-path: inset(0 0 0 100%); }
+}
+
+::view-transition-old(v2-recto) {
+  animation: v2-recto-out 380ms cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+::view-transition-new(v2-recto) {
+  animation: v2-recto-in 380ms cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+::view-transition-old(rj-mark),
+::view-transition-new(rj-mark) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(v2-recto),
+  ::view-transition-new(v2-recto) {
+    animation: none;
+  }
+  .v2-grid-overlay { transition: none; }
+  .v2-home__cta, .v2-projects__back { transition: none; }
+}

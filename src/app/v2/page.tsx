@@ -1,5 +1,5 @@
-import Portfolio from "./Portfolio";
+import Composition from "./Composition";
 
 export default function V2Page() {
-  return <Portfolio />;
+  return <Composition />;
 }

@@ -4,16 +4,16 @@ import "./v2.css";
 
 const archivo = Archivo({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["400", "500", "800"],
   display: "swap",
   variable: "--archivo",
 });
 
 export const metadata: Metadata = {
-  title: "v2 / ryan jun",
-  description: "ryan jun — a small practice borrowed from the field.",
+  title: "editorial reference / ryan jun",
+  description: "editorial-engineered first attempt — kept as negative-space reference.",
 };
 
-export default function V2Layout({ children }: { children: React.ReactNode }) {
+export default function V2EditorialLayout({ children }: { children: React.ReactNode }) {
   return <div className={archivo.variable}>{children}</div>;
 }
