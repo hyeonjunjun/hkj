@@ -15,8 +15,9 @@ This brainstorm surfaced a much larger vision than "add a works layout to the ho
 
 - A new horizontal, scroll-driven timeline component filling the homepage's empty middle band
 - Resizing/repositioning `ThesisStatement` to make room for it
-- Retiring the standalone `/works` room page; Nav's "works" link points to `/` instead
+- Deleting `src/app/works/page.tsx`; Nav's "works" link points to `/` instead (see §5 for the active-state fix this requires)
 - `/works/[slug]` individual case-study pages are unaffected and stay
+- `WorkGrid.tsx`/`WorkTile.tsx` become unused by this spec but are **left in place, not deleted** — the deferred grid-Works-view work is likely to reuse or adapt this poster-composition logic, so removing it now would mean rebuilding it later
 
 **Explicitly deferred** (separate future brainstorms, not touched by this spec or its implementation):
 
@@ -49,7 +50,8 @@ Only the timeline scrolls, and only internally/horizontally — the page around 
 - **Large responsive title above the row:** shows the currently-"active" Work's title + year at a hero-adjacent scale. Updates (quick opacity crossfade, or instant swap under reduced-motion) as the active stop changes — this is what makes the focus interaction legible, not just a tile-level scale/opacity nudge.
 - **Dense tick-mark axis below the row:** a ruler-style scrubber, many fine unlabeled ticks with **year labels** at intervals (our data is year-granular, not month-granular like the reference). Includes a progress indicator synced to the same scroll ratio as the media row.
 - **Active-stop detail:** the tile nearest the center of the timeline section gets a subtle emphasis (scale/opacity), neighbors dim slightly — reinforced by the title update above.
-- Per-stop content reuses existing conventions: `MediaRenderer` (from `WorkTile.tsx`, already exported), roman numeral, italic serif caption (the site's one serif-italic accent), category/status.
+- Per-stop content reuses existing conventions: `MediaRenderer` (from `WorkTile.tsx`, already exported), roman numeral, italic serif caption (the site's one serif-italic accent), category. **`status` (e.g. "LIVE"/"IN DEVELOPMENT") is a new addition** — current `WorkTile.tsx` doesn't render it; the timeline stop is the first place it appears in the UI.
+- Only 3 placeholder Works exist today, so a growth story isn't a hard requirement here; the deferred grid-view work is the intended answer for "many works" usability (dense-axis legibility, tile virtualization, etc.), not this component.
 
 ### 3. Thesis statement
 
@@ -60,14 +62,25 @@ Stays on the homepage for this spec (the About migration is deferred work). Shri
 A genuinely custom-built scroll surface — no animation library, consistent with the project's existing "no Framer Motion / GSAP / Lenis" constraint, but a hand-rolled equivalent of what those libraries would provide:
 
 - **Native horizontal scroll container** (`overflow-x: auto`) holds the media row. Trackpad horizontal swipe and touch swipe work natively — no JS needed for those two input paths.
-- **Vertical wheel → horizontal redirect:** a `wheel` listener scoped to the timeline section only (not `window`) detects a vertical-dominant gesture (plain mouse wheel, or an incidental vertical trackpad move) and redirects it into horizontal scroll movement, since the page itself never scrolls vertically.
-- **Hand-rolled inertia:** a `requestAnimationFrame` loop interpolates the actual scroll position toward a "target" position each frame (`current += (target - current) * damping`) rather than snapping directly to raw wheel deltas — the same idea Lenis provides, hand-coded to stay within the no-libraries rule.
+- **Vertical wheel → horizontal redirect:** a `wheel` listener scoped to the timeline section only (not `window`) branches explicitly on gesture direction: only when `|deltaY| > |deltaX|` (a vertical-dominant gesture — plain mouse wheel, or an incidental vertical trackpad move) does it call `preventDefault()` and redirect into horizontal movement. Genuine horizontal wheel/trackpad deltas (`|deltaX| >= |deltaY|`) pass through untouched and let the native horizontal scroll handle them directly.
+- **Hand-rolled inertia:** a `requestAnimationFrame` loop interpolates the actual scroll position toward a single shared `target` value each frame (`current += (target - current) * damping`) rather than snapping directly to raw wheel deltas — the same idea Lenis provides, hand-coded to stay within the no-libraries rule.
+- **Single source of truth for `target`:** all three ways the scroll position can change — wheel input, arrow-key stepping, and native Tab-focus `scrollIntoView` — write to this same `target` value, so the rAF loop never fights another input path:
+  - Wheel input updates `target` by the (redirected) delta.
+  - Left/Right arrow keys update `target` to the adjacent stop's offset directly (not a direct `scrollIntoView` call), so keyboard stepping gets the same smoothing as wheel input.
+  - A `focus` listener on each tile resyncs `target` to that tile's own offset immediately when focus lands on it (native Tab navigation triggers the browser's own instant `scrollIntoView`) — without this resync, the rAF loop would try to pull the view back toward its previous, now-stale target on the very next frame, fighting the browser's focus-scroll.
 - **Active-stop detection:** each frame (throttled via rAF, not on every scroll event), find whichever tile's center is closest to the container's center; that's the active stop driving the title update and emphasis styling.
 - **Accessibility:**
   - `prefers-reduced-motion` disables the rAF inertia loop entirely (direct snap, no easing), consistent with the global reduced-motion handling already in place project-wide.
-  - Each tile is a real focusable link (`<a>`/`<Link>`), so Tab navigation uses the browser's native `scrollIntoView` — a working keyboard path independent of the custom mouse/touch logic.
+  - Each tile is a real focusable link (`<a>`/`<Link>`), so Tab navigation uses the browser's native `scrollIntoView` — a working keyboard path independent of the custom mouse/touch logic (see the `target`-resync rule above for how this coexists with the inertia loop).
   - Explicit Left/Right arrow-key handling added on top, advancing one stop at a time, for a better keyboard experience than relying on native scroll-into-view alone.
+  - The title-above-the-row region gets `aria-live="polite"` so screen-reader users are told when the active stop (and its title/year) changes, rather than the update being silently visual-only.
 - New client component: `src/components/timeline/HomeTimeline.tsx` (plus likely a co-located `TimelineAxis.tsx` for the tick-mark ruler), consuming `works` from `data/works.ts`.
+
+### 5. Nav active-state fix (required by the `/works` retirement)
+
+Today, `Nav.tsx`'s active-state check (`pathname === item.href || pathname?.startsWith(`${item.href}/`)`) works because the "works" `NavItem.href` is `/works`, so it also matches `/works/[slug]` case-study pages via the `startsWith` branch. Once `href` becomes `/`, that same check no longer matches `/works/some-slug` (`"/works/some-slug".startsWith("//")` is false) — the "works" tab would go dark on every case-study page, silently breaking navigation feedback on pages this spec claims are untouched.
+
+Fix: `NavItem` already carries a `room: RoomKey` field distinct from `href`. Extend the active check to also match on room, not just href: a nav item is active if `pathname === item.href` **or** `pathname.startsWith(`/${item.room}/`)`. For "works" (`room: "works"`), this correctly re-matches `/works/[slug]` pages regardless of what `href` points to. This is a general rule, not a one-off special case for "works" — it costs nothing for the other three rooms, whose `href` and `room` already agree.
 
 ## Out of scope / explicit non-goals
 
