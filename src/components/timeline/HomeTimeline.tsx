@@ -159,7 +159,7 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
   const activeWork = sorted[activeIndex];
 
   return (
-    <section aria-label="Works timeline" className="flex h-[55vh] flex-col justify-end gap-4">
+    <section aria-label="Works timeline" className="flex h-[30vh] flex-col justify-end gap-4">
       <p
         role="status"
         aria-live="polite"
