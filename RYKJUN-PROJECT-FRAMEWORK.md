@@ -1,332 +1,184 @@
 # RYKJUN Portfolio — Project Framework
 
 > The governing document. Replaces all previous versions.
-> 2026-05-30.
+> 2026-05-30 (revised, evening).
 
 ---
 
 ## TL;DR
 
-A personal **archive treated as a typeset publication.** The architecture itself is the visual language — baseline grid, typographic measure, kind taxonomy, folio numbering, vertical spine. Not editorial-*looking*; editorial-*engineered*.
+A **horizontal-scroll portfolio** that borrows blit.studio's freeform vw/vh canvas and pinned-scroll mechanic, adapted with a biomimicry vocabulary and an open-sky accent palette. The vertical axis is replaced by a horizontal scrub. Layout is freeform absolute placement, not a baseline grid — every element lives on a panel canvas via vw/vh coordinates. The wordmark stays small; the work does the talking.
 
-- **Frame:** single viewport, no scroll. Each folio = one fixed-frame composition.
-- **Type:** Archivo (sans body) + Geist Mono (indexing voice). No third family.
-- **Color:** warm paper, warm ink, plus a per-kind semantic color used only as an index (never decoration).
-- **Influence:** Japanese editorial × swiss typography × archive systems. NOT blit.studio.
-- **Build order:** foundation first (tokens, baseline grid, kind taxonomy, spine), then ONE representative writing spread to prove the system, then scale.
+- **Frame:** viewport is fixed at 100vw × 100vh. The "page" is a track of N×100vw-wide panels scrubbed horizontally by vertical wheel/trackpad input (GSAP ScrollTrigger, pinned).
+- **Type:** Archivo grotesque, lowercase, weights 400/500/600/700. Display is **smaller than blit's** — `clamp(1.6rem, 3vw, 3.2rem)`. Wordmark in the nav is `clamp(0.9rem, 1.05vw, 1.05rem)` bold.
+- **Color:** warm bone paper + warm ink, plus a rationed **open-sky palette** — dawn pink, hazy blue (primary accent), low-sun, dusk indigo, overcast pearl. No fiery orange-red.
+- **Voice:** **biomimicry** — vocabulary borrowed from natural systems. Section labels: `field`, `specimen`, `current`, `weather`, `study`. Statement copy reaches for forms borrowed from living things.
+- **Build order:** scroll engine → 4 panel types as static placeholders → real data wired (Sanity later) → animation polish → a11y + reduced-motion fallback.
 
 ---
 
 ## What this replaces
 
-- The previous **gallery-wall + FLIP-grid** framework (the prior contents of this file, Mar 27 version).
-- The **`/v2` blit-style execution** (live at `/v2` on master as of 2026-05-30). Recognized as surface mimicry of blit.studio — to be **renamed `/blit`** as a negative-space reference, then `/v2` rebuilt fresh.
-- The **`corner`** direction is still live at `/`. It is not being torn out yet; it stays until this new direction proves out, then `/v2` promotes to `/` and `corner` archives to `/legacy/corner` (mirroring how the prior editorial setlist was archived in commit 68231c4).
+- The **editorial-engineered "catalog of one"** direction from earlier 2026-05-30 (the morning framework). That direction is archived at [/v2-editorial](src/app/v2-editorial/) next to [/blit](src/app/blit/) — both kept as negative-space references for what we are *not* doing.
+- All previous home directions (corner, dark tracklist, cloud-gazing, stage & paper, etc.) remain superseded.
 
 ---
 
 ## 1. Concept
 
-The site is a **catalog of one.** Every piece — writing, work, link, listen, note — is a numbered item with a fixed *kind*, sitting on a visible baseline grid, indexed by a vertical spine. The visitor moves through *folios*, not pages. The system is the brand.
+The portfolio is a **landscape, not a stack.** Every project is one frame in a horizontal sequence. The scroll wheel pulls the world sideways at a softly delayed rate; the page feels weighted, like dragging fabric. There is no chrome competing with the work — just a small wordmark, a thin progress hairline, and the panels themselves.
 
-What makes it editorial: the cataloguing is taken seriously and *shown*. Folio numbers, dateline, kind glyphs, marginalia, hanko mark — these are not ornaments added on top. They are the structural language.
+The **biomimicry** layer is voice + ornament, not skeleton. Section labels, panel statements, hover micro-copy, and one ornament per panel borrow from natural-systems vocabulary (tendril, current, weather, lattice, canopy, drift, mycelium, bloom). The visual surface stays restrained — open-sky tints, a lot of paper, one strong moment per panel.
 
-What makes it design-engineered: the grid is real (CSS subgrid + `lh` baseline units), the measure is computed (66ch on prose, 12ch on marginalia), the kind taxonomy is enforced in code (one component per kind), the folio numbering is deterministic. Nothing decorative; everything load-bearing.
+The **open-sky** layer is the color register. Replace blit's orange-red accent with a five-tone sky palette used semantically: dawn for warmth, haze for the primary accent, sun for emphasis, dusk for depth, overcast for hairlines. No single tone dominates; each appears in a defined role.
 
 ---
 
 ## 2. Influences (and anti-influences)
 
 **Reach for:**
-- Brutus / IDEA / Apartamento — magazine editorial weight, density of small marks
-- Kenya Hara / Daikoku Design Institute / Mr. Design — Japanese restraint, "air + one loud thing"
-- Yohji Yamamoto lookbooks, Comme des Garçons editorials — lot numbers as ornament
-- 原稿用紙 (genkō yōshi) — visible composition grid as the look
-- Knopf / Hartwell book interiors — baseline rhythm, real measure
-- swissmiss / Are.na profiles / devine lu linvega (XXIIVV) — archive density and self-cataloguing
+- **blit.studio** — pinned horizontal scroll mechanic, freeform vw/vh placement, alternating media bleed, scrub momentum, • prefix labels
+- **Olafur Eliasson / Studio Drift** — atmospheric color, slow durational feel
+- **Bjork visual collaborations (Inez & Vinoodh, M/M Paris)** — biomimetic surface, living forms
+- **Daikoku Design Institute** — restraint, single loud thing per spread
+- **Anthropic-research art direction, Apple "Earth" film** — open-sky tonality
 
 **Explicitly NOT:**
-- blit.studio — already attempted at `/v2`, rejected as surface mimicry
-- Studio-portfolio "showcase" register (huge wordmark, asymmetric hero image, accent dot, curtain wipe, custom cursor with "view" text)
+- Strict baseline grids, vertical scroll registers (the editorial direction)
+- blit's orange-red `#ff4200` accent — too aggressive, replaced with the sky palette
+- Massive top-left wordmark (blit-scale display) — wordmark stays small
+- Generic dev-portfolio tropes (custom cursor reading "view" is still fine in moderation per spec §1.5 but kept restrained)
 
 ---
 
 ## 3. Principles
 
-1. **The structure is the look.** The grid is not behind the design — it IS the design.
-2. **Editorial weight comes from cataloguing, not effects.**
-3. **One chunky display, everything else mono micro-text.** No mid-sized headings.
-4. **Color is semantic.** Used as a kind index. Never decorative.
-5. **Type is restrained.** Two families only. Hierarchy from weight + tracking + case, not from a 6-size scale.
-6. **Mathematical rhythm.** Baseline grid in `1lh` snaps every element.
-7. **Every piece is numbered.** Folio is identity.
-8. **No-scroll frame.** Each folio is one fixed-frame composition; long pieces fold into multiple folios.
-9. **Creativity lives in the cataloguing system and the typographic system,** not in surface effects.
-10. **Japanese editorial restraint:** huge air, one loud thing per spread, everything else whispering.
+1. **The scroll is the page.** Vertical input → horizontal travel. Pin the viewport while the track moves. Nothing scrolls vertically except the document-level fallback for reduced-motion.
+2. **Freeform vw/vh placement.** No CSS grid, no columns, no gutters. Every element on a panel sits at an explicit `left`/`top` in viewport units, expressed via CSS variables so the placement can be data-driven.
+3. **Panels are compositions, not templates.** Each panel is designed. The four panel types (Statement / Feature / Split / Interlude) are starting points, not stamps.
+4. **One loud thing per panel.** Either one big statement, or one big media, or one fragmented word — never all three.
+5. **Smaller wordmark.** The nav wordmark is body-sized, not display-sized. The display weight goes to project titles and statements, not branding.
+6. **Open-sky color, semantic use.** Sky tones never appear as backgrounds. They appear on: hover indicators, progress hairline, the `●` label glyph, one ornament per panel.
+7. **Biomimicry voice.** Statement copy and section labels favor natural-systems vocabulary. Avoid tech vocabulary, studio jargon, "we craft" language.
+8. **Scrub momentum without bounce.** ScrollTrigger `scrub: 1.2`. No spring overshoot — critically damped.
+9. **Restraint in motion.** Hover scales `1.03` max. Entry stagger 80ms max. Nothing flashes.
+10. **Reduced-motion = vertical fallback.** When `prefers-reduced-motion`, the horizontal track unrolls vertically and scroll-jacking is off entirely.
 
 ---
 
-## 4. The kind taxonomy
+## 4. Vocabulary
 
-| Kind    | Glyph | Color (semantic) | Body measure | What it is               |
-|---------|-------|------------------|--------------|--------------------------|
-| writing | W     | `#B0241A` red    | 66ch         | essays, notes, logs      |
-| work    | P     | `#1A2E5A` indigo | 48ch         | projects, builds         |
-| link    | L     | `#6B6B6B` graphite | 32ch       | references, sources      |
-| listen  | A     | `#C58A1A` yamabuki | 24ch       | tracks, mixes, sets      |
-| note    | N     | `#2E6B3A` moss   | 40ch         | fragments, asides        |
+| Old (editorial) | New (biomimicry + open-sky) |
+|---|---|
+| folio / catalog | field / collection |
+| writing / work / link / listen / note | specimen / study / current / weather / drift |
+| W001, P001 (folio code) | sp.001, st.001, cu.001, we.001, dr.001 (lowercase, period-delimited) |
+| spine + top strip + bottom strip | small nav + bottom progress hairline |
+| `editorial` / `engineered` | `field-recorded` / `slow-built` |
+| `recto` | `panel` |
+| `frontispiece` | `opening` |
+| baseline grid | panel canvas |
 
-Each kind:
-- Owns a one-letter prefix on its folio number (`W024`, `P007`, `L113`…)
-- Owns a color used **only** for: the spine's kind glyph, the active folio's underline in the bottom-strip index, one hairline accent line per spread.
-- Owns a body measure (line length) — defined in `src/app/v2/lib/kinds.ts`.
-- Owns its own composition rule — defined in `src/app/v2/views/{kind}.tsx`.
-
-Folio numbering restarts per kind. Global total computed for the spine ("no. 24 of 113").
+Section labels appear with a leading `●` glyph in the open-sky-haze color: `● specimen`, `● current`, `● weather`.
 
 ---
 
-## 5. The frame
-
-Single viewport. No scroll anywhere. `100vw × 100vh`. `overflow: hidden` on html/body while `/v2` is mounted.
-
-```
-┌──┬──────────────────────────────────────┐
-│  │ TOP STRIP — dateline · kind · status │  ← ~3 baselines tall
-│  ├──────────────────────────────────────┤
-│ S│                                      │
-│ P│                                      │
-│ I│      RECTO (the active folio)        │
-│ N│                                      │
-│ E│                                      │
-│  ├──────────────────────────────────────┤
-│  │ BOTTOM STRIP — folio index           │  ← ~3 baselines tall
-└──┴──────────────────────────────────────┘
-   ↑
-   ~48px wide vertical rail, full height
-```
-
-### Spine (left vertical rail, ~48px wide)
-`writing-mode: vertical-rl`. Top to bottom:
-- Current folio number (mono 0.82rem) — e.g. `W024`
-- Kind name (mono 0.62rem) — e.g. `writing`
-- Dateline (mono 0.62rem) — `2026·05·30`
-- Hanko mark — single character inside a 28×28px circle outline (mono)
-- "no. 24 of 113" (mono 0.62rem, bottom-aligned)
-
-### Top strip
-`dateline · kind · status · current measure` — all mono 0.62rem, middle-dot separators. Status = `live` / `draft` / `archived`. Right side: ghost hint `g for grid` (pulses on first visit only).
-
-### Bottom strip — folio index
-Horizontal row of every folio number ever (`W001 W002 ... W024 ... W113`). The current one is underlined in the kind's semantic color. Click any to jump. Top-strip's kind label is a filter toggle (click `writing` to show only `W*`).
-
-### Recto
-The folio body. Composition rules per kind defined separately (§7).
-
----
-
-## 6. Visible baseline grid
-
-**Baseline unit:** `1lh` of body Archivo at 16px line-height 1.55 = **24.8px**.
-
-Every element snaps to baseline. Achieved via CSS subgrid + `line-height: 1lh` discipline.
-
-**Toggle:** `g` key shows the baseline rules as faint 0.5px hairlines drawn across the recto (genkō yōshi reveal). Off by default. The grid is always there structurally; the toggle just makes it visible.
-
-The toggle is also a self-test: if the user presses `g` and text is *not* sitting on the lines, the implementation is broken.
-
----
-
-## 7. Typography
-
-| Role         | Family     | Weight | Size                              | Usage                                        |
-|--------------|------------|--------|-----------------------------------|----------------------------------------------|
-| Display      | Archivo    | 800    | `clamp(2.4rem, 4vw, 3.8rem)`      | folio title (max one per spread)             |
-| Body         | Archivo    | 400    | `1rem` (16px)                     | prose, reading                               |
-| Body-strong  | Archivo    | 500    | `1rem`                            | emphasis                                     |
-| Mono         | Geist Mono | 400    | `0.72rem`                         | folios, marginalia, dateline                 |
-| Micro        | Geist Mono | 400    | `0.62rem`                         | spine text, top/bottom strips, footnotes     |
-
-- **No mid sizes** — no h2/h3 scale. Hierarchy from weight + tracking + case.
-- All copy lowercase, except folio numbers (kind letter uppercase, digits — `W024`).
-- Letter-spacing: display `-0.02em`, body `0`, mono `+0.04em`.
-- Line-height: body `1.55`, display `1.05`, mono `1.3`.
-
----
-
-## 8. Color
+## 5. Tokens (canonical)
 
 ```css
-/* paper register */
---paper:        #FBFAF6;   /* warm cream — primary surface */
---paper-2:      #F4F3EE;   /* paper recessed — top/bottom strips */
+:root {
+  /* paper register — warm bone, atmospheric */
+  --paper:        #F7F5EE;
+  --paper-2:      #ECEAE2;
+  --ink:          #1A1816;
+  --ink-2:        rgba(26, 24, 22, 0.55);
+  --ink-3:        rgba(26, 24, 22, 0.32);
+  --hint:         #6B6663;
 
-/* ink register */
---ink:          #1A1816;   /* warm charcoal — NEVER pure black */
---ink-2:        rgba(26, 24, 22, 0.55);
---ink-hair:     rgba(26, 24, 22, 0.14);  /* baseline rules, dividers */
---ink-ghost:    rgba(26, 24, 22, 0.05);
+  /* open-sky accents — semantic, rationed */
+  --sky-dawn:     #E8C5B5;   /* dawn pink */
+  --sky-haze:     #7AA6CA;   /* hazy blue — primary accent */
+  --sky-sun:      #F2D88A;   /* low sun — emphasis */
+  --sky-dusk:     #4A6B8C;   /* dusk indigo — depth */
+  --sky-overcast: #C7D2D8;   /* overcast pearl — hairlines */
 
-/* kind colors — semantic, see §4 */
---kind-writing: #B0241A;
---kind-work:    #1A2E5A;
---kind-link:    #6B6B6B;
---kind-listen:  #C58A1A;
---kind-note:    #2E6B3A;
+  --accent:       var(--sky-haze);
+
+  /* type — smaller than blit, lowercase grotesque */
+  --type-xl:      clamp(1.6rem, 3vw, 3.2rem);     /* large display */
+  --type-lg:      clamp(1.1rem, 1.6vw, 1.6rem);   /* project title */
+  --type-md:      clamp(0.9rem, 1.05vw, 1.05rem); /* body, nav */
+  --type-sm:      clamp(0.75rem, 0.85vw, 0.9rem); /* caption */
+  --type-xs:      clamp(0.62rem, 0.72vw, 0.74rem);/* label, meta */
+
+  /* space — vw-based micro-grid */
+  --space:        0.833vw;                         /* base micro-spacing */
+  --panel-pad-x:  5vw;
+  --panel-pad-y:  8vh;
+  --media-radius: 4px;
+}
 ```
 
-**Color usage rule:** kind colors appear ONLY on (a) the spine's kind glyph, (b) the active folio's underline in the bottom strip, (c) one hairline accent line per spread. Nowhere else. Never as fills, never as backgrounds, never as button colors.
+Dark variant flips `--paper` ↔ `--ink`. Sky tones stay (they read on both).
 
 ---
 
-## 9. Transitions
+## 6. Panel typology
 
-Replace `/v2`'s curtain wipe (blit-derived) with a **page-turn**:
+Four reusable panel types (per spec §1.3), with the vocabulary adapted to biomimicry:
 
-- Recto content `clip-path` peels horizontally — `inset(0 0% 0 0)` → `inset(0 100% 0 0)` — left-to-right, revealing the next spread underneath. Duration **380ms**, `cubic-bezier(0.76, 0, 0.24, 1)`.
-- The spine's folio number rolls vertically (slot-reel style, 220ms) — reuses the technique already proven in `VestaboardNote` from the corner direction.
-- Top and bottom strips do not transition; they update their content in place.
+- **Panel A — Statement (opening / interlude).** Large lowercase statement in the lower-left quadrant; small media or word fragment upper-right. Used for section transitions and brand statements.
+- **Panel B — Feature.** Single project, large media bleed (40–55vw), metadata top-left or bottom-left prefixed with `●`. Secondary media displaced at a different vertical offset.
+- **Panel C — Split.** Two projects side-by-side at different vertical offsets and sizes. Floating text labels between them.
+- **Panel D — Interlude / weather.** A breathing panel with a single biomimicry word or ornament. No project content. ~Every 3–4 panels.
 
-No curtain. No fade. The turn is the only transition.
-
----
-
-## 10. Composition rules per kind
-
-### writing
-- Folio title at top-right of recto. Display 800. Max 4 words.
-- Body prose at 66ch, single column, set on baseline.
-- Marginalia (notes, dates, footnote refs) in the left margin of the recto, mono 0.72rem, vertically aligned to the anchor line in the body.
-- One pull-quote allowed per piece — display 800, max 8 words, set at the "fold" of the spread (vertical center).
-
-### work
-- Folio title small upper-left (mono micro).
-- ONE hero image bleeds top-to-bottom on the right ~70% of the recto.
-- Left strip (30%): metadata stacked — date, role, stack, status.
-- Bottom of recto: 24ch caption.
-
-### link
-- Tightest measure (32ch).
-- Destination title in display 800 (your description, not the page's `<title>`).
-- URL in mono 0.62rem below.
-- Optional one-sentence "why" in body 400.
-- Source date + first-seen-at stamp in mono micro.
-
-### listen
-- 24ch measure.
-- Track + artist as display 800 (one line each, stacked).
-- Cover image as 1:1 thumbnail right side.
-- Source / link in mono.
-
-### note
-- 40ch measure.
-- Plain prose. No marginalia. No pull-quote.
-- Date + tag in mono micro at bottom-right.
+Composition rules (alternating left/right anchor, `vw`/`vh` placement variables, etc.) per spec §1.3 and §2.4.
 
 ---
 
-## 11. Build plan — PC pickup
+## 7. Tech (per spec §2.1)
 
-### State of the repo as of 2026-05-30
-
-- `master` — clean, up to date with `origin/master`. Last commit: `a25670d "no embellishments"`.
-- `/` — corner direction live. Untouched.
-- `/v2` — blit-style first attempt. **Action:** rename to `/blit` (keep as reference for what to avoid), then start fresh at `/v2`.
-- All `claude/*` worktrees deleted; only `master` exists locally.
-- Five `claude/*` branches still exist on `origin` (not touched). Ignore.
-
-### Order of operations
-
-1. **Cleanup**
-   - `git mv src/app/v2 src/app/blit` (or rename the directory and update the import in `src/app/blit/Portfolio.tsx`).
-   - Update `metadata.title` inside `src/app/blit/layout.tsx` to reflect "blit reference".
-   - Commit.
-
-2. **Foundation (build before any view)**
-
-   New files in `src/app/v2/`:
-   - `portfolio.css` — tokens, reset, baseline grid utilities (subgrid + `lh` discipline)
-   - `lib/kinds.ts` — kind taxonomy + types
-   - `lib/folio.ts` — folio numbering, kind glyph, formatting helpers
-   - `lib/content.ts` — load content/*.md, type frontmatter
-   - `components/Spine.tsx` — vertical rail
-   - `components/TopStrip.tsx` — dateline / kind / status
-   - `components/BottomStrip.tsx` — folio index
-   - `components/BaselineGrid.tsx` — toggleable hairline overlay (listens for `g`)
-   - `components/Hanko.tsx` — personal mark
-   - `layout.tsx`, `page.tsx`, `Portfolio.tsx` — same shell pattern as `/v2`/`/blit` but the chrome is the spine + strips, not a header
-
-3. **Content schema**
-
-   New `content/` at project root:
-   ```
-   content/
-     writing/W001-archive-of-me.md
-     work/P001-sift.md
-     link/L001-xxiivv.md
-     listen/A001-jonsi-tomatchi.md
-     note/N001-first-fragment.md
-   ```
-
-   Frontmatter:
-   ```yaml
-   ---
-   kind: writing
-   no: 1                # restart per kind
-   date: 2026-05-30
-   title: archive of me
-   status: draft        # draft | live | archived
-   measure: 66          # optional override
-   tags: [archive, system]
-   ---
-   ```
-
-4. **Build ONE representative spread**
-   - The writing spread `W001 — archive of me`, populated with real prose (use the conversation about why the archive needs to exist).
-   - Set on baseline grid, with marginalia in the left margin of the recto, with the spine populated, with the bottom strip showing W001 highlighted in red.
-
-5. **Stress-test the foundation**
-   - Press `g` — does prose sit on the baseline rules? If not, the implementation is broken.
-   - Add a second writing piece (`W002`) of very different length — does the measure hold?
-   - Add a long writing piece that doesn't fit — fold it into `W003 part 1` / `W004 part 2`.
-   - Add a `P001` work piece — does the composition rule for `work` engage automatically?
-   - Toggle the kind filter via top strip — does the bottom strip filter to one kind?
-
-6. **Only after the foundation passes the stress-test, build the other kind views.**
-
-### Open questions for next session
-
-1. **Hanko character.** Options: a custom `r` mark inside a circle, or a chosen kanji like 純 (jun, pure). Pick one. Default to `r` if undecided.
-2. **Per-kind vs global folio numbering.** Plan above assumes **per-kind** (`W001`, `P001`, `L001`…). Confirm or flip to global (`#001`, `#002`…). Per-kind preferred — semantic carries more weight.
-3. **Long writing pieces.** Plan above says fold into multiple folios (`W003 part 1 of 3`). Confirm. Alternative: allow scroll within a single piece. No-scroll preferred — it forces editorial cadence.
-4. **Where the bio / contact lives.** Bio → a `note` (e.g. `N001 — about the practice`)? A dedicated `info` strip? Default to a single high-priority `note` until proven otherwise.
+- Next.js 16 (App Router) — already in use
+- CSS Modules + CSS custom properties (scoped per component)
+- **GSAP + ScrollTrigger** — already installed (`gsap@3.15.0`)
+- Sanity.io CMS (Phase 3+; Phase 1 uses hardcoded placeholder data)
+- Lenis (`lenis@1.3.23`) already installed — pair with GSAP for smooth scroll if needed; otherwise rely on ScrollTrigger only
 
 ---
 
-## 12. Anti-patterns (rule out explicitly)
+## 8. Phasing
 
-- ❌ Huge wordmark + asymmetric image bleed + orange accent dot (blit grammar)
-- ❌ Curtain wipe transitions
-- ❌ Custom cursor with hover ring / "view" text
-- ❌ Single accent color used decoratively (must be semantic per §4)
-- ❌ More than 2 typefaces
-- ❌ Mid-sized headings (no h2/h3 scale — display / body / micro only)
-- ❌ Visible URL routing in the UX (every navigation is a folio turn, even if a query param updates behind the scenes)
-- ❌ Scroll
-- ❌ Loading spinners, skeleton states, micro-interactions for their own sake
-- ❌ Tailwind utility soup in the layout code — use real CSS with named classes; the layout IS the brand and should be readable in CSS
+Per spec §2.8, adapted to our state.
+
+| Phase | Deliverable | State |
+|---|---|---|
+| 1 | Scroll engine + 4 static panel types + Nav + ProgressBar | **in progress** |
+| 2 | All 4 panel components with prop-driven layout (vw/vh placement vars) | pending |
+| 3 | Sanity schema + Studio setup (`project`, `trackConfig` docs) | pending |
+| 4 | Data layer + dynamic panels (GROQ query → typed components) | pending |
+| 5 | Polish: hover micro-motion, entry stagger, cursor, progress bar | pending |
+| 6 | Performance, a11y, reduced-motion vertical fallback | pending |
 
 ---
 
-## 13. Done = the test
+## 9. Anti-patterns (rule out explicitly)
 
-The system is "done" when:
+- ❌ Vertical scroll on the main track (reduced-motion fallback only)
+- ❌ Orange-red accent (`#ff4200` or equivalent)
+- ❌ Blit-scale top-left wordmark
+- ❌ CSS grid or column-based layout inside panels (vw/vh placement only)
+- ❌ Tech-coded vocabulary in statement copy (`craft`, `build`, `ship`, `stack`)
+- ❌ More than one loud element per panel
+- ❌ Bouncing/spring scroll momentum (critically damped scrub only)
+- ❌ Skeleton states, loading spinners, fake terminal preloaders
 
-- A new piece can be added by dropping a `.md` file in `content/{kind}/` with the right frontmatter.
-- It auto-renders on the baseline grid using the kind's composition rule.
-- It appears in the bottom-strip index with the next folio number for its kind.
-- The spine + top strip update on navigation.
-- The whole thing reads as a *working artifact* — a publication that's catalogued, dated, indexed — not a brochure.
-- Pressing `g` reveals the grid and proves nothing was eyeballed.
+---
 
-If the above holds, the architecture IS editorial. The surface is just typography on top.
+## 10. Done = the test
+
+- Visiting `/v2` shows a horizontal track of 5+ panels that scrubs cleanly under vertical wheel/trackpad input
+- The wordmark in the nav reads as body-sized, not display-sized
+- The accent color anywhere on screen is from the sky palette
+- At least one panel uses biomimicry vocabulary in its statement copy
+- `prefers-reduced-motion` falls back to a stacked vertical layout
+- The four panel types each have one composed instance in the track

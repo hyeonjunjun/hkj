@@ -52,6 +52,7 @@ const build = readBuildInfo();
 const buildLog = readBuildLog();
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   experimental: {
     viewTransition: true,
   },
@@ -67,7 +68,10 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       // Legacy work-index aliases.
-      { source: "/works",      destination: "/work",    permanent: true },
+      // NOTE: "/works" is NOT aliased here — it's a real, live route in the
+      // current two-door-house build (src/app/works/page.tsx). Redirecting
+      // it to the old /work page would silently hijack the new site's
+      // Works room.
       { source: "/lab",        destination: "/work",    permanent: true },
       { source: "/lab/:slug",  destination: "/work/:slug", permanent: true },
 

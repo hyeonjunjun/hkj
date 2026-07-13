@@ -9,26 +9,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        surface: "var(--surface)",
-        "ink-full": "var(--ink-full)",
-        "ink-primary": "var(--ink-primary)",
-        "ink-secondary": "var(--ink-secondary)",
-        "ink-muted": "var(--ink-muted)",
-        "ink-faint": "var(--ink-faint)",
-        "ink-ghost": "var(--ink-ghost)",
-        "ink-whisper": "var(--ink-whisper)",
+        paper: "var(--paper)",
+        "paper-shade": "var(--paper-shade)",
+        "paper-hover": "var(--paper-hover)",
+        "paper-deep": "var(--paper-deep)",
+        "paper-edge": "var(--paper-edge)",
+        ink: "var(--ink)",
+        "ink-soft": "var(--ink-soft)",
+        mist: "var(--mist)",
+        "mist-deep": "var(--mist-deep)",
+        ember: "var(--ember)",
       },
       fontFamily: {
-        body: ["var(--font-body)"],
-        mono: ["var(--font-mono)"],
-        display: ["var(--font-display)"],
-      },
-      transitionTimingFunction: {
-        swift: "var(--ease-swift)",
-      },
-      screens: {
-        mobile: { max: "768px" },
-        tablet: { min: "769px", max: "1024px" },
+        sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
+        serif: ["var(--font-serif)", "Instrument Serif", "serif"],
+        courier: ["var(--font-courier)", "Courier Prime", "monospace"],
+        /**
+         * `font-mono` intentionally points at Courier Prime, not a separate
+         * mono face — the site has no JetBrains-Mono-style geometric mono.
+         * Every existing `font-mono` class (metadata, timestamps, tags,
+         * labels, across every room) renders in Courier Prime through this
+         * single indirection, with no component-level class rewrites.
+         */
+        mono: ["var(--font-courier)", "Courier Prime", "monospace"],
       },
     },
   },

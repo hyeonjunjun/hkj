@@ -1,11 +1,9 @@
 import { studio } from "@/data/studio";
-import { works } from "@/data/works";
 import Wordmark from "@/components/Wordmark";
 import Nav from "@/components/Nav";
 import Standfirst from "@/components/Standfirst";
 import ThesisStatement from "@/components/ThesisStatement";
 import CornerMark from "@/components/CornerMark";
-import HomeTimeline from "@/components/timeline/HomeTimeline";
 
 /**
  * The landing masthead — a quiet room that opens onto the four rooms via
@@ -27,10 +25,6 @@ export default function Landing() {
           <Standfirst />
         </div>
         <Nav items={studio.navItems} />
-      </div>
-
-      <div className="mt-8 px-[var(--edge-margin)] md:absolute md:inset-x-0 md:top-[43%] md:mt-0 md:px-0">
-        <HomeTimeline works={works} />
       </div>
 
       <ThesisStatement />

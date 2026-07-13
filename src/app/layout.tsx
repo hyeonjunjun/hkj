@@ -1,97 +1,73 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Courier_Prime, Inter_Tight, Instrument_Serif } from "next/font/google";
 import "./globals.css";
-import RouteAnnouncer from "@/components/RouteAnnouncer";
-import { Sitebar } from "@/components/chrome/Sitebar";
-import { Logo } from "@/components/chrome/Logo";
-import { BackButton } from "@/components/chrome/BackButton";
-import Folio from "@/components/Folio";
-import PaperGrain from "@/components/PaperGrain";
-import Preloader from "@/components/Preloader";
-import { SmoothScroll } from "@/components/SmoothScroll";
-import { TransitionProvider } from "@/components/transition/TransitionProvider";
-import { TransitionCover } from "@/components/transition/TransitionCover";
-import { CommitStamp } from "@/components/corner/CommitStamp";
+
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+/**
+ * Courier Prime is the site's only monospace-register face. The Tailwind
+ * `font-mono` utility is pointed at --font-courier (see tailwind.config.ts)
+ * rather than a separate --font-mono variable, so every existing
+ * `font-mono` class across every room — metadata, timestamps, tags,
+ * labels — renders in Courier without any component needing a class
+ * rewrite. Archive additionally uses this face directly (via
+ * `font-courier`) as its primary body register.
+ */
+const courierPrime = Courier_Prime({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-courier",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://hyeonjunjun.com"),
-  title: { default: "Ryan Jun", template: "%s / Ryan Jun" },
-  description: "Ryan Jun — multidisciplinary practice. Design, engineering, direction. New York.",
+  title: "HKJ — Ryan Jun",
+  description:
+    "Ryan Jun (HKJ) is an aspiring creative director, brand designer, and product designer based in New York.",
+  authors: [{ name: "Ryan Jun" }],
+  creator: "Ryan Jun",
   openGraph: {
-    title: "Ryan Jun",
-    description: "Multidisciplinary practice. Design, engineering, direction. New York.",
-    url: "https://hyeonjunjun.com",
-    siteName: "Ryan Jun",
-    locale: "en_US",
-    type: "website",
+    title: "HKJ — Ryan Jun",
+    description: "Aspiring creative director, brand designer, and product designer.",
+    type: "profile",
+    url: "https://hkjstudio.com",
+    siteName: "HKJ",
+    firstName: "Ryan",
+    lastName: "Jun",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ryan Jun",
-    description: "Design engineer, New York.",
-    creator: "@hyeonjunjun",
+    title: "HKJ — Ryan Jun",
+    description: "Aspiring creative director, brand designer, and product designer.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
-
-// Theme init — runs synchronously in <head> before any CSS evaluation
-// so the correct theme is applied on first paint. Default is light
-// (the user's stated preference); only sets data-theme="dark" if a
-// dark preference is stored. System preference is deliberately
-// ignored — taste overrides OS.
-const themeInitScript = `
-(function() {
-  try {
-    var t = localStorage.getItem('rj-theme');
-    if (t === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  } catch (e) {}
-})();
-`;
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        {/* Departure Mono is self-hosted via @font-face in globals.css —
-            Google Fonts does not host it. Geist Mono stays as fallback.
-
-            Switzer (Fontshare) — closest free analog to Spotify Sans.
-            Loaded via Fontshare's CDN. Used by the / experience
-            via the `t-warmth` role for moments that need humanist warmth
-            (rail track titles, identity prose). The mono stack remains
-            primary across the rest of the site. */}
-        <link rel="preconnect" href="https://api.fontshare.com" />
-        <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap"
-        />
-      </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable}`}>
-        {/* Skip link is the first focusable element — ahead of the
-            masthead — so keyboard users land on it before tabbing
-            through the nav. */}
-        <a href="#main" className="skip-to-content">
-          Skip to content
-        </a>
-        <TransitionProvider>
-          <SmoothScroll />
-          <RouteAnnouncer />
-          <Preloader />
-          <Sitebar />
-          <Logo />
-          <BackButton />
-          <TransitionCover />
-          <main id="main" data-page-root>{children}</main>
-          <Folio />
-          <CommitStamp />
-          <PaperGrain />
-        </TransitionProvider>
-      </body>
+    <html
+      lang="en"
+      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable}`}
+    >
+      <body className="bg-paper font-sans text-ink antialiased">{children}</body>
     </html>
   );
 }
