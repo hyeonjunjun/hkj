@@ -75,7 +75,10 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
       // programmatic scrollIntoView from Tab-focus) moved it. When it
       // matches, this scroll event was caused by our own tick() write,
       // and touching targetRef here would collapse a multi-frame ease
-      // (e.g. an arrow-key step) after a single frame.
+      // (e.g. an arrow-key step) after a single frame. This relies on
+      // the spec-guaranteed ordering that a frame's scroll events
+      // dispatch before that frame's requestAnimationFrame callbacks,
+      // so lastSelfScrollRef is always current by the time this runs.
       if (track.scrollLeft !== lastSelfScrollRef.current) {
         targetRef.current = track.scrollLeft;
       }
