@@ -15,7 +15,7 @@ describe("dampStep", () => {
   });
 
   it("snaps to target once within a small epsilon, to avoid infinite tiny steps", () => {
-    // 0.05px away, well under the 0.5px settle threshold.
+    // 0.05px away, well under the 0.1px settle threshold.
     expect(dampStep(99.95, 100, 0.1)).toBe(100);
   });
 });
