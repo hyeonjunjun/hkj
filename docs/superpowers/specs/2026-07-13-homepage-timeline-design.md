@@ -35,13 +35,13 @@ User supplied a screenshot resembling a site called "THE LOOKBACK" — a horizon
 
 ### 1. Layout & page structure
 
-The homepage stays single-viewport on desktop — **no page-level scroll**, unchanged from every other room's constraint. Vertical structure, top to bottom, all within one 1440×900-class viewport:
+The homepage stays single-viewport **on desktop** — no page-level scroll there, unchanged from every other room's constraint (the existing `md:h-screen md:overflow-hidden` on `page.tsx` already scopes this to `md` and up; that scoping doesn't change). Vertical structure, top to bottom, all within one 1440×900-class viewport on desktop:
 
 1. Masthead (unchanged): giant wordmark + standfirst top-left, Nav top-right
 2. **New:** the timeline — a fixed-height, full-bleed-width section in the middle band
 3. ThesisStatement (resized/repositioned, see §3) and CornerMark, bottom, as today
 
-Only the timeline scrolls, and only internally/horizontally — the page around it never moves. On mobile/tablet, the timeline is a natively-swipeable horizontal strip; no custom wheel-redirect logic is needed there since touch scrolling handles it natively.
+Only the timeline scrolls, and only internally/horizontally — the page around it never moves, on desktop. On mobile/tablet the page already scrolls vertically today (the existing mobile layout is normal document flow, no viewport lock) and continues to; the timeline there is just a natively-swipeable horizontal strip within that normal flow, no custom wheel-redirect logic needed since touch scrolling handles it natively. Adding the timeline band does not newly introduce mobile scroll — mobile already scrolls, and stays exempt from the desktop no-scroll rule the same way every other room already is.
 
 ### 2. Timeline visual structure & content
 
@@ -55,7 +55,7 @@ Only the timeline scrolls, and only internally/horizontally — the page around 
 
 ### 3. Thesis statement
 
-Stays on the homepage for this spec (the About migration is deferred work). Shrinks roughly 35% — `clamp(56px,6vw,92px)` → approximately `clamp(36px,4vw,60px)` — and stays bottom-right. Position offset is retuned only as needed for clean clearance now that the timeline occupies real vertical space above it; the existing right-edge alignment with Nav (both reference the same `--edge-margin` token) is preserved.
+Stays on the homepage for this spec (the About migration is deferred work). Shrinks roughly 35% at every breakpoint the component defines, not just the largest — mobile `36px` → ~`24px`, tablet `48px` → ~`32px`, desktop `clamp(56px,6vw,92px)` → approximately `clamp(36px,4vw,60px)` — and stays bottom-right. Position offset is retuned only as needed for clean clearance now that the timeline occupies real vertical space above it; the existing right-edge alignment with Nav (both reference the same `--edge-margin` token) is preserved.
 
 ### 4. Technical approach
 
@@ -66,11 +66,11 @@ A genuinely custom-built scroll surface — no animation library, consistent wit
 - **Hand-rolled inertia:** a `requestAnimationFrame` loop interpolates the actual scroll position toward a single shared `target` value each frame (`current += (target - current) * damping`) rather than snapping directly to raw wheel deltas — the same idea Lenis provides, hand-coded to stay within the no-libraries rule.
 - **Single source of truth for `target`:** all three ways the scroll position can change — wheel input, arrow-key stepping, and native Tab-focus `scrollIntoView` — write to this same `target` value, so the rAF loop never fights another input path:
   - Wheel input updates `target` by the (redirected) delta.
-  - Left/Right arrow keys update `target` to the adjacent stop's offset directly (not a direct `scrollIntoView` call), so keyboard stepping gets the same smoothing as wheel input.
+  - Left/Right arrow keys update `target` to the adjacent stop's offset directly (not a direct `scrollIntoView` call), so keyboard stepping gets the same smoothing as wheel input. The keydown listener is scoped to while focus is within the timeline section (not a global `window` handler), so it never captures arrow keys used elsewhere on the page. At the first/last stop, Left/Right is a no-op (no wraparound).
   - A `focus` listener on each tile resyncs `target` to that tile's own offset immediately when focus lands on it (native Tab navigation triggers the browser's own instant `scrollIntoView`) — without this resync, the rAF loop would try to pull the view back toward its previous, now-stale target on the very next frame, fighting the browser's focus-scroll.
-- **Active-stop detection:** each frame (throttled via rAF, not on every scroll event), find whichever tile's center is closest to the container's center; that's the active stop driving the title update and emphasis styling.
+- **Active-stop detection runs independently of the inertia toggle.** This is a state-detection routine, not an animation — it must keep running under `prefers-reduced-motion` even though the inertia *smoothing* is disabled there (see below), because the title update and `aria-live` announcement depend on it regardless of motion preference. Concretely: the two concerns share a rAF loop when motion is allowed, but detection also has a plain `scroll` event listener (throttled via rAF for the read, not the easing) as its baseline mechanism, so it has a working path with zero dependency on the inertia loop's on/off state.
 - **Accessibility:**
-  - `prefers-reduced-motion` disables the rAF inertia loop entirely (direct snap, no easing), consistent with the global reduced-motion handling already in place project-wide.
+  - `prefers-reduced-motion` disables the inertia *interpolation* only (direct snap to `target`, no eased approach) — it does not disable active-stop detection, the title update, or the `aria-live` announcement, which all keep running per the point above.
   - Each tile is a real focusable link (`<a>`/`<Link>`), so Tab navigation uses the browser's native `scrollIntoView` — a working keyboard path independent of the custom mouse/touch logic (see the `target`-resync rule above for how this coexists with the inertia loop).
   - Explicit Left/Right arrow-key handling added on top, advancing one stop at a time, for a better keyboard experience than relying on native scroll-into-view alone.
   - The title-above-the-row region gets `aria-live="polite"` so screen-reader users are told when the active stop (and its title/year) changes, rather than the update being silently visual-only.
@@ -86,7 +86,7 @@ Fix: `NavItem` already carries a `room: RoomKey` field distinct from `href`. Ext
 
 - No changes to Archive, References, or Info/About in this spec
 - No new routing for a "grid Works view" — that's deferred along with the routing question it raises
-- No page-level scroll on the homepage, under any circumstance
+- No page-level scroll on the homepage **on desktop** — mobile already scrolls today and is unaffected by this constraint, consistent with every other room
 - No third-party animation/scroll libraries
 
 ## Open questions for implementation planning
