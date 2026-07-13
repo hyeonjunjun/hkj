@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type MouseEvent } from "react";
-import { CONTACT_EMAIL } from "@/constants/contact";
+import { studio } from "@/data/studio";
 
 /**
  * CopyEmailLink — clicking the email copies it to the clipboard and
@@ -16,7 +16,7 @@ type Props = {
 
 export default function CopyEmailLink({
   className,
-  email = CONTACT_EMAIL,
+  email = studio.contactEmail,
 }: Props) {
   const [copied, setCopied] = useState(false);
 

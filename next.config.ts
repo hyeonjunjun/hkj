@@ -67,24 +67,22 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Legacy work-index aliases.
-      // NOTE: "/works" is NOT aliased here — it's a real, live route in the
-      // current two-door-house build (src/app/works/page.tsx). Redirecting
-      // it to the old /work page would silently hijack the new site's
-      // Works room.
-      { source: "/lab",        destination: "/work",    permanent: true },
-      { source: "/lab/:slug",  destination: "/work/:slug", permanent: true },
+      // Legacy work-index redirects
+      { source: "/lab",        destination: "/",    permanent: true },
+      { source: "/lab/:slug",  destination: "/works/:slug", permanent: true },
+      { source: "/work",       destination: "/",    permanent: true },
+      { source: "/work/:slug", destination: "/works/:slug", permanent: true },
 
-      // /studio was renamed to /about — alias old URL forward.
-      { source: "/studio",     destination: "/about",   permanent: true },
+      // Info redirects (all resolved to /info room)
+      { source: "/studio",     destination: "/info",   permanent: true },
+      { source: "/colophon",   destination: "/info",   permanent: true },
+      { source: "/shelf",      destination: "/info",   permanent: true },
+      { source: "/bookmarks",  destination: "/info",   permanent: true },
+      { source: "/about",      destination: "/info",   permanent: true },
+      { source: "/contact",    destination: "/info",   permanent: true },
 
-      // Old route names retained as 308 aliases. Targets must be live routes
-      // (do not redirect to deleted routes — Next runs redirects before
-      // handlers, so a stale target masks the real page).
-      { source: "/colophon",   destination: "/about",   permanent: true },
-      { source: "/shelf",      destination: "/about",   permanent: true },
-      { source: "/bookmarks",  destination: "/about",   permanent: true },
-      { source: "/garden",     destination: "/work",    permanent: true },
+      // Other redirects
+      { source: "/garden",     destination: "/",        permanent: true },
       { source: "/journal",    destination: "/notes",   permanent: true },
       { source: "/journal/:slug", destination: "/notes", permanent: true },
       { source: "/classic",    destination: "/",        permanent: true },

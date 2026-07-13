@@ -2,7 +2,7 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --paper: oklch(97% 0.008 85);
+  --paper: #F8F9FA;
   --paper-shade: oklch(90% 0.012 85);
   --paper-hover: oklch(94% 0.010 85);
   --paper-deep: oklch(86% 0.015 85);
@@ -94,6 +94,7 @@ a {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .timeline-track::-webkit-scrollbar {
   display: none;
 }
