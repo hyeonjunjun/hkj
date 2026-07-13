@@ -27,6 +27,11 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
   const targetRef = useRef(0);
   const reducedMotionRef = useRef(false);
   const rafRef = useRef<number | undefined>(undefined);
+  // Tracks the last value the rAF loop itself wrote to `track.scrollLeft`,
+  // so `detectActive` can tell apart the loop's own scroll events from
+  // externally-caused ones (native trackpad/wheel/touch scroll or
+  // programmatic scrollIntoView) that actually need a resync.
+  const lastSelfScrollRef = useRef<number | null>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -64,10 +69,16 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
       const maxScroll = track.scrollWidth - track.clientWidth;
       setProgress(maxScroll > 0 ? track.scrollLeft / maxScroll : 0);
 
-      // Resync the inertia target to the real scroll position on every
-      // scroll event (native trackpad swipe or our own rAF writes), so
-      // the tick() loop below never fights native horizontal scrolling.
-      targetRef.current = track.scrollLeft;
+      // Resync the inertia target only when the scroll position has
+      // diverged from what the rAF loop itself last wrote -- meaning
+      // something external (native trackpad/wheel/touch scroll, or a
+      // programmatic scrollIntoView from Tab-focus) moved it. When it
+      // matches, this scroll event was caused by our own tick() write,
+      // and touching targetRef here would collapse a multi-frame ease
+      // (e.g. an arrow-key step) after a single frame.
+      if (track.scrollLeft !== lastSelfScrollRef.current) {
+        targetRef.current = track.scrollLeft;
+      }
     };
 
     detectActive();
@@ -98,6 +109,9 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
       } else {
         track.scrollLeft = dampStep(track.scrollLeft, targetRef.current, DAMPING);
       }
+      // Read back the actual value (not the intended one) in case the
+      // browser clamped it, e.g. at the start/end of the scroll range.
+      lastSelfScrollRef.current = track.scrollLeft;
       rafRef.current = requestAnimationFrame(tick);
     };
 
