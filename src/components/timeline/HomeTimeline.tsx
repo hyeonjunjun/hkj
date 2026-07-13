@@ -63,6 +63,11 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
 
       const maxScroll = track.scrollWidth - track.clientWidth;
       setProgress(maxScroll > 0 ? track.scrollLeft / maxScroll : 0);
+
+      // Resync the inertia target to the real scroll position on every
+      // scroll event (native trackpad swipe or our own rAF writes), so
+      // the tick() loop below never fights native horizontal scrolling.
+      targetRef.current = track.scrollLeft;
     };
 
     detectActive();
@@ -117,7 +122,9 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
     );
     const nextEl = stopRefs.current[nextIndex];
     if (!nextEl) return;
-    targetRef.current = nextEl.offsetLeft;
+    const trackRect = track.getBoundingClientRect();
+    const elRect = nextEl.getBoundingClientRect();
+    targetRef.current = track.scrollLeft + (elRect.left - trackRect.left);
   };
 
   // Native Tab-focus triggers the browser's own instant scrollIntoView;
@@ -125,7 +132,11 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
   // the next frame.
   const handleFocus = (index: number) => {
     const el = stopRefs.current[index];
-    if (el) targetRef.current = el.offsetLeft;
+    const track = trackRef.current;
+    if (!el || !track) return;
+    const trackRect = track.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    targetRef.current = track.scrollLeft + (elRect.left - trackRect.left);
   };
 
   const activeWork = sorted[activeIndex];
