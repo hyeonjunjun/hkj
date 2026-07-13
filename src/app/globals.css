@@ -1,254 +1,58 @@
 @import "tailwindcss";
-
-/* ─── Self-hosted typeface ──────────────────────────────────────────────────
- * Departure Mono — the chrome typeface. Free MIT-licensed font by Helena
- * Zhang (departuremono.com). NOT on Google Fonts; the file is shipped in
- * /public/fonts and registered here so it loads from origin without an
- * external network round-trip (and without ORB-blocking issues).
- */
-@font-face {
-  font-family: "Departure Mono";
-  src: url("/fonts/DepartureMono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* ─── Design tokens ──────────────────────────────────────────────────────── */
-/*
- * Color tokens are theme-conditional. Default = light (warm paper, pure
- * black ink). Adding `data-theme="dark"` to the root flips to the
- * Krantz-line dark register (pure black ground, cool off-white type).
- *
- * Non-color tokens (type scale, spacing, easing) stay at :root.
- *
- * The .obys home component used to define its own local --o-* vars
- * to flip light-on-dark; those now reference the global tokens
- * directly so the theme toggle affects every surface uniformly.
- */
+@config "../../tailwind.config.ts";
 
 :root {
-  /* Soft editorial — warm paper, warm charcoal ink (NOT pure black).
-     The shift from #000 to #1a1816 reads as "ink on paper" instead
-     of "data terminal." All ink-N steps derive from the same warm
-     base so the register stays cohesive across opacity tiers. */
-  --paper:     #FBFAF6;
-  --paper-2:   #F4F3EE;
-  --paper-3:   #E8E7E1;
+  --paper: oklch(97% 0.008 85);
+  --paper-shade: oklch(90% 0.012 85);
+  --paper-hover: oklch(94% 0.010 85);
+  --paper-deep: oklch(86% 0.015 85);
+  --ink: #121212;
+  --ink-soft: oklch(35% 0.010 60);
+  --mist: oklch(58% 0.012 75);
+  --mist-deep: oklch(48% 0.014 75);
+  --ember: oklch(60% 0.14 50);
+  --paper-edge: oklch(90% 0.005 60);
 
-  --ink:       #1a1816;
-  --ink-2:     rgba(26, 24, 22, 0.92);
-  --ink-3:     rgba(26, 24, 22, 0.55);
-  --ink-4:     rgba(26, 24, 22, 0.35);
-
-  --ink-hair:  rgba(26, 24, 22, 0.14);
-  --ink-ghost: rgba(26, 24, 22, 0.05);
+  /* Shared inset from the viewport edge for every corner-anchored
+     element (masthead, thesis, corner mark, room headers/content) —
+     single source of truth so tuning it is a one-line change, not a
+     find/replace across ten files. */
+  --edge-margin: clamp(16px, 2vw, 32px);
 }
 
-:root[data-theme="dark"] {
-  /* Dark register — warm-charcoal ground, warm off-white ink. The
-     ground takes the same hue as the light register's ink so a theme
-     toggle reads as inversion within the same family, not a jump to
-     a different palette. */
-  --paper:     #1a1816;
-  --paper-2:   #221f1c;
-  --paper-3:   #2b2723;
+@media (prefers-reduced-motion: reduce) {
 
-  --ink:       #F8F8F6;
-  --ink-2:     rgba(248, 248, 246, 0.92);
-  --ink-3:     rgba(248, 248, 246, 0.55);
-  --ink-4:     rgba(248, 248, 246, 0.35);
-
-  --ink-hair:  rgba(248, 248, 246, 0.14);
-  --ink-ghost: rgba(248, 248, 246, 0.05);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-:root {
+@keyframes pulse-soft {
 
-  /* Solari amber — restored for the departure-board direction. Used
-     ONLY on truly-live elements: the live clock, the LIVE status on
-     in-progress work, the active "boarding" cue. Three places, no
-     more. Used everywhere it's costume; used in three it's signal. */
-  --accent: #E8B25A;
-  /* warm Solari amber */
-  --accent-2: rgba(232, 178, 90, 0.55);
-  /* dimmed for pulse trough */
+  0%,
+  100% {
+    opacity: 1;
+  }
 
-  /* ── Font stacks ─────────────────────────────────────────
-     Mono is the primary face. Sans is retained as a fallback
-     stack for any rare component that opts out of mono (almost
-     nothing should). The mono-only commitment is enforced by
-     the type scale below: every role is mono-styled. */
-  /* Geist Mono leads the primary mono stack — modern humanist mono
-     that's readable at body sizes (15–18px), unlike Departure Mono's
-     pixel/dot-matrix character which fights readability above ~11px.
-     Departure Mono is preserved on a separate "chrome" stack used by
-     the small caps roles (.t-meta / .t-footnote / .t-code etc.) where
-     its pixel character reads as "technical data" not "noise."
-     Note: the var(...) calls include an explicit fallback inside the
-     var() so the chain stays valid even when read at :root (where
-     next/font's --font-geist-mono is NOT yet defined — those classes
-     ride on <body>, not <html>). Without the fallback, the whole
-     font-family value becomes invalid at :root level and Tailwind
-     preflight's ui-sans-serif default takes over via inheritance. */
-  --font-stack-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
-  --font-stack-chrome: "Departure Mono", var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
-  --font-stack-sans: var(--font-geist-sans, "Geist"), -apple-system, "SF Pro Text", system-ui, sans-serif;
-  /* Switzer — closest free analog to Spotify Sans (humanist, single-
-     story 'a', generous x-height). Used by the `t-warmth` role in the
-     / experience for moments where we want Spotify-rail-style
-     humanist warmth without leaving the design system. Loaded from
-     Fontshare via a stylesheet link in layout.tsx. */
-  --font-stack-spotify: "Switzer", "Inter", "Helvetica Neue", -apple-system, "SF Pro Text", system-ui, sans-serif;
-
-  /* ── Type scale ──────────────────────────────────────────
-     Ten roles. Every text element on the site is one of these.
-     Don't add an eleventh without retiring one. Names are role-
-     based, not size-based: a future scale rebalance reuses the
-     names. */
-  --type-monument: clamp(28px, 5.5vw, 48px);
-  /* page-anchor wordmark — OBYS-tier */
-  --type-display: clamp(26px, 9vw, 96px);
-  /* hero name — used ONCE. Min sized to fit "multidisciplinary" (17
-     mono chars) at ~327px content width on 375px viewports without
-     wrapping mid-word: 26px × 0.6 × 17 ≈ 265px. */
-  --type-statement: clamp(15px, 1.4vw, 18px);
-  /* hero positioning sentence */
-  --type-row: clamp(13px, 1vw, 15px);
-  /* primary list rows, project titles */
-  --type-prose: clamp(13px, 0.95vw, 14.5px);
-  /* paragraphs, longer body */
-  --type-section: 11px;
-  /* SECTION LABELS — caps */
-  --type-meta: 10px;
-  /* meta lines — caps */
-  --type-caption: 10px;
-  /* captions — case-sensitive */
-  --type-footnote: 9px;
-  /* footer build info — caps */
-  --type-eyebrow: 9px;
-  /* hero eyebrow — caps, weight 500 */
-
-  /* Legacy aliases — kept so existing components don't break.
-     Migrate references to the role names above when touching
-     a component, then drop these. */
-  --type-nav: var(--type-meta);
-  --type-number: var(--type-meta);
-  --type-title: var(--type-row);
-  --type-body: var(--type-prose);
-  --type-folio: var(--type-footnote);
-
-  /* ── Tracking scale ──────────────────────────────────────
-     Eight steps. Tighter at display sizes, looser at small
-     caps. Mono-only sites lean on tracking + caps for hierarchy
-     because they can't lean on family contrast. */
-  --track-tightest: -0.04em;
-  /* display — name */
-  --track-tight: -0.025em;
-  /* large body */
-  --track-snug: -0.005em;
-  /* medium body */
-  --track-normal: 0;
-  /* default mono prose */
-  --track-loose: 0.06em;
-  /* mono caps, tight */
-  --track-loosest: 0.10em;
-  /* mono caps, comfortable */
-  --track-section: 0.12em;
-  /* section labels — relaxed from 0.16em for softer editorial register */
-  --track-eyebrow: 0.16em;
-  /* eyebrows — relaxed from 0.20em */
-
-  /* ── Line-height scale ───────────────────────────────────
-     Five steps. Display is tightest; prose is loosest. */
-  --lh-tight: 1.05;
-  /* display — name */
-  --lh-snug: 1.15;
-  /* row titles, statement */
-  --lh-body: 1.5;
-  /* default body */
-  --lh-prose: 1.65;
-  /* paragraphs */
-  --lh-loose: 1.8;
-  /* generous prose */
-
-  /* ── Spacing — 7-step scale ──────────────────────────────
-     Used across the site for rhythmic pacing. The section gap
-     (--space-6) is load-bearing — it's the silence that makes
-     mono prose readable. */
-  --space-hairline: 1px;
-  --space-tight: 4px;
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 64px;
-  --space-6: clamp(96px, 12vw, 128px);
-  /* between sections */
-  --space-7: clamp(140px, 18vw, 200px);
-  /* hero → first section */
-
-  /* Page geometry */
-  --margin-page: clamp(24px, 4vw, 56px);
-  --max-width: 1200px;
-
-  /* Legacy spacing aliases */
-  --space-void: var(--space-7);
-  --space-row: var(--space-6);
-  --space-section: var(--space-6);
-  --space-caption: 12px;
-  --gap-plates: clamp(12px, 1.5vw, 20px);
-
-  --ease: cubic-bezier(.4, 0, .2, 1);
+  50% {
+    opacity: 0.6;
+  }
 }
 
-/* ─── Reset ──────────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-}
-
-*::-webkit-scrollbar {
-  display: none;
-}
-
-* {
-  scrollbar-width: none;
-}
-
-/* ─── Base ───────────────────────────────────────────────────────────────── */
-body {
-  background: var(--paper);
-  color: var(--ink);
-  /* Mono is the primary face for the entire site. Every role-based
-     class below sets font-family explicitly anyway, so this is the
-     fallback for raw text outside the type system. */
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-prose);
-  line-height: var(--lh-body);
-  letter-spacing: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-kerning: normal;
-  font-feature-settings: "kern" 1, "calt" 1;
-}
-
-::selection {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-:focus-visible {
-  outline: 1px solid var(--ink);
-  outline-offset: 3px;
 }
 
 a {
@@ -256,438 +60,40 @@ a {
   text-decoration: none;
 }
 
-/* ─── Microtypography framework ──────────────────────────────────────────
-   Every text role on the site is one of these classes. Compose with
-   `.tabular` and `.caps` modifiers when needed. Color is encoded into
-   the role; override via `--ink-N` only with intent. */
-
-/* Modifiers — composable with any role */
-.tabular {
-  font-feature-settings: "tnum" on, "lnum" on;
-  font-variant-numeric: tabular-nums lining-nums;
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
 }
 
-.caps {
-  text-transform: uppercase;
+/* ── Nav underline — draws left to right on hover/focus ── */
+.nav-link {
+  position: relative;
 }
 
-.dim {
-  color: var(--ink-3);
-}
-
-.dimmer {
-  color: var(--ink-4);
-}
-
-.live {
-  color: var(--accent);
-}
-
-/* ── t-monument ── the page's anchor wordmark. OBYS-tier scale.
-   Used ONCE on the home (the RJ / RYAN JUN top-left mark).
-   Never repeated; the type role is the page anchor. */
-.t-monument {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-monument);
-  font-weight: 500;
-  letter-spacing: var(--track-tightest);
-  line-height: var(--lh-tight);
-  color: var(--ink);
-  text-transform: uppercase;
-}
-
-/* ── t-display ── hero name / sub-anchor. Used ONCE per page
-   below t-monument when both exist. */
-.t-display {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-display);
-  font-weight: 500;
-  letter-spacing: var(--track-tightest);
-  line-height: var(--lh-tight);
-  color: var(--ink);
-  /* Safety net: very narrow viewports can still cut a single long
-     word ("multidisciplinary") even at the clamped minimum. Allow
-     break-anywhere so the layout never horizontally overflows. */
-  overflow-wrap: anywhere;
-}
-
-/* ── t-statement ── hero positioning sentence. Body register at
-   ~16-18px, slightly tightened tracking for length-readability. */
-.t-statement {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-statement);
-  font-weight: 400;
-  letter-spacing: var(--track-snug);
-  line-height: var(--lh-snug);
-  color: var(--ink-2);
-  max-width: 56ch;
-}
-
-/* ── t-row ── primary list-row title. Project destinations,
-   note titles, anything that's the "headline" of a row. */
-.t-row {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-row);
-  font-weight: 500;
-  letter-spacing: var(--track-snug);
-  line-height: var(--lh-snug);
-  color: var(--ink);
-}
-
-/* ── t-prose ── paragraph body. The one place we need real
-   line-height for reading. Use sparingly — mono prose is dense. */
-.t-prose {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-prose);
-  font-weight: 400;
-  letter-spacing: var(--track-normal);
-  line-height: var(--lh-prose);
-  color: var(--ink-2);
-  max-width: 56ch;
-}
-
-/* ── t-section ── SECTION LABELS — WORK, STUDIO, CURRENTLY.
-   Always uppercase, weight 500, tracked. The architectural
-   beats of the page. */
-.t-section {
-  font-family: var(--font-stack-mono);
-  font-size: var(--type-section);
-  font-weight: 500;
-  letter-spacing: var(--track-section);
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-/* ── t-meta ── meta lines under section labels (count, last-
-   updated). Always caps, looser tracking, dimmer ink. Uses the
-   chrome (Departure Mono) stack so the small caps register reads
-   as "ledger data" not just smaller body text. */
-.t-meta {
-  font-family: var(--font-stack-chrome);
-  font-size: var(--type-meta);
-  font-weight: 400;
-  letter-spacing: var(--track-loosest);
-  line-height: 1.3;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-/* ── t-caption ── captions, sub-meta on rows, hover detail.
-   Same size as t-meta but case-sensitive (allows mixed case). */
-.t-caption {
-  font-family: var(--font-stack-chrome);
-  font-size: var(--type-caption);
-  font-weight: 400;
-  letter-spacing: var(--track-loose);
-  line-height: 1.3;
-  color: var(--ink-3);
-}
-
-/* ── t-footnote ── footer build info, last deploy. The faintest
-   readable type on the page. */
-.t-footnote {
-  font-family: var(--font-stack-chrome);
-  font-size: var(--type-footnote);
-  font-weight: 400;
-  letter-spacing: var(--track-eyebrow);
-  line-height: 1.4;
-  text-transform: uppercase;
-  color: var(--ink-4);
-}
-
-/* ── t-eyebrow ── above-the-name eyebrow on the hero. The widest
-   tracking on the page. Weight 500 separates it from t-footnote. */
-.t-eyebrow {
-  font-family: var(--font-stack-chrome);
-  font-size: var(--type-eyebrow);
-  font-weight: 500;
-  letter-spacing: var(--track-eyebrow);
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-/* ── t-code ── alphanumeric codes (RJ-26-01). Always tabular,
-   weight 500, ink-2 (one shade off pure to read as data). */
-.t-code {
-  font-family: var(--font-stack-chrome);
-  font-size: var(--type-meta);
-  font-weight: 500;
-  letter-spacing: var(--track-loose);
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  font-feature-settings: "tnum" on, "lnum" on;
-  font-variant-numeric: tabular-nums lining-nums;
-}
-
-/* ── t-warmth ── humanist sans for moments that need Spotify-rail
-   warmth: rail track titles, identity prose, prose ledes. Uses the
-   Switzer stack defined above; falls back to Inter / system humanist.
-   Rare role — most text on the site stays mono. */
-.t-warmth {
-  font-family: var(--font-stack-spotify);
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  line-height: 1.3;
-  color: var(--ink);
-}
-
-/* ── t-voice ── editorial italic for first-person Ryan-voice sentences.
-   The single use of Newsreader on the site: when a sentence is in
-   Ryan's voice (a stake, a credit, a brief), it gets t-voice. When
-   it's a label, description, or attributable to no one in particular,
-   it stays mono. Over time visitors learn the rule and Newsreader
-   italic becomes the "Ryan-voice serif" — a typographic signature. */
-.t-voice {
-  font-family: "Newsreader", Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 1.5;
-  color: var(--ink-2);
-}
-
-/* ── Hairline rule — section dividers. The board's framing element. */
-.t-rule {
-  height: 1px;
-  background: var(--ink-hair);
-  border: 0;
-  margin: 0;
-  display: block;
-}
-
-/* ── Separator glyph — the dot between meta items. Slightly
-   dimmer than the items it joins. */
-.t-sep {
-  color: var(--ink-4);
-  display: inline-block;
-  margin: 0 0.4em;
-  user-select: none;
-}
-
-/* ─── / page register ─────────────────────────────────────────
-   The corner experience uses its own paper/ink tokens, redeclared on
-   a `data-page="corner"` wrapper so children automatically inherit
-   the corner palette. Light-by-default (2026-05-14 switch); when the
-   global theme toggle is set to dark, the corner inverts to a high-
-   contrast pure-black register.
-
-   Light variant is high-contrast (near-black ink on white) rather
-   than the rest of the site's warm-paper register — keeps the
-   ethan&tom / Spotify / editorial coding regardless of theme. */
-[data-page="corner"] {
-  --paper:     #ffffff;
-  --paper-2:   #f6f6f4;
-  --paper-3:   #ececea;
-
-  --ink:       #0b0b0a;
-  --ink-2:     rgba(11, 11, 10, 0.92);
-  --ink-3:     rgba(11, 11, 10, 0.55);
-  --ink-4:     rgba(11, 11, 10, 0.32);
-
-  --ink-hair:  rgba(11, 11, 10, 0.12);
-  --ink-ghost: rgba(11, 11, 10, 0.04);
-
-  /* Edge gutter for surfaces that hug the viewport (CornerNav, the
-     SelectsGrid). Tighter than --margin-page so the grid + nav read
-     as ethan&tom-density. Content pages (about, notes, work detail)
-     still use --margin-page to preserve their narrower editorial
-     measure inside a centered column. */
-  --corner-gutter: clamp(14px, 1.8vw, 28px);
-
-  background: var(--paper);
-  color: var(--ink);
-}
-
-:root[data-theme="dark"] [data-page="corner"] {
-  --paper:     #000000;
-  --paper-2:   #0a0a0a;
-  --paper-3:   #141414;
-
-  --ink:       #ffffff;
-  --ink-2:     rgba(255, 255, 255, 0.92);
-  --ink-3:     rgba(255, 255, 255, 0.55);
-  --ink-4:     rgba(255, 255, 255, 0.32);
-
-  --ink-hair:  rgba(255, 255, 255, 0.12);
-  --ink-ghost: rgba(255, 255, 255, 0.04);
-}
-
-/* ─── Reduced motion ─────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ─── Pre-intro state ────────────────────────────────────────────────────
-   Pin pre-intro state on first session-load until GSAP fromTo() takes
-   over. Prevents a flash of full-width Sitebar / fully-saturated cards
-   between paint and animation start. */
-html.intro-pending .sitebar {
-  clip-path: inset(0 100% 0 0);
-}
-html.intro-pending .home__bottom {
-  opacity: 0;
-}
-
-/* ─── Skip link (a11y) ───────────────────────────────────────────────────── */
-.skip-to-content {
+.nav-link::after {
+  content: "";
   position: absolute;
-  left: -9999px;
-  top: auto;
-  width: 1px;
+  left: 0;
+  bottom: -4px;
+  width: 0;
   height: 1px;
-  overflow: hidden;
-}
-
-.skip-to-content:focus {
-  left: 24px;
-  top: 24px;
-  width: auto;
-  height: auto;
-  padding: 8px 12px;
   background: var(--ink);
-  color: var(--paper);
-  font-family: var(--font-stack-sans);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  z-index: 100;
+  transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ─── §10 active state — 0.97 scale on press ─────────────────────────────── */
-button:active:not([aria-disabled="true"]),
-a:active {
-  transform: scale(0.97);
-  transition: transform 100ms var(--ease);
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  width: 100%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-
-  button:active:not([aria-disabled="true"]),
-  a:active {
-    transform: none;
-  }
+/* ── Timeline track — native horizontal scroll, scrollbar hidden ──
+   (TimelineAxis's progress indicator is the visible scroll indicator,
+   reusing the same technique as .corner-slider__track in
+   src/components/corner/ProjectSlider.tsx.) */
+.timeline-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
-/* ─── View transitions ────────────────────────────────────────────────────
-   Browser-native crossfade on route change. Spec §10 timing:
-   out 200ms · paper hold 80ms · in 350ms. */
-::view-transition-old(root) {
-  animation-duration: 200ms;
-  animation-timing-function: ease-in;
+.timeline-track::-webkit-scrollbar {
+  display: none;
 }
-
-::view-transition-new(root) {
-  animation-duration: 350ms;
-  animation-delay: 80ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Shared mark across routes — the wordmark on / (.obys__wordmark)
-   and the masthead mark on sub-pages (.frame__mark) both carry
-   `view-transition-name: rj-mark`. The browser animates the morph
-   between their positions, sizes, and contents on navigation. The
-   duration is slightly longer than the root crossfade so the mark
-   reads as anchoring the whole transition. */
-::view-transition-group(rj-mark) {
-  animation-duration: 520ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-::view-transition-old(rj-mark),
-::view-transition-new(rj-mark) {
-  animation-duration: 520ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
-}
-
-/* ─── / peek transitions ──────────────────────────────────────────
-   The corner experience uses View Transitions for the in-page peek
-   (clicking a tile opens the Now Playing rail and reflows the grid).
-   The default route-transition timings above (200/350ms) are too slow
-   for in-page interactions, so we scope a faster set of rules to the
-   `vt-peek` marker class on <html>, which IndexShell adds for the
-   duration of a peek transition.
-
-   Per-tile morph comes from `view-transition-name: corner-tile-<slug>`
-   set in SelectsGrid — browser interpolates each tile's position+size
-   from old to new. The rail (`corner-rail`) gets its own slide-in /
-   slide-out animation; root cross-fade is shortened to ~180ms so
-   static chrome (nav, audio fixture) doesn't shimmer. */
-.vt-peek::view-transition-old(root) {
-  animation-duration: 160ms;
-  animation-delay: 0ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
-}
-.vt-peek::view-transition-new(root) {
-  animation-duration: 220ms;
-  animation-delay: 20ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Each tile is independently morphed. The browser default for named
-   groups is a position/size interpolation over 250ms ease — already
-   close to ideal. We just tune the timing function to match the
-   site's cubic-bezier so the motion language is coherent. */
-.vt-peek::view-transition-group(*) {
-  animation-duration: 280ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* The Now Playing rail — slides in from the right, slides out to the
-   right. Distinct from a fade so it reads as "panel opened" rather
-   than "page cross-faded". */
-.vt-peek::view-transition-old(corner-rail) {
-  animation: vt-rail-out 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-.vt-peek::view-transition-new(corner-rail) {
-  animation: vt-rail-in 280ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
-}
-@keyframes vt-rail-out {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(20px); }
-}
-@keyframes vt-rail-in {
-  from { opacity: 0; transform: translateX(20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vt-peek::view-transition-old(root),
-  .vt-peek::view-transition-new(root),
-  .vt-peek::view-transition-old(corner-rail),
-  .vt-peek::view-transition-new(corner-rail) {
-    animation-duration: 1ms;
-  }
-  .vt-peek::view-transition-group(*) {
-    animation-duration: 1ms;
-  }
-}
-
-/* ─── Index ↔ Projects fold transition ─────────────────────────────────
-   When the user navigates between / (grid) and /list
-   (ledger), each project title carries the shared name
-   `corner-project-<slug>` on both views. The browser interpolates the
-   title from its grid position to its ledger row position — the title
-   "flies." Everything else on the tile (number, sector, media) has no
-   matching destination so it falls under the root cross-fade and
-   appears to fold away while the title moves to its new home.
-
-   The default named-group animation (250ms ease) gives a clean morph;
-   no per-name override needed. The existing root rules earlier in
-   this file (200ms out + 350ms in with 80ms delay) handle the cross-
-   fade of unnamed tile body content. */
