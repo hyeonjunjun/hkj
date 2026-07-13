@@ -29,7 +29,7 @@ export default function Landing() {
         <Nav items={studio.navItems} />
       </div>
 
-      <div className="mt-8 px-[var(--edge-margin)] md:absolute md:inset-x-0 md:top-[42%] md:mt-0 md:px-0">
+      <div className="mt-8 px-[var(--edge-margin)] md:absolute md:inset-x-0 md:top-[43%] md:mt-0 md:px-0">
         <HomeTimeline works={works} />
       </div>
 

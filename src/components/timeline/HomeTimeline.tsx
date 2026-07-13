@@ -159,18 +159,18 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
   const activeWork = sorted[activeIndex];
 
   return (
-    <section aria-label="Works timeline" className="flex h-[30vh] flex-col justify-end gap-4">
+    <section aria-label="Works timeline" className="flex min-h-[32vh] flex-col justify-end gap-4">
       <p
         role="status"
         aria-live="polite"
-        className="px-[var(--edge-margin)] font-sans text-[28px] font-bold leading-[1.1] tracking-[-0.02em] text-ink md:text-[40px]"
+        className="shrink-0 truncate px-[var(--edge-margin)] font-sans text-[28px] font-bold leading-[1.1] tracking-[-0.02em] text-ink md:text-[40px]"
       >
         {activeWork.title} — {activeWork.year}
       </p>
       <div
         ref={trackRef}
         onKeyDown={handleKeyDown}
-        className="timeline-track flex items-start gap-6 overflow-x-auto px-[var(--edge-margin)]"
+        className="timeline-track flex shrink-0 items-start gap-6 overflow-x-auto px-[var(--edge-margin)]"
       >
         {sorted.map((work, index) => (
           <div

@@ -7,7 +7,7 @@ interface TimelineStopProps {
   isActive: boolean;
 }
 
-const MEDIA_HEIGHT = "h-[18vh]";
+const MEDIA_HEIGHT = "h-[10vh]";
 
 /**
  * One stop in the homepage timeline. Unlike WorkTile (which forces a
