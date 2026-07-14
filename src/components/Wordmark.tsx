@@ -2,6 +2,7 @@ import Link from "next/link";
 import { studio } from "@/data/studio";
 import { delay, duration } from "@/lib/motion";
 import MotionReveal from "./MotionReveal";
+import WindBlurReveal from "./WindBlurReveal";
 
 interface WordmarkProps {
   /**
@@ -15,28 +16,27 @@ interface WordmarkProps {
 
 /** The studio's mark. Mobile/tablet sizes are flat pixel values for the hero variant; desktop scales fluidly with viewport width. */
 export default function Wordmark({ variant = "hero" }: WordmarkProps) {
-  const sizeClasses =
-    variant === "hero"
-      ? "text-[72px] md:text-[100px] lg:text-[clamp(140px,14vw,220px)]"
-      : "text-[60px]";
-
-  const mark = (
-    <span
-      className={`font-sans font-bold leading-[0.85] tracking-[-0.04em] text-ink ${sizeClasses}`}
-    >
-      {studio.wordmark}
-    </span>
-  );
+  if (variant === "hero") {
+    return (
+      <WindBlurReveal delay={delay.wordmark} duration={duration.reveal}>
+        <h1>
+          <span className="font-display font-bold leading-[0.85] tracking-[-0.04em] text-ws-ink text-[72px] md:text-[100px] lg:text-[clamp(140px,14vw,220px)]">
+            {studio.wordmark}
+          </span>
+        </h1>
+      </WindBlurReveal>
+    );
+  }
 
   return (
     <MotionReveal delay={delay.wordmark} duration={duration.reveal}>
-      {variant === "hero" ? (
-        <h1>{mark}</h1>
-      ) : (
-        <div role="banner">
-          <Link href="/">{mark}</Link>
-        </div>
-      )}
+      <div role="banner">
+        <Link href="/">
+          <span className="font-sans font-bold leading-[0.85] tracking-[-0.04em] text-ink text-[60px]">
+            {studio.wordmark}
+          </span>
+        </Link>
+      </div>
     </MotionReveal>
   );
 }
