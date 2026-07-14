@@ -18,6 +18,14 @@
      single source of truth so tuning it is a one-line change, not a
      find/replace across ten files. */
   --edge-margin: clamp(16px, 2vw, 32px);
+
+  /* Windswept landing-page palette -- new, distinctly-named tokens
+     (not redefinitions of --paper/--ink/--ember above), so Archive,
+     References, Info, and every other room's shared styling is
+     completely unaffected. Used only by landing-variant components. */
+  --ws-paper: #F4F3EF;
+  --ws-ink: #1C1C1A;
+  --ws-accent: #1845C2;
 }
 
 @media (prefers-reduced-motion: reduce) {

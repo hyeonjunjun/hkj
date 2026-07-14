@@ -19,6 +19,9 @@ const config: Config = {
         mist: "var(--mist)",
         "mist-deep": "var(--mist-deep)",
         ember: "var(--ember)",
+        "ws-paper": "var(--ws-paper)",
+        "ws-ink": "var(--ws-ink)",
+        "ws-accent": "var(--ws-accent)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
