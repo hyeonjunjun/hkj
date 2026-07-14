@@ -1,28 +1,24 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { studio } from "@/data/studio";
-import { delay, duration } from "@/lib/motion";
-import MotionReveal from "./MotionReveal";
+import { delaySeconds, durationSeconds, windEasing } from "@/lib/motion";
 
 /**
- * Bottom-right statement, present on the landing masthead and every
- * room. Absolutely positioned within the poster canvas on tablet/desktop;
- * falls back to normal document flow on mobile.
- *
- * Positioning lives on this outer div, not on the element MotionReveal
- * wraps directly — MotionReveal sets an inline `transform` on its own
- * wrapper, and CSS makes *any* element with an active transform (even
- * translateY(0)) a containing block for absolutely-positioned
- * descendants, regardless of that element's own `position` value. Put
- * `absolute` on the same node MotionReveal wraps and it positions itself
- * relative to MotionReveal's zero-height wrapper instead of <main>.
+ * The philosophy statement, nested inside the landing page's composed
+ * identity block (alongside Wordmark and Standfirst) -- landing-page-only,
+ * not used by any room. Positioning is handled by the parent block
+ * (see page.tsx), not by this component itself.
  */
 export default function ThesisStatement() {
   return (
-    <div className="static px-[var(--edge-margin)] pb-8 md:absolute md:bottom-[var(--edge-margin)] md:right-[var(--edge-margin)] md:max-w-[55vw] md:px-0 md:pb-0">
-      <MotionReveal delay={delay.thesis} duration={duration.reveal}>
-        <p className="thesis text-[24px] font-bold leading-[1] tracking-[-0.03em] text-ink md:text-[32px] lg:text-[clamp(36px,4vw,60px)]">
-          {studio.thesis}
-        </p>
-      </MotionReveal>
-    </div>
+    <motion.p
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delaySeconds.thesis, duration: durationSeconds.reveal, ease: windEasing }}
+      className="thesis mt-6 font-display text-[24px] font-bold leading-[1] tracking-[-0.03em] text-ws-ink md:text-[32px] lg:text-[clamp(36px,4vw,60px)]"
+    >
+      {studio.thesis}
+    </motion.p>
   );
 }
