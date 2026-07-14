@@ -41,3 +41,28 @@ export const delay = {
   thesis: 800,
   cornerMark: 900,
 } as const;
+
+/**
+ * Framer Motion's `transition.duration`/`transition.delay` are expressed
+ * in seconds, unlike every other constant in this file (milliseconds).
+ * These two objects pre-convert the existing scale so the Windswept
+ * landing page's Framer Motion components share the same coordinated
+ * timing without repeating a `/1000` conversion at every call site.
+ */
+export const delaySeconds = {
+  wordmark: delay.wordmark / 1000,
+  standfirst: delay.standfirst / 1000,
+  nav: delay.nav / 1000,
+  thesis: delay.thesis / 1000,
+  cornerMark: delay.cornerMark / 1000,
+} as const;
+
+export const durationSeconds = {
+  fast: duration.fast / 1000,
+  base: duration.base / 1000,
+  slow: duration.slow / 1000,
+  reveal: duration.reveal / 1000,
+} as const;
+
+/** The Windswept brief's "organic deceleration" curve, as a Framer Motion cubic-bezier tuple. */
+export const windEasing: [number, number, number, number] = [0.16, 1, 0.3, 1];
