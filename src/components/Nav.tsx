@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import type { NavItem } from "@/data/studio";
-import { delay, duration } from "@/lib/motion";
+import { delay, duration, durationSeconds, windEasing } from "@/lib/motion";
 import { isNavItemActive } from "@/lib/navActive";
 import MotionReveal from "./MotionReveal";
 
 interface NavProps {
   items: NavItem[];
+  /**
+   * "room" (default) is today's plain-text nav, shared by RoomHeader on
+   * every room page -- unchanged. Deliberately the default: neither
+   * RoomHeader.tsx nor the landing page passes a variant today, so
+   * defaulting to "room" keeps RoomHeader's call site provably
+   * unaffected. "landing" is the Windswept bracketed-door treatment,
+   * opted into explicitly only by the landing page.
+   */
+  variant?: "room" | "landing";
 }
 
 /**
@@ -18,8 +28,39 @@ interface NavProps {
  * from the ink hover-underline every link gets (see .nav-link in
  * globals.css), which only appears on hover/focus.
  */
-export default function Nav({ items }: NavProps) {
+export default function Nav({ items, variant = "room" }: NavProps) {
   const pathname = usePathname();
+
+  if (variant === "landing") {
+    return (
+      <nav aria-label="Primary">
+        <ul className="flex flex-wrap items-center gap-6 lg:gap-10">
+          {items.map((item) => {
+            const isActive = isNavItemActive(pathname, item);
+            return (
+              <li key={item.href}>
+                <motion.div whileHover={{ x: 6 }} transition={{ duration: durationSeconds.base, ease: windEasing }}>
+                  <Link
+                    href={item.href}
+                    aria-current={isActive ? "page" : undefined}
+                    className="relative inline-block font-mono text-[11px] uppercase tracking-[0.2em] text-ws-ink"
+                  >
+                    [ {item.label} ]
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute -bottom-1 left-0 h-[2px] w-full bg-ws-accent"
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    );
+  }
 
   return (
     <MotionReveal delay={delay.nav} duration={duration.reveal}>
