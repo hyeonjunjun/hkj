@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Courier_Prime, Inter_Tight, Instrument_Serif } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -30,6 +31,21 @@ const courierPrime = Courier_Prime({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-courier",
+  display: "swap",
+});
+
+/**
+ * Windswept's structural-header display face — used only by the
+ * landing page's Wordmark (hero variant) and ThesisStatement, not the
+ * project's default sans (Inter Tight, --font-sans). Self-hosted since
+ * General Sans isn't on Google Fonts.
+ */
+const generalSans = localFont({
+  src: [
+    { path: "../fonts/general-sans/GeneralSans-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/general-sans/GeneralSans-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -65,7 +81,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable}`}
+      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable} ${generalSans.variable}`}
     >
       <body className="bg-paper font-sans text-ink antialiased">{children}</body>
     </html>

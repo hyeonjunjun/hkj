@@ -32,6 +32,7 @@ const config: Config = {
          * single indirection, with no component-level class rewrites.
          */
         mono: ["var(--font-courier)", "Courier Prime", "monospace"],
+        display: ["var(--font-display)", "General Sans", "sans-serif"],
       },
     },
   },
