@@ -26,7 +26,10 @@ describe("WindBlurReveal", () => {
         <p>Studio name</p>
       </WindBlurReveal>,
     );
-    const filterEl = container.querySelector("filter#wind-blur feGaussianBlur");
+    const filterDef = container.querySelector("filter");
+    expect(filterDef).toHaveAttribute("id");
+    expect(filterDef?.getAttribute("id")).toEqual(expect.stringMatching(/^wind-blur-/));
+    const filterEl = filterDef?.querySelector("feGaussianBlur");
     expect(filterEl).toHaveAttribute("stdDeviation", "8 0");
   });
 
@@ -36,8 +39,10 @@ describe("WindBlurReveal", () => {
         <p>Studio name</p>
       </WindBlurReveal>,
     );
+    const filterId = container.querySelector("filter")?.getAttribute("id");
+    expect(filterId).toBeTruthy();
     const wrapper = container.querySelector("div[style]");
-    expect(wrapper).toHaveStyle({ opacity: "0", filter: "url(#wind-blur)" });
+    expect(wrapper).toHaveStyle({ opacity: "0", filter: `url(#${filterId})` });
 
     act(() => {
       vi.advanceTimersByTime(500);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 interface WindBlurRevealProps {
   children: ReactNode;
@@ -27,6 +27,8 @@ interface WindBlurRevealProps {
  */
 export default function WindBlurReveal({ children, delay = 0, duration = 600 }: WindBlurRevealProps) {
   const [visible, setVisible] = useState(false);
+  const rawId = useId();
+  const filterId = `wind-blur-${rawId.replace(/:/g, "")}`;
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), delay);
@@ -37,7 +39,7 @@ export default function WindBlurReveal({ children, delay = 0, duration = 600 }: 
     <>
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <defs>
-          <filter id="wind-blur">
+          <filter id={filterId}>
             <feGaussianBlur stdDeviation="8 0" />
           </filter>
         </defs>
@@ -46,7 +48,7 @@ export default function WindBlurReveal({ children, delay = 0, duration = 600 }: 
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateX(0)" : "translateX(-16px)",
-          filter: visible ? "none" : "url(#wind-blur)",
+          filter: visible ? "none" : `url(#${filterId})`,
           transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`,
         }}
       >
