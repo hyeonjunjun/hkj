@@ -32,11 +32,14 @@ const mediaClassesBase =
  *
  * `fit` controls which dimension is authoritative: "width" (default, used by
  * every existing caller) sizes to 100% of the parent's width and derives
- * height from `aspect-ratio`. "height" (used by the homepage timeline) sizes
- * to 100% of the parent's height and derives width from `aspect-ratio`
- * instead — this only produces a varying width if the parent itself is a
- * single-item flex container with a fixed height (shrink-to-fit sizing),
- * not a plain block box.
+ * height from `aspect-ratio`. "height" sizes to 100% of the parent's height
+ * and derives width from `aspect-ratio` instead — this only produces a
+ * varying width if the parent itself is a single-item flex container with a
+ * fixed height (shrink-to-fit sizing), not a plain block box. "cover" fills
+ * 100% of both dimensions and crops via `object-fit: cover` (already part of
+ * `mediaClassesBase`) — for a parent that already establishes its own fixed
+ * aspect ratio (e.g. an `aspect-[3/4]` box) and just wants the image to fill
+ * and crop rather than derive a size from `aspect-ratio` itself.
  */
 export function MediaRenderer({
   media,
@@ -45,10 +48,10 @@ export function MediaRenderer({
 }: {
   media: MediaAsset;
   aspectOverride?: string;
-  fit?: "width" | "height";
+  fit?: "width" | "height" | "cover";
 }) {
-  const style = { aspectRatio: aspectOverride ?? ASPECT_RATIO_CSS[media.aspectRatio] };
-  const sizeClasses = fit === "height" ? "h-full w-auto" : "h-auto w-full";
+  const style = fit === "cover" ? undefined : { aspectRatio: aspectOverride ?? ASPECT_RATIO_CSS[media.aspectRatio] };
+  const sizeClasses = fit === "cover" ? "h-full w-full" : fit === "height" ? "h-full w-auto" : "h-auto w-full";
 
   if (media.type === "video") {
     return (

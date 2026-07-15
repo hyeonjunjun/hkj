@@ -7,49 +7,50 @@ interface TimelineStopProps {
   isActive: boolean;
 }
 
-const MEDIA_HEIGHT = "h-[10vh]";
-
 /**
  * One stop in the homepage timeline. Unlike WorkTile (which forces a
  * uniform width per desktopSize for the poster composition), each stop
  * here renders at its own natural aspect ratio and a shared height —
  * width varies per item, matching the reference's filmstrip rhythm.
  *
- * The media wrapper below is a single-item row flex container with a
- * fixed height (not a plain block box) — that's what makes `fit="height"`
- * on MediaRenderer actually derive a varying width from `aspect-ratio`;
- * see the Task 3 context note in the plan for why a plain block wrapper
- * doesn't work here. Captions sit below at their natural height, not
- * inside the fixed-height box, so caption line-wrapping never affects
- * the media row's height.
- *
- * `status` (e.g. "LIVE") appears here for the first time in the UI —
- * WorkTile doesn't render it.
+ * The index number and title/category label are always visible at rest
+ * (not hidden behind a hover reveal) -- a flat, unlabeled media block
+ * reads as broken/empty rather than intentionally minimal, per both
+ * reference sites (tlb.betteroff.studio, letsplayfight.com), which keep
+ * their sparse typographic labels fully legible at rest. Hover adds a
+ * subtle accent-color shift and a slight upward settle, rather than
+ * conjuring the label out of nothing.
  */
 export default function TimelineStop({ work, isActive }: TimelineStopProps) {
-  const { slug, romanNumeral, category, status, caption, media } = work;
+  const { slug, title, category, media, index } = work;
   const captionId = `${work.id}-timeline-caption`;
 
+  const isPortrait = media.aspectRatio === "portrait";
+  const aspectRatio = isPortrait ? "aspect-[3/4]" : media.aspectRatio === "landscape" ? "aspect-[4/3]" : "aspect-square";
+  const widthClass = isPortrait ? "w-[30vw] min-w-[300px] max-w-[450px]" : "w-[40vw] min-w-[400px] max-w-[600px]";
+
   return (
-    <article aria-labelledby={captionId} className="shrink-0">
+    <article aria-labelledby={captionId} className="shrink-0 relative group">
       <Link
         href={`/works/${slug}`}
-        className={`group block transition-[opacity,filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isActive ? "opacity-100 brightness-100" : "opacity-70 brightness-95"
+        className={`block relative transition-[opacity,filter,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isActive ? "opacity-100 scale-100" : "opacity-60 scale-[0.98] blur-[2px]"
         }`}
       >
-        <div className={`flex ${MEDIA_HEIGHT}`}>
-          <MediaRenderer media={media} fit="height" />
+        <div className="mb-3 font-display text-xs text-ws-ink/60 uppercase tracking-widest transition-colors duration-300 group-hover:text-ws-accent">
+          {index}
         </div>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
-          • {romanNumeral} / {category} · {status}
-        </p>
-        <p
+        <div className={`relative ${widthClass} ${aspectRatio} overflow-hidden border border-ws-ink/10 bg-ws-ink/5`}>
+          <MediaRenderer media={media} fit="cover" />
+          <div className="absolute inset-0 bg-black/5 transition-colors duration-300 group-hover:bg-transparent"></div>
+        </div>
+        <div
           id={captionId}
-          className="mt-1 max-w-[200px] font-serif text-[15px] italic leading-snug text-ink"
+          className="mt-3 flex items-baseline justify-between gap-3 font-display text-sm text-ws-ink transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-[2px]"
         >
-          {caption}
-        </p>
+          <span className="font-medium">{title}</span>
+          <span className="shrink-0 font-display text-xs uppercase tracking-widest text-ws-ink/50">{category}</span>
+        </div>
       </Link>
     </article>
   );

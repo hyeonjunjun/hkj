@@ -15,10 +15,13 @@ interface NavProps {
    * every room page -- unchanged. Deliberately the default: neither
    * RoomHeader.tsx nor the landing page passes a variant today, so
    * defaulting to "room" keeps RoomHeader's call site provably
-   * unaffected. "landing" is the Windswept bracketed-door treatment,
-   * opted into explicitly only by the landing page.
+   * unaffected. "landing" is the earlier Windswept bracketed-door
+   * treatment (no longer used by the homepage, but left in place). "bar"
+   * is the current homepage top-bar treatment: plain small text, no
+   * brackets, tight gaps, matching a thin utility-bar nav rather than a
+   * display element.
    */
-  variant?: "room" | "landing";
+  variant?: "room" | "landing" | "bar";
 }
 
 /**
@@ -30,6 +33,29 @@ interface NavProps {
  */
 export default function Nav({ items, variant = "room" }: NavProps) {
   const pathname = usePathname();
+
+  if (variant === "bar") {
+    return (
+      <nav aria-label="Primary">
+        <ul className="flex flex-wrap items-center gap-6">
+          {items.map((item) => {
+            const isActive = isNavItemActive(pathname, item);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className="font-display text-[13px] capitalize text-ws-ink transition-opacity hover:opacity-60"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    );
+  }
 
   if (variant === "landing") {
     return (
@@ -43,7 +69,7 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                   <Link
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
-                    className="relative inline-block font-mono text-[11px] uppercase tracking-[0.2em] text-ws-ink"
+                    className="relative inline-block font-display text-[11px] uppercase tracking-[0.15em] text-ws-ink"
                   >
                     [ {item.label} ]
                     {isActive && (

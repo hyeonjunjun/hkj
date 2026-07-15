@@ -159,19 +159,21 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
   const activeWork = sorted[activeIndex];
 
   return (
-    <section aria-label="Works timeline" className="flex min-h-[32vh] flex-col justify-end gap-4">
-      <p
-        role="status"
-        aria-live="polite"
-        className="shrink-0 truncate px-[var(--edge-margin)] font-sans text-[28px] font-bold leading-[1.1] tracking-[-0.02em] text-ink md:text-[40px]"
-      >
-        {activeWork.title} — {activeWork.year}
-      </p>
+    <section aria-label="Works timeline" className="h-full w-full flex flex-col justify-end pb-12">
       <div
         ref={trackRef}
         onKeyDown={handleKeyDown}
-        className="timeline-track flex shrink-0 items-start gap-6 overflow-x-auto px-[var(--edge-margin)]"
+        className="timeline-track flex-1 flex items-center gap-12 overflow-x-auto px-[var(--edge-margin)] no-scrollbar"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none"
+        }}
       >
+        <style>{`
+          .timeline-track::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         {sorted.map((work, index) => (
           <div
             key={work.id}
@@ -184,7 +186,7 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
           </div>
         ))}
       </div>
-      <div className="px-[var(--edge-margin)]">
+      <div className="px-[var(--edge-margin)] mt-auto w-full max-w-[1500px] mx-auto">
         <TimelineAxis years={sorted.map((w) => w.year)} progress={progress} />
       </div>
     </section>

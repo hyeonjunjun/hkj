@@ -46,7 +46,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
         >
           <aside
             aria-label="Studio information"
-            className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-ws-ink"
+            className="flex items-center gap-2 font-display text-[10px] uppercase tracking-[0.15em] text-ws-ink/70"
           >
             <span
               aria-hidden="true"

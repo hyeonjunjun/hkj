@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import HomeTimeline from "./HomeTimeline";
 import { works } from "@/data/works";
-import { sortWorksForTimeline } from "@/lib/timelineMotion";
 
 function mockMatchMedia(reducedMotion: boolean) {
   vi.stubGlobal(
@@ -21,16 +20,9 @@ describe("HomeTimeline", () => {
     mockMatchMedia(false);
   });
 
-  it("renders one stop per Work, plus the active-stop title region", () => {
+  it("renders one stop per Work", () => {
     render(<HomeTimeline works={works} />);
     expect(screen.getAllByRole("article")).toHaveLength(works.length);
-    expect(screen.getByRole("status")).toBeInTheDocument();
-  });
-
-  it("shows the newest Work's title by default (sorted newest-first)", () => {
-    render(<HomeTimeline works={works} />);
-    const newest = sortWorksForTimeline(works)[0];
-    expect(screen.getByRole("status")).toHaveTextContent(newest.title);
   });
 
   it("renders without throwing when prefers-reduced-motion is set", () => {

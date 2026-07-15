@@ -12,36 +12,68 @@ interface WorkPageProps {
   params: Promise<{ slug: string }>;
 }
 
-/**
- * Scaffold for an individual Work case study. Renders the placeholder
- * shape (title, description, media, "coming soon" marker) for now — the
- * full case-study template arrives in a later build.
- */
 export default async function WorkPage({ params }: WorkPageProps) {
   const { slug } = await params;
   const work = works.find((w) => w.slug === slug);
   if (!work) notFound();
 
   return (
-    <main className="relative min-h-screen w-full bg-paper font-sans">
+    <main className="relative min-h-screen w-full bg-white font-sans text-black">
       <RoomHeader roomLabel="WORKS" />
-      <div className="px-[var(--edge-margin)] pt-16 pb-32">
-        <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
-          • {work.romanNumeral} / {work.category}
-        </p>
-        <h2 className="mt-2 font-sans text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-ink md:text-[48px]">
-          {work.title}
-        </h2>
-        <p className="mt-4 max-w-[560px] font-sans text-[16px] leading-[1.6] text-ink-soft">
-          {work.description}
-        </p>
-        <div className="mt-8 max-w-[560px]">
-          <MediaRenderer media={work.media} />
+      
+      <article className="pt-24 md:pt-32 pb-32">
+        <div className="px-6 md:px-12 max-w-[1500px] mx-auto">
+          <header className="mb-12 md:mb-20">
+            <h1 className="font-sans text-[clamp(3rem,8vw,8rem)] font-bold leading-[0.9] tracking-[-0.02em] uppercase">
+              {work.title}
+            </h1>
+          </header>
+          
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 mb-16 md:mb-24">
+            <div className="md:col-span-4 lg:col-span-3">
+              <div className="sticky top-24 font-mono text-sm uppercase tracking-widest text-gray-500 flex flex-col gap-4">
+                <div>
+                  <span className="block text-gray-400 mb-1">CLIENT</span>
+                  <span className="text-black">{work.title}</span>
+                </div>
+                <div>
+                  <span className="block text-gray-400 mb-1">ROLE</span>
+                  <span className="text-black">{work.role}</span>
+                </div>
+                <div>
+                  <span className="block text-gray-400 mb-1">YEAR</span>
+                  <span className="text-black">{work.year}</span>
+                </div>
+                <div>
+                  <span className="block text-gray-400 mb-1">CATEGORY</span>
+                  <span className="text-black">{work.category}</span>
+                </div>
+                <div>
+                  <span className="block text-gray-400 mb-1">STATUS</span>
+                  <span className="text-black">{work.status}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="md:col-span-8 lg:col-span-7 lg:col-start-5">
+              <p className="font-sans text-[clamp(1.2rem,2vw,2rem)] leading-[1.4] text-black">
+                {work.description}
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
-          Case study coming soon.
-        </p>
-      </div>
+
+        <div className="w-full">
+           <MediaRenderer media={work.media} />
+        </div>
+        
+        {/* Additional media sections would go here in a real case study */}
+        <div className="mt-24 text-center">
+          <p className="font-mono text-sm uppercase tracking-widest text-gray-400">
+             End of project
+          </p>
+        </div>
+      </article>
       <CornerMark />
     </main>
   );

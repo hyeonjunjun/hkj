@@ -6,10 +6,13 @@ import WindBlurReveal from "./WindBlurReveal";
 
 interface WordmarkProps {
   /**
-   * "hero" (default) is the full-size landing masthead mark, rendered as
-   * an <h1>. "room" is the shrunk 60px mark used in RoomHeader, wrapped
-   * in a link back to "/" instead — a page should have exactly one <h1>,
-   * and that's the landing page's job, not every room's.
+   * "hero" (default) is the landing masthead mark, rendered as an <h1>
+   * in the clean grotesque register (General Sans, matching Nav's landing
+   * variant and every other landing text element), top-aligned rather
+   * than a large display mark. "room" is the shrunk 60px sans mark used
+   * in RoomHeader, wrapped in a link back to "/" instead — a page should
+   * have exactly one <h1>, and that's the landing page's job, not every
+   * room's.
    */
   variant?: "hero" | "room";
 }
@@ -20,7 +23,7 @@ export default function Wordmark({ variant = "hero" }: WordmarkProps) {
     return (
       <WindBlurReveal delay={delay.wordmark} duration={duration.reveal}>
         <h1>
-          <span className="font-display font-bold leading-[0.85] tracking-[-0.04em] text-ws-ink text-[72px] md:text-[100px] lg:text-[clamp(140px,14vw,220px)]">
+          <span className="font-display font-bold uppercase leading-[0.85] tracking-[-0.01em] text-ws-ink text-[12px] md:text-[24px] lg:text-[clamp(20px,14vw,60px)]">
             {studio.wordmark}
           </span>
         </h1>

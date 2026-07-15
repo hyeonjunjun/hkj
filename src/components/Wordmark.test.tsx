@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import Wordmark from "./Wordmark";
 
 describe("Wordmark hero variant (default)", () => {
-  it("renders as an h1 in the display font and ws-ink color", () => {
+  it("renders as an h1 in the display grotesque, dark ink for the light background", () => {
     render(<Wordmark />);
     const heading = screen.getByRole("heading", { level: 1 });
     const mark = heading.querySelector("span");

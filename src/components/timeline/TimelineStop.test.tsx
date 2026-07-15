@@ -25,14 +25,11 @@ const work: Work = {
 };
 
 describe("TimelineStop", () => {
-  it("renders the roman numeral, category, status, and caption", () => {
+  it("renders the index and the title/category label, always visible (not hover-gated)", () => {
     render(<TimelineStop work={work} isActive={false} />);
-    expect(screen.getByText(/I \/ WORK/)).toBeInTheDocument();
-    // "LIVE" is a substring of the same <p> as the numeral/category
-    // ("• I / WORK · LIVE"), so an exact string match would find no element —
-    // use a regex for a substring match against that element's text content.
-    expect(screen.getByText(/LIVE/)).toBeInTheDocument();
-    expect(screen.getByText("placeholder caption")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText(work.title)).toBeInTheDocument();
+    expect(screen.getByText(work.category)).toBeInTheDocument();
   });
 
   it("links to the work's case-study page", () => {
