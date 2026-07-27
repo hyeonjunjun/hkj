@@ -31,10 +31,10 @@ export interface StudioData {
 }
 
 export const studio: StudioData = {
-  wordmark: "HKJ",
-  fullName: "HKJ Studio",
+  wordmark: "windswept",
+  fullName: "Windswept Studio",
   ownerName: "Ryan Jun",
-  role: "Creative Director, Brand Designer, Product Designer",
+  role: "independent creative studio",
   location: "New York",
   established: "2026",
   availability: "Available",

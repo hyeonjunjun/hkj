@@ -45,7 +45,7 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                 <Link
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className="font-display text-[13px] capitalize text-ws-ink transition-opacity hover:opacity-60"
+                  className="font-instrument-sans text-[13px] font-bold capitalize text-ws-ink transition-opacity hover:opacity-60"
                 >
                   {item.label}
                 </Link>
@@ -69,7 +69,7 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                   <Link
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
-                    className="relative inline-block font-display text-[11px] uppercase tracking-[0.15em] text-ws-ink"
+                    className="relative inline-block font-instrument-sans text-[11px] font-bold uppercase tracking-[0.15em] text-ws-ink"
                   >
                     [ {item.label} ]
                     {isActive && (
@@ -99,9 +99,7 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                 <Link
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`nav-link relative inline-block font-sans text-[15px] text-ink lg:text-[18px] ${
-                    isActive ? "font-medium" : "font-normal"
-                  }`}
+                  className="nav-link relative inline-block font-instrument-sans text-[15px] font-bold text-ink lg:text-[18px]"
                 >
                   {item.label}
                   {isActive && (

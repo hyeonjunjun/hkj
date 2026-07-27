@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { studio } from "@/data/studio";
 import { works } from "@/data/works";
 import Nav from "@/components/Nav";
@@ -16,20 +17,15 @@ export default function Landing() {
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper font-display">
       <div aria-hidden="true" className="h-[3px] w-full shrink-0 bg-ws-ink" />
       <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2 px-[var(--edge-margin)] pb-8 pt-4">
-        <span className="font-display text-[15px] font-bold text-ws-ink">{studio.wordmark}</span>
+        <span className="font-instrument-sans text-[15px] font-bold text-ws-ink">{studio.wordmark}</span>
         <DateTimeReadout />
         <Nav items={studio.navItems} variant="bar" />
-        <div className="flex items-center gap-4">
-          <a
-            href={`mailto:${studio.contactEmail}`}
-            className="font-display text-[13px] text-ws-ink transition-opacity hover:opacity-60"
-          >
-            Email
-          </a>
-          <a href="#" className="font-display text-[13px] text-ws-ink transition-opacity hover:opacity-60">
-            Instagram
-          </a>
-        </div>
+        <Link
+          href="/info#contact"
+          className="font-instrument-sans text-[13px] font-bold capitalize text-ws-ink transition-opacity hover:opacity-60"
+        >
+          contact
+        </Link>
       </div>
 
       <div className="min-h-0 flex-1">

@@ -33,9 +33,8 @@ export default function TimelineStop({ work, isActive }: TimelineStopProps) {
     <article aria-labelledby={captionId} className="shrink-0 relative group">
       <Link
         href={`/works/${slug}`}
-        className={`block relative transition-[opacity,filter,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isActive ? "opacity-100 scale-100" : "opacity-60 scale-[0.98] blur-[2px]"
-        }`}
+        className={`block relative transition-[opacity,filter,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive ? "opacity-100 scale-100" : "opacity-60 scale-[0.98] blur-[2px]"
+          }`}
       >
         <div className="mb-3 font-display text-xs text-ws-ink/60 uppercase tracking-widest transition-colors duration-300 group-hover:text-ws-accent">
           {index}

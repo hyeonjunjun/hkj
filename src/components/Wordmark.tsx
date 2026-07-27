@@ -23,7 +23,7 @@ export default function Wordmark({ variant = "hero" }: WordmarkProps) {
     return (
       <WindBlurReveal delay={delay.wordmark} duration={duration.reveal}>
         <h1>
-          <span className="font-display font-bold uppercase leading-[0.85] tracking-[-0.01em] text-ws-ink text-[12px] md:text-[24px] lg:text-[clamp(20px,14vw,60px)]">
+          <span className="font-instrument-sans font-bold uppercase leading-[0.85] tracking-[-0.01em] text-ws-ink text-[12px] md:text-[24px] lg:text-[clamp(20px,14vw,60px)]">
             {studio.wordmark}
           </span>
         </h1>
@@ -35,7 +35,7 @@ export default function Wordmark({ variant = "hero" }: WordmarkProps) {
     <MotionReveal delay={delay.wordmark} duration={duration.reveal}>
       <div role="banner">
         <Link href="/">
-          <span className="font-sans font-bold leading-[0.85] tracking-[-0.04em] text-ink text-[60px]">
+          <span className="font-instrument-sans font-bold leading-[0.85] tracking-[-0.04em] text-ink text-[60px]">
             {studio.wordmark}
           </span>
         </Link>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Courier_Prime, Inter_Tight, Instrument_Serif } from "next/font/google";
+import { Courier_Prime, Inter_Tight, Instrument_Serif, Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -34,6 +34,13 @@ const courierPrime = Courier_Prime({
   display: "swap",
 });
 
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-instrument-sans",
+  display: "swap",
+});
+
 /**
  * Windswept's structural-header display face — used only by the
  * landing page's Wordmark (hero variant) and ThesisStatement, not the
@@ -50,23 +57,23 @@ const generalSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "HKJ — Ryan Jun",
+  title: "Windswept — Ryan Jun",
   description:
-    "Ryan Jun (HKJ) is an aspiring creative director, brand designer, and product designer based in New York.",
+    "Ryan Jun (Windswept) is an aspiring creative director, brand designer, and product designer based in New York.",
   authors: [{ name: "Ryan Jun" }],
   creator: "Ryan Jun",
   openGraph: {
-    title: "HKJ — Ryan Jun",
+    title: "Windswept — Ryan Jun",
     description: "Aspiring creative director, brand designer, and product designer.",
     type: "profile",
     url: "https://hkjstudio.com",
-    siteName: "HKJ",
+    siteName: "Windswept",
     firstName: "Ryan",
     lastName: "Jun",
   },
   twitter: {
     card: "summary_large_image",
-    title: "HKJ — Ryan Jun",
+    title: "Windswept — Ryan Jun",
     description: "Aspiring creative director, brand designer, and product designer.",
   },
   robots: {
@@ -81,7 +88,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable} ${generalSans.variable}`}
+      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable} ${generalSans.variable} ${instrumentSans.variable}`}
     >
       <body className="bg-paper font-sans text-ink antialiased">{children}</body>
     </html>

@@ -14,7 +14,7 @@ export default function InfoRoom() {
           <p className="text-[16px] leading-[1.6] text-ink">{studio.standfirst}</p>
         </section>
 
-        <section className="mb-16">
+        <section id="contact" className="mb-16 scroll-mt-20">
           <h2 className="mb-4 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
             CONTACT
           </h2>

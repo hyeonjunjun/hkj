@@ -7,9 +7,9 @@ describe("Wordmark hero variant (default)", () => {
     render(<Wordmark />);
     const heading = screen.getByRole("heading", { level: 1 });
     const mark = heading.querySelector("span");
-    expect(mark).toHaveClass("font-display");
+    expect(mark).toHaveClass("font-instrument-sans");
     expect(mark).toHaveClass("text-ws-ink");
-    expect(mark).not.toHaveClass("font-sans");
+    expect(mark).not.toHaveClass("font-display");
   });
 
   it("uses WindBlurReveal for its entrance, not MotionReveal", () => {
@@ -24,8 +24,8 @@ describe("Wordmark room variant", () => {
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
     const link = screen.getByRole("link");
     const mark = link.querySelector("span");
-    expect(mark).toHaveClass("font-sans");
+    expect(mark).toHaveClass("font-instrument-sans");
     expect(mark).toHaveClass("text-ink");
-    expect(mark).not.toHaveClass("font-display");
+    expect(mark).not.toHaveClass("font-sans");
   });
 });

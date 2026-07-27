@@ -55,23 +55,13 @@ export default function WorkShowcase({ works }: WorkShowcaseProps) {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between gap-4 px-[var(--edge-margin)] pb-5 pt-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-4 px-[var(--edge-margin)] pb-5 pt-10">
         <span className="hidden font-display text-[12px] text-ws-ink/50 md:inline">{studio.role}</span>
-        <p className="min-w-0 flex-1 truncate text-center font-display text-[13px] text-ws-ink">
-          <span className="font-semibold">{active.title}</span>{" "}
+        <p className="min-w-0 truncate text-center font-display text-[13px] text-ws-ink flex items-center justify-center gap-4 col-span-2 md:col-span-1">
+          <span className="font-semibold">{active.title}</span>
           <span className="text-ws-ink/50">{active.caption}</span>
         </p>
-        <div className="flex shrink-0 items-center gap-4">
-          <a
-            href={`mailto:${studio.contactEmail}`}
-            className="font-display text-[13px] text-ws-ink transition-opacity hover:opacity-60"
-          >
-            Email
-          </a>
-          <a href="#" className="font-display text-[13px] text-ws-ink transition-opacity hover:opacity-60">
-            Subscribe to Newsletter
-          </a>
-        </div>
+        <div className="hidden md:block" />
       </div>
     </div>
   );

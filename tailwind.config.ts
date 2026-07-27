@@ -36,6 +36,7 @@ const config: Config = {
          */
         mono: ["var(--font-courier)", "Courier Prime", "monospace"],
         display: ["var(--font-display)", "General Sans", "sans-serif"],
+        "instrument-sans": ["var(--font-instrument-sans)", "Instrument Sans", "sans-serif"],
       },
     },
   },
