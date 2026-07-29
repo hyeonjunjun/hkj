@@ -19,13 +19,13 @@ describe("Wordmark hero variant (default)", () => {
 });
 
 describe("Wordmark room variant", () => {
-  it("keeps the existing font-sans/text-ink rendering, wrapped in a link, no h1", () => {
+  it("keeps the existing font-instrument-sans/text-ws-ink rendering, wrapped in a link, no h1", () => {
     render(<Wordmark variant="room" />);
     expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
     const link = screen.getByRole("link");
     const mark = link.querySelector("span");
     expect(mark).toHaveClass("font-instrument-sans");
-    expect(mark).toHaveClass("text-ink");
+    expect(mark).toHaveClass("text-ws-ink");
     expect(mark).not.toHaveClass("font-sans");
   });
 });

@@ -1,68 +1,29 @@
-"use client";
-
-import Link from "next/link";
-import { studio } from "@/data/studio";
 import type { Work } from "@/data/works";
-import { MediaRenderer } from "@/components/works/WorkTile";
 import { sortWorksForTimeline } from "@/lib/timelineMotion";
+import FeaturedGrid from "./FeaturedGrid";
 
 interface WorkShowcaseProps {
   works: Work[];
 }
 
-/** Zero-pads a positive integer to 3 digits, e.g. 1 -> "001". */
-function pad3(n: number): string {
-  return String(n).padStart(3, "0");
-}
-
 /**
- * Single-work homepage centerpiece: one large contained image and a
- * left-margin page counter (total / current) -- replaces the
- * horizontal-filmstrip HomeTimeline on the homepage. HomeTimeline/
- * TimelineStop/TimelineAxis are left in place, unused, in case a future
- * direction wants them back (same precedent as WorkGrid after the
- * /works retirement).
+ * Homepage centerpiece: solely FeaturedGrid, full-bleed under the top
+ * bar -- no separate editorial text column. Every work detail (index,
+ * title, category, year) lives in each tile's own hover caption instead
+ * of a persistent sidebar, per the "media/grid heavy, details on hover"
+ * direction. No client-side state needed here anymore since nothing
+ * outside the grid reacts to hover -- each tile's caption is pure CSS
+ * (group-hover), so this can be a server component again.
+ * HomeTimeline/TimelineStop/TimelineAxis/ArcCarousel are left in place,
+ * unused, in case a future direction wants them back (same precedent as
+ * WorkGrid after the /works retirement).
  */
 export default function WorkShowcase({ works }: WorkShowcaseProps) {
   const sorted = sortWorksForTimeline(works);
-  const active = sorted[0];
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-[6vw] py-[3vh]">
-        <span
-          aria-hidden="true"
-          className="absolute left-[2vw] top-1/2 hidden -translate-y-1/2 items-baseline gap-4 font-display text-[13px] tabular-nums md:flex"
-        >
-          <span className="text-ws-ink/40">{pad3(sorted.length)}</span>
-          <span className="font-medium text-ws-ink">{pad3(1)}</span>
-        </span>
-
-        {/* Height-driven, not a fixed-aspect box: the image fills the full
-            available height between the two bars (matching the reference,
-            which reads edge-to-edge vertically with no letterboxing), and
-            width is derived from the active work's own aspect ratio via
-            MediaRenderer's fit="height" mode -- the flex wrapper is what
-            makes that derivation actually work (see TimelineStop.tsx for
-            the same pattern/rationale). */}
-        <Link
-          href={`/works/${active.slug}`}
-          className="flex h-full transition-opacity duration-300 hover:opacity-90"
-        >
-          <div className="relative h-full overflow-hidden bg-ws-ink/5">
-            <MediaRenderer media={active.media} fit="height" />
-          </div>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 items-center gap-4 px-[var(--edge-margin)] pb-5 pt-10">
-        <span className="hidden font-display text-[12px] text-ws-ink/50 md:inline">{studio.role}</span>
-        <p className="min-w-0 truncate text-center font-display text-[13px] text-ws-ink flex items-center justify-center gap-4 col-span-2 md:col-span-1">
-          <span className="font-semibold">{active.title}</span>
-          <span className="text-ws-ink/50">{active.caption}</span>
-        </p>
-        <div className="hidden md:block" />
-      </div>
+    <div className="h-full w-full">
+      <FeaturedGrid works={sorted} />
     </div>
   );
 }

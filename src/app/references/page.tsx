@@ -5,7 +5,7 @@ import CornerMark from "@/components/CornerMark";
 
 export default function ReferencesRoom() {
   return (
-    <main className="relative min-h-screen w-full bg-paper font-sans">
+    <main className="relative min-h-screen w-full bg-ws-paper font-instrument-sans">
       <RoomHeader roomLabel="REFERENCES" roomCount={references.length} />
       <div className="px-[var(--edge-margin)] pt-16 pb-32">
         <ReferenceGrid references={references} />

@@ -99,13 +99,13 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                 <Link
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className="nav-link relative inline-block font-instrument-sans text-[15px] font-bold text-ink lg:text-[18px]"
+                  className="nav-link relative inline-block font-instrument-sans text-[15px] font-bold text-ws-ink lg:text-[18px]"
                 >
                   {item.label}
                   {isActive && (
                     <span
                       aria-hidden="true"
-                      className="absolute -bottom-1 left-0 h-[2px] w-full bg-ember"
+                      className="absolute -bottom-1 left-0 h-[2px] w-full bg-ws-accent"
                     />
                   )}
                 </Link>

@@ -26,9 +26,9 @@ export default async function ArchiveEntryPage({ params }: ArchiveEntryPageProps
   if (!entry) notFound();
 
   return (
-    <main className="relative min-h-screen w-full bg-paper">
+    <main className="relative min-h-screen w-full bg-ws-paper">
       <RoomHeader roomLabel="ARCHIVE" />
-      <div className="font-courier px-[var(--edge-margin)] pt-24 pb-32">
+      <div className="font-instrument-sans px-[var(--edge-margin)] pt-24 pb-32">
         <ArchiveEntry entry={entry} />
       </div>
       <CornerMark />

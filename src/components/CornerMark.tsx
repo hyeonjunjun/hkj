@@ -70,12 +70,12 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
       <MotionReveal delay={delay.cornerMark} duration={duration.reveal}>
         <aside
           aria-label="Studio information"
-          className="flex flex-col gap-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mist"
+          className="flex flex-col gap-1 font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/50"
         >
           <p>
             <span
               aria-hidden="true"
-              className="text-ember animate-[pulse-soft_2400ms_ease-in-out_infinite]"
+              className="text-ws-accent animate-[pulse-soft_2400ms_ease-in-out_infinite]"
             >
               •
             </span>{" "}

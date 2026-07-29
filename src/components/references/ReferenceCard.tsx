@@ -14,7 +14,7 @@ function ReferenceMedia({ reference }: { reference: Reference }) {
 
   return (
     <div
-      className="relative mb-3 w-full overflow-hidden bg-paper-shade"
+      className="relative mb-3 w-full overflow-hidden bg-ws-ink/5"
       style={{ aspectRatio: ASPECT_RATIO_CSS[media.aspectRatio] }}
     >
       {media.type === "image" && media.src ? (
@@ -41,7 +41,7 @@ function ReferenceMedia({ reference }: { reference: Reference }) {
           {type === "video" && (
             <span
               aria-hidden="true"
-              className="absolute inset-0 flex items-center justify-center text-[24px] text-paper"
+              className="absolute inset-0 flex items-center justify-center text-[24px] text-ws-paper"
             >
               ▶
             </span>
@@ -49,7 +49,7 @@ function ReferenceMedia({ reference }: { reference: Reference }) {
         </>
       ) : (
         <div className="flex h-full w-full items-center justify-center" role="img" aria-label={media.alt}>
-          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+          <span className="font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
             Placeholder
           </span>
         </div>
@@ -70,9 +70,9 @@ export default function ReferenceCard({ reference }: ReferenceCardProps) {
       case "quote":
         return (
           <>
-            <p className="font-serif text-[17px] italic text-ink">{body}</p>
+            <p className="font-instrument-sans text-[17px] text-ws-ink">{body}</p>
             {source && (
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+              <p className="mt-2 font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
                 {source}
               </p>
             )}
@@ -81,10 +81,10 @@ export default function ReferenceCard({ reference }: ReferenceCardProps) {
       case "link":
         return (
           <>
-            {title && <p className="font-sans text-[16px] font-medium text-ink">{title}</p>}
-            {note && <p className="mt-1 font-courier text-[13px] text-ink-soft">{note}</p>}
+            {title && <p className="font-instrument-sans text-[16px] font-bold text-ws-ink">{title}</p>}
+            {note && <p className="mt-1 font-instrument-sans text-[13px] text-ws-ink/60">{note}</p>}
             {sourceUrl && (
-              <p className="mt-2 truncate font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+              <p className="mt-2 truncate font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
                 {sourceUrl}
               </p>
             )}
@@ -95,9 +95,9 @@ export default function ReferenceCard({ reference }: ReferenceCardProps) {
       default:
         return (
           <>
-            {note && <p className="font-courier text-[13px] text-ink-soft">{note}</p>}
+            {note && <p className="font-instrument-sans text-[13px] text-ws-ink/60">{note}</p>}
             {source && (
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+              <p className="mt-2 font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
                 {source}
               </p>
             )}
@@ -107,7 +107,7 @@ export default function ReferenceCard({ reference }: ReferenceCardProps) {
   })();
 
   return (
-    <div className="border border-paper-edge bg-paper p-4 transition-colors duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-paper-hover">
+    <div className="border border-ws-ink/10 bg-ws-paper p-4 transition-colors duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-ws-ink/5">
       {(type === "image" || type === "video") && <ReferenceMedia reference={reference} />}
       {cardBody}
     </div>

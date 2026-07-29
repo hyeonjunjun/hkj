@@ -57,24 +57,24 @@ const generalSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Windswept — Ryan Jun",
+  title: "ryan jun",
   description:
-    "Ryan Jun (Windswept) is an aspiring creative director, brand designer, and product designer based in New York.",
+    "I'm an aspiring creative director & designer based in New York.",
   authors: [{ name: "Ryan Jun" }],
   creator: "Ryan Jun",
   openGraph: {
-    title: "Windswept — Ryan Jun",
-    description: "Aspiring creative director, brand designer, and product designer.",
+    title: "ryan jun",
+    description: "Aspiring creative director & designer",
     type: "profile",
     url: "https://hkjstudio.com",
-    siteName: "Windswept",
-    firstName: "Ryan",
-    lastName: "Jun",
+    siteName: "ryan jun's portfolio",
+    firstName: "ryan",
+    lastName: "jun",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Windswept — Ryan Jun",
-    description: "Aspiring creative director, brand designer, and product designer.",
+    title: "ryan jun",
+    description: "Aspiring creative director & designer",
   },
   robots: {
     index: true,

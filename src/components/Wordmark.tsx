@@ -35,7 +35,7 @@ export default function Wordmark({ variant = "hero" }: WordmarkProps) {
     <MotionReveal delay={delay.wordmark} duration={duration.reveal}>
       <div role="banner">
         <Link href="/">
-          <span className="font-instrument-sans font-bold leading-[0.85] tracking-[-0.04em] text-ink text-[60px]">
+          <span className="font-instrument-sans font-bold leading-[0.85] tracking-[-0.04em] text-ws-ink text-[60px]">
             {studio.wordmark}
           </span>
         </Link>

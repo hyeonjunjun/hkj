@@ -10,7 +10,7 @@ export interface NavItem {
 
 /** Studio-wide identity, copy, and metadata — the single data source shared by the landing masthead and every room's chrome. */
 export interface StudioData {
-  /** Short mark rendered large by Wordmark (e.g. "HKJ"). */
+  /** Short mark rendered large by Wordmark (e.g. "ryan jun"). */
   wordmark: string;
   fullName: string;
   ownerName: string;
@@ -31,8 +31,8 @@ export interface StudioData {
 }
 
 export const studio: StudioData = {
-  wordmark: "windswept",
-  fullName: "Windswept Studio",
+  wordmark: "ryan jun",
+  fullName: "Ryan Jun",
   ownerName: "Ryan Jun",
   role: "independent creative studio",
   location: "New York",

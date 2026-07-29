@@ -10,7 +10,7 @@ interface ArchiveFeedProps {
 export default function ArchiveFeed({ entries }: ArchiveFeedProps) {
   if (entries.length === 0) {
     return (
-      <p className="max-w-[720px] font-mono text-[12px] uppercase tracking-[0.08em] text-mist">
+      <p className="max-w-[720px] font-instrument-sans text-[12px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
         First entries coming soon.
       </p>
     );
@@ -28,7 +28,7 @@ export default function ArchiveFeed({ entries }: ArchiveFeedProps) {
           >
             <ArchiveEntry entry={entry} />
           </MotionReveal>
-          {i < sorted.length - 1 && <hr className="my-8 border-t border-paper-edge" />}
+          {i < sorted.length - 1 && <hr className="my-8 border-t border-ws-ink/10" />}
         </div>
       ))}
     </div>

@@ -10,7 +10,7 @@ interface ReferenceGridProps {
 export default function ReferenceGrid({ references }: ReferenceGridProps) {
   if (references.length === 0) {
     return (
-      <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-mist">
+      <p className="font-instrument-sans text-[12px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
         References collection begins soon.
       </p>
     );

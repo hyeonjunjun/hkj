@@ -23,22 +23,22 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
 
   const content = (
     <div className="flex gap-6">
-      <p className="w-[96px] shrink-0 font-mono text-[12px] uppercase tracking-[0.08em] text-mist">
+      <p className="w-[96px] shrink-0 font-instrument-sans text-[12px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
         {formatEntryDate(date)}
       </p>
       <div className="flex min-w-0 flex-col gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+        <p className="font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
           · {type}
         </p>
-        {title && <p className="font-courier text-[18px] font-bold text-ink">{title}</p>}
+        {title && <p className="font-instrument-sans text-[18px] font-bold text-ws-ink">{title}</p>}
         {body && (
-          <p className="max-w-[560px] font-courier text-[15px] leading-[1.6] text-ink-soft">
+          <p className="max-w-[560px] font-instrument-sans text-[15px] leading-[1.6] text-ws-ink/60">
             {body}
           </p>
         )}
         {media && (
           <div
-            className="relative w-full max-w-[560px] overflow-hidden bg-paper-shade"
+            className="relative w-full max-w-[560px] overflow-hidden bg-ws-ink/5"
             style={{ aspectRatio: ASPECT_RATIO_CSS[media.aspectRatio] }}
           >
             {media.type === "image" && media.src ? (
@@ -69,7 +69,7 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
                 role="img"
                 aria-label={media.alt}
               >
-                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+                <span className="font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
                   Placeholder
                 </span>
               </div>
@@ -77,7 +77,7 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
           </div>
         )}
         {tags && tags.length > 0 && (
-          <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+          <p className="font-instrument-sans text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
             {tags.map((tag) => `#${tag}`).join(", ")}
           </p>
         )}
