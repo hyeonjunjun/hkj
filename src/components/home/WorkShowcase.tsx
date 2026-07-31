@@ -1,5 +1,4 @@
 import type { Work } from "@/data/works";
-import { sortWorksForTimeline } from "@/lib/timelineMotion";
 import FeaturedGrid from "./FeaturedGrid";
 
 interface WorkShowcaseProps {
@@ -14,16 +13,24 @@ interface WorkShowcaseProps {
  * direction. No client-side state needed here anymore since nothing
  * outside the grid reacts to hover -- each tile's caption is pure CSS
  * (group-hover), so this can be a server component again.
+ *
+ * Passes `works` straight from works.ts, deliberately not through
+ * sortWorksForTimeline: FeaturedGrid's positions are hand-curated by
+ * array slot (the first work lands in the biggest spot), and with every
+ * work's `year` currently a "YEAR" placeholder, a most-recent-first sort
+ * would just fall back to index order anyway while adding an
+ * indirection that obscures which slot gets which work. Once works have
+ * real years, revisit whether the curated slots should track something
+ * other than raw array order.
+ *
  * HomeTimeline/TimelineStop/TimelineAxis/ArcCarousel are left in place,
  * unused, in case a future direction wants them back (same precedent as
  * WorkGrid after the /works retirement).
  */
 export default function WorkShowcase({ works }: WorkShowcaseProps) {
-  const sorted = sortWorksForTimeline(works);
-
   return (
     <div className="h-full w-full">
-      <FeaturedGrid works={sorted} />
+      <FeaturedGrid works={works} />
     </div>
   );
 }

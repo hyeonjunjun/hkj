@@ -1,7 +1,7 @@
 // Shared type definitions used across all rooms.
 
 /** The four rooms of the site, plus the landing masthead they open onto. */
-export type RoomKey = "works" | "archive" | "references" | "info";
+export type RoomKey = "works" | "archive" | "notes" | "info";
 
 export type AvailabilityStatus = "available" | "limited" | "unavailable";
 

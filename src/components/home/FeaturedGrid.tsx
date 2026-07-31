@@ -14,21 +14,21 @@ function pad2(n: number): string {
 interface TileProps {
   work: Work;
   index: number;
-  spanClassName?: string;
+  areaClassName: string;
 }
 
 /**
- * One grid tile: media fills the cell; a caption row (index / title /
+ * One work tile: media fills its area, a caption row (index / title /
  * category / year) sits just below it, outside the tile's own border --
- * in the grid gap, not overlaid on the media -- invisible at rest and
- * fading in on hover or focus. The outer Link deliberately has no
+ * in the surrounding gap, not overlaid on the media -- invisible at rest
+ * and fading in on hover or focus. The outer Link deliberately has no
  * overflow-hidden (only the media wrapper does, for the image/video
  * crop), so this absolutely-positioned caption isn't clipped when it
- * extends past the tile's bottom edge into the surrounding whitespace.
+ * extends past the tile's bottom edge into the gap.
  */
-function Tile({ work, index, spanClassName = "" }: TileProps) {
+function Tile({ work, index, areaClassName }: TileProps) {
   return (
-    <Link href={`/works/${work.slug}`} className={`group relative flex flex-col ${spanClassName}`}>
+    <Link href={`/works/${work.slug}`} className={`group relative flex min-w-0 flex-col ${areaClassName}`}>
       <div className="relative min-h-0 flex-1 overflow-hidden bg-ws-ink/5 transition-opacity duration-300 group-hover:opacity-90">
         <MediaRenderer media={work.media} fit="cover" />
       </div>
@@ -43,29 +43,60 @@ function Tile({ work, index, spanClassName = "" }: TileProps) {
 }
 
 /**
- * Homepage centerpiece, full-bleed: solely a media grid, no separate
- * text column. One work gets a large 2x2 featured cell -- the first
- * work with real media, so a still-placeholder piece never lands the
- * biggest spot -- the other two sit at 1x1, exactly filling a 3x2 grid
- * with no filler cells needed (2x2 + 1x1 + 1x1 = 6 cells). Every detail
- * (index, title, category, year) lives in the tile's own hover caption,
- * which appears below the tile rather than overlaid on it -- replaces
- * the earlier editorial-text-column + grid split. The generous gap and
- * outer padding aren't just whitespace for its own sake -- the bottom
- * row's tiles need that room for their hover captions to have somewhere
- * to appear without being clipped by the viewport edge.
+ * Homepage centerpiece, blit.studio-inspired: work tiles, decorative
+ * "visual filler" swatches, and small standalone microtype labels
+ * scattered across an open 12-column canvas at hand-curated, non-uniform
+ * positions -- not a repeating grid of equal cells. Generous gaps do
+ * double duty: they're the whitespace the composition needs to read as
+ * open rather than packed, and they're where each tile's hover caption
+ * has room to appear without colliding with a neighboring tile.
+ *
+ * Positions are curated for the current five works specifically (by
+ * array position, since sortWorksForTimeline's output order is what the
+ * caller passes in) rather than computed generically -- matching how an
+ * art-directed composition like this is actually built, not algorithmic.
+ * Adding a sixth work means adding a sixth curated slot here, not just
+ * appending to works.ts.
  */
 export default function FeaturedGrid({ works }: FeaturedGridProps) {
-  const featuredIndex = works.findIndex((w) => w.media.type !== "placeholder");
-  const featured = works[featuredIndex] ?? works[0];
-  const rest = works.filter((w) => w.id !== featured.id);
+  const [a, b, c, d, e] = works;
 
   return (
-    <div className="grid h-full w-full grid-cols-3 grid-rows-2 gap-8 p-8">
-      <Tile work={featured} index={1} spanClassName="col-span-2 row-span-2" />
-      {rest.map((work, i) => (
-        <Tile key={work.id} work={work} index={i + 2} />
-      ))}
+    <div className="relative grid h-full w-full grid-cols-1 grid-rows-[repeat(5,minmax(220px,auto))] gap-10 p-10 md:grid-cols-12 md:grid-rows-[repeat(7,1fr)] md:gap-8 md:p-12">
+      {a && <Tile work={a} index={1} areaClassName="row-[1/2] md:col-[1/8] md:row-[1/4]" />}
+
+      {/* Visual filler -- a plain accent-colored swatch, no work behind
+          it, purely rhythm/punctuation between the two top tiles. */}
+      <div aria-hidden="true" className="hidden bg-ws-accent md:col-[8/9] md:row-[1/2] md:block" />
+
+      {/* Microtype -- a small standalone label, not tied to any tile's
+          hover state, sitting alone in the open canvas. */}
+      <span
+        aria-hidden="true"
+        className="hidden self-end font-instrument-sans text-[10px] font-bold uppercase tracking-widest text-ws-ink/30 md:col-[8/11] md:row-[2/3] md:block"
+      >
+        N&deg; 2026
+      </span>
+
+      {b && <Tile work={b} index={2} areaClassName="row-[2/3] md:col-[9/13] md:row-[1/4]" />}
+
+      {c && <Tile work={c} index={3} areaClassName="row-[3/4] md:col-[9/13] md:row-[4/6]" />}
+
+      {d && <Tile work={d} index={4} areaClassName="row-[4/5] md:col-[1/5] md:row-[4/8]" />}
+
+      <span
+        aria-hidden="true"
+        className="hidden self-start font-instrument-sans text-[10px] font-bold uppercase tracking-widest text-ws-ink/30 md:col-[5/7] md:row-[4/5] md:block"
+      >
+        ( selected works )
+      </span>
+
+      {e && <Tile work={e} index={5} areaClassName="row-[5/6] md:col-[5/9] md:row-[5/8]" />}
+
+      {/* Visual filler -- a thin outline swatch, echoing the "content
+          coming soon" placeholder treatment but with no label, pure
+          negative-space punctuation in the bottom-right corner. */}
+      <div aria-hidden="true" className="hidden border border-ws-ink/15 md:col-[9/11] md:row-[6/8] md:block" />
     </div>
   );
 }

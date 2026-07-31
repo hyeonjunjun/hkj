@@ -46,7 +46,6 @@ export const studio: StudioData = {
   navItems: [
     { label: "works", href: "/", room: "works" },
     { label: "archive", href: "/archive", room: "archive" },
-    { label: "references", href: "/references", room: "references" },
-    { label: "info", href: "/info", room: "info" },
+    { label: "notes", href: "/notes", room: "notes" },
   ],
 };

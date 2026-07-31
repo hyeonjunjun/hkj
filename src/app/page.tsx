@@ -24,7 +24,7 @@ export default function Landing() {
           href="/info#contact"
           className="font-instrument-sans text-[13px] font-bold capitalize text-ws-ink transition-opacity hover:opacity-60"
         >
-          contact
+          info
         </Link>
       </div>
 
