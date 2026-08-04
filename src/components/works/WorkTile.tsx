@@ -88,12 +88,12 @@ export function MediaRenderer({
 
   return (
     <div
-      className={`flex items-center justify-center border border-mist/30 transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04] ${sizeClasses}`}
+      className={`flex items-center justify-center border border-ws-ink/20 transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04] ${sizeClasses}`}
       style={style}
       role="img"
       aria-label={media.alt}
     >
-      <span className="max-w-full truncate px-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+      <span className="max-w-full truncate px-1 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
         Content coming soon
       </span>
     </div>
@@ -109,7 +109,7 @@ export default function WorkTile({ work }: WorkTileProps) {
   const captionId = `${work.id}-caption`;
 
   const label = (
-    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+    <p className="font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
       • {romanNumeral} / {category}
     </p>
   );
@@ -117,7 +117,7 @@ export default function WorkTile({ work }: WorkTileProps) {
   const captionEl = (
     <p
       id={captionId}
-      className="mt-1 max-w-[200px] font-serif text-[17px] italic leading-snug text-ink transition-transform duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-[2px]"
+      className="mt-1 max-w-[200px] font-instrument-sans text-[16px] italic leading-snug text-ws-ink transition-transform duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-[2px]"
     >
       {caption}
     </p>

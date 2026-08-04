@@ -14,6 +14,20 @@ export default function InfoRoom() {
           <p className="text-[16px] leading-[1.6] text-ws-ink">{studio.standfirst}</p>
         </section>
 
+        {studio.quote && (
+          <section className="mb-16">
+            <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
+              PHILOSOPHY
+            </h2>
+            <blockquote className="border-l-2 border-ws-ink/20 pl-6 text-[18px] italic leading-[1.6] text-ws-ink">
+              “{studio.quote.text}”
+              <footer className="mt-3 text-[13px] font-normal not-italic tracking-wide text-ws-ink/50">
+                — {studio.quote.author}
+              </footer>
+            </blockquote>
+          </section>
+        )}
+
         <section id="contact" className="mb-16 scroll-mt-20">
           <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
             CONTACT

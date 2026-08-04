@@ -45,7 +45,7 @@ export default function Nav({ items, variant = "room" }: NavProps) {
                 <Link
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className="font-instrument-sans text-[13px] font-bold capitalize text-ws-ink transition-opacity hover:opacity-60"
+                  className="font-instrument-sans text-[13px] font-medium text-ws-ink transition-opacity hover:opacity-60"
                 >
                   {item.label}
                 </Link>

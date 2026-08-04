@@ -26,6 +26,11 @@ export interface StudioData {
   standfirst: string;
   /** Large statement rendered by ThesisStatement. */
   thesis: string;
+  /** Philosophy quote and attribution. */
+  quote?: {
+    text: string;
+    author: string;
+  };
   contactEmail: string;
   navItems: NavItem[];
 }
@@ -41,10 +46,15 @@ export const studio: StudioData = {
   availabilityStatus: "available",
   standfirst:
     "Placeholder standfirst — a short paragraph describing the practice, scope, and audience. Replace when real copy is written.",
-  thesis: "Placeholder thesis statement.",
+  thesis:
+    "“Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do. So throw off the bowlines. Sail away from the safe harbor. Catch the trade winds in your sails. Explore. Dream. Discover.”",
+  quote: {
+    text: "Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do. So throw off the bowlines. Sail away from the safe harbor. Catch the trade winds in your sails. Explore. Dream. Discover.",
+    author: "Unknown",
+  },
   contactEmail: "hello@hkjstudio.com",
   navItems: [
-    { label: "works", href: "/", room: "works" },
+    { label: "works", href: "/works", room: "works" },
     { label: "archive", href: "/archive", room: "archive" },
     { label: "notes", href: "/notes", room: "notes" },
   ],

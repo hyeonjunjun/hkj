@@ -76,18 +76,19 @@ export default function WorkGrid({ works }: WorkGridProps) {
   return (
     <section aria-label="Selected work">
       {/* Poster composition — tablet (scaled) and desktop, hidden below 768px.
-          `absolute inset-0` (not a normal-flow `h-screen` div) matters: this
-          section renders after RoomHeader, which occupies real space in
-          document flow. A normal-flow h-screen div here would start at
-          RoomHeader's bottom edge, not the viewport top — shifting every
-          percentage anchor down by RoomHeader's height and pushing the
-          poster's own bottom edge below the viewport. Anchoring it to
-          <main> (position:relative) directly instead means every tile's
-          percentage anchors resolve against the full viewport, same as
-          RoomHeader/ThesisStatement/CornerMark — and TOP_RESERVE_PX above
-          is what actually keeps tiles clear of RoomHeader, which sits
-          above this in z-index (RoomHeader has z-10; this has none). */}
-      <div className="absolute inset-0 hidden md:block">
+          `absolute top-0 inset-x-0 h-screen` (not `inset-0`, and not a
+          normal-flow `h-screen` div) matters for two reasons: starting at
+          `top-0` rather than in normal flow means every tile's percentage
+          anchor resolves against the full viewport instead of being shifted
+          down by RoomHeader's height (TOP_RESERVE_PX above is what actually
+          keeps tiles clear of RoomHeader, which sits above this in z-index).
+          And a hard `h-screen`, not `inset-0`'s implicit "100% of <main>",
+          matters once the overflow strip below pushes <main> taller than one
+          viewport (see its own comment) — `inset-0` would then stretch this
+          box to <main>'s full (inflated) height, so every percentage anchor
+          here would resolve against that instead of one viewport and drift
+          downward as more overflow works get added. */}
+      <div className="absolute inset-x-0 top-0 hidden md:block md:h-screen">
         {posterWorks.map((work) => (
           <div key={work.id} className="absolute" style={getTileWrapperStyle(work)}>
             <WorkTile work={work} />
@@ -108,11 +109,11 @@ export default function WorkGrid({ works }: WorkGridProps) {
                 <MediaRenderer media={work.media} aspectOverride="16 / 10" />
                 <p
                   id={`${work.id}-mobile-caption`}
-                  className="mt-3 font-serif text-[16px] italic leading-snug text-ink"
+                  className="mt-3 font-instrument-sans text-[16px] italic leading-snug text-ws-ink"
                 >
                   {work.caption}
                 </p>
-                <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-mist">
+                <p className="mt-2 font-instrument-sans text-[11px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
                   • {work.romanNumeral} / {work.category}
                 </p>
               </a>
@@ -121,13 +122,24 @@ export default function WorkGrid({ works }: WorkGridProps) {
         ))}
       </div>
 
-      {/* Overflow strip — Works 4+, horizontal scroll below the poster. Hidden entirely while empty. */}
+      {/* Overflow strip — Works 4+, horizontal scroll below the poster. Hidden
+          entirely while empty. `md:pt-[100vh]` (rather than a plain top
+          margin) is load-bearing: the poster above is `absolute inset-0`
+          against <main>, so it takes up zero space in normal flow. Without
+          a full-viewport offset here, this strip — the next thing in flow
+          after RoomHeader — renders at the very top of the page, visually
+          buried under the poster's tiles instead of appearing below them. */}
       {overflowWorks.length > 0 && (
-        <div className="hidden md:mt-16 md:flex md:gap-6 md:overflow-x-auto md:px-[var(--edge-margin)] md:pb-4">
+        // md:pb-40 (rather than a smaller pad) leaves room for CornerMark,
+        // which is `absolute bottom-[edge-margin] left-[edge-margin]`
+        // against <main> — it anchors to wherever <main>'s content actually
+        // ends, so without enough clearance here it lands on top of this
+        // strip's own bottom-left tile instead of below it.
+        <div className="hidden md:flex md:flex-wrap md:gap-6 md:pt-[100vh] md:pb-40 md:pl-[var(--edge-margin)] md:pr-[var(--edge-margin)]">
           {overflowWorks.map((work) => (
             <a key={work.id} href={`/works/${work.slug}`} className="w-[200px] shrink-0">
               <MediaRenderer media={work.media} />
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.08em] text-mist">
+              <p className="mt-2 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
                 MORE / {work.romanNumeral}-{work.index}
               </p>
             </a>

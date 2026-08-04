@@ -15,14 +15,14 @@ import WorkShowcase from "@/components/home/WorkShowcase";
 export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper font-display">
-      <div aria-hidden="true" className="h-[3px] w-full shrink-0 bg-ws-ink" />
-      <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2 px-[var(--edge-margin)] pb-8 pt-4">
+      <div aria-hidden="true" className="h-px w-full shrink-0 bg-ws-ink/25" />
+      <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-2 px-[var(--edge-margin)] py-6 md:py-8">
         <span className="font-instrument-sans text-[15px] font-bold text-ws-ink">{studio.wordmark}</span>
         <DateTimeReadout />
         <Nav items={studio.navItems} variant="bar" />
         <Link
           href="/info#contact"
-          className="font-instrument-sans text-[13px] font-bold capitalize text-ws-ink transition-opacity hover:opacity-60"
+          className="font-instrument-sans text-[13px] font-medium text-ws-ink transition-opacity hover:opacity-60"
         >
           info
         </Link>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Work } from "@/data/works";
+import { studio } from "@/data/studio";
 import { MediaRenderer } from "@/components/works/WorkTile";
 
 interface FeaturedGridProps {
@@ -18,24 +19,24 @@ interface TileProps {
 }
 
 /**
- * One work tile: media fills its area, a caption row (index / title /
- * category / year) sits just below it, outside the tile's own border --
- * in the surrounding gap, not overlaid on the media -- invisible at rest
- * and fading in on hover or focus. The outer Link deliberately has no
- * overflow-hidden (only the media wrapper does, for the image/video
- * crop), so this absolutely-positioned caption isn't clipped when it
- * extends past the tile's bottom edge into the gap.
+ * One art-directed tile. Media fills the cell; caption row appears
+ * below the tile in the surrounding gap on hover / focus, matching the
+ * original hover-caption pattern (info hides at rest so the composition
+ * reads as pure image + air).
  */
 function Tile({ work, index, areaClassName }: TileProps) {
   return (
-    <Link href={`/works/${work.slug}`} className={`group relative flex min-w-0 flex-col ${areaClassName}`}>
+    <Link
+      href={`/works/${work.slug}`}
+      className={`group relative flex min-w-0 flex-col ${areaClassName}`}
+    >
       <div className="relative min-h-0 flex-1 overflow-hidden bg-ws-ink/5 transition-opacity duration-300 group-hover:opacity-90">
         <MediaRenderer media={work.media} fit="cover" />
       </div>
-      <div className="absolute inset-x-0 top-full flex items-baseline justify-between gap-3 pt-2 font-instrument-sans text-[10px] font-bold uppercase tracking-widest text-ws-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
-        <span className="text-ws-ink/40">{pad2(index)}</span>
-        <span className="truncate">{work.title}</span>
-        <span className="shrink-0 text-ws-ink/40">{work.category}</span>
+      <div className="absolute inset-x-0 top-full flex items-baseline justify-between gap-3 pt-2 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+        <span className="tabular-nums text-ws-ink/40">{pad2(index)}</span>
+        <span className="truncate">{work.title.toLowerCase()}</span>
+        <span className="shrink-0 text-ws-ink/40">{work.category.toLowerCase()}</span>
         <span className="shrink-0 text-ws-ink/40">{work.year}</span>
       </div>
     </Link>
@@ -43,60 +44,95 @@ function Tile({ work, index, areaClassName }: TileProps) {
 }
 
 /**
- * Homepage centerpiece, blit.studio-inspired: work tiles, decorative
- * "visual filler" swatches, and small standalone microtype labels
- * scattered across an open 12-column canvas at hand-curated, non-uniform
- * positions -- not a repeating grid of equal cells. Generous gaps do
- * double duty: they're the whitespace the composition needs to read as
- * open rather than packed, and they're where each tile's hover caption
- * has room to appear without colliding with a neighboring tile.
+ * Homepage centerpiece: art-directed placement of four works and three
+ * microtype anchors on a 12-col × 9-row canvas. Blit-inspired in
+ * *approach* — freeform hand-curated positions, generous negative space,
+ * microtype as compositional punctuation — but the specific geometry,
+ * scale rhythm, and chrome are composed here for ryan jun rather than
+ * mirroring blit's panel layout.
  *
- * Positions are curated for the current five works specifically (by
- * array position, since sortWorksForTimeline's output order is what the
- * caller passes in) rather than computed generically -- matching how an
- * art-directed composition like this is actually built, not algorithmic.
- * Adding a sixth work means adding a sixth curated slot here, not just
- * appending to works.ts.
+ * Home is deliberately a curated "look" — taste and philosophy, not the
+ * full catalog. Four tiles is a ceiling, not a slice of a longer list:
+ * col 1, col 8, and all of row 5 are left genuinely empty (no tile, no
+ * text) rather than gapped-but-full, which is what actually reads as
+ * whitespace instead of a tight grid with narrow gutters. The full
+ * catalog lives at /works — see the "all works" link below.
+ *
+ * Deliberately drops the earlier orange filler swatch and bottom-right
+ * outline block: those were the blit-fingerprint tells (accent-color
+ * filler + outline-swatch punctuation are blit's specific vocabulary).
+ * The microtype elements that remain (thesis line, edition mark, all-works
+ * link) carry real copy or real navigation — they're stated positions,
+ * not decoration.
+ *
+ * Tile positions are hand-curated for exactly four works; a fifth means
+ * adding an explicit fifth slot, not appending to works.ts. Works beyond
+ * the curated four are still reachable — they just live at /works, not here.
  */
 export default function FeaturedGrid({ works }: FeaturedGridProps) {
-  const [a, b, c, d, e] = works;
+  const [a, b, c, d] = works;
 
   return (
-    <div className="relative grid h-full w-full grid-cols-1 grid-rows-[repeat(5,minmax(220px,auto))] gap-10 p-10 md:grid-cols-12 md:grid-rows-[repeat(7,1fr)] md:gap-8 md:p-12">
-      {a && <Tile work={a} index={1} areaClassName="row-[1/2] md:col-[1/8] md:row-[1/4]" />}
+    <div className="relative grid h-full w-full grid-cols-1 grid-rows-[repeat(4,minmax(180px,auto))] gap-10 p-8 md:grid-cols-12 md:grid-rows-9 md:gap-x-16 md:gap-y-10 md:p-16 lg:p-20">
+      {a && (
+        <Tile
+          work={a}
+          index={1}
+          areaClassName="row-[1/2] md:col-[2/8] md:row-[1/7]"
+        />
+      )}
 
-      {/* Visual filler -- a plain accent-colored swatch, no work behind
-          it, purely rhythm/punctuation between the two top tiles. */}
-      <div aria-hidden="true" className="hidden bg-ws-accent md:col-[8/9] md:row-[1/2] md:block" />
+      {b && (
+        <Tile
+          work={b}
+          index={2}
+          areaClassName="row-[2/3] md:col-[9/13] md:row-[1/4]"
+        />
+      )}
 
-      {/* Microtype -- a small standalone label, not tied to any tile's
-          hover state, sitting alone in the open canvas. */}
+      {/* Thesis line — sits alone under the upper-right tile (b), in the
+          gap before row 5's empty band. Real copy, not decorative
+          microtype: the practice-and-place statement. */}
+      <p className="hidden font-instrument-sans text-[11px] font-medium leading-relaxed text-ws-ink/50 md:col-[9/13] md:row-[4/5] md:block md:self-start">
+        {studio.role} &mdash; {studio.location.toLowerCase()}.
+      </p>
+
+      {c && (
+        <Tile
+          work={c}
+          index={3}
+          areaClassName="row-[3/4] md:col-[9/13] md:row-[6/9]"
+        />
+      )}
+
+      {d && (
+        <Tile
+          work={d}
+          index={4}
+          areaClassName="row-[4/5] md:col-[3/7] md:row-[7/10]"
+        />
+      )}
+
+      {/* Edition mark — sits in the empty band to the right of the
+          lower-left tile (d), below row 5's void. Names the site as a
+          dated publication, not a static portfolio. Roman numeral for
+          editorial character. */}
       <span
         aria-hidden="true"
-        className="hidden self-end font-instrument-sans text-[10px] font-bold uppercase tracking-widest text-ws-ink/30 md:col-[8/11] md:row-[2/3] md:block"
+        className="hidden font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/35 md:col-[7/9] md:row-[8/9] md:block md:self-start"
       >
-        N&deg; 2026
+        selected &middot; mmxxvi
       </span>
 
-      {b && <Tile work={b} index={2} areaClassName="row-[2/3] md:col-[9/13] md:row-[1/4]" />}
-
-      {c && <Tile work={c} index={3} areaClassName="row-[3/4] md:col-[9/13] md:row-[4/6]" />}
-
-      {d && <Tile work={d} index={4} areaClassName="row-[4/5] md:col-[1/5] md:row-[4/8]" />}
-
-      <span
-        aria-hidden="true"
-        className="hidden self-start font-instrument-sans text-[10px] font-bold uppercase tracking-widest text-ws-ink/30 md:col-[5/7] md:row-[4/5] md:block"
+      {/* All-works link — the way out of the curated four into the full
+          catalog at /works. Sits in the left margin under the anchor
+          tile (a), the same quiet register as the edition mark. */}
+      <Link
+        href="/works"
+        className="hidden font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/50 transition-opacity hover:opacity-60 md:col-[2/5] md:row-[8/9] md:block md:self-start"
       >
-        ( selected works )
-      </span>
-
-      {e && <Tile work={e} index={5} areaClassName="row-[5/6] md:col-[5/9] md:row-[5/8]" />}
-
-      {/* Visual filler -- a thin outline swatch, echoing the "content
-          coming soon" placeholder treatment but with no label, pure
-          negative-space punctuation in the bottom-right corner. */}
-      <div aria-hidden="true" className="hidden border border-ws-ink/15 md:col-[9/11] md:row-[6/8] md:block" />
+        all works &rarr;
+      </Link>
     </div>
   );
 }
