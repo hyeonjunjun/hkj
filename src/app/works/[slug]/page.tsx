@@ -32,9 +32,12 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper font-instrument-sans text-ws-ink">
-      <RoomHeader roomLabel="WORKS" />
+      <RoomHeader roomLabel="Index" activeRoom="index" />
 
-      <article className="pt-16 md:pt-24 pb-32">
+      {/* pb-56 (not a smaller pad) leaves room for CornerMark, which is
+          `absolute bottom-[edge-margin]` against <main> and lands wherever
+          this article's own bottom edge happens to be. */}
+      <article className="pt-16 md:pt-24 pb-56">
         <div className="px-[var(--edge-margin)] max-w-[1500px] mx-auto">
           <header className="mb-16 md:mb-24 max-w-[900px]">
             <h1 className="font-instrument-sans text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.01em] text-ws-ink">

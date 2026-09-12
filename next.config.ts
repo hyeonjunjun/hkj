@@ -83,9 +83,16 @@ const nextConfig: NextConfig = {
 
       // Other redirects
       { source: "/garden",     destination: "/",        permanent: true },
-      { source: "/journal",    destination: "/notes",   permanent: true },
-      { source: "/journal/:slug", destination: "/notes", permanent: true },
       { source: "/classic",    destination: "/",        permanent: true },
+
+      // Home / Index / Gallery / Journal / Info rebuild (2026-09-11):
+      // /works (as a listing) -> /index, /archive and /notes -> /journal.
+      // NOTE: this replaces an old "/journal -> /notes" alias from a
+      // prior naming scheme, since /journal is now the real destination.
+      { source: "/works",         destination: "/index",     permanent: true },
+      { source: "/archive",       destination: "/journal",   permanent: true },
+      { source: "/archive/:slug", destination: "/journal/:slug", permanent: true },
+      { source: "/notes",         destination: "/journal",   permanent: true },
     ];
   },
 };

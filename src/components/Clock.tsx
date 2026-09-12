@@ -4,9 +4,13 @@ import { useEffect, useState } from "react";
 
 /**
  * Renders the current time in New York, "HH:MM EST", updated every 30s.
- * Server-rendered as a static "--:-- EST" placeholder so hydration never
- * has to reconcile a server-rendered timestamp against a different
- * client-rendered one — the real value is filled in after mount.
+ * Plain grotesk, same weight/size as the nav bar text, no box — the
+ * site's one recurring idiosyncratic detail, meant to sit unlabeled in
+ * the top-right corner of every page (the time alone communicates what
+ * it is). Server-rendered as a static "--:-- EST" placeholder so
+ * hydration never has to reconcile a server-rendered timestamp against
+ * a different client-rendered one — the real value is filled in after
+ * mount.
  */
 export default function Clock() {
   const [time, setTime] = useState<string>("--:--");
@@ -27,7 +31,7 @@ export default function Clock() {
   }, []);
 
   return (
-    <span className="font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] tabular-nums text-ws-ink/50">
+    <span className="font-instrument-sans text-[13px] font-medium tabular-nums text-ws-ink/50">
       {time} EST
     </span>
   );

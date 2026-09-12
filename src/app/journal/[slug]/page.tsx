@@ -10,24 +10,24 @@ export function generateStaticParams() {
     .map((entry) => ({ slug: entry.slug }));
 }
 
-interface ArchiveEntryPageProps {
+interface JournalEntryPageProps {
   params: Promise<{ slug: string }>;
 }
 
 /**
- * Scaffold for an individual Archive entry permalink — more breathing
+ * Scaffold for an individual Journal entry permalink — more breathing
  * room than the feed's tight rule-separated rhythm, at the entry's
  * normal type scale for now. A dedicated large-type template can follow
  * once real long-form entries exist.
  */
-export default async function ArchiveEntryPage({ params }: ArchiveEntryPageProps) {
+export default async function JournalEntryPage({ params }: JournalEntryPageProps) {
   const { slug } = await params;
   const entry = archive.find((e) => e.slug === slug);
   if (!entry) notFound();
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper">
-      <RoomHeader roomLabel="ARCHIVE" />
+      <RoomHeader roomLabel="Journal" activeRoom="journal" />
       <div className="font-instrument-sans px-[var(--edge-margin)] pt-24 pb-32">
         <ArchiveEntry entry={entry} />
       </div>

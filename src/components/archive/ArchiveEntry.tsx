@@ -88,7 +88,7 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
   if (slug) {
     return (
       <article>
-        <a href={`/archive/${slug}`} className="block">
+        <a href={`/journal/${slug}`} className="block">
           {content}
         </a>
       </article>
