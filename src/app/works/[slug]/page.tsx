@@ -40,14 +40,14 @@ export default async function WorkPage({ params }: WorkPageProps) {
       <article className="pt-16 md:pt-24 pb-56">
         <div className="px-[var(--edge-margin)] max-w-[1500px] mx-auto">
           <header className="mb-16 md:mb-24 max-w-[900px]">
-            <h1 className="font-instrument-sans text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.05] tracking-[-0.01em] text-ws-ink">
+            <h1 className="font-instrument-sans text-display font-bold text-ws-ink">
               {work.title}
             </h1>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 mb-16 md:mb-24">
             <div className="md:col-span-4 lg:col-span-3">
-              <div className="sticky top-24 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/50 flex flex-col gap-4">
+              <div className="sticky top-24 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/50 flex flex-col gap-4">
                 <div>
                   <span className="block text-ws-ink/40 mb-1">Client</span>
                   <span className="text-ws-ink">{work.title}</span>
@@ -72,7 +72,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
             </div>
 
             <div className="md:col-span-8 lg:col-span-7 lg:col-start-5">
-              <p className="font-instrument-sans text-[15px] md:text-[16px] leading-[1.7] text-ws-ink/70">
+              <p className="font-instrument-sans text-body text-ws-ink/70">
                 {work.description}
               </p>
             </div>
@@ -90,12 +90,12 @@ export default async function WorkPage({ params }: WorkPageProps) {
                 {(section.heading || section.body) && (
                   <div className="max-w-[640px]">
                     {section.heading && (
-                      <p className="mb-3 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+                      <p className="mb-3 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
                         {section.heading}
                       </p>
                     )}
                     {section.body && (
-                      <p className="font-instrument-sans text-[15px] md:text-[16px] leading-[1.7] text-ws-ink/70">
+                      <p className="font-instrument-sans text-body text-ws-ink/70">
                         {section.body}
                       </p>
                     )}
@@ -106,7 +106,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
                   <div className={section.heading || section.body ? "mt-10 md:mt-12 max-w-[900px]" : "max-w-[900px]"}>
                     <MediaRenderer media={section.media} />
                     {section.caption && (
-                      <p className="mt-3 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+                      <p className="mt-3 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
                         fig. {String(figureIndex).padStart(2, "0")} &mdash; {section.caption}
                       </p>
                     )}
@@ -118,12 +118,12 @@ export default async function WorkPage({ params }: WorkPageProps) {
         )}
 
         <div className="mt-24 md:mt-32 px-[var(--edge-margin)] max-w-[1500px] mx-auto border-t border-ws-ink/10 pt-12 text-center">
-          <p className="mb-4 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+          <p className="mb-4 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
             next
           </p>
           <Link
             href={`/works/${nextWork.slug}`}
-            className="font-instrument-sans text-[clamp(1.5rem,3.5vw,2.5rem)] font-bold leading-tight tracking-[-0.01em] text-ws-ink transition-opacity hover:opacity-60"
+            className="font-instrument-sans text-display font-bold text-ws-ink transition-opacity hover:opacity-60"
           >
             {nextWork.title}
           </Link>

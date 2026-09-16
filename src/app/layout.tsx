@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Courier_Prime, Inter_Tight, Instrument_Serif, Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
+import Preloader from "@/components/Preloader";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -90,7 +92,11 @@ export default function RootLayout({
       lang="en"
       className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable} ${generalSans.variable} ${instrumentSans.variable}`}
     >
-      <body className="bg-paper font-sans text-ink antialiased">{children}</body>
+      <body className="bg-paper font-sans text-ink antialiased">
+        <Preloader />
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

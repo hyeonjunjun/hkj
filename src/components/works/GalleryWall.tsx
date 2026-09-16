@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Work } from "@/data/works";
 import type { MediaAsset } from "@/lib/types";
 import { MediaRenderer } from "./WorkTile";
+import MotionReveal from "../MotionReveal";
+import { duration } from "@/lib/motion";
 
 interface GalleryWallProps {
   works: Work[];
@@ -45,14 +47,17 @@ export default function GalleryWall({ works }: GalleryWallProps) {
     // `absolute bottom-[edge-margin]` against <main> and lands wherever
     // this grid's own bottom edge happens to be.
     <div className="grid grid-cols-2 gap-1 px-[var(--edge-margin)] pb-56 md:grid-cols-3 md:gap-2">
-      {tiles.map((tile) => (
+      {tiles.map((tile, i) => (
+        // Capped stagger: with a long wall, an uncapped per-tile delay would
+        // leave the last rows blank for seconds after everything above settled.
+        <MotionReveal key={tile.key} delay={Math.min(i, 11) * 55} duration={duration.reveal}>
         <Link
-          key={tile.key}
           href={`/works/${tile.workSlug}`}
           className="group relative block aspect-square overflow-hidden bg-ws-ink/5 transition-opacity duration-300 hover:opacity-85"
         >
           <MediaRenderer media={tile.media} fit="cover" />
         </Link>
+        </MotionReveal>
       ))}
     </div>
   );

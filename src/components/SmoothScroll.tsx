@@ -4,41 +4,36 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 
 /**
- * SmoothScroll — page-level lerp scrolling via Lenis.
+ * Wires Lenis scroll momentum — scrolling keeps drifting briefly after
+ * input stops, then settles, rather than stopping dead. This is the
+ * page-level "wind" register from the project's motion plan, distinct
+ * from the snappier feel interactive controls should have.
  *
- * Active on every page; honors prefers-reduced-motion (Lenis is skipped
- * entirely under reduced motion, falling back to native scroll). The
- * gallery's WebGL section sets its own wheel handler — Lenis is told
- * to skip wheel events that originate inside .webgl-gallery so the
- * drag-scroll carousel keeps full control of those events.
+ * Lenis was already a dependency here but had never been mounted.
+ *
+ * No-ops harmlessly on pages that don't scroll (Home is locked to one
+ * viewport), and bails out entirely under prefers-reduced-motion, where
+ * hijacking native scrolling would be actively hostile.
  */
-export function SmoothScroll() {
+export default function SmoothScroll() {
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const lenis = new Lenis({
-      duration: 1.0,
+      duration: 1.1,
+      // Matches windEasing in lib/motion.ts — fast start, slow settle.
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 1,
-      touchMultiplier: 1,
-      // Skip wheel/touch events that originate in the WebGL gallery.
-      // The carousel's pointer/wheel logic lives there and needs full
-      // control of those events; double-handling would compete.
-      prevent: (node) =>
-        node instanceof HTMLElement && !!node.closest(".webgl-gallery"),
     });
 
-    let rafId = 0;
+    let frame = 0;
     const raf = (time: number) => {
       lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
+      frame = requestAnimationFrame(raf);
     };
-    rafId = requestAnimationFrame(raf);
+    frame = requestAnimationFrame(raf);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(frame);
       lenis.destroy();
     };
   }, []);

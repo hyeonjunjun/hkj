@@ -12,7 +12,16 @@ import { useEffect, useState } from "react";
  * a different client-rendered one — the real value is filled in after
  * mount.
  */
-export default function Clock() {
+interface ClockProps {
+  /**
+   * "meta" (default) is the header row's size. "micro" matches CornerMark's
+   * studio-info block, which is a step smaller — without this the same
+   * clock rendered visibly larger than the lines stacked around it.
+   */
+  size?: "meta" | "micro";
+}
+
+export default function Clock({ size = "meta" }: ClockProps) {
   const [time, setTime] = useState<string>("--:--");
 
   useEffect(() => {
@@ -31,7 +40,14 @@ export default function Clock() {
   }, []);
 
   return (
-    <span className="font-instrument-sans text-[13px] font-medium tabular-nums text-ws-ink/50">
+    // normal-case/tracking-normal are explicit, not redundant: CornerMark
+    // renders this inside an uppercase, letter-spaced block, and without
+    // the reset the same component renders two different ways on one page.
+    <span
+      className={`font-instrument-sans font-medium normal-case tracking-normal tabular-nums text-ws-ink/50 ${
+        size === "micro" ? "text-micro" : "text-meta"
+      }`}
+    >
       {time} EST
     </span>
   );

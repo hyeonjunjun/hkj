@@ -46,7 +46,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
         >
           <aside
             aria-label="Studio information"
-            className="flex items-center gap-2 font-display text-[10px] uppercase tracking-[0.15em] text-ws-ink/70"
+            className="flex items-center gap-2 font-display text-micro uppercase tracking-[0.15em] text-ws-ink/70"
           >
             <span
               aria-hidden="true"
@@ -58,7 +58,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
             <span aria-hidden="true">//</span>
             <span>{studio.location}</span>
             <span aria-hidden="true">//</span>
-            <Clock />
+            <Clock size="micro" />
           </aside>
         </motion.div>
       </div>
@@ -70,7 +70,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
       <MotionReveal delay={delay.cornerMark} duration={duration.reveal}>
         <aside
           aria-label="Studio information"
-          className="flex flex-col gap-1 font-instrument-sans text-[10px] font-medium uppercase tracking-[0.15em] text-ws-ink/50"
+          className="flex flex-col gap-1 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/50"
         >
           <p>
             <span
@@ -84,7 +84,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
           <p>EST {studio.established}</p>
           <p>{studio.location}</p>
           <p>{studio.availability}</p>
-          <Clock />
+          <Clock size="micro" />
         </aside>
       </MotionReveal>
     </div>

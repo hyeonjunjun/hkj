@@ -18,16 +18,16 @@ export default function InfoRoom() {
           this content's own bottom edge happens to be. */}
       <div className="max-w-[640px] px-[var(--edge-margin)] pt-16 pb-56">
         <section className="border-b border-ws-ink/10 pb-10 mb-10">
-          <h2 className="mb-4 text-[11px] font-medium text-ws-ink/40">Practice</h2>
-          <p className="text-[16px] leading-[1.6] text-ws-ink">{studio.standfirst}</p>
+          <h2 className="mb-4 text-micro font-medium text-ws-ink/40">Practice</h2>
+          <p className="text-body text-ws-ink">{studio.standfirst}</p>
         </section>
 
         {studio.quote && (
           <section className="border-b border-ws-ink/10 pb-10 mb-10">
-            <h2 className="mb-4 text-[11px] font-medium text-ws-ink/40">Philosophy</h2>
-            <blockquote className="font-instrument-sans text-[18px] font-medium leading-[1.6] text-ws-ink">
+            <h2 className="mb-4 text-micro font-medium text-ws-ink/40">Philosophy</h2>
+            <blockquote className="font-instrument-sans text-title font-medium leading-relaxed text-ws-ink">
               “{studio.quote.text}”
-              <footer className="mt-3 font-instrument-sans text-[13px] font-normal tracking-wide text-ws-ink/50">
+              <footer className="mt-3 font-instrument-sans text-meta font-normal tracking-wide text-ws-ink/50">
                 — {studio.quote.author}
               </footer>
             </blockquote>
@@ -35,8 +35,8 @@ export default function InfoRoom() {
         )}
 
         <section id="contact" className="scroll-mt-20 border-b border-ws-ink/10 pb-10 mb-10">
-          <h2 className="mb-4 text-[11px] font-medium text-ws-ink/40">Contact</h2>
-          <p className="text-[16px] text-ws-ink">
+          <h2 className="mb-4 text-micro font-medium text-ws-ink/40">Contact</h2>
+          <p className="text-body text-ws-ink">
             <a href={`mailto:${studio.contactEmail}`} className="underline underline-offset-4">
               {studio.contactEmail}
             </a>
@@ -44,8 +44,8 @@ export default function InfoRoom() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-[11px] font-medium text-ws-ink/40">Colophon</h2>
-          <div className="space-y-2 text-[14px] leading-[1.6] text-ws-ink/60">
+          <h2 className="mb-4 text-micro font-medium text-ws-ink/40">Colophon</h2>
+          <div className="space-y-2 text-meta text-ws-ink/60">
             <p>Set in Instrument Sans.</p>
             <p>Built with Next.js and Tailwind. Deployed on Vercel.</p>
             <p>Colors in OKLCH color space.</p>

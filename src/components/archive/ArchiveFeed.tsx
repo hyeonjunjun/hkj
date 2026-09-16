@@ -10,7 +10,7 @@ interface ArchiveFeedProps {
 export default function ArchiveFeed({ entries }: ArchiveFeedProps) {
   if (entries.length === 0) {
     return (
-      <p className="max-w-[720px] font-instrument-sans text-[12px] font-bold uppercase tracking-[0.08em] text-ws-ink/40">
+      <p className="max-w-[720px] font-instrument-sans text-micro font-bold uppercase tracking-[0.08em] text-ws-ink/40">
         First entries coming soon.
       </p>
     );

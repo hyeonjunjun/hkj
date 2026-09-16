@@ -23,6 +23,27 @@ const config: Config = {
         "ws-ink": "var(--ws-ink)",
         "ws-accent": "var(--ws-accent)",
       },
+      /**
+       * The site's type scale. Four steps plus one display step, each with
+       * a defined role — replaces the ad-hoc spread of text-[10px] through
+       * text-[19px] that had accumulated (nine distinct styles were live on
+       * the Info page alone, including three different 13px variants).
+       *
+       * micro   — section labels, figure captions, the studio-info block
+       * meta    — nav, clock, counters, category/year, image captions
+       * body    — paragraphs: standfirst, descriptions, journal entries
+       * title   — row titles, entry titles, the wordmark
+       * display — work-detail headline and the next-project link
+       *
+       * Line heights are bundled so callers don't re-specify them per use.
+       */
+      fontSize: {
+        micro: ["11px", { lineHeight: "1.45" }],
+        meta: ["13px", { lineHeight: "1.5" }],
+        body: ["16px", { lineHeight: "1.65" }],
+        title: ["19px", { lineHeight: "1.3" }],
+        display: ["clamp(2rem, 4vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.01em" }],
+      },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
         serif: ["var(--font-serif)", "Instrument Serif", "serif"],

@@ -16,7 +16,7 @@ export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-[var(--edge-margin)] py-4 md:py-6">
-        <Link href="/" className="font-instrument-sans text-[15px] font-bold text-ws-ink">
+        <Link href="/" className="font-instrument-sans text-body font-bold text-ws-ink">
           {studio.wordmark}
         </Link>
         <nav aria-label="Primary" className="flex flex-wrap items-center gap-5">
@@ -24,14 +24,14 @@ export default function Landing() {
             <Link
               key={item.href}
               href={item.href}
-              className="font-instrument-sans text-[13px] font-medium text-ws-ink/50 transition-colors hover:text-ws-ink"
+              className="font-instrument-sans text-meta font-medium text-ws-ink/50 transition-colors hover:text-ws-ink"
             >
               {item.label}
             </Link>
           ))}
           <Link
             href="/info"
-            className="font-instrument-sans text-[13px] font-medium text-ws-ink/50 transition-colors hover:text-ws-ink"
+            className="font-instrument-sans text-meta font-medium text-ws-ink/50 transition-colors hover:text-ws-ink"
           >
             info
           </Link>

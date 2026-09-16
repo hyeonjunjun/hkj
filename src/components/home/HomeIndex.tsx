@@ -59,6 +59,13 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         href={`/works/${work.slug}`}
         className="flex w-full max-w-[1000px] items-start justify-center gap-4 md:gap-6"
       >
+        {/*
+         * Both panels share one 4:3 frame and cover-crop into it. Letting
+         * each image keep its own aspect made the pair different heights
+         * (a 16:9 video beside a square placeholder), so the spread had a
+         * ragged bottom edge and read accidental rather than composed —
+         * a diptych only works if the plates share a baseline.
+         */}
         <AnimatePresence mode="sync">
           <motion.div
             key={`${work.id}-a`}
@@ -66,9 +73,9 @@ export default function HomeIndex({ works }: HomeIndexProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={secondaryMedia ? "w-1/2" : "w-full max-w-[480px]"}
+            className={`aspect-[4/3] overflow-hidden bg-ws-ink/5 ${secondaryMedia ? "w-1/2" : "w-full max-w-[560px]"}`}
           >
-            <MediaRenderer media={work.media} />
+            <MediaRenderer media={work.media} fit="cover" />
           </motion.div>
         </AnimatePresence>
         {secondaryMedia && (
@@ -79,15 +86,15 @@ export default function HomeIndex({ works }: HomeIndexProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="w-1/2"
+              className="aspect-[4/3] w-1/2 overflow-hidden bg-ws-ink/5"
             >
-              <MediaRenderer media={secondaryMedia} />
+              <MediaRenderer media={secondaryMedia} fit="cover" />
             </motion.div>
           </AnimatePresence>
         )}
       </Link>
 
-      <div className="flex w-full max-w-[1000px] items-baseline justify-between font-instrument-sans text-[11px] font-medium text-ws-ink/50">
+      <div className="flex w-full max-w-[1000px] items-baseline justify-between font-instrument-sans text-micro font-medium text-ws-ink/50">
         <span>
           {work.title.toLowerCase()} <span className="text-ws-ink/30">&middot;</span> {work.category.toLowerCase()}
         </span>

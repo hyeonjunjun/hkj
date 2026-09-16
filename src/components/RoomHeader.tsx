@@ -23,7 +23,7 @@ export default function RoomHeader({ roomLabel, roomCount, activeRoom }: RoomHea
   return (
     <header className="relative z-10 px-[var(--edge-margin)] pt-[var(--edge-margin)]">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <Link href="/" className="font-instrument-sans text-[15px] font-bold text-ws-ink">
+        <Link href="/" className="font-instrument-sans text-body font-bold text-ws-ink">
           {studio.wordmark}
         </Link>
         <nav aria-label="Primary" className="flex flex-wrap items-center gap-5">
@@ -31,7 +31,7 @@ export default function RoomHeader({ roomLabel, roomCount, activeRoom }: RoomHea
             <Link
               key={item.href}
               href={item.href}
-              className={`font-instrument-sans text-[13px] font-medium transition-colors hover:text-ws-ink ${
+              className={`font-instrument-sans text-meta font-medium transition-colors hover:text-ws-ink ${
                 item.room === activeRoom ? "text-ws-ink" : "text-ws-ink/50"
               }`}
             >
@@ -40,7 +40,7 @@ export default function RoomHeader({ roomLabel, roomCount, activeRoom }: RoomHea
           ))}
           <Link
             href="/info"
-            className={`font-instrument-sans text-[13px] font-medium transition-colors hover:text-ws-ink ${
+            className={`font-instrument-sans text-meta font-medium transition-colors hover:text-ws-ink ${
               activeRoom === "info" ? "text-ws-ink" : "text-ws-ink/50"
             }`}
           >
@@ -49,7 +49,7 @@ export default function RoomHeader({ roomLabel, roomCount, activeRoom }: RoomHea
         </nav>
       </div>
       <div className="mt-4 flex items-baseline justify-between border-b border-ws-ink/10 pb-4">
-        <p className="font-instrument-sans text-[12px] font-medium text-ws-ink">
+        <p className="font-instrument-sans text-meta font-medium text-ws-ink">
           {roomCount !== undefined ? `${roomLabel} · ${roomCount}` : roomLabel}
         </p>
         <Clock />
