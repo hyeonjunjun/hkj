@@ -279,12 +279,19 @@ export default function HomeIndex({ works }: HomeIndexProps) {
       const { base, h } = geom.current;
       if (h > 0) {
         const rel = window.scrollY + window.innerHeight / 2 - base;
-        if (rel < MIDDLE * h) {
-          jumpTo(window.scrollY + h);
-          restY.current += h;
-        } else if (rel >= (MIDDLE + 1) * h) {
-          jumpTo(window.scrollY - h);
-          restY.current -= h;
+        // The wrap moves the page by one set. If a glide is in flight it
+        // is still aimed at the pre-wrap position, and Lenis will happily
+        // drag the page all the way back to it — which is exactly what
+        // stranded the first upward step out of project 1 (off by 339px,
+        // counter stuck). So the in-flight target moves with the page.
+        let shift = 0;
+        if (rel < MIDDLE * h) shift = h;
+        else if (rel >= (MIDDLE + 1) * h) shift = -h;
+
+        if (shift !== 0) {
+          jumpTo(window.scrollY + shift);
+          restY.current += shift;
+          if (snapping.current) glideTo(restY.current, 0.35);
         }
       }
       // Scheduled even while a glide is in flight, just further out.
