@@ -19,11 +19,16 @@ export default function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({
-      duration: 1.1,
-      // Matches windEasing in lib/motion.ts — fast start, slow settle.
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
+    // lerp rather than duration: frame-rate-independent exponential
+    // decay, so a new gesture mid-scroll redirects the motion instead of
+    // queueing behind a fixed-length tween. That difference is most of
+    // what reads as "analog" rather than "animated".
+    //
+    // 0.1 is gsproductions.co.za's, derived from its measured response to
+    // a single 600px wheel gesture: 49% at 109ms, 84% at 310ms, 96% at
+    // 526ms, settled by ~940ms. Solving (1-lerp)^frames against those
+    // samples gives 0.098.
+    const lenis = new Lenis({ lerp: 0.1 });
 
     let frame = 0;
     const raf = (time: number) => {

@@ -49,7 +49,7 @@ const config: Config = {
        * `label` like everything else; presence lives in the imagery.
        */
       fontSize: {
-        label: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "500" }],
+        label: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "600" }],
         value: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "400" }],
         prose: ["12px", { lineHeight: "18px", letterSpacing: "0", fontWeight: "400" }],
       },

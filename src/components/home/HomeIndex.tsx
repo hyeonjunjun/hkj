@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type WheelEvent } from "react";
+import { useEffect, useRef, useState, type WheelEvent } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Work } from "@/data/works";
@@ -61,15 +61,62 @@ interface HomeIndexProps {
 export default function HomeIndex({ works }: HomeIndexProps) {
   const [index, setIndex] = useState(0);
   const work = works[index];
-  const wheelLocked = useRef(false);
+
+  /**
+   * Wheel handling, tuned against gsproductions.co.za.
+   *
+   * It previously advanced on the first wheel event past a 10px deltaY
+   * and then hard-locked for 450ms, so a flick and a shove did the same
+   * thing and anything during the lock was simply dropped. That reads as
+   * a slideshow with a cooldown, not as scrolling.
+   *
+   * Now the deltas accumulate and a step fires when the total crosses
+   * THRESHOLD, so the gesture's size decides when it advances. Between
+   * steps the accumulator decays toward zero at the same 0.1 lerp Lenis
+   * uses elsewhere (see SmoothScroll), which is what keeps it feeling
+   * continuous rather than quantised — a half-gesture that stops bleeds
+   * off instead of sitting there waiting to be topped up.
+   *
+   * A short COOLDOWN remains, but only long enough for the crossfade to
+   * read; it is not what paces the interaction.
+   */
+  const accum = useRef(0);
+  const lastStep = useRef(0);
+  const decayRaf = useRef<number | null>(null);
+
+  const THRESHOLD = 120;
+  const COOLDOWN = 260;
+
+  const startDecay = () => {
+    if (decayRaf.current !== null) return;
+    const tick = () => {
+      accum.current *= 1 - 0.1;
+      if (Math.abs(accum.current) < 1) {
+        accum.current = 0;
+        decayRaf.current = null;
+        return;
+      }
+      decayRaf.current = requestAnimationFrame(tick);
+    };
+    decayRaf.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => () => {
+    if (decayRaf.current !== null) cancelAnimationFrame(decayRaf.current);
+  }, []);
 
   const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
-    if (wheelLocked.current || Math.abs(e.deltaY) < 10 || works.length === 0) return;
-    wheelLocked.current = true;
-    setIndex((i) => (e.deltaY > 0 ? (i + 1) % works.length : (i - 1 + works.length) % works.length));
-    setTimeout(() => {
-      wheelLocked.current = false;
-    }, 450);
+    if (works.length === 0) return;
+    accum.current += e.deltaY;
+    startDecay();
+
+    const now = performance.now();
+    if (Math.abs(accum.current) < THRESHOLD || now - lastStep.current < COOLDOWN) return;
+
+    const dir = accum.current > 0 ? 1 : -1;
+    accum.current = 0;
+    lastStep.current = now;
+    setIndex((i) => (i + dir + works.length) % works.length);
   };
 
   // One label/value pair per column, on GSP's nav tracks.

@@ -61,10 +61,10 @@ export const works: Work[] = [
     status: "LIVE",
     role: "Design + Build",
     media: {
-      type: "video",
-      src: "/assets/aurebor_jeju_cropped.mp4",
-      alt: "Placeholder for Work I",
-      aspectRatio: "wide",
+      type: "image",
+      src: "/images/ichiran-night.jpg",
+      alt: "Ichiran ramen shop at night, queue along the sidewalk under neon",
+      aspectRatio: "landscape",
     },
     sections: [
       {
