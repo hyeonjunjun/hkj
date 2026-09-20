@@ -382,9 +382,14 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     [n, centreOf, glideToRest],
   );
 
+  /**
+   * No Client row: the title already sits beside the active swatch on
+   * the left, and repeating it across the spread just doubled it.
+   * What is left is the spec — role, type, year.
+   */
   const meta = [
-    { label: "Client", value: work.title.toLowerCase() },
     { label: "Role", value: work.role.toLowerCase() },
+    { label: "Type", value: work.category.toLowerCase() },
     { label: "Year", value: work.year },
   ];
 
@@ -410,7 +415,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           portrait without the row going ragged. */}
       <div
         ref={columnRef}
-        className="col-span-12 col-start-1 flex flex-col gap-[var(--space-8)] py-[var(--space-8)] md:col-span-8 md:col-start-3"
+        className="col-span-12 col-start-1 flex flex-col gap-[18vh] py-[24vh] md:col-span-8 md:col-start-3"
       >
         {Array.from({ length: SETS }).flatMap((_, s) =>
           works.map((w, i) => {
@@ -449,12 +454,17 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           column 10; it was laid across 8/10/12 when the plate was only
           four columns wide. */}
       <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block">
-        <div className="flex h-full flex-col justify-center gap-[var(--space-2)]">
+        {/* Label over value, one spacing token between the pair and
+            three between groups — the same label/value rhythm the case
+            study header uses. Set inline, a long role like
+            "concept + direction" wrapped under its own label and the
+            three rows stopped lining up. */}
+        <div className="flex h-full flex-col justify-center gap-[var(--space-3)]">
           {meta.map((m) => (
-            <p key={m.label}>
-              <span className="text-value text-ws-ink-mute">{m.label}</span>{" "}
-              <span className="text-label text-ws-ink">{m.value}</span>
-            </p>
+            <div key={m.label}>
+              <p className="text-value uppercase text-ws-ink-mute">{m.label}</p>
+              <p className="mt-[var(--space-1)] text-label text-ws-ink">{m.value}</p>
+            </div>
           ))}
         </div>
       </div>
