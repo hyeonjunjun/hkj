@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { studio } from "@/data/studio";
 import { works } from "@/data/works";
 import Clock from "@/components/Clock";
+import SiteNav, { Wordmark } from "@/components/SiteNav";
 import WorkShowcase from "@/components/home/WorkShowcase";
 
 /**
@@ -16,16 +15,8 @@ export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
       <div className="flex flex-wrap items-baseline gap-x-[var(--space-3)] gap-y-2 px-[var(--edge-margin)] pt-[var(--space-1)] pb-[var(--space-2)]">
-        <Link href="/" className="text-label text-ws-ink">
-          {studio.wordmark}
-        </Link>
-        <nav aria-label="Primary" className="flex flex-wrap items-baseline gap-[var(--space-3)]">
-          {[...studio.navItems, { label: "info", href: "/info" }].map((item) => (
-            <Link key={item.href} href={item.href} className="text-value text-ws-ink-mute">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <Wordmark />
+        <SiteNav />
         <Clock />
       </div>
 

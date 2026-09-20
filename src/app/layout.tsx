@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter_Tight, Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
-import Preloader from "@/components/Preloader";
 import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
@@ -80,7 +79,6 @@ export default function RootLayout({
           Tight) + text-ink, which is how a third black and a second
           typeface were leaking onto pages that never asked for them. */}
       <body className="bg-ws-paper font-instrument-sans text-value text-ws-ink antialiased">
-        <Preloader />
         <SmoothScroll />
         {children}
       </body>

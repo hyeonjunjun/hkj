@@ -61,7 +61,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper text-ws-ink">
-      <RoomHeader roomLabel="Index" activeRoom="index" />
+      <RoomHeader activeRoom="index" />
 
       {/* pb-56 leaves room for CornerMark, which is absolutely positioned
           against <main> and lands wherever this article's bottom edge is. */}

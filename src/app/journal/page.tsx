@@ -15,7 +15,7 @@ import CornerMark from "@/components/CornerMark";
 export default function JournalRoom() {
   return (
     <main className="relative min-h-screen w-full bg-ws-paper">
-      <RoomHeader roomLabel="Journal" roomCount={archive.length} activeRoom="journal" />
+      <RoomHeader activeRoom="journal" />
       <div className="px-[var(--edge-margin)] pt-16 pb-32">
         <ArchiveFeed entries={archive} />
       </div>

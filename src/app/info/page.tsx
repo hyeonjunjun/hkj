@@ -12,7 +12,7 @@ import CornerMark from "@/components/CornerMark";
 export default function InfoRoom() {
   return (
     <main className="relative min-h-screen w-full bg-ws-paper">
-      <RoomHeader roomLabel="Info" activeRoom="info" />
+      <RoomHeader activeRoom="info" />
       {/* pb-56 (not a smaller pad) leaves room for CornerMark, which is
           `absolute bottom-[edge-margin]` against <main> and lands wherever
           this content's own bottom edge happens to be. */}

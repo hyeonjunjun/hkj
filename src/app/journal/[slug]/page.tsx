@@ -27,7 +27,7 @@ export default async function JournalEntryPage({ params }: JournalEntryPageProps
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper">
-      <RoomHeader roomLabel="Journal" activeRoom="journal" />
+      <RoomHeader activeRoom="journal" />
       <div className="px-[var(--edge-margin)] pt-24 pb-32">
         <ArchiveEntry entry={entry} />
       </div>

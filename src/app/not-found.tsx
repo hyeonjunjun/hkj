@@ -5,7 +5,7 @@ import CornerMark from "@/components/CornerMark";
 export default function NotFound() {
   return (
     <main className="relative min-h-screen w-full bg-ws-paper flex flex-col justify-between">
-      <RoomHeader roomLabel="NOT FOUND" />
+      <RoomHeader />
       <div className="flex-1 flex flex-col items-start justify-center px-[var(--edge-margin)] py-32">
         <p className="text-value uppercase text-ws-ink-mute">
           • 404 / ERROR
