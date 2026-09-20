@@ -15,7 +15,12 @@ import type { MediaAsset } from "@/lib/types";
  *              flex column, row-gap = one gutter
  *   inner      width/height 100%, transform: scale(0.6), origin centre
  *   thumbs     aspect-video, object-cover
- *   indicator  absolute, width 100%, aspect-ratio 16/19, 1px border
+ *   indicator  absolute, width 100%, 1px border
+
+ * The indicator's SIZE is not taken from the reference: cathydolle's
+ * 16/19 box is accurate to her document and nothing else. Ours is
+ * derived from the real viewport/document ratio, so it reports how much
+ * of the page you are seeing as well as where you are.
  *
  * The rail is one grid column wide because it belongs to the same grid
  * as the page — it is not an independently-tuned width. The 0.6 scale is
@@ -31,10 +36,8 @@ export default function CaseStudyMinimap({
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [trackH, setTrackH] = useState(0);
-  // The indicator is a true window onto the document, not a fixed shape:
-  // its height is the viewport's share of the page and its offset is the
-  // scrolled share. Both are fractions of the document, so the rail reads
-  // as "you are seeing this much, here" rather than just "you are here".
+  // A true window onto the document: height is the viewport's share of
+  // the page, offset is the scrolled share.
   const [view, setView] = useState({ frac: 0, offset: 0 });
 
   useEffect(() => {
@@ -92,10 +95,9 @@ export default function CaseStudyMinimap({
         className="relative flex h-full w-full flex-col"
         style={{ transform: "scale(0.6)", rowGap: "var(--gutter)" }}
       >
-        {/* Viewport indicator, sized and positioned from the real ratio of
-            viewport to document. At offset = (docH - viewH)/docH its top
-            lands at trackH * (1 - frac), i.e. flush with the bottom of the
-            track, so it needs no end-clamping. */}
+        {/* At offset = (docH - viewH)/docH the top lands at
+            trackH * (1 - frac), i.e. flush with the bottom of the track,
+            so this needs no end-clamping. */}
         <span
           aria-hidden="true"
           className="pointer-events-none absolute left-0 z-10 w-full border border-ws-ink"
