@@ -9,16 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "var(--paper)",
-        "paper-shade": "var(--paper-shade)",
-        "paper-hover": "var(--paper-hover)",
-        "paper-deep": "var(--paper-deep)",
-        "paper-edge": "var(--paper-edge)",
-        ink: "var(--ink)",
-        "ink-soft": "var(--ink-soft)",
-        mist: "var(--mist)",
-        "mist-deep": "var(--mist-deep)",
-        ember: "var(--ember)",
         "ws-paper": "var(--ws-paper)",
         "ws-ink": "var(--ws-ink)",
         "ws-accent": "var(--ws-accent)",
@@ -54,7 +44,6 @@ const config: Config = {
         prose: ["12px", { lineHeight: "18px", letterSpacing: "0", fontWeight: "400" }],
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
         display: ["var(--font-display)", "General Sans", "sans-serif"],
         "instrument-sans": ["var(--font-instrument-sans)", "Instrument Sans", "sans-serif"],
         /**

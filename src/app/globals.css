@@ -2,16 +2,6 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --paper: #F8F9FA;
-  --paper-shade: oklch(90% 0.012 85);
-  --paper-hover: oklch(94% 0.010 85);
-  --paper-deep: oklch(86% 0.015 85);
-  --ink: #121212;
-  --ink-soft: oklch(35% 0.010 60);
-  --mist: oklch(58% 0.012 75);
-  --mist-deep: oklch(48% 0.014 75);
-  --ember: oklch(60% 0.14 50);
-  --paper-edge: oklch(90% 0.005 60);
 
   /* Shared inset from the viewport edge for every corner-anchored
      element (masthead, thesis, corner mark, room headers/content) —
@@ -43,10 +33,10 @@
   --space-8: calc(var(--gutter) * 8);
   --space-12: calc(var(--gutter) * 12);
 
-  /* Windswept landing-page palette -- new, distinctly-named tokens
-     (not redefinitions of --paper/--ink/--ember above), so Archive,
-     References, Info, and every other room's shared styling is
-     completely unaffected. Used only by landing-variant components. */
+  /* The palette. Three colours and three derived steps — that is the
+     whole set, and every room uses it. The legacy --paper/--ink/--mist
+     tokens this once sat beside were removed once nothing referenced
+     them; --ws-accent now carries the focus ring too. */
   --ws-paper: #F9F8F6;
   --ws-ink: #1C1C1A;
   --ws-accent: #E2661A;
@@ -140,7 +130,7 @@ body::-webkit-scrollbar {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ember);
+  outline: 2px solid var(--ws-accent);
   outline-offset: 2px;
 }
 
@@ -182,9 +172,9 @@ body::-webkit-scrollbar {
 }
 
 /* ── Timeline track — native horizontal scroll, scrollbar hidden ──
-   (TimelineAxis's progress indicator is the visible scroll indicator,
-   reusing the same technique as .corner-slider__track in
-   src/components/corner/ProjectSlider.tsx.) */
+   TimelineAxis's progress indicator is the visible scroll indicator.
+   Used only by the timeline components, which nothing currently
+   renders — see the note in WorkShowcase. */
 .timeline-track {
   scrollbar-width: none;
   -ms-overflow-style: none;

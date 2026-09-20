@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Inter_Tight, Instrument_Sans } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import SmoothScroll from "@/components/SmoothScroll";
 import ViewTransitions from "@/components/ViewTransitions";
 import "./globals.css";
-
-const interTight = Inter_Tight({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
 
 /**
  * The site's one working face. 500 is loaded because it is the hinge of
@@ -95,13 +88,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${generalSans.variable} ${instrumentSans.variable} ${switzer.variable}`}
+      className={`${generalSans.variable} ${instrumentSans.variable} ${switzer.variable}`}
     >
-      {/* font-instrument-sans + text-value as the document default: the
-          site has exactly one face and one size, so nothing below should
-          have to restate either. Previously this was font-sans (Inter
-          Tight) + text-ink, which is how a third black and a second
-          typeface were leaking onto pages that never asked for them. */}
+      {/* One face, one size, set once: the site has exactly one of each,
+          so nothing below restates them. This was Inter Tight plus the
+          old --ink token, which is how a second typeface and a third
+          black leaked onto pages that never asked for either. */}
       <body className="bg-ws-paper font-instrument-sans text-value text-ws-ink antialiased">
         <SmoothScroll />
         <ViewTransitions />

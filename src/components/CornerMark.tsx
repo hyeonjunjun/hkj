@@ -55,9 +55,9 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
               •
             </span>
             <span>( {studio.availability} )</span>
-            <span aria-hidden="true">//</span>
+            <span aria-hidden="true">{"//"}</span>
             <span>{studio.location}</span>
-            <span aria-hidden="true">//</span>
+            <span aria-hidden="true">{"//"}</span>
             <Clock />
           </aside>
         </motion.div>

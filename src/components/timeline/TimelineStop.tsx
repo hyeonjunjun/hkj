@@ -36,7 +36,7 @@ export default function TimelineStop({ work, isActive }: TimelineStopProps) {
         className={`block relative transition-[opacity,filter,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive ? "opacity-100 scale-100" : "opacity-60 scale-[0.98] blur-[2px]"
           }`}
       >
-        <div className="mb-3 font-display text-xs text-ws-ink-mute uppercase transition-colors duration-300 group-hover:text-ws-accent">
+        <div className="mb-3 font-display text-value text-ws-ink-mute uppercase transition-colors duration-300 group-hover:text-ws-accent">
           {index}
         </div>
         <div className={`relative ${widthClass} ${aspectRatio} overflow-hidden border border-ws-rule bg-ws-fill`}>
@@ -45,10 +45,10 @@ export default function TimelineStop({ work, isActive }: TimelineStopProps) {
         </div>
         <div
           id={captionId}
-          className="mt-3 flex items-baseline justify-between gap-3 font-display text-sm text-ws-ink transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-[2px]"
+          className="mt-3 flex items-baseline justify-between gap-3 font-display text-label text-ws-ink transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-[2px]"
         >
           <span className="font-medium">{title}</span>
-          <span className="shrink-0 font-display text-xs uppercase text-ws-ink-mute">{category}</span>
+          <span className="shrink-0 font-display text-value uppercase text-ws-ink-mute">{category}</span>
         </div>
       </Link>
     </article>

@@ -156,8 +156,6 @@ export default function HomeTimeline({ works }: HomeTimelineProps) {
     targetRef.current = track.scrollLeft + (elRect.left - trackRect.left);
   };
 
-  const activeWork = sorted[activeIndex];
-
   return (
     <section aria-label="Works timeline" className="h-full w-full flex flex-col justify-end pb-12">
       <div
