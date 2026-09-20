@@ -12,7 +12,7 @@ import CornerMark from "@/components/CornerMark";
  */
 export default function IndexRoom() {
   return (
-    <main className="relative min-h-screen w-full bg-ws-paper font-instrument-sans">
+    <main className="relative min-h-screen w-full bg-ws-paper">
       <RoomHeader roomLabel="Index" roomCount={works.length} activeRoom="index" />
       <IndexList works={works} />
       <CornerMark />

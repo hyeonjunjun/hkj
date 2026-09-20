@@ -16,7 +16,7 @@ export default function JournalRoom() {
   return (
     <main className="relative min-h-screen w-full bg-ws-paper">
       <RoomHeader roomLabel="Journal" roomCount={archive.length} activeRoom="journal" />
-      <div className="font-instrument-sans px-[var(--edge-margin)] pt-16 pb-32">
+      <div className="px-[var(--edge-margin)] pt-16 pb-32">
         <ArchiveFeed entries={archive} />
       </div>
       <CornerMark />

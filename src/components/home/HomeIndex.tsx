@@ -73,7 +73,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={`aspect-[4/3] overflow-hidden bg-ws-ink/5 ${secondaryMedia ? "w-1/2" : "w-full max-w-[560px]"}`}
+            className={`aspect-[4/3] overflow-hidden bg-ws-fill ${secondaryMedia ? "w-1/2" : "w-full max-w-[560px]"}`}
           >
             <MediaRenderer media={work.media} fit="cover" />
           </motion.div>
@@ -86,7 +86,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="aspect-[4/3] w-1/2 overflow-hidden bg-ws-ink/5"
+              className="aspect-[4/3] w-1/2 overflow-hidden bg-ws-fill"
             >
               <MediaRenderer media={secondaryMedia} fit="cover" />
             </motion.div>
@@ -94,9 +94,9 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         )}
       </Link>
 
-      <div className="flex w-full max-w-[1000px] items-baseline justify-between font-instrument-sans text-micro font-medium text-ws-ink/50">
+      <div className="flex w-full max-w-[1000px] items-baseline justify-between text-value text-ws-ink-mute">
         <span>
-          {work.title.toLowerCase()} <span className="text-ws-ink/30">&middot;</span> {work.category.toLowerCase()}
+          {work.title.toLowerCase()} <span className="text-ws-ink-mute">&middot;</span> {work.category.toLowerCase()}
         </span>
         <span className="tabular-nums">
           {pad2(index + 1)} / {pad2(works.length)}

@@ -22,40 +22,39 @@ const config: Config = {
         "ws-paper": "var(--ws-paper)",
         "ws-ink": "var(--ws-ink)",
         "ws-accent": "var(--ws-accent)",
+        /**
+         * The single muted step, plus rule/fill. Use these instead of
+         * `ws-ink/NN` opacity suffixes — the point of the collapse is
+         * that there is one secondary weight of ink, not a ladder.
+         */
+        "ws-ink-mute": "var(--ws-ink-mute)",
+        "ws-rule": "var(--ws-rule)",
+        "ws-fill": "var(--ws-fill)",
       },
       /**
-       * The site's type scale. Four steps plus one display step, each with
-       * a defined role — replaces the ad-hoc spread of text-[10px] through
-       * text-[19px] that had accumulated (nine distinct styles were live on
-       * the Info page alone, including three different 13px variants).
+       * The site runs on ONE font-size. Hierarchy is carried by weight and
+       * leading, never by size — the pattern measured off cathydolle.com,
+       * dylan.camera and ard.works, none of which uses more than two
+       * weights or any letter-spacing at all.
        *
-       * micro   — section labels, figure captions, the studio-info block
-       * meta    — nav, clock, counters, category/year, image captions
-       * body    — paragraphs: standfirst, descriptions, journal entries
-       * title   — row titles, entry titles, the wordmark
-       * display — work-detail headline and the next-project link
+       * label — section headings, field labels, nav. Weight 500.
+       * value — metadata values, years, tags, captions. Weight 400.
+       * prose — descriptions and body paragraphs. Weight 400, open leading.
        *
-       * Line heights are bundled so callers don't re-specify them per use.
+       * Size, leading, tracking and weight are all bundled here so no
+       * component re-specifies them. `uppercase` stays a separate class
+       * because fontSize can't carry text-transform.
+       *
+       * Deliberately absent: any display step. The case-study h1 is a
+       * `label` like everything else; presence lives in the imagery.
        */
       fontSize: {
-        micro: ["11px", { lineHeight: "1.45" }],
-        meta: ["13px", { lineHeight: "1.5" }],
-        body: ["16px", { lineHeight: "1.65" }],
-        title: ["19px", { lineHeight: "1.3" }],
-        display: ["clamp(2rem, 4vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.01em" }],
+        label: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "500" }],
+        value: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "400" }],
+        prose: ["12px", { lineHeight: "18px", letterSpacing: "0", fontWeight: "400" }],
       },
       fontFamily: {
         sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
-        serif: ["var(--font-serif)", "Instrument Serif", "serif"],
-        courier: ["var(--font-courier)", "Courier Prime", "monospace"],
-        /**
-         * `font-mono` intentionally points at Courier Prime, not a separate
-         * mono face — the site has no JetBrains-Mono-style geometric mono.
-         * Every existing `font-mono` class (metadata, timestamps, tags,
-         * labels, across every room) renders in Courier Prime through this
-         * single indirection, with no component-level class rewrites.
-         */
-        mono: ["var(--font-courier)", "Courier Prime", "monospace"],
         display: ["var(--font-display)", "General Sans", "sans-serif"],
         "instrument-sans": ["var(--font-instrument-sans)", "Instrument Sans", "sans-serif"],
       },

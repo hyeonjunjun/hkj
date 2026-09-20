@@ -4,24 +4,19 @@ import { useEffect, useState } from "react";
 
 /**
  * Renders the current time in New York, "HH:MM EST", updated every 30s.
- * Plain grotesk, same weight/size as the nav bar text, no box — the
- * site's one recurring idiosyncratic detail, meant to sit unlabeled in
- * the top-right corner of every page (the time alone communicates what
- * it is). Server-rendered as a static "--:-- EST" placeholder so
- * hydration never has to reconcile a server-rendered timestamp against
- * a different client-rendered one — the real value is filled in after
- * mount.
+ * Plain grotesk, no box — the site's one recurring idiosyncratic detail,
+ * meant to sit unlabeled in the top-right corner of every page (the time
+ * alone communicates what it is). Server-rendered as a static "--:-- EST"
+ * placeholder so hydration never has to reconcile a server-rendered
+ * timestamp against a different client-rendered one — the real value is
+ * filled in after mount.
+ *
+ * The old `size` prop ("meta" | "micro") is gone: it existed only to stop
+ * the clock rendering a step larger than the studio-info lines stacked
+ * around it, and under the single-size system there is no step to differ
+ * by. Both call sites now get the same 12px value register.
  */
-interface ClockProps {
-  /**
-   * "meta" (default) is the header row's size. "micro" matches CornerMark's
-   * studio-info block, which is a step smaller — without this the same
-   * clock rendered visibly larger than the lines stacked around it.
-   */
-  size?: "meta" | "micro";
-}
-
-export default function Clock({ size = "meta" }: ClockProps) {
+export default function Clock() {
   const [time, setTime] = useState<string>("--:--");
 
   useEffect(() => {
@@ -40,14 +35,10 @@ export default function Clock({ size = "meta" }: ClockProps) {
   }, []);
 
   return (
-    // normal-case/tracking-normal are explicit, not redundant: CornerMark
-    // renders this inside an uppercase, letter-spaced block, and without
-    // the reset the same component renders two different ways on one page.
-    <span
-      className={`font-instrument-sans font-medium normal-case tracking-normal tabular-nums text-ws-ink/50 ${
-        size === "micro" ? "text-micro" : "text-meta"
-      }`}
-    >
+    // normal-case is explicit, not redundant: CornerMark renders this
+    // inside an uppercase block, and without the reset the same component
+    // renders two different ways on one page.
+    <span className="text-value normal-case tabular-nums text-ws-ink-mute">
       {time} EST
     </span>
   );

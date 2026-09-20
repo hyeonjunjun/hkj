@@ -16,7 +16,7 @@ export default function Standfirst() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delaySeconds.standfirst, duration: durationSeconds.reveal, ease: windEasing }}
-      className="mt-2 max-w-[380px] font-sans text-[14px] leading-[1.5] text-ws-ink"
+      className="mt-2 max-w-[380px] text-prose text-ws-ink"
     >
       {studio.standfirst}
     </motion.p>

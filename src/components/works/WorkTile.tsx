@@ -72,12 +72,12 @@ export function MediaRenderer({
 
   return (
     <div
-      className={`flex items-center justify-center border border-ws-ink/30 transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04] ${sizeClasses}`}
+      className={`flex items-center justify-center border border-ws-ink-mute transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04] ${sizeClasses}`}
       style={style}
       role="img"
       aria-label={media.alt}
     >
-      <span className="max-w-full truncate px-1 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+      <span className="max-w-full truncate px-1 text-value uppercase text-ws-ink-mute">
         Content coming soon
       </span>
     </div>

@@ -53,7 +53,7 @@ export default function GalleryWall({ works }: GalleryWallProps) {
         <MotionReveal key={tile.key} delay={Math.min(i, 11) * 55} duration={duration.reveal}>
         <Link
           href={`/works/${tile.workSlug}`}
-          className="group relative block aspect-square overflow-hidden bg-ws-ink/5 transition-opacity duration-300 hover:opacity-85"
+          className="group relative block aspect-square overflow-hidden bg-ws-fill transition-opacity duration-300 hover:opacity-85"
         >
           <MediaRenderer media={tile.media} fit="cover" />
         </Link>

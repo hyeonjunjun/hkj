@@ -11,7 +11,7 @@ import CornerMark from "@/components/CornerMark";
  */
 export default function GalleryRoom() {
   return (
-    <main className="relative min-h-screen w-full bg-ws-paper font-instrument-sans">
+    <main className="relative min-h-screen w-full bg-ws-paper">
       <div className="sticky top-0 z-10 bg-ws-paper pb-4">
         <RoomHeader roomLabel="Gallery" activeRoom="gallery" />
       </div>

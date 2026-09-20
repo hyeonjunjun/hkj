@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Courier_Prime, Inter_Tight, Instrument_Serif, Instrument_Sans } from "next/font/google";
+import { Inter_Tight, Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import Preloader from "@/components/Preloader";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -12,33 +12,15 @@ const interTight = Inter_Tight({
   display: "swap",
 });
 
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
 /**
- * Courier Prime is the site's only monospace-register face. The Tailwind
- * `font-mono` utility is pointed at --font-courier (see tailwind.config.ts)
- * rather than a separate --font-mono variable, so every existing
- * `font-mono` class across every room — metadata, timestamps, tags,
- * labels — renders in Courier without any component needing a class
- * rewrite. Archive additionally uses this face directly (via
- * `font-courier`) as its primary body register.
+ * The site's one working face. 500 is loaded because it is the hinge of
+ * the whole type system — under the single-size scale a heading differs
+ * from its own content by weight alone, so 500 has to be a real cut
+ * rather than something the browser synthesizes.
  */
-const courierPrime = Courier_Prime({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-courier",
-  display: "swap",
-});
-
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500"],
   variable: "--font-instrument-sans",
   display: "swap",
 });
@@ -90,9 +72,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${courierPrime.variable} ${generalSans.variable} ${instrumentSans.variable}`}
+      className={`${interTight.variable} ${generalSans.variable} ${instrumentSans.variable}`}
     >
-      <body className="bg-paper font-sans text-ink antialiased">
+      {/* font-instrument-sans + text-value as the document default: the
+          site has exactly one face and one size, so nothing below should
+          have to restate either. Previously this was font-sans (Inter
+          Tight) + text-ink, which is how a third black and a second
+          typeface were leaking onto pages that never asked for them. */}
+      <body className="bg-ws-paper font-instrument-sans text-value text-ws-ink antialiased">
         <Preloader />
         <SmoothScroll />
         {children}

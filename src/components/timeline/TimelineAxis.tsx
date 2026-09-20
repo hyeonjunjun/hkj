@@ -27,13 +27,13 @@ export default function TimelineAxis({ years, progress }: TimelineAxisProps) {
             key={i}
             className={
               i % TICKS_PER_YEAR === 0
-                ? "h-3 w-px bg-ws-ink/60"
-                : "h-1.5 w-px bg-ws-ink/20"
+                ? "h-3 w-px bg-ws-ink-mute"
+                : "h-1.5 w-px bg-ws-ink-mute"
             }
           />
         ))}
       </div>
-      <div className="mt-2 flex justify-between font-display text-[10px] uppercase tracking-[0.1em] text-ws-ink/50">
+      <div className="mt-2 flex justify-between text-value uppercase text-ws-ink-mute">
         {distinctYears.map((year) => (
           <span key={year}>{year}</span>
         ))}

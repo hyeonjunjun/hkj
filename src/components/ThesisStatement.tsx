@@ -16,7 +16,7 @@ export default function ThesisStatement() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delaySeconds.thesis, duration: durationSeconds.reveal, ease: windEasing }}
-      className="thesis mt-6 font-display text-[24px] font-bold leading-[1] tracking-[-0.03em] text-ws-ink md:text-[32px] lg:text-[clamp(36px,4vw,60px)]"
+      className="thesis mt-6 text-prose text-ws-ink"
     >
       {studio.thesis}
     </motion.p>

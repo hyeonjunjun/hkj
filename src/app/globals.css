@@ -16,8 +16,32 @@
   /* Shared inset from the viewport edge for every corner-anchored
      element (masthead, thesis, corner mark, room headers/content) —
      single source of truth so tuning it is a one-line change, not a
-     find/replace across ten files. */
-  --edge-margin: clamp(16px, 2vw, 32px);
+     find/replace across ten files.
+
+     Now derived from the grid gutter rather than a clamp of its own, so
+     corner-anchored chrome sits on the same vertical lines as gridded
+     content instead of near them. */
+  --edge-margin: var(--gutter);
+
+  /* ── The grid ──────────────────────────────────────────────────────
+     12 fluid columns, gutter = 100vw/180, outer margin = one gutter.
+     That satisfies 12 columns + 13 gutters = 100vw exactly, and lands
+     the gutter on precisely 8px at a 1440px viewport — so the spacing
+     scale below is the same unit the grid is built from.
+
+     Measured off cathydolle.com, which resolves every width this way
+     rather than through per-component max-widths. */
+  --gutter: calc(100vw / 180);
+  --col: 7.7315vw;
+
+  /* Spacing, in gutters. 8/16/24/32/48/64/96 at 1440. */
+  --space-1: calc(var(--gutter) * 1);
+  --space-2: calc(var(--gutter) * 2);
+  --space-3: calc(var(--gutter) * 3);
+  --space-4: calc(var(--gutter) * 4);
+  --space-6: calc(var(--gutter) * 6);
+  --space-8: calc(var(--gutter) * 8);
+  --space-12: calc(var(--gutter) * 12);
 
   /* Windswept landing-page palette -- new, distinctly-named tokens
      (not redefinitions of --paper/--ink/--ember above), so Archive,
@@ -26,6 +50,25 @@
   --ws-paper: #F9F8F6;
   --ws-ink: #1C1C1A;
   --ws-accent: #E2661A;
+
+  /* One muted step, not four. The old build ran text through six
+     opacities (/20 /30 /40 /50 /60 /70), which is more gradations of
+     hierarchy than the type scale had sizes — the references carry
+     secondary text at a single step and let weight do the rest. */
+  --ws-ink-mute: color-mix(in srgb, var(--ws-ink) 45%, transparent);
+  --ws-rule: color-mix(in srgb, var(--ws-ink) 10%, transparent);
+  --ws-fill: color-mix(in srgb, var(--ws-ink) 5%, transparent);
+}
+
+/* ── Grid container ────────────────────────────────────────────────
+   12 columns + 11 gaps + 2 outer paddings = 12 columns + 13 gutters,
+   which is exactly 100vw. Place children with Tailwind's native
+   col-start and col-span utilities against these tracks. */
+.grid12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  padding-inline: var(--gutter);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -61,34 +104,137 @@
  */
 /* Full walk: a chunk that visibly passes through every generation stage. */
 @keyframes chunk-gen-full {
-  0%, 8% { background-color: #545454; }        /* Empty */
-  8.01%, 16% { background-color: #999999; }    /* Structure Starts */
-  16.01%, 24% { background-color: #5F6191; }   /* Structure References */
-  24.01%, 32% { background-color: #80B252; }   /* Biomes */
-  32.01%, 40% { background-color: #D1D1D1; }   /* Noise */
-  40.01%, 48% { background-color: #726809; }   /* Surface */
-  48.01%, 56% { background-color: #303572; }   /* Carvers */
-  56.01%, 64% { background-color: #21C600; }   /* Features */
-  64.01%, 72% { background-color: #CCCCCC; }   /* Initialize Light */
-  72.01%, 80% { background-color: #FFE0A0; }   /* Light */
-  80.01%, 88% { background-color: #F26060; }   /* Spawn */
-  88.01%, 100% { background-color: #FFFFFF; }  /* Full */
+
+  0%,
+  8% {
+    background-color: #545454;
+  }
+
+  /* Empty */
+  8.01%,
+  16% {
+    background-color: #999999;
+  }
+
+  /* Structure Starts */
+  16.01%,
+  24% {
+    background-color: #5F6191;
+  }
+
+  /* Structure References */
+  24.01%,
+  32% {
+    background-color: #80B252;
+  }
+
+  /* Biomes */
+  32.01%,
+  40% {
+    background-color: #D1D1D1;
+  }
+
+  /* Noise */
+  40.01%,
+  48% {
+    background-color: #726809;
+  }
+
+  /* Surface */
+  48.01%,
+  56% {
+    background-color: #303572;
+  }
+
+  /* Carvers */
+  56.01%,
+  64% {
+    background-color: #21C600;
+  }
+
+  /* Features */
+  64.01%,
+  72% {
+    background-color: #CCCCCC;
+  }
+
+  /* Initialize Light */
+  72.01%,
+  80% {
+    background-color: #FFE0A0;
+  }
+
+  /* Light */
+  80.01%,
+  88% {
+    background-color: #F26060;
+  }
+
+  /* Spawn */
+  88.01%,
+  100% {
+    background-color: #FFFFFF;
+  }
+
+  /* Full */
 }
 
 /* Mid walk: skips several stages, as most chunks visibly do. */
 @keyframes chunk-gen-mid {
-  0%, 18% { background-color: #545454; }       /* Empty */
-  18.01%, 40% { background-color: #999999; }   /* Structure Starts */
-  40.01%, 62% { background-color: #80B252; }   /* Biomes */
-  62.01%, 82% { background-color: #CCCCCC; }   /* Initialize Light */
-  82.01%, 100% { background-color: #FFFFFF; }  /* Full */
+
+  0%,
+  18% {
+    background-color: #545454;
+  }
+
+  /* Empty */
+  18.01%,
+  40% {
+    background-color: #999999;
+  }
+
+  /* Structure Starts */
+  40.01%,
+  62% {
+    background-color: #80B252;
+  }
+
+  /* Biomes */
+  62.01%,
+  82% {
+    background-color: #CCCCCC;
+  }
+
+  /* Initialize Light */
+  82.01%,
+  100% {
+    background-color: #FFFFFF;
+  }
+
+  /* Full */
 }
 
 /* Fast path: barely resolves before it's Full — the common case. */
 @keyframes chunk-gen-fast {
-  0%, 45% { background-color: #545454; }       /* Empty */
-  45.01%, 75% { background-color: #D1D1D1; }   /* Noise */
-  75.01%, 100% { background-color: #FFFFFF; }  /* Full */
+
+  0%,
+  45% {
+    background-color: #545454;
+  }
+
+  /* Empty */
+  45.01%,
+  75% {
+    background-color: #D1D1D1;
+  }
+
+  /* Noise */
+  75.01%,
+  100% {
+    background-color: #FFFFFF;
+  }
+
+  /* Full */
 }
 
 *,

@@ -4,11 +4,15 @@ import ThesisStatement from "./ThesisStatement";
 import { studio } from "@/data/studio";
 
 describe("ThesisStatement", () => {
-  it("renders the thesis copy in the display font, ws-ink color", () => {
+  it("renders the thesis copy in the prose role, ws-ink color", () => {
     render(<ThesisStatement />);
     const p = screen.getByText(studio.thesis);
-    expect(p).toHaveClass("font-display");
+    expect(p).toHaveClass("text-prose");
     expect(p).toHaveClass("text-ws-ink");
+    // text-display is gone from the scale entirely — the thesis sits at
+    // the same 12px as the rest of the site.
+    expect(p).not.toHaveClass("font-display");
+    expect(p).not.toHaveClass("text-display");
     expect(p).not.toHaveClass("text-ink");
   });
 

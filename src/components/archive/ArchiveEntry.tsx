@@ -23,22 +23,22 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
 
   const content = (
     <div className="flex gap-6">
-      <p className="w-[96px] shrink-0 font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+      <p className="w-[96px] shrink-0 text-value uppercase text-ws-ink-mute">
         {formatEntryDate(date)}
       </p>
       <div className="flex min-w-0 flex-col gap-2">
-        <p className="font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+        <p className="text-value uppercase text-ws-ink-mute">
           · {type}
         </p>
-        {title && <p className="font-instrument-sans text-title font-bold text-ws-ink">{title}</p>}
+        {title && <p className="text-label text-ws-ink">{title}</p>}
         {body && (
-          <p className="max-w-[560px] font-instrument-sans text-body text-ws-ink/60">
+          <p className="max-w-[560px] text-prose text-ws-ink-mute">
             {body}
           </p>
         )}
         {media && (
           <div
-            className="relative w-full max-w-[560px] overflow-hidden bg-ws-ink/5"
+            className="relative w-full max-w-[560px] overflow-hidden bg-ws-fill"
             style={{ aspectRatio: ASPECT_RATIO_CSS[media.aspectRatio] }}
           >
             {media.type === "image" && media.src ? (
@@ -69,7 +69,7 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
                 role="img"
                 aria-label={media.alt}
               >
-                <span className="font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+                <span className="text-value uppercase text-ws-ink-mute">
                   Placeholder
                 </span>
               </div>
@@ -77,7 +77,7 @@ export default function ArchiveEntry({ entry }: ArchiveEntryProps) {
           </div>
         )}
         {tags && tags.length > 0 && (
-          <p className="font-instrument-sans text-micro font-medium uppercase tracking-[0.15em] text-ws-ink/40">
+          <p className="text-value uppercase text-ws-ink-mute">
             {tags.map((tag) => `#${tag}`).join(", ")}
           </p>
         )}
