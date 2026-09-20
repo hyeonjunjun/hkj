@@ -19,37 +19,54 @@ interface RoomHeaderProps {
  * call), then a room-label row with the plain grotesk clock in the same
  * top-right position it holds on every other page.
  */
+/**
+ * Primary navigation — DELIBERATELY UNSTYLED, pending a real system.
+ *
+ * The previous arrangement used `justify-between` across wordmark / nav /
+ * clock, which pins the outer two and *centres* the middle one: at 1440
+ * that left the link cluster marooned between two 569px voids, with an
+ * arbitrary 20px gap that matched nothing in the grid.
+ *
+ * Rather than patch that, it has been reduced to the plain baseline you
+ * see here: links in source order, left-anchored, separated by one
+ * spacing token, no positioning opinion of its own. Layout above and
+ * below is untouched.
+ *
+ * Measured reference values to build the new system against (1440px):
+ *
+ *   Shannon Lim    10px/400 UC   gap 24px between every item, without
+ *                                exception; groups anchored left/centre/
+ *                                right and separated by larger jumps;
+ *                                top inset 7px, left inset 16px
+ *   Cathy Dolle    11px/500 UC   gap 16px within a group; groups placed
+ *                                on grid columns; top and left inset 8px
+ *   dylan.camera   12px/400      top inset 12px
+ *
+ * None of them centres a lone cluster. Fill the width with grouped
+ * items, or anchor groups to columns — do not stretch items to fit.
+ */
 export default function RoomHeader({ roomLabel, roomCount, activeRoom }: RoomHeaderProps) {
   return (
-    <header className="relative z-10 px-[var(--edge-margin)] pt-[var(--edge-margin)]">
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+    <header className="relative z-10 px-[var(--edge-margin)] pt-[var(--space-1)]">
+      <div className="flex flex-wrap items-baseline gap-x-[var(--space-3)] gap-y-2">
         <Link href="/" className="text-label text-ws-ink">
           {studio.wordmark}
         </Link>
-        <nav aria-label="Primary" className="flex flex-wrap items-center gap-5">
-          {studio.navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`transition-colors hover:text-ws-ink ${
-                item.room === activeRoom
-                  ? "text-label text-ws-ink"
-                  : "text-value text-ws-ink-mute"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/info"
-            className={`transition-colors hover:text-ws-ink ${
-              activeRoom === "info"
-                ? "text-label text-ws-ink"
-                : "text-value text-ws-ink-mute"
-            }`}
-          >
-            info
-          </Link>
+        <nav aria-label="Primary" className="flex flex-wrap items-baseline gap-[var(--space-3)]">
+          {[...studio.navItems, { label: "info", href: "/info", room: "info" as const }].map(
+            (item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={item.room === activeRoom ? "page" : undefined}
+                className={
+                  item.room === activeRoom ? "text-label text-ws-ink" : "text-value text-ws-ink-mute"
+                }
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
         </nav>
       </div>
       <div className="mt-[var(--space-3)] flex items-baseline justify-between border-b border-ws-rule pb-[var(--space-2)]">

@@ -15,26 +15,16 @@ import WorkShowcase from "@/components/home/WorkShowcase";
 export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-[var(--edge-margin)] py-4 md:py-6">
-        <Link href="/" className="text-prose text-ws-ink">
+      <div className="flex flex-wrap items-baseline gap-x-[var(--space-3)] gap-y-2 px-[var(--edge-margin)] pt-[var(--space-1)] pb-[var(--space-2)]">
+        <Link href="/" className="text-label text-ws-ink">
           {studio.wordmark}
         </Link>
-        <nav aria-label="Primary" className="flex flex-wrap items-center gap-5">
-          {studio.navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-value text-ws-ink-mute transition-colors hover:text-ws-ink"
-            >
+        <nav aria-label="Primary" className="flex flex-wrap items-baseline gap-[var(--space-3)]">
+          {[...studio.navItems, { label: "info", href: "/info" }].map((item) => (
+            <Link key={item.href} href={item.href} className="text-value text-ws-ink-mute">
               {item.label}
             </Link>
           ))}
-          <Link
-            href="/info"
-            className="text-value text-ws-ink-mute transition-colors hover:text-ws-ink"
-          >
-            info
-          </Link>
         </nav>
         <Clock />
       </div>
