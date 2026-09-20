@@ -15,7 +15,16 @@ function pad2(n: number): string {
 /** Copies of the list stacked to make the scroll loop. Must be odd. */
 const SETS = 3;
 /** Quiet time after scrolling before the page settles onto a project. */
-const SETTLE_MS = 140;
+const SETTLE_MS = 160;
+/**
+ * The hand has to be off the wheel this long before anything settles.
+ * Scroll events alone are not enough of a signal: Lenis keeps emitting
+ * them through its own easing, and a trackpad drag can leave gaps
+ * longer than SETTLE_MS between wheel events, so a debounce on scroll
+ * fired mid-gesture and yanked the page while the viewer was still
+ * moving it.
+ */
+const GESTURE_QUIET_MS = 220;
 /** Below this, a wheel event is momentum residue rather than intent. */
 const GESTURE_MIN_DELTA = 20;
 /** Wheel events this soon after a glide starts are that glide's own tail. */
@@ -211,6 +220,8 @@ export default function HomeIndex({ works }: HomeIndexProps) {
      * plate or simply stayed put off centre.
      */
     let gestureDir = 0;
+    /** When the viewer last physically moved the page. */
+    let lastGesture = 0;
     if (restY.current === 0) restY.current = window.scrollY;
 
     /**
@@ -262,6 +273,13 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     };
 
     const settle = () => {
+      // Still scrolling — come back later rather than grabbing the page.
+      const quiet = performance.now() - lastGesture;
+      if (quiet < GESTURE_QUIET_MS) {
+        if (timer !== null) clearTimeout(timer);
+        timer = window.setTimeout(settle, GESTURE_QUIET_MS - quiet);
+        return;
+      }
       const target = restingTarget();
       if (target === null) return;
       // Already there — do not start a glide that would claim the guard
@@ -319,6 +337,10 @@ export default function HomeIndex({ works }: HomeIndexProps) {
      * tails live. A real intent to scroll clears both bars easily.
      */
     const onGesture = (event: Event) => {
+      // Stamped for EVERY physical input, including deltas too small to
+      // count as a direction change — the question here is "is a hand on
+      // it", not "did they mean to go somewhere".
+      lastGesture = performance.now();
       const dy = (event as WheelEvent).deltaY;
       const deliberate = dy === undefined || Math.abs(dy) >= GESTURE_MIN_DELTA;
       if (!deliberate) return;
@@ -333,10 +355,12 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("wheel", onGesture, { passive: true });
     window.addEventListener("touchstart", onGesture, { passive: true });
+    window.addEventListener("touchmove", onGesture, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", onGesture);
       window.removeEventListener("touchstart", onGesture);
+      window.removeEventListener("touchmove", onGesture);
       if (timer !== null) clearTimeout(timer);
       settleRef.current = null;
     };
@@ -404,6 +428,11 @@ export default function HomeIndex({ works }: HomeIndexProps) {
 
       {/* Centre column — SETS copies of the list, in normal flow.
 
+          Gap is 26vh against a 52vh plate, which is what keeps the
+          neighbours out of frame: centred, a plate spans 24-76vh, so the
+          next one starts at 102vh and the previous ends at -2vh. At 18vh
+          both showed as slivers top and bottom.
+
           The media block is columns 3-10 at a fixed height, and however
           many plates a work has divide that width with one gutter
           between — dylan.camera's rule, measured off his site at 1920:
@@ -415,7 +444,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           portrait without the row going ragged. */}
       <div
         ref={columnRef}
-        className="col-span-12 col-start-1 flex flex-col gap-[18vh] py-[24vh] md:col-span-8 md:col-start-3"
+        className="col-span-12 col-start-1 flex flex-col gap-[26vh] py-[26vh] md:col-span-8 md:col-start-3"
       >
         {Array.from({ length: SETS }).flatMap((_, s) =>
           works.map((w, i) => {
@@ -451,9 +480,14 @@ export default function HomeIndex({ works }: HomeIndexProps) {
 
       {/* Right margin — metadata for whichever plate holds the centre.
           Stacked in columns 11-12 now that the media block runs through
-          column 10; it was laid across 8/10/12 when the plate was only
-          four columns wide. */}
-      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block">
+          column 10.
+
+          The extra gutter of left padding is deliberate: the grid puts
+          one gutter between columns 10 and 11, and the title on the left
+          sits one --space-2 from the swatch strip. Adding a gutter makes
+          the two gaps equal, so text sits the same distance from the
+          media on both sides. */}
+      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block md:pl-[var(--space-1)]">
         {/* Label over value, one spacing token between the pair and
             three between groups — the same label/value rhythm the case
             study header uses. Set inline, a long role like
