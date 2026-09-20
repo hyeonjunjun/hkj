@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type WheelEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
 import SwatchRail from "./SwatchRail";
-import { durationSeconds, windEasing } from "@/lib/motion";
 
 /** Zero-pads a positive integer to 2 digits, e.g. 1 -> "01". */
 function pad2(n: number): string {
@@ -21,105 +19,73 @@ interface HomeIndexProps {
  * Home, on GSP's composition (gsproductions.co.za) with dylan.camera's
  * swatch navigation in the left margin.
  *
- * GSP measured off the live site at 1920x1000:
+ * GSP measured live at 1920x1000:
  *
- *   List          x329   ┐ view toggle, on the plate's own left edge
- *   Grid          x363   ┘
- *   Stills        x1124  ┐
- *   Motion        x1284  │ categories, 159.4px pitch
- *   Culture       x1443  │
- *   Information   x1602  ┘
- *   Journal       x1861    right-aligned to the last column
- *   plate         x329, 626x962 — AR 0.65, 32.6% of width, 96.2% of height
+ *   plate     x329, 626x962 — AR 0.65, 32.6% of width, 96.2% of height
+ *   List/Grid x329 / x363   on the plate's own left edge
+ *   Stills    x1124 ┐
+ *   Motion    x1284 │  159.4px pitch
+ *   Culture   x1443 │
+ *   Information x1602 ┘
  *
- * That pitch resolves to a 12-column grid with a ~7px gutter and ~152px
- * column, which puts the plate at column 3 span 4 and the nav items on
- * columns 3, 8, 9, 10 and 11. The metadata in the right margin sits on
- * those same nav columns — one set of tracks for chrome and content
- * alike, which is the whole trick.
+ * That pitch resolves to a 12-column grid with a ~7px gutter, putting
+ * the plate at column 3 span 4 and the nav on columns 3, 8, 9, 10, 11 —
+ * and the right-margin metadata on those same nav columns.
  *
- * Composition rule: a tall centre plate with its metadata floating in
- * the margins at the plate's vertical centre, never beneath it.
+ * SCROLL MODEL — this is GSP's, not a carousel.
  *
- * GSP bounds its white space by ALIGNMENT; dylan.camera bounds his with
- * filled cells. Those are two different answers to the same problem, and
- * mixing them was the error in the previous pass here — filled metadata
- * cells belong to his system, not this one. Everything in the margins is
- * bare text.
+ * The plates are a plain vertical column in normal document flow; the
+ * page scrolls. Smoothing is Lenis at lerp 0.1 (see SmoothScroll), which
+ * is GSP's own measured value. Nothing here hijacks the wheel.
  *
- * GSP reaches 96% of the viewport by scrolling a column of plates. This
- * page is locked to one viewport, so the plate takes the available
- * height between the nav and the counter instead.
+ * The previous version locked the page to one viewport and stepped
+ * between works on a wheel accumulator. That is a carousel wearing a
+ * scrollbar: it quantises a continuous gesture, so momentum, trackpad
+ * inertia, keyboard paging, and find-in-page all stop meaning anything.
+ * Letting the document scroll gets all of that back for free.
  *
- * Its type is Suisse Medium 13.33px/500, no tracking — close enough to
- * this project's 12px/500 label role that no special case is needed.
+ * The rail and the metadata do not scroll with it. Each sits in a
+ * sticky full-height cell with its contents centred, so they hold the
+ * viewport's middle while plates pass — which is exactly where GSP
+ * pins "9 Images" and "Client / Photographer".
  *
- * Deliberately absent: waveform, scrubber, transport bar. The horizontal
- * waveform line has been rejected on this project repeatedly for cutting
- * across the composition.
+ * Which work is "current" is whichever plate is crossing the viewport's
+ * centre line, found with an IntersectionObserver whose root margin
+ * collapses the viewport to that single line.
+ *
+ * Deliberately absent: waveform, scrubber, transport bar. The
+ * horizontal waveform line has been rejected on this project repeatedly
+ * for cutting across the composition.
  */
 export default function HomeIndex({ works }: HomeIndexProps) {
-  const [index, setIndex] = useState(0);
-  const work = works[index];
+  const [active, setActive] = useState(0);
+  const plateRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  /**
-   * Wheel handling, tuned against gsproductions.co.za.
-   *
-   * It previously advanced on the first wheel event past a 10px deltaY
-   * and then hard-locked for 450ms, so a flick and a shove did the same
-   * thing and anything during the lock was simply dropped. That reads as
-   * a slideshow with a cooldown, not as scrolling.
-   *
-   * Now the deltas accumulate and a step fires when the total crosses
-   * THRESHOLD, so the gesture's size decides when it advances. Between
-   * steps the accumulator decays toward zero at the same 0.1 lerp Lenis
-   * uses elsewhere (see SmoothScroll), which is what keeps it feeling
-   * continuous rather than quantised — a half-gesture that stops bleeds
-   * off instead of sitting there waiting to be topped up.
-   *
-   * A short COOLDOWN remains, but only long enough for the crossfade to
-   * read; it is not what paces the interaction.
-   */
-  const accum = useRef(0);
-  const lastStep = useRef(0);
-  const decayRaf = useRef<number | null>(null);
+  useEffect(() => {
+    // -50%/-50% collapses the root to a zero-height line at the viewport
+    // centre, so a plate "intersects" only while it covers that line.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const i = plateRefs.current.indexOf(entry.target as HTMLAnchorElement);
+          if (i !== -1) setActive(i);
+        }
+      },
+      { rootMargin: "-50% 0px -50% 0px", threshold: 0 },
+    );
+    plateRefs.current.forEach((el) => el && io.observe(el));
+    return () => io.disconnect();
+  }, [works.length]);
 
-  const THRESHOLD = 120;
-  const COOLDOWN = 260;
+  const work = works[active];
 
-  const startDecay = () => {
-    if (decayRaf.current !== null) return;
-    const tick = () => {
-      accum.current *= 1 - 0.1;
-      if (Math.abs(accum.current) < 1) {
-        accum.current = 0;
-        decayRaf.current = null;
-        return;
-      }
-      decayRaf.current = requestAnimationFrame(tick);
-    };
-    decayRaf.current = requestAnimationFrame(tick);
-  };
-
-  useEffect(() => () => {
-    if (decayRaf.current !== null) cancelAnimationFrame(decayRaf.current);
+  // Swatch click scrolls the plate to centre. Lenis is driving the
+  // document, so native smooth behaviour is handed off to it.
+  const goTo = useCallback((i: number) => {
+    plateRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
-  const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
-    if (works.length === 0) return;
-    accum.current += e.deltaY;
-    startDecay();
-
-    const now = performance.now();
-    if (Math.abs(accum.current) < THRESHOLD || now - lastStep.current < COOLDOWN) return;
-
-    const dir = accum.current > 0 ? 1 : -1;
-    accum.current = 0;
-    lastStep.current = now;
-    setIndex((i) => (i + dir + works.length) % works.length);
-  };
-
-  // One label/value pair per column, on GSP's nav tracks.
   const meta = [
     { label: "Client", value: work.title.toLowerCase(), col: "md:col-start-8" },
     { label: "Role", value: work.role.toLowerCase(), col: "md:col-start-10" },
@@ -127,51 +93,45 @@ export default function HomeIndex({ works }: HomeIndexProps) {
   ];
 
   return (
-    <div onWheel={handleWheel} className="flex h-full w-full flex-col">
-      <div className="grid12 min-h-0 flex-1 items-center">
-        {/* Left margin — swatch rail where GSP puts its "9 Images" count. */}
-        <div className="col-span-12 col-start-1 pb-[var(--space-2)] md:col-span-1 md:pb-0">
-          <SwatchRail works={works} activeIndex={index} onSelect={setIndex} />
-        </div>
+    <div className="grid12 items-start">
+      {/* Left margin — rail, held at the viewport's middle. */}
+      <div className="sticky top-0 z-10 col-span-12 col-start-1 flex h-screen items-center md:col-span-1">
+        <SwatchRail works={works} activeIndex={active} onSelect={goTo} />
+      </div>
 
-        {/* Centre plate — column 3, span 4, available height. */}
-        <Link
-          href={`/works/${work.slug}`}
-          aria-label={`Open ${work.title}`}
-          className="col-span-12 col-start-1 h-full min-h-0 md:col-span-4 md:col-start-3"
-        >
-          <AnimatePresence mode="sync">
-            <motion.div
-              key={work.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="h-full w-full overflow-hidden bg-ws-fill"
-            >
-              <MediaRenderer media={work.media} fit="cover" />
-            </motion.div>
-          </AnimatePresence>
-        </Link>
-
-        {/* Right margin — bare text on the nav columns. */}
-        {meta.map((m) => (
-          <p
-            key={m.label}
-            className={`col-span-12 col-start-1 mt-[var(--space-1)] md:col-span-2 md:mt-0 ${m.col}`}
+      {/* Centre column — one plate per work, in normal flow. */}
+      <div className="col-span-12 col-start-1 flex flex-col gap-[var(--space-8)] py-[var(--space-8)] md:col-span-4 md:col-start-3">
+        {works.map((w, i) => (
+          <Link
+            key={w.id}
+            href={`/works/${w.slug}`}
+            aria-label={`Open ${w.title}`}
+            ref={(el) => {
+              plateRefs.current[i] = el;
+            }}
+            className="block h-[86vh] overflow-hidden bg-ws-fill"
           >
-            <span className="text-value text-ws-ink-mute">{m.label}</span>{" "}
-            <span className="text-label text-ws-ink">{m.value}</span>
-          </p>
+            <MediaRenderer media={w.media} fit="cover" />
+          </Link>
         ))}
       </div>
 
-      {/* Position, bottom right — GSP's 0% readout. */}
-      <div className="grid12 pb-[var(--space-2)]">
-        <p className="col-span-12 col-start-1 text-right text-value tabular-nums text-ws-ink-mute">
-          {pad2(index + 1)} / {pad2(works.length)}
-        </p>
+      {/* Right margin — metadata for whichever plate holds the centre. */}
+      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-5 md:col-start-8 md:block">
+        <div className="grid h-full grid-cols-5 items-center gap-x-[var(--gutter)]">
+          {meta.map((m, i) => (
+            <p key={m.label} className={["col-start-1", "col-start-3", "col-start-5"][i]}>
+              <span className="text-value text-ws-ink-mute">{m.label}</span>{" "}
+              <span className="text-label text-ws-ink">{m.value}</span>
+            </p>
+          ))}
+        </div>
       </div>
+
+      {/* Position readout, bottom right — GSP's 0%. */}
+      <p className="pointer-events-none fixed bottom-[var(--space-2)] right-[var(--gutter)] z-10 text-value tabular-nums text-ws-ink-mute">
+        {pad2(active + 1)} / {pad2(works.length)}
+      </p>
     </div>
   );
 }

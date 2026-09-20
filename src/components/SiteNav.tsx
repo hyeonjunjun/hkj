@@ -74,12 +74,12 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
    * boolean that sets aria-current, so the visual and semantic states
    * cannot drift.
    *
-   * Ink still shifts (full when current, muted otherwise), so state has
-   * two signals and neither is load-bearing alone.
+   * Ink is full across the whole row — the underline is the only state
+   * signal, which is why it has to be unambiguous.
    */
   const linkClass = (isActive: boolean) =>
-    `nav-link text-label transition-colors ${
-      isActive ? "nav-link--active text-ws-ink" : "text-ws-ink-mute hover:text-ws-ink"
+    `nav-link text-label text-ws-ink ${
+      isActive ? "nav-link--active" : ""
     }`;
 
   return (

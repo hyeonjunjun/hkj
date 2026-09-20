@@ -18,14 +18,14 @@ import { useEffect, useState } from "react";
  */
 interface ClockProps {
   /**
-   * Type role. Defaults to `text-value` (400) for CornerMark's studio
-   * block; SiteNav passes `text-label` so the nav row runs one weight
-   * from wordmark to clock.
+   * Type role AND ink, set by the caller. Defaults to CornerMark's
+   * studio block (400, muted); SiteNav passes the nav row's own
+   * treatment so weight and ink run unbroken from wordmark to clock.
    */
   className?: string;
 }
 
-export default function Clock({ className = "text-value" }: ClockProps) {
+export default function Clock({ className = "text-value text-ws-ink-mute" }: ClockProps) {
   const [time, setTime] = useState<string>("--:--");
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function Clock({ className = "text-value" }: ClockProps) {
     // normal-case is explicit, not redundant: CornerMark renders this
     // inside an uppercase block, and without the reset the same component
     // renders two different ways on one page.
-    <span className={`${className} normal-case tabular-nums text-ws-ink-mute`}>
+    <span className={`${className} normal-case tabular-nums`}>
       {time} EST
     </span>
   );

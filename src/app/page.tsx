@@ -13,12 +13,12 @@ import WorkShowcase from "@/components/home/WorkShowcase";
  */
 export default function Landing() {
   return (
-    <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
-      <div className="pb-[var(--space-2)]">
-        <SiteNav trailing={<Clock className="text-label" />} />
+    <main className="relative flex min-h-[100dvh] w-full flex-col bg-ws-paper">
+      <div className="sticky top-0 z-20 bg-ws-paper pb-[var(--space-2)]">
+        <SiteNav trailing={<Clock className="text-label text-ws-ink" />} />
       </div>
 
-      <div className="min-h-0 flex-1">
+      <div className="flex-1">
         <WorkShowcase works={works} />
       </div>
     </main>
