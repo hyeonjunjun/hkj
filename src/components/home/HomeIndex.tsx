@@ -5,48 +5,62 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
-import TrackRow from "./TrackRow";
+import SwatchRail from "./SwatchRail";
 import { durationSeconds, windEasing } from "@/lib/motion";
+
+/** Zero-pads a positive integer to 2 digits, e.g. 1 -> "01". */
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
 
 interface HomeIndexProps {
   works: Work[];
 }
 
 /**
- * Home as a player: a track list on the left, now-playing plates on the
- * right. Wheel/scroll skips (debounced to one step per gesture); a row
- * click selects directly.
+ * Home, on GSP's composition (gsproductions.co.za) with dylan.camera's
+ * swatch navigation in the left margin.
  *
- * Structure follows dylan.camera, adapted. His rail is column 1 holding
- * bare 20px colour swatches, with plates at columns 3-6 and 7-10 and the
- * outer columns left empty. Ours carries real metadata per row — title,
- * category, year, position — so it needs the width: rail at columns 1-4,
- * plates at 5-8 and 9-12.
+ * GSP measured off the live site at 1920x1000:
  *
- * That also answers why this page read as empty. It was not the quantity
- * of white space; it was that nothing bounded it. His fields are filled
- * cells, so a wide cell holding a short word reads as a form field with
- * capacity rather than a gap. Every field in the rail is now a filled
- * cell for the same reason.
+ *   List          x329   ┐ view toggle, on the plate's own left edge
+ *   Grid          x363   ┘
+ *   Stills        x1124  ┐
+ *   Motion        x1284  │ categories, 159.4px pitch
+ *   Culture       x1443  │
+ *   Information   x1602  ┘
+ *   Journal       x1861    right-aligned to the last column
+ *   plate         x329, 626x962 — AR 0.65, 32.6% of width, 96.2% of height
  *
- * Plate geometry is measured at two viewports, not one. Width is four
- * grid columns, height is 50% of the viewport — the aspect is an output:
+ * That pitch resolves to a 12-column grid with a ~7px gutter and ~152px
+ * column, which puts the plate at column 3 span 4 and the nav items on
+ * columns 3, 8, 9, 10 and 11. The metadata in the right margin sits on
+ * those same nav columns — one set of tracks for chrome and content
+ * alike, which is the whole trick.
  *
- *   1440   4 cols = 464 wide,  50vh = 450 tall   AR 1.03
- *   1920   4 cols = 624 wide,  50vh = 500 tall   AR 1.25
+ * Composition rule: a tall centre plate with its metadata floating in
+ * the margins at the plate's vertical centre, never beneath it.
  *
- * Deliberately NOT here: a waveform, a transport scrubber, or anything
- * else a music UI reaches for by reflex — the horizontal waveform line
- * has been rejected on this project repeatedly for cutting across the
- * composition. The list IS the player.
+ * GSP bounds its white space by ALIGNMENT; dylan.camera bounds his with
+ * filled cells. Those are two different answers to the same problem, and
+ * mixing them was the error in the previous pass here — filled metadata
+ * cells belong to his system, not this one. Everything in the margins is
+ * bare text.
  *
- * Also not a work index masquerading as a homepage: the rail selects
- * what the plates show, it does not navigate away.
+ * GSP reaches 96% of the viewport by scrolling a column of plates. This
+ * page is locked to one viewport, so the plate takes the available
+ * height between the nav and the counter instead.
+ *
+ * Its type is Suisse Medium 13.33px/500, no tracking — close enough to
+ * this project's 12px/500 label role that no special case is needed.
+ *
+ * Deliberately absent: waveform, scrubber, transport bar. The horizontal
+ * waveform line has been rejected on this project repeatedly for cutting
+ * across the composition.
  */
 export default function HomeIndex({ works }: HomeIndexProps) {
   const [index, setIndex] = useState(0);
   const work = works[index];
-  const secondaryMedia = work.sections?.[0]?.media;
   const wheelLocked = useRef(false);
 
   const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
@@ -58,57 +72,59 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     }, 450);
   };
 
-  return (
-    <div onWheel={handleWheel} className="grid12 h-full w-full items-start">
-      {/* Track list — columns 1-4, top-aligned. His rail sits at y=12,
-          level with the nav, not floating in the middle of the column. */}
-      <div className="col-span-12 col-start-1 flex flex-col gap-[var(--space-1)] pt-[var(--space-1)] md:col-span-4 md:col-start-1">
-        {works.map((w, i) => (
-          <TrackRow
-            key={w.id}
-            work={w}
-            position={i + 1}
-            isActive={i === index}
-            onSelect={() => setIndex(i)}
-          />
-        ))}
-      </div>
+  // One label/value pair per column, on GSP's nav tracks.
+  const meta = [
+    { label: "Client", value: work.title.toLowerCase(), col: "md:col-start-8" },
+    { label: "Role", value: work.role.toLowerCase(), col: "md:col-start-10" },
+    { label: "Year", value: work.year, col: "md:col-start-12" },
+  ];
 
-      {/* Now playing — columns 5-8 and 9-12. Both plates share one height
-          and cover-crop into it, so a 16:9 video beside a square
-          placeholder still shares a baseline. */}
-      <Link
-        href={`/works/${work.slug}`}
-        aria-label={`Open ${work.title}`}
-        className="col-span-12 col-start-1 mt-[var(--space-4)] grid grid-cols-1 gap-[var(--gutter)] md:col-span-8 md:col-start-5 md:mt-0 md:grid-cols-2 md:self-center"
-      >
-        <AnimatePresence mode="sync">
-          <motion.div
-            key={`${work.id}-a`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={`h-[50vh] overflow-hidden bg-ws-fill ${secondaryMedia ? "" : "md:col-span-2"}`}
-          >
-            <MediaRenderer media={work.media} fit="cover" />
-          </motion.div>
-        </AnimatePresence>
-        {secondaryMedia && (
+  return (
+    <div onWheel={handleWheel} className="flex h-full w-full flex-col">
+      <div className="grid12 min-h-0 flex-1 items-center">
+        {/* Left margin — swatch rail where GSP puts its "9 Images" count. */}
+        <div className="col-span-12 col-start-1 pb-[var(--space-2)] md:col-span-1 md:pb-0">
+          <SwatchRail works={works} activeIndex={index} onSelect={setIndex} />
+        </div>
+
+        {/* Centre plate — column 3, span 4, available height. */}
+        <Link
+          href={`/works/${work.slug}`}
+          aria-label={`Open ${work.title}`}
+          className="col-span-12 col-start-1 h-full min-h-0 md:col-span-4 md:col-start-3"
+        >
           <AnimatePresence mode="sync">
             <motion.div
-              key={`${work.id}-b`}
+              key={work.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="h-[50vh] overflow-hidden bg-ws-fill"
+              className="h-full w-full overflow-hidden bg-ws-fill"
             >
-              <MediaRenderer media={secondaryMedia} fit="cover" />
+              <MediaRenderer media={work.media} fit="cover" />
             </motion.div>
           </AnimatePresence>
-        )}
-      </Link>
+        </Link>
+
+        {/* Right margin — bare text on the nav columns. */}
+        {meta.map((m) => (
+          <p
+            key={m.label}
+            className={`col-span-12 col-start-1 mt-[var(--space-1)] md:col-span-2 md:mt-0 ${m.col}`}
+          >
+            <span className="text-value text-ws-ink-mute">{m.label}</span>{" "}
+            <span className="text-label text-ws-ink">{m.value}</span>
+          </p>
+        ))}
+      </div>
+
+      {/* Position, bottom right — GSP's 0% readout. */}
+      <div className="grid12 pb-[var(--space-2)]">
+        <p className="col-span-12 col-start-1 text-right text-value tabular-nums text-ws-ink-mute">
+          {pad2(index + 1)} / {pad2(works.length)}
+        </p>
+      </div>
     </div>
   );
 }
