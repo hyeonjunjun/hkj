@@ -43,7 +43,7 @@ interface RoomHeaderProps {
 export default function RoomHeader({ activeRoom }: RoomHeaderProps) {
   return (
     <header className="relative z-10">
-      <SiteNav activeRoom={activeRoom} trailing={<Clock />} />
+      <SiteNav activeRoom={activeRoom} trailing={<Clock className="text-label" />} />
     </header>
   );
 }

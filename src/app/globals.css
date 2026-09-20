@@ -144,7 +144,22 @@ body::-webkit-scrollbar {
   outline-offset: 2px;
 }
 
-/* ── Nav underline — draws left to right on hover/focus ── */
+/* ── Nav underline ────────────────────────────────────────────────
+   Carries active state now that every nav link sits at one weight.
+   Draws left to right on hover/focus; sits open permanently on the
+   current page via .nav-link--active, which SiteNav applies from the
+   same boolean that sets aria-current.
+
+   NOT keyed off [aria-current] directly, which would have been tidier:
+   Tailwind v4's compiler strips that attribute selector out of the
+   emitted CSS. Verified — the element matched `.nav-link[aria-current]`
+   in the DOM while the rule was simply absent from the served
+   stylesheet, leaving the underline at 0px.
+
+   currentColor, not a fixed ink: the rule then matches whatever the link
+   itself is set to, muted or full, without a second token to keep in
+   sync. (This rule existed before but was used by nothing and still
+   pointed at the retired --ink.) */
 .nav-link {
   position: relative;
 }
@@ -153,15 +168,16 @@ body::-webkit-scrollbar {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -4px;
+  bottom: -3px;
   width: 0;
   height: 1px;
-  background: var(--ink);
+  background: currentColor;
   transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .nav-link:hover::after,
-.nav-link:focus-visible::after {
+.nav-link:focus-visible::after,
+.nav-link--active::after {
   width: 100%;
 }
 

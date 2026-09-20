@@ -16,7 +16,16 @@ import { useEffect, useState } from "react";
  * around it, and under the single-size system there is no step to differ
  * by. Both call sites now get the same 12px value register.
  */
-export default function Clock() {
+interface ClockProps {
+  /**
+   * Type role. Defaults to `text-value` (400) for CornerMark's studio
+   * block; SiteNav passes `text-label` so the nav row runs one weight
+   * from wordmark to clock.
+   */
+  className?: string;
+}
+
+export default function Clock({ className = "text-value" }: ClockProps) {
   const [time, setTime] = useState<string>("--:--");
 
   useEffect(() => {
@@ -38,7 +47,7 @@ export default function Clock() {
     // normal-case is explicit, not redundant: CornerMark renders this
     // inside an uppercase block, and without the reset the same component
     // renders two different ways on one page.
-    <span className="text-value normal-case tabular-nums text-ws-ink-mute">
+    <span className={`${className} normal-case tabular-nums text-ws-ink-mute`}>
       {time} EST
     </span>
   );

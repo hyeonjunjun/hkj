@@ -15,7 +15,7 @@ export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
       <div className="pb-[var(--space-2)]">
-        <SiteNav trailing={<Clock />} />
+        <SiteNav trailing={<Clock className="text-label" />} />
       </div>
 
       <div className="min-h-0 flex-1">

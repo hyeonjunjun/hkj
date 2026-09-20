@@ -64,22 +64,23 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
   const info = { label: "info", href: "/info", room: "info" as RoomKey };
 
   /**
-   * Every link carries the label weight (600); state is ink alone.
+   * One weight across the whole row — wordmark, every link, and the
+   * clock all sit at the label weight (600). ethanandtom.com does the
+   * same: Selects, Index and Photo each measure Switzer 10.8px/600 with
+   * no weight variation at all.
    *
-   * ethanandtom.com sets all four of its nav links at Switzer 600 and
-   * varies nothing else — measured: Selects, Index and Photo are each
-   * 10.8px/600. Running inactive links at 400 here is what made this row
-   * read thin beside theirs: it was a 400-vs-600 comparison, not the
-   * like-for-like it looked like.
+   * With weight no longer free to signal state, the underline does it —
+   * see .nav-link in globals.css. The modifier comes from the same
+   * boolean that sets aria-current, so the visual and semantic states
+   * cannot drift.
    *
-   * Weight still signals state everywhere else on the site; the nav is
-   * the exception because its links sit in a row where a mixed-weight
-   * set reads as uneven rather than as stateful.
+   * Ink still shifts (full when current, muted otherwise), so state has
+   * two signals and neither is load-bearing alone.
    */
   const linkClass = (isActive: boolean) =>
-    isActive
-      ? "text-label text-ws-ink"
-      : "text-label text-ws-ink-mute transition-colors hover:text-ws-ink";
+    `nav-link text-label transition-colors ${
+      isActive ? "nav-link--active text-ws-ink" : "text-ws-ink-mute hover:text-ws-ink"
+    }`;
 
   return (
     <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>
