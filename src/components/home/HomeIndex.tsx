@@ -17,23 +17,28 @@ interface HomeIndexProps {
 }
 
 /**
- * Home as a diptych/triptych panel spread — dylan.camera's mechanic,
- * not the list/directory this replaced and not the media-player/poster
- * treatments tried before that. One work at a time, shown as its hero
- * image plus its first section image side by side (a single panel if
- * there's no section media yet), capped to a moderate width within a
- * centered column — flat rectangles, no rounded corners, no shadow, no
- * oversized numerals. That's a deliberate scale correction: the
- * previous pass's depth/shadow "object" treatment and 260px background
- * numeral were reading as poster-scale, not editorial — dylan.camera's
- * actual images sit well inside generous margins at a restrained size,
- * which is the calibration this project has been reaching for all
- * along. Caption stays in the same small tracked microtype used
- * everywhere else on the site, not a display size.
+ * Home as a one-work-at-a-time panel spread — dylan.camera's mechanic.
+ * Wheel/scroll advances (debounced to one step per gesture).
  *
- * Wheel/scroll advances to the next work (debounced to one step per
- * gesture) — this survives from the media-player era since it's
- * independent of layout, and dylan.camera uses the same mechanic.
+ * Plate geometry is dylan.camera's, measured rather than guessed. His
+ * hero plates sit on his own 12-column grid at column 3 span 4 and
+ * column 7 span 4 — predicted x 250.0 / 726.0 and width 464.0 against
+ * measured 250 / 726 / 464 — and they are SQUARE, occupying 50% of the
+ * viewport height with equal margins above and below.
+ *
+ * Ours matched him on width already (33.9% vs 32.2%) and on centring,
+ * but ran 4:3, which left the plates at 40.7% of viewport height. Square
+ * on our grid gives 469px at 1440, i.e. 52%.
+ *
+ * Note what this deliberately is NOT: filling the viewport. An earlier
+ * pass flexed these to full height (758px, 84%) and had to be reverted —
+ * generous margin is the point, and the plate is a plate, not a backdrop.
+ *
+ * Columns 1-2 and 11-12 stay empty, which is what centres the spread
+ * without anything being centred by a layout rule.
+ *
+ * Deliberately not a work index or list — that pattern has been rejected
+ * before and should not be reintroduced here.
  */
 export default function HomeIndex({ works }: HomeIndexProps) {
   const [index, setIndex] = useState(0);
@@ -50,22 +55,16 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     }, 450);
   };
 
+  // Two plates take columns 3-6 and 7-10; a lone plate centres at 5-8.
+  const plateA = secondaryMedia
+    ? "col-span-12 col-start-1 md:col-span-4 md:col-start-3"
+    : "col-span-12 col-start-1 md:col-span-4 md:col-start-5";
+
   return (
-    <div
-      onWheel={handleWheel}
-      className="flex h-full w-full flex-col items-center justify-center gap-6 px-[var(--edge-margin)]"
-    >
-      <Link
-        href={`/works/${work.slug}`}
-        className="flex w-full max-w-[1000px] items-start justify-center gap-4 md:gap-6"
-      >
-        {/*
-         * Both panels share one 4:3 frame and cover-crop into it. Letting
-         * each image keep its own aspect made the pair different heights
-         * (a 16:9 video beside a square placeholder), so the spread had a
-         * ragged bottom edge and read accidental rather than composed —
-         * a diptych only works if the plates share a baseline.
-         */}
+    <div onWheel={handleWheel} className="flex h-full w-full flex-col justify-center">
+      <Link href={`/works/${work.slug}`} aria-label={`Open ${work.title}`} className="grid12">
+        {/* Both plates are square and cover-crop, so a 16:9 video beside a
+            square placeholder still shares a baseline. */}
         <AnimatePresence mode="sync">
           <motion.div
             key={`${work.id}-a`}
@@ -73,7 +72,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={`aspect-[4/3] overflow-hidden bg-ws-fill ${secondaryMedia ? "w-1/2" : "w-full max-w-[560px]"}`}
+            className={`${plateA} aspect-square overflow-hidden bg-ws-fill`}
           >
             <MediaRenderer media={work.media} fit="cover" />
           </motion.div>
@@ -86,7 +85,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="aspect-[4/3] w-1/2 overflow-hidden bg-ws-fill"
+              className="col-span-12 col-start-1 aspect-square overflow-hidden bg-ws-fill md:col-span-4 md:col-start-7"
             >
               <MediaRenderer media={secondaryMedia} fit="cover" />
             </motion.div>
@@ -94,11 +93,14 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         )}
       </Link>
 
-      <div className="flex w-full max-w-[1000px] items-baseline justify-between text-value text-ws-ink-mute">
-        <span>
-          {work.title.toLowerCase()} <span className="text-ws-ink-mute">&middot;</span> {work.category.toLowerCase()}
+      {/* Caption aligns to the plates, not to the page edge — a label to
+          the left of the thing it names reads as a stray. */}
+      <div className="grid12 mt-[var(--space-2)] text-value text-ws-ink-mute">
+        <span className="col-span-8 col-start-1 md:col-span-5 md:col-start-3">
+          {work.title.toLowerCase()} <span aria-hidden="true">&middot;</span>{" "}
+          {work.category.toLowerCase()}
         </span>
-        <span className="tabular-nums">
+        <span className="col-span-4 col-start-9 text-right tabular-nums md:col-span-3 md:col-start-8">
           {pad2(index + 1)} / {pad2(works.length)}
         </span>
       </div>
