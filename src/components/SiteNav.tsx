@@ -47,11 +47,14 @@ interface SiteNavProps {
  * The wordmark stays at column 1 where it was. Only the spacing on the
  * right-hand side changed, to ethanandtom.com's — see the block above.
  *
- * Their nav links are Switzer 10.8px/600, letter-spacing -0.02px,
- * line-height 14.4px, sentence case. That size is viewport-relative
- * (0.75vw: 10.8px at 1440, 14.4px at 1920), which this project does not
- * do — it runs one fixed 12px size everywhere — so type is left alone
- * here and only spacing was taken.
+ * Set in Switzer, the face ethanandtom.com uses. Theirs is 10.8px/600 at
+ * a viewport-relative size (0.75vw: 10.8px at 1440, 14.4px at 1920);
+ * this project runs one fixed 12px everywhere, so the family is adopted
+ * and the sizing is not. Switzer is self-hosted as two variable files —
+ * see layout.tsx — so 500 here is a real cut, not a synthesized one.
+ *
+ * Only this row is Switzer for now; the rest of the site is still
+ * Instrument Sans (the <body> default in layout.tsx).
  *
  * The only state is active/inactive per link, carried by weight and ink:
  * 500/full when current, 400/mute otherwise.
@@ -64,7 +67,7 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
     isActive ? "text-label text-ws-ink" : "text-value text-ws-ink-mute transition-colors hover:text-ws-ink";
 
   return (
-    <div className="grid12 items-baseline" style={{ paddingTop: TOP_INSET }}>
+    <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>
       <Link href="/" className="col-span-4 col-start-1 text-label text-ws-ink">
         {studio.wordmark}
       </Link>
