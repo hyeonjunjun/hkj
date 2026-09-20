@@ -188,7 +188,9 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     const ro = new ResizeObserver(measure);
     ro.observe(col);
     return () => ro.disconnect();
-  }, [n]);
+    // centreOf is a stable useCallback with no deps of its own; listed to
+    // satisfy the exhaustive-deps rule rather than because it can change.
+  }, [n, centreOf]);
 
   /**
    * The wrap, plus the settle.
@@ -482,18 +484,17 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           Stacked in columns 11-12 now that the media block runs through
           column 10.
 
-          The extra gutter of left padding is deliberate: the grid puts
-          one gutter between columns 10 and 11, and the title on the left
-          sits one --space-2 from the swatch strip. Adding a gutter makes
-          the two gaps equal, so text sits the same distance from the
-          media on both sides. */}
-      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block md:pl-[var(--space-1)]">
+          Right-aligned, so the block hangs off the page's right edge
+          rather than off the media's. The left-hand title reads outward
+          from the swatch strip; this reads inward from the margin, and
+          the two ragged edges face each other across the spread. */}
+      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block">
         {/* Label over value, one spacing token between the pair and
             three between groups — the same label/value rhythm the case
             study header uses. Set inline, a long role like
             "concept + direction" wrapped under its own label and the
             three rows stopped lining up. */}
-        <div className="flex h-full flex-col justify-center gap-[var(--space-3)]">
+        <div className="flex h-full flex-col justify-center gap-[var(--space-3)] text-right">
           {meta.map((m) => (
             <div key={m.label}>
               <p className="text-value uppercase text-ws-ink-mute">{m.label}</p>

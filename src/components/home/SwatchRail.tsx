@@ -9,18 +9,11 @@ const SWATCH = 20;
 const GAP = 16;
 /** One row of the strip. */
 const PITCH = SWATCH + GAP;
-/** Rows shown through the mask. Odd, so one sits dead centre. */
-const VISIBLE = 11;
 /**
- * Copies of the list stacked into the strip. Odd, viewer in the middle.
- *
- * The strip has to read as endless in BOTH directions — the page loops,
- * so a rail that runs out of swatches above the first project or below
- * the last would say the opposite. Three copies mean there is always
- * more strip past the mask whichever way you are going.
+ * Ceiling on the window, for when the catalogue grows. Below this the
+ * window is simply the project count.
  */
-const SETS = 3;
-const MIDDLE = Math.floor(SETS / 2);
+const MAX_VISIBLE = 9;
 
 interface SwatchRailProps {
   works: Work[];
@@ -43,16 +36,31 @@ interface SwatchRailProps {
  * His rail is a static list; the active square can sit anywhere in it.
  * Here the strip translates so the active swatch always lands on the
  * viewport's centre line — the same line the page uses to decide which
- * work is current. Swatches travel past a fixed point as you scroll, and
- * the title beside that point never moves.
+ * work is current. Swatches travel past a fixed point, and the title
+ * beside that point never moves.
  *
- * The title is therefore NOT rendered per row. One element sits at the
- * centre and swaps its text, which keeps it still while the strip moves.
+ * WINDOW SIZE — why it is the project count
+ *
+ * The window shows exactly as many rows as there are projects (capped at
+ * MAX_VISIBLE), so what you see is one full cycle: every project once,
+ * then the next one wraps in at the far end. It reads as a loop.
+ *
+ * A fixed 11-row window over 5 projects showed two complete repeats at
+ * once, which reads as duplicated content rather than a continuous one.
+ * Tying the window to the count also means this needs no attention as
+ * the catalogue grows — five projects show five rows, twelve show nine
+ * and keep cycling.
+ *
+ * The list is still rendered in SETS copies underneath. That is what
+ * makes the wrap seamless: the window never reaches an end, because
+ * there is always another copy past it in both directions. The copies
+ * are scenery — only the middle one is reachable by keyboard or screen
+ * reader, since announcing every project three times would be noise.
  *
  * Geometry: with the strip centred, row i's centre sits at
  * (i + 0.5) * PITCH from its top, and the top is half the strip's height
- * above centre. Solving for the offset that puts row i on the line gives
- * (rows/2 - i - 0.5) * PITCH.
+ * above centre. The offset that puts row i on the line is therefore
+ * (rows / 2 - i - 0.5) * PITCH.
  *
  * PITCH is fixed px rather than the fluid --space-2 token on purpose:
  * that token derives from the viewport (100vw/180), so a resize would
@@ -60,10 +68,19 @@ interface SwatchRailProps {
  */
 export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailProps) {
   const n = works.length;
-  const rows = n * SETS;
-  // Track the copy in the middle set, so there is always strip above and
-  // below regardless of which project is current.
-  const rowIndex = MIDDLE * n + activeIndex;
+  if (n === 0) return null;
+
+  // One cycle in view, capped so a long catalogue does not run the strip
+  // off the screen.
+  const visible = Math.min(n, MAX_VISIBLE);
+
+  // Enough copies that the window is always filled on both sides, however
+  // few projects there are. Odd, viewer in the middle.
+  const sets = Math.max(3, Math.ceil(visible / n) * 2 + 1);
+  const middle = Math.floor(sets / 2);
+
+  const rows = n * sets;
+  const rowIndex = middle * n + activeIndex;
   const offset = (rows / 2 - rowIndex - 0.5) * PITCH;
 
   return (
@@ -72,14 +89,13 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
         className="relative overflow-hidden"
         style={{
           width: SWATCH,
-          height: PITCH * VISIBLE,
-          // Fades only at the very ends, so most of the strip reads
-          // clearly. A tighter mask left barely three swatches legible
-          // and hid the fact that the list continues.
+          height: PITCH * visible,
+          // Fades at the ends only, so the cycle reads clearly while the
+          // rows entering and leaving stay soft.
           maskImage:
-            "linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent)",
+            "linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent)",
           WebkitMaskImage:
-            "linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent)",
+            "linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent)",
         }}
       >
         <ul
@@ -90,10 +106,10 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
             transitionTimingFunction: "cubic-bezier(0.65, 0, 0.35, 1)",
           }}
         >
-          {Array.from({ length: SETS }).flatMap((_, s) =>
+          {Array.from({ length: sets }).flatMap((_, s) =>
             works.map((w, i) => {
-              const isActive = s === MIDDLE && i === activeIndex;
-              const isPrimary = s === MIDDLE;
+              const isPrimary = s === middle;
+              const isActive = isPrimary && i === activeIndex;
               return (
                 <li key={`${s}-${w.id}`} style={{ height: SWATCH }}>
                   <button
@@ -101,10 +117,6 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
                     onClick={() => onSelect(i)}
                     aria-current={isActive ? "true" : undefined}
                     aria-label={`Go to ${w.title}`}
-                    // Only the middle copy is reachable by keyboard or
-                    // screen reader; the other two exist to make the
-                    // strip look endless, and announcing every project
-                    // three times would be noise.
                     aria-hidden={!isPrimary}
                     tabIndex={isPrimary ? undefined : -1}
                     className={`block overflow-hidden bg-ws-fill transition-[border-radius,opacity] duration-300 ${
