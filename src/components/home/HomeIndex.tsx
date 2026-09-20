@@ -17,23 +17,23 @@ interface HomeIndexProps {
 }
 
 /**
- * Home as a diptych/triptych panel spread — dylan.camera's mechanic,
- * not the list/directory this replaced and not the media-player/poster
- * treatments tried before that. One work at a time, shown as its hero
- * image plus its first section image side by side (a single panel if
- * there's no section media yet), capped to a moderate width within a
- * centered column — flat rectangles, no rounded corners, no shadow, no
- * oversized numerals. That's a deliberate scale correction: the
- * previous pass's depth/shadow "object" treatment and 260px background
- * numeral were reading as poster-scale, not editorial — dylan.camera's
- * actual images sit well inside generous margins at a restrained size,
- * which is the calibration this project has been reaching for all
- * along. Caption stays in the same small tracked microtype used
- * everywhere else on the site, not a display size.
+ * Home as a one-work-at-a-time panel spread — dylan.camera's mechanic.
+ * Wheel/scroll advances (debounced to one step per gesture).
  *
- * Wheel/scroll advances to the next work (debounced to one step per
- * gesture) — this survives from the media-player era since it's
- * independent of layout, and dylan.camera uses the same mechanic.
+ * Laid out on the site grid and sized to the locked viewport. The
+ * previous pass centred a max-w-[1000px] column with items-center
+ * justify-center, which left roughly 220px of dead margin either side,
+ * a third of the viewport empty above the plates and another third
+ * below, and put the plates' left edge at x=220 — column 3 starts at
+ * 246.7, so nothing on the page lined up with anything else.
+ *
+ * Now: plates run from column 3 (the same left edge as every other
+ * page) and flex to fill the height between the nav and the caption,
+ * and the caption is a ruled row that bookends the ruled nav above it.
+ * A diptych splits columns 3-7 / 8-12; a single plate takes 3-11.
+ *
+ * Deliberately NOT a work index or list — that pattern has been
+ * rejected before and should not be reintroduced here.
  */
 export default function HomeIndex({ works }: HomeIndexProps) {
   const [index, setIndex] = useState(0);
@@ -50,22 +50,20 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     }, 450);
   };
 
+  const plate = secondaryMedia
+    ? "col-span-6 col-start-1 md:col-span-5 md:col-start-3"
+    : "col-span-12 col-start-1 md:col-span-9 md:col-start-3";
+
   return (
-    <div
-      onWheel={handleWheel}
-      className="flex h-full w-full flex-col items-center justify-center gap-6 px-[var(--edge-margin)]"
-    >
+    <div onWheel={handleWheel} className="flex h-full w-full flex-col">
       <Link
         href={`/works/${work.slug}`}
-        className="flex w-full max-w-[1000px] items-start justify-center gap-4 md:gap-6"
+        aria-label={`Open ${work.title}`}
+        className="grid12 min-h-0 flex-1 py-[var(--space-2)]"
       >
-        {/*
-         * Both panels share one 4:3 frame and cover-crop into it. Letting
-         * each image keep its own aspect made the pair different heights
-         * (a 16:9 video beside a square placeholder), so the spread had a
-         * ragged bottom edge and read accidental rather than composed —
-         * a diptych only works if the plates share a baseline.
-         */}
+        {/* Both plates cover-crop into the grid cell and share the row's
+            height, so the spread keeps a common baseline instead of going
+            ragged when a 16:9 video sits beside a square placeholder. */}
         <AnimatePresence mode="sync">
           <motion.div
             key={`${work.id}-a`}
@@ -73,7 +71,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={`aspect-[4/3] overflow-hidden bg-ws-fill ${secondaryMedia ? "w-1/2" : "w-full max-w-[560px]"}`}
+            className={`${plate} min-h-0 overflow-hidden bg-ws-fill`}
           >
             <MediaRenderer media={work.media} fit="cover" />
           </motion.div>
@@ -86,7 +84,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="aspect-[4/3] w-1/2 overflow-hidden bg-ws-fill"
+              className="col-span-6 col-start-7 min-h-0 overflow-hidden bg-ws-fill md:col-span-5 md:col-start-8"
             >
               <MediaRenderer media={secondaryMedia} fit="cover" />
             </motion.div>
@@ -94,13 +92,22 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         )}
       </Link>
 
-      <div className="flex w-full max-w-[1000px] items-baseline justify-between text-value text-ws-ink-mute">
-        <span>
-          {work.title.toLowerCase()} <span className="text-ws-ink-mute">&middot;</span> {work.category.toLowerCase()}
-        </span>
-        <span className="tabular-nums">
+      {/* Ruled cells, matching the nav row at the top of the page — the
+          two together frame the image the way a plate is framed.
+
+          These start at column 3, under the plates, not at column 1: a
+          caption sitting to the left of the thing it names reads as a
+          stray label. Columns 1-2 stay the page's reserved margin. */}
+      <div className="grid12 pb-[var(--space-2)]">
+        <p className="col-span-8 col-start-1 border-t border-ws-rule pt-[var(--space-1)] text-label text-ws-ink md:col-span-4 md:col-start-3">
+          {work.title.toLowerCase()}
+        </p>
+        <p className="col-span-4 col-start-9 border-t border-ws-rule pt-[var(--space-1)] text-value text-ws-ink-mute md:col-span-4 md:col-start-7">
+          {work.category.toLowerCase()}
+        </p>
+        <p className="col-span-12 col-start-1 border-ws-rule pt-[var(--space-1)] text-value tabular-nums text-ws-ink-mute md:col-span-2 md:col-start-11 md:border-t md:text-right">
           {pad2(index + 1)} / {pad2(works.length)}
-        </span>
+        </p>
       </div>
     </div>
   );
