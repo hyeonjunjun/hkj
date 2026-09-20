@@ -62,7 +62,7 @@ export const works: Work[] = [
     role: "Design + Build",
     media: {
       type: "image",
-      src: "/images/ichiran-night.jpg",
+      src: "/images/IMG_7851.jpg",
       alt: "Ichiran ramen shop at night, queue along the sidewalk under neon",
       aspectRatio: "landscape",
     },

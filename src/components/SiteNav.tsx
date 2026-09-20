@@ -63,8 +63,23 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
   const items = [...studio.navItems];
   const info = { label: "info", href: "/info", room: "info" as RoomKey };
 
+  /**
+   * Every link carries the label weight (600); state is ink alone.
+   *
+   * ethanandtom.com sets all four of its nav links at Switzer 600 and
+   * varies nothing else — measured: Selects, Index and Photo are each
+   * 10.8px/600. Running inactive links at 400 here is what made this row
+   * read thin beside theirs: it was a 400-vs-600 comparison, not the
+   * like-for-like it looked like.
+   *
+   * Weight still signals state everywhere else on the site; the nav is
+   * the exception because its links sit in a row where a mixed-weight
+   * set reads as uneven rather than as stateful.
+   */
   const linkClass = (isActive: boolean) =>
-    isActive ? "text-label text-ws-ink" : "text-value text-ws-ink-mute transition-colors hover:text-ws-ink";
+    isActive
+      ? "text-label text-ws-ink"
+      : "text-label text-ws-ink-mute transition-colors hover:text-ws-ink";
 
   return (
     <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>

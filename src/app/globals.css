@@ -124,9 +124,19 @@ body::-webkit-scrollbar {
   display: none;                  /* WebKit/Blink */
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* @layer base, not unlayered. Tailwind v4 emits its utilities inside
+   @layer utilities, and an UNLAYERED rule beats any layered one no
+   matter the specificity — so this `color: inherit` was overriding every
+   text-colour utility on every <a> on the site. The nav's inactive links
+   asked for text-ws-ink-mute and silently rendered at full ink; the same
+   applied anywhere else a link set its own colour. Inside base it now
+   loses to utilities, as intended, while still giving unstyled links a
+   sane default. */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 :focus-visible {
