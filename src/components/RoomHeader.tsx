@@ -1,6 +1,6 @@
 import type { RoomKey } from "@/lib/types";
 import Clock from "./Clock";
-import SiteNav, { Wordmark } from "./SiteNav";
+import SiteNav from "./SiteNav";
 
 interface RoomHeaderProps {
   /** Which nav link renders active. Omit where none should. */
@@ -42,12 +42,8 @@ interface RoomHeaderProps {
  */
 export default function RoomHeader({ activeRoom }: RoomHeaderProps) {
   return (
-    <header className="relative z-10 px-[var(--edge-margin)] pt-[var(--space-1)]">
-      <div className="flex flex-wrap items-baseline gap-x-[var(--space-3)] gap-y-2">
-        <Wordmark />
-        <SiteNav activeRoom={activeRoom} />
-        <Clock />
-      </div>
+    <header className="relative z-10">
+      <SiteNav activeRoom={activeRoom} trailing={<Clock />} />
     </header>
   );
 }
