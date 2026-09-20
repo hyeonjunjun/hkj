@@ -36,6 +36,17 @@ export interface Work {
   status: "LIVE" | "IN DEVELOPMENT" | "CONCEPT";
   role: string;
   media: MediaAsset;
+  /**
+   * The home spread. One, two or three plates shown side by side at a
+   * shared height — dylan.camera's handling, measured off his site:
+   * the block is a fixed 8 columns and the count divides its width
+   * (1 item 1260px, 2 items 624px, 3 items 412px at a 1920 viewport).
+   * Aspect ratio is NOT preserved; everything cover-crops to the common
+   * height, which is what lets a 16:9 still sit beside a portrait.
+   *
+   * Omit to show `media` alone.
+   */
+  plates?: MediaAsset[];
   /** Case-study body, rendered below the hero on the Work detail page. See WorkSection. */
   sections?: WorkSection[];
 }
@@ -66,6 +77,20 @@ export const works: Work[] = [
       alt: "Ichiran ramen shop at night, queue along the sidewalk under neon",
       aspectRatio: "landscape",
     },
+    plates: [
+      {
+        type: "image",
+        src: "/images/ichiran-night.jpg",
+        alt: "Ichiran ramen shop at night, queue along the sidewalk under neon",
+        aspectRatio: "landscape",
+      },
+      {
+        type: "image",
+        src: "/images/IMG_7851.jpg",
+        alt: "Brick corner cafe in morning light",
+        aspectRatio: "portrait",
+      },
+    ],
     sections: [
       {
         heading: "process",

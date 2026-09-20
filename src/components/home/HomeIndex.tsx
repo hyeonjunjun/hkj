@@ -397,15 +397,26 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         <SwatchRail works={works} activeIndex={active} onSelect={goTo} />
       </div>
 
-      {/* Centre column — SETS copies of the list, in normal flow. */}
+      {/* Centre column — SETS copies of the list, in normal flow.
+
+          The media block is columns 3-10 at a fixed height, and however
+          many plates a work has divide that width with one gutter
+          between — dylan.camera's rule, measured off his site at 1920:
+          the block is 8 columns (1260px) and 1/2/3 items come out at
+          1260 / 624 / 412px against his measured 1259 / 624 / 410.
+
+          Nothing preserves aspect ratio. Everything cover-crops to the
+          shared height, which is what lets a 16:9 still sit beside a
+          portrait without the row going ragged. */}
       <div
         ref={columnRef}
-        className="col-span-12 col-start-1 flex flex-col gap-[var(--space-8)] py-[var(--space-8)] md:col-span-4 md:col-start-3"
+        className="col-span-12 col-start-1 flex flex-col gap-[var(--space-8)] py-[var(--space-8)] md:col-span-8 md:col-start-3"
       >
         {Array.from({ length: SETS }).flatMap((_, s) =>
           works.map((w, i) => {
             const flat = s * n + i;
             const isPrimary = s === MIDDLE;
+            const plates = w.plates?.length ? w.plates : [w.media];
             return (
               <Link
                 key={`${s}-${w.id}`}
@@ -420,20 +431,27 @@ export default function HomeIndex({ works }: HomeIndexProps) {
                    a view-transition-name must be unique per document, and
                    three copies sharing one cancels the transition. */
                 style={isPrimary ? { viewTransitionName: `work-${w.slug}` } : undefined}
-                className="block h-[86vh] overflow-hidden bg-ws-fill"
+                className="flex h-[52vh] gap-[var(--gutter)]"
               >
-                <MediaRenderer media={w.media} fit="cover" />
+                {plates.map((m, k) => (
+                  <span key={k} className="min-w-0 flex-1 overflow-hidden bg-ws-fill">
+                    <MediaRenderer media={m} fit="cover" />
+                  </span>
+                ))}
               </Link>
             );
           }),
         )}
       </div>
 
-      {/* Right margin — metadata for whichever plate holds the centre. */}
-      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-5 md:col-start-8 md:block">
-        <div className="grid h-full grid-cols-5 items-center gap-x-[var(--gutter)]">
-          {meta.map((m, i) => (
-            <p key={m.label} className={["col-start-1", "col-start-3", "col-start-5"][i]}>
+      {/* Right margin — metadata for whichever plate holds the centre.
+          Stacked in columns 11-12 now that the media block runs through
+          column 10; it was laid across 8/10/12 when the plate was only
+          four columns wide. */}
+      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block">
+        <div className="flex h-full flex-col justify-center gap-[var(--space-2)]">
+          {meta.map((m) => (
+            <p key={m.label}>
               <span className="text-value text-ws-ink-mute">{m.label}</span>{" "}
               <span className="text-label text-ws-ink">{m.value}</span>
             </p>
