@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
 
@@ -14,6 +15,23 @@ const PITCH = SWATCH + GAP;
  * window is simply the project count.
  */
 const MAX_VISIBLE = 9;
+/** Strip travel time. The fold below has to outlast it. */
+const TRAVEL_MS = 500;
+
+/**
+ * Shortest signed step from `from` to `to` around a ring of `n`.
+ *
+ * This is the whole fix. Project 1 to project 5 is `0 -> 4`, and reading
+ * that difference literally sends the strip four rows the wrong way —
+ * past every other project — when project 5 is sitting one row above.
+ * Around the ring the step is -1, which is what the picture shows.
+ */
+function ringStep(from: number, to: number, n: number): number {
+  let d = (to - from) % n;
+  if (d > n / 2) d -= n;
+  if (d < -n / 2) d += n;
+  return d;
+}
 
 interface SwatchRailProps {
   works: Work[];
@@ -39,27 +57,32 @@ interface SwatchRailProps {
  * work is current. Swatches travel past a fixed point, and the title
  * beside that point never moves.
  *
- * WINDOW SIZE — why it is the project count
+ * MOVING BY THE SHORT WAY ROUND
  *
- * The window shows exactly as many rows as there are projects (capped at
- * MAX_VISIBLE), so what you see is one full cycle: every project once,
- * then the next one wraps in at the far end. It reads as a loop.
+ * The strip does not position itself from `activeIndex`. It keeps its
+ * own running position and advances it by `ringStep`, so every move is
+ * one row when the projects are adjacent on the ring — including the
+ * wrap from the first project back to the last, which the index alone
+ * would have read as a jump across the whole list.
  *
- * A fixed 11-row window over 5 projects showed two complete repeats at
- * once, which reads as duplicated content rather than a continuous one.
- * Tying the window to the count also means this needs no attention as
- * the catalogue grows — five projects show five rows, twelve show nine
- * and keep cycling.
+ * That running position drifts out of range as you keep going, so once
+ * the travel finishes it is folded back by a whole cycle with the
+ * transition switched off. The fold is invisible because the content
+ * repeats every `n` rows: the strip is in a different place by the
+ * numbers and an identical one on screen. Same trick the page itself
+ * uses to loop.
  *
- * The list is still rendered in SETS copies underneath. That is what
- * makes the wrap seamless: the window never reaches an end, because
- * there is always another copy past it in both directions. The copies
- * are scenery — only the middle one is reachable by keyboard or screen
- * reader, since announcing every project three times would be noise.
+ * WINDOW SIZE
+ *
+ * The window is the project count (capped at MAX_VISIBLE), so what you
+ * see is one full cycle — every project once, the rest wrapping in at
+ * the ends. A fixed window showed two complete repeats at five projects,
+ * which reads as duplicated content rather than a loop. Tying it to the
+ * count also means nothing here needs revisiting as the catalogue grows.
  *
  * Geometry: with the strip centred, row i's centre sits at
  * (i + 0.5) * PITCH from its top, and the top is half the strip's height
- * above centre. The offset that puts row i on the line is therefore
+ * above centre, so the offset that puts row i on the line is
  * (rows / 2 - i - 0.5) * PITCH.
  *
  * PITCH is fixed px rather than the fluid --space-2 token on purpose:
@@ -68,20 +91,57 @@ interface SwatchRailProps {
  */
 export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailProps) {
   const n = works.length;
+
+  /** The strip's own position on the ring. Drifts, then folds. */
+  const [pos, setPos] = useState(activeIndex);
+  const [animate, setAnimate] = useState(true);
+  const [seenIndex, setSeenIndex] = useState(activeIndex);
+
+  /*
+   * Advance by the short way round whenever the active work changes.
+   *
+   * Adjusted during render rather than in an effect — React's documented
+   * pattern for deriving state from a changed prop. In an effect this is
+   * a synchronous setState, which lints as a cascading render and also
+   * paints one frame at the old position first.
+   */
+  if (n > 0 && activeIndex !== seenIndex) {
+    setSeenIndex(activeIndex);
+    setPos((p) => p + ringStep(seenIndex, activeIndex, n));
+    setAnimate(true);
+  }
+
+  // Once travel is done, fold back into range with the transition off.
+  // Invisible: the content repeats every n rows, so a whole cycle of
+  // offset lands on identical pixels.
+  useEffect(() => {
+    if (n === 0 || (pos >= 0 && pos < n)) return;
+    const t = window.setTimeout(() => {
+      setAnimate(false);
+      setPos((p) => ((p % n) + n) % n);
+    }, TRAVEL_MS + 40);
+    return () => clearTimeout(t);
+  }, [pos, n]);
+
+  // Re-arm the transition the frame after a fold, so the fold itself
+  // cannot animate but the next real move can.
+  useEffect(() => {
+    if (animate) return;
+    const r = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(r);
+  }, [animate]);
+
   if (n === 0) return null;
 
-  // One cycle in view, capped so a long catalogue does not run the strip
-  // off the screen.
   const visible = Math.min(n, MAX_VISIBLE);
-
-  // Enough copies that the window is always filled on both sides, however
-  // few projects there are. Odd, viewer in the middle.
-  const sets = Math.max(3, Math.ceil(visible / n) * 2 + 1);
+  // Enough copies that the window is filled on both sides even while the
+  // running position sits a cycle outside the middle one.
+  const sets = 5;
   const middle = Math.floor(sets / 2);
 
   const rows = n * sets;
-  const rowIndex = middle * n + activeIndex;
-  const offset = (rows / 2 - rowIndex - 0.5) * PITCH;
+  const centredRow = middle * n + pos;
+  const offset = (rows / 2 - centredRow - 0.5) * PITCH;
 
   return (
     <div className="relative flex items-center gap-[var(--space-2)]">
@@ -90,8 +150,6 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
         style={{
           width: SWATCH,
           height: PITCH * visible,
-          // Fades at the ends only, so the cycle reads clearly while the
-          // rows entering and leaving stay soft.
           maskImage:
             "linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent)",
           WebkitMaskImage:
@@ -99,17 +157,21 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
         }}
       >
         <ul
-          className="absolute left-0 top-1/2 flex flex-col motion-safe:transition-transform motion-safe:duration-500"
+          className="absolute left-0 top-1/2 flex flex-col"
           style={{
             gap: GAP,
             transform: `translateY(calc(-50% + ${offset}px))`,
-            transitionTimingFunction: "cubic-bezier(0.65, 0, 0.35, 1)",
+            transition: animate ? `transform ${TRAVEL_MS}ms cubic-bezier(0.65, 0, 0.35, 1)` : "none",
           }}
         >
           {Array.from({ length: sets }).flatMap((_, s) =>
             works.map((w, i) => {
+              const flat = s * n + i;
+              // The square is whichever row is actually on the line, not
+              // whichever copy we nominally call the middle — they part
+              // company while the position is mid-fold.
+              const isActive = flat === centredRow;
               const isPrimary = s === middle;
-              const isActive = isPrimary && i === activeIndex;
               return (
                 <li key={`${s}-${w.id}`} style={{ height: SWATCH }}>
                   <button
@@ -117,7 +179,10 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
                     onClick={() => onSelect(i)}
                     aria-current={isActive ? "true" : undefined}
                     aria-label={`Go to ${w.title}`}
-                    aria-hidden={!isPrimary}
+                    // One copy carries the semantics; the rest are
+                    // scenery that makes the wrap seamless. Announcing
+                    // every project five times would be noise.
+                    aria-hidden={!isPrimary && !isActive}
                     tabIndex={isPrimary ? undefined : -1}
                     className={`block overflow-hidden bg-ws-fill transition-[border-radius,opacity] duration-300 ${
                       isActive

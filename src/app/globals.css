@@ -148,10 +148,20 @@ body::-webkit-scrollbar {
 
    currentColor, not a fixed ink: the rule then matches whatever the link
    itself is set to, muted or full, without a second token to keep in
-   sync. (This rule existed before but was used by nothing and still
-   pointed at the retired --ink.) */
-.nav-link {
-  position: relative;
+   sync.
+
+   `position: relative` sits in @layer components rather than unlayered,
+   and that matters: Tailwind v4 emits utilities inside @layer utilities,
+   and an UNLAYERED rule beats a layered one whatever the specificity.
+   Unlayered, this quietly defeated `md:absolute` on the info link, which
+   then never left the flex flow — it sat next to journal instead of on
+   the media's right edge, and dragged the centred group 20px off with
+   it. Same trap the `a { color: inherit }` rule fell into. Custom
+   classes here belong in a layer so utilities can still win. */
+@layer components {
+  .nav-link {
+    position: relative;
+  }
 }
 
 .nav-link::after {

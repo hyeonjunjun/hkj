@@ -3,30 +3,30 @@ import { studio } from "@/data/studio";
 import type { RoomKey } from "@/lib/types";
 
 /* ──────────────────────────────────────────────────────────────────
-   NAV SPACING — tune these four values and nothing else.
+   NAV SPACING — tune these three values and nothing else.
 
-   Measured off ethanandtom.com at 1440x900:
+   The nav row is anchored to the HERO MEDIA, not to the viewport. Its
+   cell is col-start-3 col-span-8, which is the same span the media
+   block uses on the home page, so:
 
-     Ethan & Tom   x  16 –   91      wordmark, 16px from the left edge
-     Selects       x 871 –  908  ┐
-     Index         x 928 –  955  │   20px gaps, a "/" centred in each
-     Photo         x 975 – 1004  ┘   (8px + 4px slash + 8px)
-     Info          x1154 – 1173      150px break before it
-     17:59:04      x1348 – 1424      175px break, right-aligned
+     · index / gallery / journal  centre on the media's centre line
+     · info                       sits on the media's right edge
+     · the wordmark               stays at column 1
+     · the clock                  stays in columns 11-12
 
-   Their link group begins at 60.5% of the viewport, Info sits at 80.1%,
-   and the clock is flush right — so the right-hand side is a distributed
-   set of three stops rather than one cluster.
+   Anything that changes the media block's columns has to change this
+   cell to match, or the two stop agreeing.
+
+   Gap between adjacent links is ethanandtom.com's, measured at 1440:
+   Selects x871-908, Index x928-955, Photo x975-1004 — 20px apart, with
+   a "/" centred in each gap.
    ────────────────────────────────────────────────────────────────── */
 
 /** Gap between adjacent nav links. Theirs is 20px at 1440. */
 const LINK_GAP = "20px";
 
-/** Which grid column the link group starts on. Theirs lands at 60.5% ≈ col 8. */
-const GROUP_START = "md:col-start-8";
-
-/** Break before the trailing link, where they use 150px. */
-const TRAILING_GAP = "40px";
+/** The columns the hero media occupies. Keep in step with HomeIndex. */
+const MEDIA_CELL = "md:col-start-3 md:col-span-8";
 
 /** Distance from the wordmark's baseline row to the top edge. */
 const TOP_INSET = "var(--space-1)";
@@ -44,43 +44,23 @@ interface SiteNavProps {
 /**
  * Wordmark, primary nav, clock.
  *
- * The wordmark stays at column 1 where it was. Only the spacing on the
- * right-hand side changed, to ethanandtom.com's — see the block above.
- *
  * Set in Switzer, the face ethanandtom.com uses. Theirs is 10.8px/600 at
  * a viewport-relative size (0.75vw: 10.8px at 1440, 14.4px at 1920);
  * this project runs one fixed 12px everywhere, so the family is adopted
  * and the sizing is not. Switzer is self-hosted as two variable files —
- * see layout.tsx — so 500 here is a real cut, not a synthesized one.
+ * see layout.tsx — so 600 here is a real cut, not a synthesized one.
  *
- * Only this row is Switzer for now; the rest of the site is still
- * Instrument Sans (the <body> default in layout.tsx).
- *
- * The only state is active/inactive per link, carried by weight and ink:
- * 500/full when current, 400/mute otherwise.
+ * Every element in the row sits at that one weight and one ink, so the
+ * underline is the only state signal — see .nav-link in globals.css.
+ * The modifier comes from the same boolean that sets aria-current, so
+ * the visual and semantic states cannot drift.
  */
 export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
-  const items = [...studio.navItems];
+  const rooms = [...studio.navItems];
   const info = { label: "info", href: "/info", room: "info" as RoomKey };
 
-  /**
-   * One weight across the whole row — wordmark, every link, and the
-   * clock all sit at the label weight (600). ethanandtom.com does the
-   * same: Selects, Index and Photo each measure Switzer 10.8px/600 with
-   * no weight variation at all.
-   *
-   * With weight no longer free to signal state, the underline does it —
-   * see .nav-link in globals.css. The modifier comes from the same
-   * boolean that sets aria-current, so the visual and semantic states
-   * cannot drift.
-   *
-   * Ink is full across the whole row — the underline is the only state
-   * signal, which is why it has to be unambiguous.
-   */
   const linkClass = (isActive: boolean) =>
-    `nav-link text-label text-ws-ink ${
-      isActive ? "nav-link--active" : ""
-    }`;
+    `nav-link text-label text-ws-ink ${isActive ? "nav-link--active" : ""}`;
 
   return (
     <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>
@@ -88,12 +68,15 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
         {studio.wordmark}
       </Link>
 
+      {/* One cell on the media's columns. The rooms centre inside it and
+          info is pinned to its right edge, so both line up with the hero
+          without either needing a hard-coded position. */}
       <nav
         aria-label="Primary"
-        className={`col-span-8 col-start-5 flex flex-wrap items-baseline ${GROUP_START} md:col-span-3`}
+        className={`relative col-span-8 col-start-5 flex flex-wrap items-baseline justify-center ${MEDIA_CELL}`}
         style={{ columnGap: LINK_GAP, rowGap: "4px" }}
       >
-        {items.map((item) => {
+        {rooms.map((item) => {
           const isActive = item.room === activeRoom;
           return (
             <Link
@@ -107,12 +90,10 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
           );
         })}
 
-        {/* Trailing link, set off by a larger break as their Info is. */}
         <Link
           href={info.href}
           aria-current={activeRoom === "info" ? "page" : undefined}
-          className={linkClass(activeRoom === "info")}
-          style={{ marginLeft: `calc(${TRAILING_GAP} - ${LINK_GAP})` }}
+          className={`${linkClass(activeRoom === "info")} md:absolute md:right-0`}
         >
           {info.label}
         </Link>
@@ -129,4 +110,3 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
     </div>
   );
 }
-
