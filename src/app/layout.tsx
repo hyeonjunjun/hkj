@@ -25,6 +25,29 @@ const instrumentSans = Instrument_Sans({
 });
 
 /**
+ * Switzer — the whole family in two variable files, 100-900 roman and
+ * 100-900 italic, 43KB + 33KB. Free for commercial use under the ITF
+ * Free Font License; self-hosted from Fontshare's CDN rather than linked,
+ * so there is no third-party request at runtime.
+ *
+ * This is the face ethanandtom.com sets its nav in (Switzer 10.8px/600).
+ * Loaded and ready but NOT yet the site default — flipping it is a
+ * one-word change on <body> below, from font-instrument-sans to
+ * font-switzer.
+ *
+ * Being variable, every weight is real: the single-size type system
+ * leans entirely on weight, so nothing here is ever synthesized.
+ */
+const switzer = localFont({
+  src: [
+    { path: "../fonts/switzer/Switzer-Variable.woff2", weight: "100 900", style: "normal" },
+    { path: "../fonts/switzer/Switzer-VariableItalic.woff2", weight: "100 900", style: "italic" },
+  ],
+  variable: "--font-switzer",
+  display: "swap",
+});
+
+/**
  * Windswept's structural-header display face — used only by the
  * landing page's Wordmark (hero variant) and ThesisStatement, not the
  * project's default sans (Inter Tight, --font-sans). Self-hosted since
@@ -71,7 +94,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${generalSans.variable} ${instrumentSans.variable}`}
+      className={`${interTight.variable} ${generalSans.variable} ${instrumentSans.variable} ${switzer.variable}`}
     >
       {/* font-instrument-sans + text-value as the document default: the
           site has exactly one face and one size, so nothing below should

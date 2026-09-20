@@ -57,6 +57,11 @@ const config: Config = {
         sans: ["var(--font-sans)", "Inter Tight", "sans-serif"],
         display: ["var(--font-display)", "General Sans", "sans-serif"],
         "instrument-sans": ["var(--font-instrument-sans)", "Instrument Sans", "sans-serif"],
+        /**
+         * Switzer, self-hosted as two variable files (100-900 roman +
+         * italic). Loaded and available; not yet the site default.
+         */
+        switzer: ["var(--font-switzer)", "Switzer", "sans-serif"],
       },
     },
   },
