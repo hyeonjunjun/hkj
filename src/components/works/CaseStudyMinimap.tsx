@@ -49,11 +49,17 @@ export default function CaseStudyMinimap({
         offset: Math.min(1, Math.max(0, window.scrollY / docH)),
       });
     };
-    measure();
-    window.addEventListener("scroll", measure, { passive: true });
+    // Driven off rAF, not the scroll event: Lenis interpolates
+    // scrollTop between native scroll events, so an event-only listener
+    // updates in visible steps behind the page. A frame loop reads the
+    // same position the page is actually painted at.
+    let frame = requestAnimationFrame(function tick() {
+      measure();
+      frame = requestAnimationFrame(tick);
+    });
     window.addEventListener("resize", measure);
     return () => {
-      window.removeEventListener("scroll", measure);
+      cancelAnimationFrame(frame);
       window.removeEventListener("resize", measure);
     };
   }, []);
@@ -102,9 +108,10 @@ export default function CaseStudyMinimap({
           aria-hidden="true"
           className="pointer-events-none absolute left-0 z-10 w-full border border-ws-ink"
           style={{
+            // No transition: the indicator must sit exactly where the
+            // page is, not ease toward it a frame or two later.
             height: `${Math.max(trackH * view.frac, 8)}px`,
             top: `${trackH * view.offset}px`,
-            transition: "top 120ms linear, height 120ms linear",
           }}
         />
         {items.map((item, i) => (
