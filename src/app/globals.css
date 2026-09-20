@@ -193,3 +193,41 @@ body::-webkit-scrollbar {
 .timeline-track::-webkit-scrollbar {
   display: none;
 }
+/* ── Page transitions ─────────────────────────────────────────────
+   The root pair is the cross-fade between any two pages. 260ms in,
+   200ms out — the outgoing page leaves slightly faster than the
+   incoming arrives, so the two overlap rather than reading as a gap.
+
+   Named elements (a work's plate on home, its row on /index, its hero
+   on the case study all share `work-<slug>`) are animated by the
+   browser instead of faded: it tweens position, size and radius
+   between the two. Given a longer duration than the fade because it is
+   travelling a real distance, on the same curve the rest of the site
+   uses for motion.
+
+   prefers-reduced-motion drops all of it to an instant cut — an
+   element flying across the viewport is exactly what that setting is
+   asking not to see. */
+::view-transition-old(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-group(*) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 1ms !important;
+  }
+}

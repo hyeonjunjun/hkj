@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
+import { setLenis } from "@/lib/lenis";
 
 /**
  * Wires Lenis scroll momentum — scrolling keeps drifting briefly after
@@ -29,6 +30,7 @@ export default function SmoothScroll() {
     // 526ms, settled by ~940ms. Solving (1-lerp)^frames against those
     // samples gives 0.098.
     const lenis = new Lenis({ lerp: 0.1 });
+    setLenis(lenis);
 
     let frame = 0;
     const raf = (time: number) => {
@@ -39,6 +41,7 @@ export default function SmoothScroll() {
 
     return () => {
       cancelAnimationFrame(frame);
+      setLenis(null);
       lenis.destroy();
     };
   }, []);

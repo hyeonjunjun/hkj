@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight, Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import SmoothScroll from "@/components/SmoothScroll";
+import ViewTransitions from "@/components/ViewTransitions";
 import "./globals.css";
 
 const interTight = Inter_Tight({
@@ -103,6 +104,7 @@ export default function RootLayout({
           typeface were leaking onto pages that never asked for them. */}
       <body className="bg-ws-paper font-instrument-sans text-value text-ws-ink antialiased">
         <SmoothScroll />
+        <ViewTransitions />
         {children}
       </body>
     </html>

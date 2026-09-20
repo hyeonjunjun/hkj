@@ -36,6 +36,10 @@ export default function IndexList({ works }: IndexListProps) {
         <MotionReveal key={work.id} delay={i * 60} duration={duration.reveal}>
         <Link
           href={`/works/${work.slug}`}
+          // Same name as the hero plate for this work, so the browser
+          // tweens one into the other across the navigation rather than
+          // cross-fading the whole page. Must match HomeIndex exactly.
+          style={{ viewTransitionName: `work-${work.slug}` }}
           className="group flex items-center gap-4 border-b border-ws-rule py-4 first:border-t"
         >
           <span className="w-8 shrink-0 text-value tabular-nums text-ws-ink-mute">

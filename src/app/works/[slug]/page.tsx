@@ -99,7 +99,10 @@ export default async function WorkPage({ params }: WorkPageProps) {
         </header>
 
         <div className="grid12 mt-[var(--space-8)]">
-          <div className="col-span-12 col-start-1 md:col-span-7 md:col-start-3">
+          <div
+            className="col-span-12 col-start-1 md:col-span-7 md:col-start-3"
+            style={{ viewTransitionName: `work-${work.slug}` }}
+          >
             <MediaRenderer media={work.media} aspectOverride="16 / 9" />
           </div>
         </div>
