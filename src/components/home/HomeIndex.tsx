@@ -20,15 +20,18 @@ interface HomeIndexProps {
  * Home as a one-work-at-a-time panel spread — dylan.camera's mechanic.
  * Wheel/scroll advances (debounced to one step per gesture).
  *
- * Plate geometry is dylan.camera's, measured rather than guessed. His
- * hero plates sit on his own 12-column grid at column 3 span 4 and
- * column 7 span 4 — predicted x 250.0 / 726.0 and width 464.0 against
- * measured 250 / 726 / 464 — and they are SQUARE, occupying 50% of the
- * viewport height with equal margins above and below.
+ * Plate geometry is dylan.camera's, measured at two viewports rather
+ * than inferred from one. His plates sit at column 3 span 4 and column 7
+ * span 4, and their height is 50% of the viewport — NOT a fixed aspect:
  *
- * Ours matched him on width already (33.9% vs 32.2%) and on centring,
- * but ran 4:3, which left the plates at 40.7% of viewport height. Square
- * on our grid gives 469px at 1440, i.e. 52%.
+ *   1440 viewport   4 cols = 464 wide,  50vh = 450 tall   AR 1.03
+ *   1920 viewport   4 cols = 624 wide,  50vh = 500 tall   AR 1.25
+ *
+ * Width comes from the grid, height from the viewport, so the aspect
+ * drifts with the window by design. An earlier pass here read only the
+ * 1440 case, saw AR 1.03 and locked the plates square — which holds at
+ * 1440 but runs 62vh at 1920, visibly too tall. Hence: no aspect-ratio,
+ * height 50vh, cover-crop.
  *
  * Note what this deliberately is NOT: filling the viewport. An earlier
  * pass flexed these to full height (758px, 84%) and had to be reverted —
@@ -63,8 +66,8 @@ export default function HomeIndex({ works }: HomeIndexProps) {
   return (
     <div onWheel={handleWheel} className="flex h-full w-full flex-col justify-center">
       <Link href={`/works/${work.slug}`} aria-label={`Open ${work.title}`} className="grid12">
-        {/* Both plates are square and cover-crop, so a 16:9 video beside a
-            square placeholder still shares a baseline. */}
+        {/* Both plates share one height and cover-crop into it, so a 16:9
+            video beside a square placeholder still shares a baseline. */}
         <AnimatePresence mode="sync">
           <motion.div
             key={`${work.id}-a`}
@@ -72,7 +75,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: durationSeconds.base, ease: windEasing }}
-            className={`${plateA} aspect-square overflow-hidden bg-ws-fill`}
+            className={`${plateA} h-[50vh] overflow-hidden bg-ws-fill`}
           >
             <MediaRenderer media={work.media} fit="cover" />
           </motion.div>
@@ -85,7 +88,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: durationSeconds.base, ease: windEasing }}
-              className="col-span-12 col-start-1 aspect-square overflow-hidden bg-ws-fill md:col-span-4 md:col-start-7"
+              className="col-span-12 col-start-1 h-[50vh] overflow-hidden bg-ws-fill md:col-span-4 md:col-start-7"
             >
               <MediaRenderer media={secondaryMedia} fit="cover" />
             </motion.div>
