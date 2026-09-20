@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { studio } from "@/data/studio";
 import { works } from "@/data/works";
 import Clock from "@/components/Clock";
+import SiteNav from "@/components/SiteNav";
 import WorkShowcase from "@/components/home/WorkShowcase";
 
 /**
@@ -15,28 +14,8 @@ import WorkShowcase from "@/components/home/WorkShowcase";
 export default function Landing() {
   return (
     <main className="relative flex h-[100dvh] w-full flex-col bg-ws-paper">
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-[var(--edge-margin)] py-4 md:py-6">
-        <Link href="/" className="text-prose text-ws-ink">
-          {studio.wordmark}
-        </Link>
-        <nav aria-label="Primary" className="flex flex-wrap items-center gap-5">
-          {studio.navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-value text-ws-ink-mute transition-colors hover:text-ws-ink"
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/info"
-            className="text-value text-ws-ink-mute transition-colors hover:text-ws-ink"
-          >
-            info
-          </Link>
-        </nav>
-        <Clock />
+      <div className="py-[var(--space-2)] md:py-[var(--space-3)]">
+        <SiteNav trailing={<Clock />} />
       </div>
 
       <div className="min-h-0 flex-1">

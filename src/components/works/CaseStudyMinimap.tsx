@@ -30,22 +30,28 @@ export default function CaseStudyMinimap({
   items: { media: MediaAsset; label: string }[];
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
   const [trackH, setTrackH] = useState(0);
+  // The indicator is a true window onto the document, not a fixed shape:
+  // its height is the viewport's share of the page and its offset is the
+  // scrolled share. Both are fractions of the document, so the rail reads
+  // as "you are seeing this much, here" rather than just "you are here".
+  const [view, setView] = useState({ frac: 0, offset: 0 });
 
   useEffect(() => {
-    // Progress is the scrolled fraction of the document, which is what
-    // the indicator's travel is mapped onto below.
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+    const measure = () => {
+      const docH = document.documentElement.scrollHeight;
+      if (docH <= 0) return;
+      setView({
+        frac: Math.min(1, window.innerHeight / docH),
+        offset: Math.min(1, Math.max(0, window.scrollY / docH)),
+      });
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
     };
   }, []);
 
@@ -86,16 +92,17 @@ export default function CaseStudyMinimap({
         className="relative flex h-full w-full flex-col"
         style={{ transform: "scale(0.6)", rowGap: "var(--gutter)" }}
       >
-        {/* Viewport indicator. Travels over the track's own height minus
-            its own, so it lands flush at both ends instead of overhanging. */}
+        {/* Viewport indicator, sized and positioned from the real ratio of
+            viewport to document. At offset = (docH - viewH)/docH its top
+            lands at trackH * (1 - frac), i.e. flush with the bottom of the
+            track, so it needs no end-clamping. */}
         <span
           aria-hidden="true"
           className="pointer-events-none absolute left-0 z-10 w-full border border-ws-ink"
           style={{
-            aspectRatio: "16 / 19",
-            top: 0,
-            transform: `translateY(calc((${trackH}px - 100%) * ${progress}))`,
-            transition: "transform 120ms linear",
+            height: `${Math.max(trackH * view.frac, 8)}px`,
+            top: `${trackH * view.offset}px`,
+            transition: "top 120ms linear, height 120ms linear",
           }}
         />
         {items.map((item, i) => (
