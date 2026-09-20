@@ -16,6 +16,12 @@ function pad2(n: number): string {
 const SETS = 3;
 /** Quiet time after scrolling before the page settles onto a project. */
 const SETTLE_MS = 140;
+/** Below this, a wheel event is momentum residue rather than intent. */
+const GESTURE_MIN_DELTA = 20;
+/** Wheel events this soon after a glide starts are that glide's own tail. */
+const GLIDE_GRACE_MS = 260;
+/** How long to wait before re-checking while a glide is in flight. */
+const GLIDE_CHECK_MS = 900;
 /** Index of the set the viewer actually occupies. */
 const MIDDLE = Math.floor(SETS / 2);
 
@@ -82,6 +88,59 @@ export default function HomeIndex({ works }: HomeIndexProps) {
    *   h     — one whole set, the distance the wrap moves by.
    */
   const geom = useRef({ base: 0, pitch: 0, plateH: 0, h: 0 });
+  /**
+   * Where the page last came to rest. A ref, not an effect-local, because
+   * the swatch click has to keep it in step too — when it did not, a
+   * click followed by a scroll measured travel from a stale origin and
+   * stepped to the wrong multiple, landing 366px off centre.
+   */
+  const restY = useRef(0);
+  /**
+   * True while the page is being moved by us rather than by the viewer.
+   * A ref, not an effect-local, because the swatch click also needs to
+   * claim it: its glide emits scroll events, which armed the settle
+   * timer, which then glided somewhere else and overrode the click. That
+   * was the "sticks off centre" case — 366px out, with no correction.
+   */
+  const snapping = useRef(false);
+  const releaseTimer = useRef<number | null>(null);
+  /** When the in-flight programmatic scroll began. */
+  const glideStart = useRef(0);
+  /**
+   * The settle routine, published by the scroll effect so the guard's
+   * own release can call it.
+   *
+   * Without this the page could be abandoned off centre: the guard
+   * releases on a timer, and if scrolling had already stopped by then
+   * nothing was left to re-arm the settle. Traced it — a click glide
+   * followed by a wheel, followed by the loop wrap, left the page at
+   * index 4.56 and simply sat there.
+   */
+  const settleRef = useRef<(() => void) | null>(null);
+
+  /**
+   * The one way the page is moved programmatically. Claims the guard,
+   * records the destination as the new resting position, and releases a
+   * little after the glide's own duration so its scroll events cannot
+   * re-arm the settle.
+   */
+  const glideToRest = useCallback((target: number, seconds: number) => {
+    snapping.current = true;
+    glideStart.current = performance.now();
+    restY.current = target;
+    glideTo(target, seconds);
+    if (releaseTimer.current !== null) clearTimeout(releaseTimer.current);
+    releaseTimer.current = window.setTimeout(
+      () => {
+        snapping.current = false;
+        releaseTimer.current = null;
+        // Scrolling may already have stopped, in which case no scroll
+        // event is coming to re-arm the settle. Check once, here.
+        settleRef.current?.();
+      },
+      seconds * 1000 + 150,
+    );
+  }, []);
 
   /** Scroll position that puts the plate starting at `top` on the
    *  viewport's centre line. Uses the plate's own height, not the
@@ -111,8 +170,10 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     if (h > 0) {
       // Centre the middle set's FIRST plate on the viewport centre line,
       // which is the same line the observer tests against.
-      const { base, pitch } = geom.current;
-      jumpTo(centreOf(base + MIDDLE * h));
+      const { base } = geom.current;
+      const opening = centreOf(base + MIDDLE * h);
+      jumpTo(opening);
+      restY.current = opening;
     }
 
     const ro = new ResizeObserver(measure);
@@ -142,48 +203,77 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     if (n === 0) return;
 
     let timer: number | null = null;
-    let snapping = false;
-    // The position the page last came to rest at; every step is measured
-    // from here rather than from wherever the current frame happens to be.
-    let restY = window.scrollY;
+    /**
+     * Direction of the last deliberate wheel, consumed by the next
+     * settle. Taken from the gesture rather than inferred by comparing
+     * against restY: that comparison had to stay correct across glides
+     * and loop wraps, and when it did not the page stepped to the wrong
+     * plate or simply stayed put off centre.
+     */
+    let gestureDir = 0;
+    if (restY.current === 0) restY.current = window.scrollY;
 
     /**
-     * Where the page should come to rest.
+     * Where the page should come to rest — always an ACTUAL plate centre.
      *
-     * NOT the nearest plate. A flick moves a few hundred pixels and the
-     * pitch is ~838, so "nearest" is almost always the plate you started
-     * on — the page would drag you back and scrolling would appear
-     * broken. It did, in the first version of this.
+     * The first version returned restY + steps * pitch, which is only a
+     * plate centre if restY is one. Anything that moved the page without
+     * telling us (the swatch click's native scrollIntoView, a browser
+     * scroll restore) put restY off a centre, and every subsequent rest
+     * inherited that error — the page would settle between plates and
+     * stay there. Computing the index and rebuilding the position from
+     * `base` means the worst a stale restY can now cause is stepping the
+     * wrong number of plates, never resting off one.
      *
-     * Instead: measure how far you travelled from the last resting
-     * position in whole plates, and if you moved at all but less than
-     * one, round that up to one in the direction you went. So a single
-     * flick advances exactly one project, and a long drag advances as
-     * many as it covered.
+     * Direction still comes from travel: a sub-plate move rounds up to
+     * one plate the way it was going, so a single flick is one project.
+     */
+    /**
+     * Where the page should come to rest — always an ACTUAL plate centre,
+     * rebuilt from `base` so it cannot inherit drift.
+     *
+     * Two modes:
+     *   gestureDir set — the viewer scrolled, so step that way. A move
+     *     of less than one plate still counts as one, which is what
+     *     makes a single flick advance exactly one project.
+     *   gestureDir clear — nobody scrolled, so this is a recovery: just
+     *     centre whatever is nearest. This is the branch that rescues a
+     *     position abandoned by an interrupted glide or a loop wrap.
      */
     const restingTarget = () => {
-      const { pitch, h } = geom.current;
-      if (h <= 0) return null;
-      const delta = window.scrollY - restY;
-      if (Math.abs(delta) < 4) return null;
-      const whole = delta / pitch;
-      const steps =
-        Math.abs(whole) < 1 ? Math.sign(whole) : Math.round(whole);
-      return restY + steps * pitch;
+      const { base, pitch, plateH, h } = geom.current;
+      if (h <= 0 || pitch <= 0) return null;
+
+      const now =
+        (window.scrollY + window.innerHeight / 2 - base - plateH / 2) / pitch;
+
+      const idx =
+        gestureDir === 0
+          ? Math.round(now)
+          : (() => {
+              const from = Math.round(
+                (restY.current + window.innerHeight / 2 - base - plateH / 2) / pitch,
+              );
+              const moved = Math.abs(now - from);
+              return from + gestureDir * (moved < 1 ? 1 : Math.round(moved));
+            })();
+
+      return base + idx * pitch + plateH / 2 - window.innerHeight / 2;
     };
 
     const settle = () => {
       const target = restingTarget();
       if (target === null) return;
-      snapping = true;
-      restY = target;
-      glideTo(target, 0.55);
-      // Released a little after the glide's own duration, so the scroll
-      // events it emits do not re-arm the timer and loop forever.
-      window.setTimeout(() => {
-        snapping = false;
-      }, 700);
+      // Already there — do not start a glide that would claim the guard
+      // for nothing.
+      if (Math.abs(target - window.scrollY) < 2) {
+        gestureDir = 0;
+        return;
+      }
+      gestureDir = 0;
+      glideToRest(target, 0.55);
     };
+    settleRef.current = settle;
 
     const onScroll = () => {
       const { base, h } = geom.current;
@@ -191,20 +281,46 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         const rel = window.scrollY + window.innerHeight / 2 - base;
         if (rel < MIDDLE * h) {
           jumpTo(window.scrollY + h);
-          restY += h;
+          restY.current += h;
         } else if (rel >= (MIDDLE + 1) * h) {
           jumpTo(window.scrollY - h);
-          restY -= h;
+          restY.current -= h;
         }
       }
-      if (snapping) return;
+      // Scheduled even while a glide is in flight, just further out.
+      // Returning outright here is what let an interrupted glide strand
+      // the page: scrolling stopped before the guard released, so no
+      // event was ever left to arm the check. settle() no-ops when the
+      // page is already centred, so the extra pass is free.
       if (timer !== null) clearTimeout(timer);
-      timer = window.setTimeout(settle, SETTLE_MS);
+      timer = window.setTimeout(settle, snapping.current ? GLIDE_CHECK_MS : SETTLE_MS);
     };
 
-    // A real gesture always wins over an in-flight snap.
-    const onGesture = () => {
-      snapping = false;
+    /**
+     * A deliberate new gesture takes control back from an in-flight
+     * glide. Deliberate is doing real work here.
+     *
+     * This used to clear the guard on ANY wheel event, which meant the
+     * residual momentum of the very flick that triggered the settle
+     * cancelled that settle a frame or two in. The glide stopped
+     * partway, nothing re-armed, and the page sat off centre — measured
+     * 366px out after a click, 396px after a trackpad-style burst. That
+     * is the "sticks sometimes" case.
+     *
+     * So: ignore small deltas, and ignore anything arriving within
+     * GLIDE_GRACE_MS of the glide starting, which is where momentum
+     * tails live. A real intent to scroll clears both bars easily.
+     */
+    const onGesture = (event: Event) => {
+      const dy = (event as WheelEvent).deltaY;
+      const deliberate = dy === undefined || Math.abs(dy) >= GESTURE_MIN_DELTA;
+      if (!deliberate) return;
+      if (dy) gestureDir = Math.sign(dy);
+      if (!snapping.current) return;
+      // Momentum tails arrive right after a glide starts; a real intent
+      // to scroll does not.
+      if (performance.now() - glideStart.current < GLIDE_GRACE_MS) return;
+      snapping.current = false;
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -215,8 +331,9 @@ export default function HomeIndex({ works }: HomeIndexProps) {
       window.removeEventListener("wheel", onGesture);
       window.removeEventListener("touchstart", onGesture);
       if (timer !== null) clearTimeout(timer);
+      settleRef.current = null;
     };
-  }, [n]);
+  }, [n, glideToRest]);
 
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -243,12 +360,19 @@ export default function HomeIndex({ works }: HomeIndexProps) {
   const goTo = useCallback(
     (i: number) => {
       const { base, h } = geom.current;
+      if (h <= 0) return;
       const rel = window.scrollY + window.innerHeight / 2 - base;
-      const currentSet = h > 0 ? Math.floor(rel / h) : MIDDLE;
-      const el = plateRefs.current[currentSet * n + i] ?? plateRefs.current[MIDDLE * n + i];
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const currentSet = Math.floor(rel / h);
+      const flat = currentSet * n + i;
+      const el = plateRefs.current[flat] ?? plateRefs.current[MIDDLE * n + i];
+      if (!el) return;
+      // glideTo, not scrollIntoView: the native smooth scroll animates the
+      // same property Lenis is animating, and the two fight — that is how
+      // an interrupted click ended up 366px off centre. Going through
+      // Lenis also means one easing for the whole page.
+      glideToRest(centreOf(el.offsetTop), 0.6);
     },
-    [n],
+    [n, centreOf, glideToRest],
   );
 
   const meta = [
