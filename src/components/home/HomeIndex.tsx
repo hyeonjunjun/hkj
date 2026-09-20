@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
 import SwatchRail from "./SwatchRail";
-import { jumpTo } from "@/lib/lenis";
+import { glideTo, jumpTo } from "@/lib/lenis";
 
 /** Zero-pads a positive integer to 2 digits, e.g. 1 -> "01". */
 function pad2(n: number): string {
@@ -14,6 +14,8 @@ function pad2(n: number): string {
 
 /** Copies of the list stacked to make the scroll loop. Must be odd. */
 const SETS = 3;
+/** Quiet time after scrolling before the page settles onto a project. */
+const SETTLE_MS = 140;
 /** Index of the set the viewer actually occupies. */
 const MIDDLE = Math.floor(SETS / 2);
 
@@ -79,7 +81,16 @@ export default function HomeIndex({ works }: HomeIndexProps) {
    *   pitch — plate height plus gap, i.e. one work.
    *   h     — one whole set, the distance the wrap moves by.
    */
-  const geom = useRef({ base: 0, pitch: 0, h: 0 });
+  const geom = useRef({ base: 0, pitch: 0, plateH: 0, h: 0 });
+
+  /** Scroll position that puts the plate starting at `top` on the
+   *  viewport's centre line. Uses the plate's own height, not the
+   *  pitch — the pitch includes the gap between plates, and using it
+   *  here left every plate resting 32px high. */
+  const centreOf = useCallback((top: number) => {
+    const { plateH } = geom.current;
+    return top + plateH / 2 - window.innerHeight / 2;
+  }, []);
 
   // Layout effect so the initial jump lands before paint; in a passive
   // effect the first frame shows set 0 and then lurches.
@@ -92,7 +103,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
       const b = plateRefs.current[1] ?? plateRefs.current[0];
       if (!a || !b) return 0;
       const pitch = n > 1 ? b.offsetTop - a.offsetTop : a.offsetHeight;
-      geom.current = { base: a.offsetTop, pitch, h: pitch * n };
+      geom.current = { base: a.offsetTop, pitch, plateH: a.offsetHeight, h: pitch * n };
       return geom.current.h;
     };
 
@@ -101,7 +112,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
       // Centre the middle set's FIRST plate on the viewport centre line,
       // which is the same line the observer tests against.
       const { base, pitch } = geom.current;
-      jumpTo(base + MIDDLE * h + pitch / 2 - window.innerHeight / 2);
+      jumpTo(centreOf(base + MIDDLE * h));
     }
 
     const ro = new ResizeObserver(measure);
@@ -109,20 +120,102 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     return () => ro.disconnect();
   }, [n]);
 
-  // The wrap. Deliberately outside React state: runs on every scroll
-  // frame and must not re-render anything.
+  /**
+   * The wrap, plus the settle.
+   *
+   * WRAP — deliberately outside React state: this runs on every scroll
+   * frame and must not re-render anything.
+   *
+   * SETTLE — while the page scrolls freely, a timer is kept alive. When
+   * scrolling stops for SETTLE_MS the nearest plate is glided onto the
+   * centre line, so the page always comes to rest on a project rather
+   * than halfway between two. One flick therefore lands on the next
+   * project in the direction of travel, because that is the plate
+   * nearest the centre once the flick's momentum has run out.
+   *
+   * Guarded by `snapping`: glideTo emits scroll events of its own, and
+   * without the guard the settle would retrigger itself forever. The
+   * guard is cleared on a real user gesture too, so a scroll during the
+   * glide takes control back immediately rather than being fought.
+   */
   useEffect(() => {
     if (n === 0) return;
+
+    let timer: number | null = null;
+    let snapping = false;
+    // The position the page last came to rest at; every step is measured
+    // from here rather than from wherever the current frame happens to be.
+    let restY = window.scrollY;
+
+    /**
+     * Where the page should come to rest.
+     *
+     * NOT the nearest plate. A flick moves a few hundred pixels and the
+     * pitch is ~838, so "nearest" is almost always the plate you started
+     * on — the page would drag you back and scrolling would appear
+     * broken. It did, in the first version of this.
+     *
+     * Instead: measure how far you travelled from the last resting
+     * position in whole plates, and if you moved at all but less than
+     * one, round that up to one in the direction you went. So a single
+     * flick advances exactly one project, and a long drag advances as
+     * many as it covered.
+     */
+    const restingTarget = () => {
+      const { pitch, h } = geom.current;
+      if (h <= 0) return null;
+      const delta = window.scrollY - restY;
+      if (Math.abs(delta) < 4) return null;
+      const whole = delta / pitch;
+      const steps =
+        Math.abs(whole) < 1 ? Math.sign(whole) : Math.round(whole);
+      return restY + steps * pitch;
+    };
+
+    const settle = () => {
+      const target = restingTarget();
+      if (target === null) return;
+      snapping = true;
+      restY = target;
+      glideTo(target, 0.55);
+      // Released a little after the glide's own duration, so the scroll
+      // events it emits do not re-arm the timer and loop forever.
+      window.setTimeout(() => {
+        snapping = false;
+      }, 700);
+    };
+
     const onScroll = () => {
       const { base, h } = geom.current;
-      if (h <= 0) return;
-      // Which plate the centre line is over, as a continuous index.
-      const rel = window.scrollY + window.innerHeight / 2 - base;
-      if (rel < MIDDLE * h) jumpTo(window.scrollY + h);
-      else if (rel >= (MIDDLE + 1) * h) jumpTo(window.scrollY - h);
+      if (h > 0) {
+        const rel = window.scrollY + window.innerHeight / 2 - base;
+        if (rel < MIDDLE * h) {
+          jumpTo(window.scrollY + h);
+          restY += h;
+        } else if (rel >= (MIDDLE + 1) * h) {
+          jumpTo(window.scrollY - h);
+          restY -= h;
+        }
+      }
+      if (snapping) return;
+      if (timer !== null) clearTimeout(timer);
+      timer = window.setTimeout(settle, SETTLE_MS);
     };
+
+    // A real gesture always wins over an in-flight snap.
+    const onGesture = () => {
+      snapping = false;
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("wheel", onGesture, { passive: true });
+    window.addEventListener("touchstart", onGesture, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", onGesture);
+      window.removeEventListener("touchstart", onGesture);
+      if (timer !== null) clearTimeout(timer);
+    };
   }, [n]);
 
   useEffect(() => {

@@ -29,3 +29,15 @@ export function jumpTo(y: number) {
   if (l) l.scrollTo(y, { immediate: true, force: true });
   else window.scrollTo(0, y);
 }
+
+/**
+ * Animated scroll to an absolute position, used by the hero's snap.
+ * Goes through Lenis so it shares the page's easing rather than
+ * introducing a second one; falls back to native smooth behaviour when
+ * Lenis is absent.
+ */
+export function glideTo(y: number, durationSeconds = 0.6) {
+  const l = instance;
+  if (l) l.scrollTo(y, { duration: durationSeconds, force: true });
+  else window.scrollTo({ top: y, behavior: "smooth" });
+}
