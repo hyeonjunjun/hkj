@@ -104,6 +104,8 @@ export default function HomeIndex({ works }: HomeIndexProps) {
    * stepped to the wrong multiple, landing 366px off centre.
    */
   const restY = useRef(0);
+  /** Set the first time the viewer scrolls, so the opening hold yields. */
+  const userMoved = useRef(false);
   /**
    * True while the page is being moved by us rather than by the viewer.
    * A ref, not an effect-local, because the swatch click also needs to
@@ -175,14 +177,60 @@ export default function HomeIndex({ works }: HomeIndexProps) {
       return geom.current.h;
     };
 
+    /**
+     * Park the viewer on the middle set's first plate.
+     *
+     * Asserted repeatedly for a few frames rather than once, because one
+     * pass is not enough on a client-side navigation back to this page:
+     * the browser restores a scroll position AFTER our layout effect
+     * runs, which left the page blank for ~400ms (scroll 0 sits in the
+     * padding above the first plate), then lurching through a wrong
+     * position before anything corrected it. Measured: 0 -> 1263 -> 4466
+     * over 1.2s.
+     *
+     * Stops the moment the viewer touches the page, so it can never
+     * fight a real gesture.
+     */
+    const openAt = () => {
+      const { base } = geom.current;
+      const y = centreOf(base + MIDDLE * h);
+      jumpTo(y);
+      restY.current = y;
+    };
+
     const h = measure();
     if (h > 0) {
-      // Centre the middle set's FIRST plate on the viewport centre line,
-      // which is the same line the observer tests against.
-      const { base } = geom.current;
-      const opening = centreOf(base + MIDDLE * h);
-      jumpTo(opening);
-      restY.current = opening;
+      // Scroll restoration is the page's to own here — the position that
+      // matters is a project on the centre line, not a pixel offset.
+      const priorRestoration = history.scrollRestoration;
+      try {
+        history.scrollRestoration = "manual";
+      } catch {
+        /* not supported; the re-assert below still covers it */
+      }
+
+      openAt();
+
+      let frames = 0;
+      let raf = 0;
+      const hold = () => {
+        if (userMoved.current) return;
+        openAt();
+        if (++frames < 12) raf = requestAnimationFrame(hold);
+      };
+      raf = requestAnimationFrame(hold);
+
+      const ro = new ResizeObserver(measure);
+      ro.observe(col);
+      return () => {
+        cancelAnimationFrame(raf);
+        ro.disconnect();
+        try {
+          history.scrollRestoration = priorRestoration;
+        } catch {
+          /* ignore */
+        }
+      };
     }
 
     const ro = new ResizeObserver(measure);
@@ -339,6 +387,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
      * tails live. A real intent to scroll clears both bars easily.
      */
     const onGesture = (event: Event) => {
+      userMoved.current = true;
       // Stamped for EVERY physical input, including deltas too small to
       // count as a direction change — the question here is "is a hand on
       // it", not "did they mean to go somewhere".
@@ -488,13 +537,18 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           rather than off the media's. The left-hand title reads outward
           from the swatch strip; this reads inward from the margin, and
           the two ragged edges face each other across the spread. */}
-      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen md:col-span-2 md:col-start-11 md:block">
-        {/* Label over value, one spacing token between the pair and
-            three between groups — the same label/value rhythm the case
-            study header uses. Set inline, a long role like
-            "concept + direction" wrapped under its own label and the
-            three rows stopped lining up. */}
-        <div className="flex h-full flex-col justify-center gap-[var(--space-3)] text-right">
+      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen items-center md:col-span-2 md:col-start-11 md:flex">
+        {/* Centred by `items-center` on the sticky cell, which is the
+            same mechanism the swatch rail uses and measures at exactly
+            the viewport middle. The previous h-full + justify-center
+            pairing left this block 83px low at 1920 — h-full resolved
+            against a cell whose height was not what it looked like.
+
+            Label over value, one spacing token between the pair and
+            three between groups — the same rhythm the case-study header
+            uses. Set inline, a long role like "concept + direction"
+            wrapped under its own label and the rows stopped lining up. */}
+        <div className="flex w-full flex-col gap-[var(--space-3)] text-right">
           {meta.map((m) => (
             <div key={m.label}>
               <p className="text-value uppercase text-ws-ink-mute">{m.label}</p>
