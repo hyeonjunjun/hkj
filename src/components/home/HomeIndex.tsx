@@ -467,7 +467,7 @@ export default function HomeIndex({ works }: HomeIndexProps) {
                    a view-transition-name must be unique per document, and
                    three copies sharing one cancels the transition. */
                 style={isPrimary ? { viewTransitionName: `work-${w.slug}` } : undefined}
-                className="flex h-[52vh] gap-[var(--gutter)]"
+                className="flex h-[52vh] gap-[12px]"
               >
                 {plates.map((m, k) => (
                   <span key={k} className="min-w-0 flex-1 overflow-hidden bg-ws-fill">
@@ -504,10 +504,6 @@ export default function HomeIndex({ works }: HomeIndexProps) {
         </div>
       </div>
 
-      {/* Position readout, bottom right — GSP's 0%. */}
-      <p className="pointer-events-none fixed bottom-[var(--space-2)] right-[var(--gutter)] z-10 text-value tabular-nums text-ws-ink-mute">
-        {pad2(active + 1)} / {pad2(n)}
-      </p>
     </div>
   );
 }

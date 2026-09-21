@@ -9,7 +9,7 @@ import type { RoomKey } from "@/lib/types";
    cell is col-start-3 col-span-8, which is the same span the media
    block uses on the home page, so:
 
-     · index / gallery / journal  centre on the media's centre line
+     · index / gallery / journal  start on the media's centre line
      · info                       sits on the media's right edge
      · the wordmark               stays at column 1
      · the clock                  stays in columns 11-12
@@ -64,16 +64,29 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
 
   return (
     <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>
-      <Link href="/" className="col-span-4 col-start-1 text-label text-ws-ink">
+      {/* Two columns, not four. The nav cell starts at column 3, and a
+          four-column wordmark overlapped it — overlapping grid items get
+          auto-placed into a new row, which is what put the whole nav 14px
+          below the wordmark. It is left-aligned in its cell either way,
+          so nothing moves visually. */}
+      <Link href="/" className="col-span-2 col-start-1 text-label text-ws-ink">
         {studio.wordmark}
       </Link>
 
-      {/* One cell on the media's columns. The rooms centre inside it and
-          info is pinned to its right edge, so both line up with the hero
-          without either needing a hard-coded position. */}
+      {/* One cell on the media's columns: the rooms start at its centre
+          and info is pinned to its right edge, so both line up with the
+          hero without either needing a hard-coded position. */}
       <nav
         aria-label="Primary"
-        className={`relative col-span-8 col-start-5 flex flex-wrap items-baseline justify-center ${MEDIA_CELL}`}
+        // flex-nowrap from md up: a WRAPPING flex container is
+        // multi-line, and a multi-line flex container has no real
+        // baseline — the browser synthesises one from its bottom edge,
+        // which would knock it off the wordmark's line.
+        //
+        // pl-[50%] puts the first link's left edge on the cell's centre,
+        // and the cell spans the media, so "index" starts exactly on the
+        // media's centre line.
+        className={`relative col-span-8 col-start-5 flex flex-wrap items-baseline ${MEDIA_CELL} md:flex-nowrap md:pl-[50%]`}
         style={{ columnGap: LINK_GAP, rowGap: "4px" }}
       >
         {rooms.map((item) => {
