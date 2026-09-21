@@ -53,12 +53,23 @@
 /* ── Grid container ────────────────────────────────────────────────
    12 columns + 11 gaps + 2 outer paddings = 12 columns + 13 gutters,
    which is exactly 100vw. Place children with Tailwind's native
-   col-start and col-span utilities against these tracks. */
-.grid12 {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: var(--gutter);
-  padding-inline: var(--gutter);
+   col-start and col-span utilities against these tracks.
+
+   In @layer components, like every custom class in this file. Tailwind
+   v4 emits utilities inside @layer utilities, and an UNLAYERED rule
+   beats a layered one whatever the specificity — so an unlayered class
+   here would silently defeat any utility applied to the same element.
+   That has bitten this project twice: `a { color: inherit }` killed
+   every text-colour utility on every link, and `.nav-link`'s
+   `position: relative` killed `md:absolute` on the nav. Pseudo-element
+   rules stay unlayered, since no utility competes with them. */
+@layer components {
+  .grid12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    padding-inline: var(--gutter);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -185,9 +196,11 @@ body::-webkit-scrollbar {
    TimelineAxis's progress indicator is the visible scroll indicator.
    Used only by the timeline components, which nothing currently
    renders — see the note in WorkShowcase. */
-.timeline-track {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+@layer components {
+  .timeline-track {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 }
 
 .timeline-track::-webkit-scrollbar {
