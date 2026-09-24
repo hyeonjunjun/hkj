@@ -27,10 +27,11 @@ const SAFETY_MS = 1200;
  *   - Every page-to-page move cross-fades, because a cross-fade is the
  *     API's default root animation. Timing is in globals.css.
  *   - Where two pages carry the same `view-transition-name` on an
- *     element — a work's plate on home, its row on /index, its hero on
+ *     element — a work's plate on home, its row on /works, its hero on
  *     the case study all use `work-<slug>` — the browser tweens that
  *     element between its two positions instead of fading it. That is
  *     the flip, and it costs no animation code.
+ *
  *
  * Bails out, leaving Next's normal navigation alone, when: the API is
  * absent, the viewer asked for reduced motion, the click was modified

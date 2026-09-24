@@ -4,458 +4,296 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import Link from "next/link";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
-import SwatchRail from "./SwatchRail";
-import { glideTo, jumpTo } from "@/lib/lenis";
+import SwatchRail, { ringStep } from "./SwatchRail";
+import { recallWork, rememberWork } from "@/lib/currentWork";
+import { duration, easing } from "@/lib/motion";
 
-/** Zero-pads a positive integer to 2 digits, e.g. 1 -> "01". */
-function pad2(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-/** Copies of the list stacked to make the scroll loop. Must be odd. */
-const SETS = 3;
-/** Quiet time after scrolling before the page settles onto a project. */
-const SETTLE_MS = 160;
+/** Plate height, vh. */
+const PLATE_VH = 52;
 /**
- * The hand has to be off the wheel this long before anything settles.
- * Scroll events alone are not enough of a signal: Lenis keeps emitting
- * them through its own easing, and a trackpad drag can leave gaps
- * longer than SETTLE_MS between wheel events, so a debounce on scroll
- * fired mid-gesture and yanked the page while the viewer was still
- * moving it.
+ * Gap between plates, vh. 26vh against a 52vh plate is what keeps the
+ * neighbours out of frame: centred, a plate spans 24-76vh, so the next
+ * one starts at 102vh and the previous ends at -2vh. At 18vh both
+ * showed as slivers top and bottom.
  */
-const GESTURE_QUIET_MS = 220;
-/** Below this, a wheel event is momentum residue rather than intent. */
-const GESTURE_MIN_DELTA = 20;
-/** Wheel events this soon after a glide starts are that glide's own tail. */
-const GLIDE_GRACE_MS = 260;
-/** How long to wait before re-checking while a glide is in flight. */
-const GLIDE_CHECK_MS = 900;
-/** Index of the set the viewer actually occupies. */
-const MIDDLE = Math.floor(SETS / 2);
+const GAP_VH = 26;
+/** One project's travel. */
+const PITCH_VH = PLATE_VH + GAP_VH;
+/** Slots rendered either side of the active one. */
+const NEIGHBOURS = 2;
+
+/**
+ * Step duration and curve — the site's movement pair, shared with
+ * SwatchRail so the column and the rail travel as one thing.
+ */
+const TRAVEL_MS = duration.move;
+const TRAVEL_EASE = easing.move;
+
+/* ── Input ──────────────────────────────────────────────────────────
+   Navigation is DISCRETE: every input resolves to a whole number of
+   projects, and nothing here reads or writes the scroll position. The
+   page does not scroll at all.
+
+   That is the fix for the trackpad and free-spin mouse. The previous
+   model let the page scroll freely and glided onto the nearest plate
+   once the input went quiet, which meant it was permanently guessing
+   where a gesture had ended — and Lenis's own momentum kept emitting
+   scroll events after the hand was off, so the guess was wrong often
+   enough to feel broken.
+   ─────────────────────────────────────────────────────────────────── */
+
+/** Accumulated wheel travel that commits one step. One mouse detent (~100) clears it outright. */
+const WHEEL_STEP = 30;
+/** A fresh push has to beat the gesture's own peak by this much to re-arm mid-stream. */
+const WHEEL_REARM = 60;
+/** Silence this long ends a gesture. Momentum tails never leave a gap this big. */
+const GESTURE_GAP_MS = 140;
+/** deltaMode 1 is lines, not pixels. */
+const LINE_PX = 16;
+/** Swipe distance that commits one step, px. */
+const SWIPE_PX = 40;
+
+/** Wheel delta in pixels, whatever units the device reports in. */
+function wheelDelta(e: WheelEvent): number {
+  if (e.deltaMode === 1) return e.deltaY * LINE_PX;
+  if (e.deltaMode === 2) return e.deltaY * window.innerHeight;
+  return e.deltaY;
+}
 
 interface HomeIndexProps {
   works: Work[];
 }
 
 /**
- * Home: a looping column of plates, on GSP's composition
- * (gsproductions.co.za) with dylan.camera's swatch navigation.
+ * Home: one project at a time, stepped.
  *
- * GSP measured live at 1920x1000 — plate x329, 626x962 (32.6% of width,
- * 96.2% of height) at column 3 span 4, with the nav and the right-margin
- * metadata sharing columns 8/9/10/11.
+ * POSITION
  *
- * SCROLL MODEL
+ * A single unbounded integer. Step 7 of five projects is project 3 —
+ * `pos` itself never wraps, which is what makes the loop seamless: there
+ * is no wrap to hide, because there is no edge to wrap at. Slots are
+ * absolute positions on an infinite strip (slot s holds work
+ * `s mod n`), the strip is translated by `-pos * PITCH`, and only the
+ * slots within NEIGHBOURS of `pos` are rendered.
  *
- * Plates are a plain vertical column in document flow; the page scrolls
- * and Lenis smooths it at lerp 0.1 (GSP's own measured value). Nothing
- * hijacks the wheel.
+ * This replaces the previous three-stacked-copies-plus-invisible-jump
+ * arrangement, along with everything that had grown around it:
+ * measuring plate geometry, the ResizeObserver, scroll restoration,
+ * the settle timer, the gesture-quiet heuristics, and the guard that
+ * kept the page's own glide from retriggering its own settle.
  *
- * LOOPING
+ * NAVIGATION
  *
- * The list is rendered SETS times and the viewer starts in the middle
- * copy. When scroll leaves that copy in either direction the position
- * jumps by exactly one set-height. The jump is invisible because the
- * content at the destination is identical to the content being left —
- * the pixels do not change, only the scroll number does.
- *
- * The jump goes through Lenis rather than window.scrollTo: Lenis
- * animates toward its own target every frame and would undo a native
- * jump on the next tick. See lib/lenis.
- *
- * ACTIVE WORK
- *
- * Whichever plate crosses the viewport's centre line, via an
- * IntersectionObserver whose root margin collapses the root to that
- * single line — so a project becomes current the moment its leading
- * edge passes the centre. The rail and the right-hand metadata both
- * read from it.
+ * One wheel detent, one arrow key, one swipe or one swatch click all
+ * commit exactly one project (a swatch click commits the shortest way
+ * round, which may be several). Nothing is inferred from scroll
+ * position, so smoothed input devices cannot confuse it.
  *
  * Deliberately absent: waveform, scrubber, transport bar. The
  * horizontal waveform line has been rejected on this project repeatedly
  * for cutting across the composition.
  */
 export default function HomeIndex({ works }: HomeIndexProps) {
-  const [active, setActive] = useState(0);
-  const columnRef = useRef<HTMLDivElement>(null);
-  const plateRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-
   const n = works.length;
-  const total = n * SETS;
 
   /**
-   * Geometry, measured off the plates themselves rather than inferred.
+   * The ref is the source of truth; the state exists to render. Event
+   * handlers are registered once and would otherwise close over a stale
+   * position — the ref is what lets two detents in quick succession
+   * advance two projects instead of the same one twice.
+   */
+  const posRef = useRef(0);
+  const [pos, setPos] = useState(0);
+  /**
+   * False until the opening position has been restored and painted.
+   * The restore is a jump, not a move: without this the column and the
+   * rail would both travel from project one to wherever the visitor
+   * actually left off, every single time home is opened.
+   */
+  const [settled, setSettled] = useState(false);
+
+  const step = useCallback(
+    (by: number) => {
+      if (n === 0 || by === 0) return;
+      posRef.current += by;
+      setPos(posRef.current);
+    },
+    [n],
+  );
+
+  /**
+   * Open on the work the visitor was last on — coming back from that
+   * project's case study, or from /works — rather than on the first.
    *
-   *   base  — document offset of the very first plate. NOT zero: the
-   *           sticky nav and the column's own padding sit above it
-   *           (measured at 1002px), and ignoring that was what put the
-   *           opening centre line in the last plate of set 0 instead of
-   *           the first of the middle set — the counter opened on
-   *           05 / 05.
-   *   pitch — plate height plus gap, i.e. one work.
-   *   h     — one whole set, the distance the wrap moves by.
+   * Layout effect: the corrected position has to be in place before the
+   * first paint, or home flashes project one. `settled` is raised a
+   * frame later so the jump itself cannot animate but every move after
+   * it can.
    */
-  const geom = useRef({ base: 0, pitch: 0, plateH: 0, h: 0 });
-  /**
-   * Where the page last came to rest. A ref, not an effect-local, because
-   * the swatch click has to keep it in step too — when it did not, a
-   * click followed by a scroll measured travel from a stale origin and
-   * stepped to the wrong multiple, landing 366px off centre.
-   */
-  const restY = useRef(0);
-  /** Set the first time the viewer scrolls, so the opening hold yields. */
-  const userMoved = useRef(false);
-  /**
-   * True while the page is being moved by us rather than by the viewer.
-   * A ref, not an effect-local, because the swatch click also needs to
-   * claim it: its glide emits scroll events, which armed the settle
-   * timer, which then glided somewhere else and overrode the click. That
-   * was the "sticks off centre" case — 366px out, with no correction.
-   */
-  const snapping = useRef(false);
-  const releaseTimer = useRef<number | null>(null);
-  /** When the in-flight programmatic scroll began. */
-  const glideStart = useRef(0);
-  /**
-   * The settle routine, published by the scroll effect so the guard's
-   * own release can call it.
-   *
-   * Without this the page could be abandoned off centre: the guard
-   * releases on a timer, and if scrolling had already stopped by then
-   * nothing was left to re-arm the settle. Traced it — a click glide
-   * followed by a wheel, followed by the loop wrap, left the page at
-   * index 4.56 and simply sat there.
-   */
-  const settleRef = useRef<(() => void) | null>(null);
-
-  /**
-   * The one way the page is moved programmatically. Claims the guard,
-   * records the destination as the new resting position, and releases a
-   * little after the glide's own duration so its scroll events cannot
-   * re-arm the settle.
-   */
-  const glideToRest = useCallback((target: number, seconds: number) => {
-    snapping.current = true;
-    glideStart.current = performance.now();
-    restY.current = target;
-    glideTo(target, seconds);
-    if (releaseTimer.current !== null) clearTimeout(releaseTimer.current);
-    releaseTimer.current = window.setTimeout(
-      () => {
-        snapping.current = false;
-        releaseTimer.current = null;
-        // Scrolling may already have stopped, in which case no scroll
-        // event is coming to re-arm the settle. Check once, here.
-        settleRef.current?.();
-      },
-      seconds * 1000 + 150,
-    );
-  }, []);
-
-  /** Scroll position that puts the plate starting at `top` on the
-   *  viewport's centre line. Uses the plate's own height, not the
-   *  pitch — the pitch includes the gap between plates, and using it
-   *  here left every plate resting 32px high. */
-  const centreOf = useCallback((top: number) => {
-    const { plateH } = geom.current;
-    return top + plateH / 2 - window.innerHeight / 2;
-  }, []);
-
-  // Layout effect so the initial jump lands before paint; in a passive
-  // effect the first frame shows set 0 and then lurches.
   useLayoutEffect(() => {
-    const col = columnRef.current;
-    if (!col || n === 0) return;
-
-    const measure = () => {
-      const a = plateRefs.current[0];
-      const b = plateRefs.current[1] ?? plateRefs.current[0];
-      if (!a || !b) return 0;
-      const pitch = n > 1 ? b.offsetTop - a.offsetTop : a.offsetHeight;
-      geom.current = { base: a.offsetTop, pitch, plateH: a.offsetHeight, h: pitch * n };
-      return geom.current.h;
-    };
-
-    /**
-     * Park the viewer on the middle set's first plate.
-     *
-     * Asserted repeatedly for a few frames rather than once, because one
-     * pass is not enough on a client-side navigation back to this page:
-     * the browser restores a scroll position AFTER our layout effect
-     * runs, which left the page blank for ~400ms (scroll 0 sits in the
-     * padding above the first plate), then lurching through a wrong
-     * position before anything corrected it. Measured: 0 -> 1263 -> 4466
-     * over 1.2s.
-     *
-     * Stops the moment the viewer touches the page, so it can never
-     * fight a real gesture.
-     */
-    const openAt = () => {
-      const { base } = geom.current;
-      const y = centreOf(base + MIDDLE * h);
-      jumpTo(y);
-      restY.current = y;
-    };
-
-    const h = measure();
-    if (h > 0) {
-      // Scroll restoration is the page's to own here — the position that
-      // matters is a project on the centre line, not a pixel offset.
-      const priorRestoration = history.scrollRestoration;
-      try {
-        history.scrollRestoration = "manual";
-      } catch {
-        /* not supported; the re-assert below still covers it */
-      }
-
-      openAt();
-
-      let frames = 0;
-      let raf = 0;
-      const hold = () => {
-        if (userMoved.current) return;
-        openAt();
-        if (++frames < 12) raf = requestAnimationFrame(hold);
-      };
-      raf = requestAnimationFrame(hold);
-
-      const ro = new ResizeObserver(measure);
-      ro.observe(col);
-      return () => {
-        cancelAnimationFrame(raf);
-        ro.disconnect();
-        try {
-          history.scrollRestoration = priorRestoration;
-        } catch {
-          /* ignore */
-        }
-      };
+    const slug = recallWork();
+    const i = slug ? works.findIndex((w) => w.slug === slug) : -1;
+    if (i > 0) {
+      posRef.current = i;
+      // The cascading-render warning is about state that should have
+      // been derived during render. This cannot be: the position comes
+      // from sessionStorage, which does not exist on the server, so
+      // reading it during render would make the markup disagree with
+      // the markup that was sent. A layout effect is the documented
+      // place to reconcile with a browser-only source, and it lands
+      // before paint, which is the whole point — one render at project
+      // one is invisible, one PAINT at project one is a flash.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPos(i);
     }
+    const frame = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(frame);
+  }, [works]);
 
-    const ro = new ResizeObserver(measure);
-    ro.observe(col);
-    return () => ro.disconnect();
-    // centreOf is a stable useCallback with no deps of its own; listed to
-    // satisfy the exhaustive-deps rule rather than because it can change.
-  }, [n, centreOf]);
+  /** Publish the work on screen, for whatever view is entered next. */
+  useEffect(() => {
+    if (n === 0) return;
+    rememberWork(works[((pos % n) + n) % n].slug);
+  }, [pos, n, works]);
+
+  /** Swatch click — the shortest way round, so project 1 to project 5 goes back one, not forward four. */
+  const goTo = useCallback(
+    (i: number) => {
+      if (n === 0) return;
+      const current = ((posRef.current % n) + n) % n;
+      step(ringStep(current, i, n));
+    },
+    [n, step],
+  );
 
   /**
-   * The wrap, plus the settle.
+   * Wheel, quantised to whole projects.
    *
-   * WRAP — deliberately outside React state: this runs on every scroll
-   * frame and must not re-render anything.
+   * A gesture is a run of events with no gap longer than
+   * GESTURE_GAP_MS. The first commits a step; the rest of that run —
+   * which on a trackpad or a free-spin mouse is the momentum tail, and
+   * can be a hundred events over most of a second — is swallowed. So a
+   * flick of any strength is one project, and a deliberate second
+   * detent, arriving after the gap, is a second project.
    *
-   * SETTLE — while the page scrolls freely, a timer is kept alive. When
-   * scrolling stops for SETTLE_MS the nearest plate is glided onto the
-   * centre line, so the page always comes to rest on a project rather
-   * than halfway between two. One flick therefore lands on the next
-   * project in the direction of travel, because that is the plate
-   * nearest the centre once the flick's momentum has run out.
-   *
-   * Guarded by `snapping`: glideTo emits scroll events of its own, and
-   * without the guard the settle would retrigger itself forever. The
-   * guard is cleared on a real user gesture too, so a scroll during the
-   * glide takes control back immediately rather than being fought.
+   * The one way back in mid-gesture is a push that beats the gesture's
+   * own peak magnitude: real intent climbs, decaying momentum never
+   * does. That keeps a sustained two-finger drag responsive without
+   * letting its tail count twice.
    */
   useEffect(() => {
     if (n === 0) return;
 
-    let timer: number | null = null;
-    /**
-     * Direction of the last deliberate wheel, consumed by the next
-     * settle. Taken from the gesture rather than inferred by comparing
-     * against restY: that comparison had to stay correct across glides
-     * and loop wraps, and when it did not the page stepped to the wrong
-     * plate or simply stayed put off centre.
-     */
-    let gestureDir = 0;
-    /** When the viewer last physically moved the page. */
-    let lastGesture = 0;
-    if (restY.current === 0) restY.current = window.scrollY;
+    let acc = 0;
+    let peak = 0;
+    let spent = false;
+    let lastAt = 0;
 
-    /**
-     * Where the page should come to rest — always an ACTUAL plate centre.
-     *
-     * The first version returned restY + steps * pitch, which is only a
-     * plate centre if restY is one. Anything that moved the page without
-     * telling us (the swatch click's native scrollIntoView, a browser
-     * scroll restore) put restY off a centre, and every subsequent rest
-     * inherited that error — the page would settle between plates and
-     * stay there. Computing the index and rebuilding the position from
-     * `base` means the worst a stale restY can now cause is stepping the
-     * wrong number of plates, never resting off one.
-     *
-     * Direction still comes from travel: a sub-plate move rounds up to
-     * one plate the way it was going, so a single flick is one project.
-     */
-    /**
-     * Where the page should come to rest — always an ACTUAL plate centre,
-     * rebuilt from `base` so it cannot inherit drift.
-     *
-     * Two modes:
-     *   gestureDir set — the viewer scrolled, so step that way. A move
-     *     of less than one plate still counts as one, which is what
-     *     makes a single flick advance exactly one project.
-     *   gestureDir clear — nobody scrolled, so this is a recovery: just
-     *     centre whatever is nearest. This is the branch that rescues a
-     *     position abandoned by an interrupted glide or a loop wrap.
-     */
-    const restingTarget = () => {
-      const { base, pitch, plateH, h } = geom.current;
-      if (h <= 0 || pitch <= 0) return null;
+    const onWheel = (e: WheelEvent) => {
+      // Nothing on this page scrolls, so the only thing the default
+      // would produce is an overscroll bounce.
+      e.preventDefault();
 
-      const now =
-        (window.scrollY + window.innerHeight / 2 - base - plateH / 2) / pitch;
+      const now = performance.now();
+      const delta = wheelDelta(e);
+      const mag = Math.abs(delta);
 
-      const idx =
-        gestureDir === 0
-          ? Math.round(now)
-          : (() => {
-              const from = Math.round(
-                (restY.current + window.innerHeight / 2 - base - plateH / 2) / pitch,
-              );
-              const moved = Math.abs(now - from);
-              return from + gestureDir * (moved < 1 ? 1 : Math.round(moved));
-            })();
-
-      return base + idx * pitch + plateH / 2 - window.innerHeight / 2;
-    };
-
-    const settle = () => {
-      // Still scrolling — come back later rather than grabbing the page.
-      const quiet = performance.now() - lastGesture;
-      if (quiet < GESTURE_QUIET_MS) {
-        if (timer !== null) clearTimeout(timer);
-        timer = window.setTimeout(settle, GESTURE_QUIET_MS - quiet);
-        return;
+      if (now - lastAt > GESTURE_GAP_MS) {
+        acc = 0;
+        peak = 0;
+        spent = false;
       }
-      const target = restingTarget();
-      if (target === null) return;
-      // Already there — do not start a glide that would claim the guard
-      // for nothing.
-      if (Math.abs(target - window.scrollY) < 2) {
-        gestureDir = 0;
-        return;
-      }
-      gestureDir = 0;
-      glideToRest(target, 0.55);
-    };
-    settleRef.current = settle;
+      lastAt = now;
 
-    const onScroll = () => {
-      const { base, h } = geom.current;
-      if (h > 0) {
-        const rel = window.scrollY + window.innerHeight / 2 - base;
-        // The wrap moves the page by one set. If a glide is in flight it
-        // is still aimed at the pre-wrap position, and Lenis will happily
-        // drag the page all the way back to it — which is exactly what
-        // stranded the first upward step out of project 1 (off by 339px,
-        // counter stuck). So the in-flight target moves with the page.
-        let shift = 0;
-        if (rel < MIDDLE * h) shift = h;
-        else if (rel >= (MIDDLE + 1) * h) shift = -h;
-
-        if (shift !== 0) {
-          jumpTo(window.scrollY + shift);
-          restY.current += shift;
-          if (snapping.current) glideTo(restY.current, 0.35);
+      if (spent) {
+        if (mag > peak * 1.1 && mag >= WHEEL_REARM) {
+          acc = 0;
+          peak = 0;
+          spent = false;
+        } else {
+          peak = Math.max(peak, mag);
+          return;
         }
       }
-      // Scheduled even while a glide is in flight, just further out.
-      // Returning outright here is what let an interrupted glide strand
-      // the page: scrolling stopped before the guard released, so no
-      // event was ever left to arm the check. settle() no-ops when the
-      // page is already centred, so the extra pass is free.
-      if (timer !== null) clearTimeout(timer);
-      timer = window.setTimeout(settle, snapping.current ? GLIDE_CHECK_MS : SETTLE_MS);
+
+      peak = Math.max(peak, mag);
+      acc += delta;
+      if (Math.abs(acc) < WHEEL_STEP) return;
+
+      step(Math.sign(acc));
+      acc = 0;
+      spent = true;
     };
 
-    /**
-     * A deliberate new gesture takes control back from an in-flight
-     * glide. Deliberate is doing real work here.
-     *
-     * This used to clear the guard on ANY wheel event, which meant the
-     * residual momentum of the very flick that triggered the settle
-     * cancelled that settle a frame or two in. The glide stopped
-     * partway, nothing re-armed, and the page sat off centre — measured
-     * 366px out after a click, 396px after a trackpad-style burst. That
-     * is the "sticks sometimes" case.
-     *
-     * So: ignore small deltas, and ignore anything arriving within
-     * GLIDE_GRACE_MS of the glide starting, which is where momentum
-     * tails live. A real intent to scroll clears both bars easily.
-     */
-    const onGesture = (event: Event) => {
-      userMoved.current = true;
-      // Stamped for EVERY physical input, including deltas too small to
-      // count as a direction change — the question here is "is a hand on
-      // it", not "did they mean to go somewhere".
-      lastGesture = performance.now();
-      const dy = (event as WheelEvent).deltaY;
-      const deliberate = dy === undefined || Math.abs(dy) >= GESTURE_MIN_DELTA;
-      if (!deliberate) return;
-      if (dy) gestureDir = Math.sign(dy);
-      if (!snapping.current) return;
-      // Momentum tails arrive right after a glide starts; a real intent
-      // to scroll does not.
-      if (performance.now() - glideStart.current < GLIDE_GRACE_MS) return;
-      snapping.current = false;
-    };
+    // passive: false — preventDefault above is the point.
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [n, step]);
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("wheel", onGesture, { passive: true });
-    window.addEventListener("touchstart", onGesture, { passive: true });
-    window.addEventListener("touchmove", onGesture, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("wheel", onGesture);
-      window.removeEventListener("touchstart", onGesture);
-      window.removeEventListener("touchmove", onGesture);
-      if (timer !== null) clearTimeout(timer);
-      settleRef.current = null;
-    };
-  }, [n, glideToRest]);
-
+  /** Up and down arrows, one project each. */
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const i = plateRefs.current.indexOf(entry.target as HTMLAnchorElement);
-          if (i !== -1) setActive(i % n);
-        }
-      },
-      { rootMargin: "-50% 0px -50% 0px", threshold: 0 },
-    );
-    plateRefs.current.forEach((el) => el && io.observe(el));
-    return () => io.disconnect();
-  }, [total, n]);
+    if (n === 0) return;
 
-  const work = works[active];
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.isContentEditable || (t && /^(input|textarea|select)$/i.test(t.tagName))) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        step(1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        step(-1);
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [n, step]);
 
   /**
-   * Swatch click. Targets that work's copy in whichever set the viewer
-   * currently occupies, so a click never scrolls through a whole set to
-   * reach a plate that also exists right beside them.
+   * Touch. One swipe, one project — the finger commits as soon as it
+   * has travelled SWIPE_PX and the rest of the drag is ignored, which
+   * is the same contract the wheel gets.
    */
-  const goTo = useCallback(
-    (i: number) => {
-      const { base, h } = geom.current;
-      if (h <= 0) return;
-      const rel = window.scrollY + window.innerHeight / 2 - base;
-      const currentSet = Math.floor(rel / h);
-      const flat = currentSet * n + i;
-      const el = plateRefs.current[flat] ?? plateRefs.current[MIDDLE * n + i];
-      if (!el) return;
-      // glideTo, not scrollIntoView: the native smooth scroll animates the
-      // same property Lenis is animating, and the two fight — that is how
-      // an interrupted click ended up 366px off centre. Going through
-      // Lenis also means one easing for the whole page.
-      glideToRest(centreOf(el.offsetTop), 0.6);
-    },
-    [n, centreOf, glideToRest],
-  );
+  useEffect(() => {
+    if (n === 0) return;
+
+    let startY = 0;
+    let spent = false;
+
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0]?.clientY ?? 0;
+      spent = false;
+    };
+
+    const onMove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (spent) return;
+      const y = e.touches[0]?.clientY ?? startY;
+      const travelled = startY - y;
+      if (Math.abs(travelled) < SWIPE_PX) return;
+      step(Math.sign(travelled));
+      spent = true;
+    };
+
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: false });
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+    };
+  }, [n, step]);
+
+  if (n === 0) return null;
+
+  const active = ((pos % n) + n) % n;
+  const work = works[active];
+
+  /** Absolute slot numbers currently mounted. Centred on `pos`, so a plate is mounted well before it is seen. */
+  const slots: number[] = [];
+  for (let s = pos - NEIGHBOURS; s <= pos + NEIGHBOURS; s += 1) slots.push(s);
 
   /**
    * No Client row: the title already sits beside the active swatch on
@@ -468,21 +306,27 @@ export default function HomeIndex({ works }: HomeIndexProps) {
     { label: "Year", value: work.year },
   ];
 
+  /* Every cell is pinned to grid row 1 so the three zones overlay one
+     full-height spread. They used to reach the same arrangement by
+     accident — the rail and the metadata were `sticky h-screen` in row
+     1 and the plate column auto-placed into row 2 below them, with
+     stickiness dragging the margins back over it as the page scrolled.
+     Nothing scrolls now, so the overlay has to be stated. */
   return (
-    <div className="grid12 items-start">
-      {/* Left margin — rail plus the active title, held at the viewport's
-          middle. Spans 4 columns so the title has room; the swatches
-          themselves stay at column 1. */}
-      <div className="sticky top-0 z-10 col-span-12 col-start-1 flex h-screen items-center md:col-span-4">
-        <SwatchRail works={works} activeIndex={active} onSelect={goTo} />
+    <div className="grid12 h-full grid-rows-[100%] items-start">
+      {/* Left margin — rail plus the active title, held at the
+          viewport's middle. Spans 4 columns so the title has room; the
+          swatches themselves stay at column 1. */}
+      <div className="z-10 col-span-2 col-start-1 row-start-1 flex h-full items-center md:col-span-4 md:col-start-1">
+        <SwatchRail works={works} activeIndex={active} onSelect={goTo} animate={settled} />
       </div>
 
-      {/* Centre column — SETS copies of the list, in normal flow.
+      {/* Centre column — the plates, as slots on an infinite strip.
 
-          Gap is 26vh against a 52vh plate, which is what keeps the
-          neighbours out of frame: centred, a plate spans 24-76vh, so the
-          next one starts at 102vh and the previous ends at -2vh. At 18vh
-          both showed as slivers top and bottom.
+          The frame is the whole spread and clips, so a neighbour that
+          has not arrived yet cannot add scrollable overflow to the page.
+          Visually it is the old geometry exactly: the gap is wide enough
+          that only one plate is ever in frame.
 
           The media block is columns 3-10 at a fixed height, and however
           many plates a work has divide that width with one gutter
@@ -494,29 +338,46 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           shared height, which is what lets a 16:9 still sit beside a
           portrait without the row going ragged. */}
       <div
-        ref={columnRef}
-        className="col-span-12 col-start-1 flex flex-col gap-[26vh] py-[26vh] md:col-span-8 md:col-start-3"
+        data-enter=""
+        style={{ ["--enter" as string]: 0 }}
+        /* data-enter sits on the FRAME, not on the plates: the plates
+           are keyed by slot and remount as the viewer steps, which would
+           replay the entrance on every single step. The frame is stable
+           for the life of the view. */
+        className="relative col-span-12 col-start-1 row-start-1 h-full overflow-hidden md:col-span-8 md:col-start-3"
       >
-        {Array.from({ length: SETS }).flatMap((_, s) =>
-          works.map((w, i) => {
-            const flat = s * n + i;
-            const isPrimary = s === MIDDLE;
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translateY(${-pos * PITCH_VH}vh)`,
+            transition: settled ? `transform ${TRAVEL_MS}ms ${TRAVEL_EASE}` : "none",
+          }}
+        >
+          {slots.map((slot) => {
+            const i = ((slot % n) + n) % n;
+            const w = works[i];
             const plates = w.plates?.length ? w.plates : [w.media];
+            const isActive = slot === pos;
             return (
               <Link
-                key={`${s}-${w.id}`}
+                key={slot}
                 href={`/works/${w.slug}`}
                 aria-label={`Open ${w.title}`}
-                aria-hidden={!isPrimary}
-                tabIndex={isPrimary ? undefined : -1}
-                ref={(el) => {
-                  plateRefs.current[flat] = el;
+                aria-hidden={!isActive}
+                tabIndex={isActive ? undefined : -1}
+                /* Lets globals.css drop the name for the home <-> /works
+                   pair, where the media fades out where it stands
+                   instead of travelling. Every other journey keeps it. */
+                data-vt-media=""
+                /* Only the plate on the line is named for the view
+                   transition: a view-transition-name must be unique per
+                   document, and the neighbours hold the same works. */
+                style={{
+                  top: `calc(50% - ${PLATE_VH / 2}vh + ${slot * PITCH_VH}vh)`,
+                  height: `${PLATE_VH}vh`,
+                  ...(isActive ? { viewTransitionName: `work-${w.slug}` } : null),
                 }}
-                /* Only the middle copy is named for the view transition:
-                   a view-transition-name must be unique per document, and
-                   three copies sharing one cancels the transition. */
-                style={isPrimary ? { viewTransitionName: `work-${w.slug}` } : undefined}
-                className="flex h-[52vh] gap-[12px]"
+                className="absolute inset-x-0 flex gap-[12px]"
               >
                 {plates.map((m, k) => (
                   <span key={k} className="min-w-0 flex-1 overflow-hidden bg-ws-fill">
@@ -525,8 +386,8 @@ export default function HomeIndex({ works }: HomeIndexProps) {
                 ))}
               </Link>
             );
-          }),
-        )}
+          })}
+        </div>
       </div>
 
       {/* Right margin — metadata for whichever plate holds the centre.
@@ -537,14 +398,12 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           rather than off the media's. The left-hand title reads outward
           from the swatch strip; this reads inward from the margin, and
           the two ragged edges face each other across the spread. */}
-      <div className="pointer-events-none sticky top-0 col-span-12 col-start-1 hidden h-screen items-center md:col-span-2 md:col-start-11 md:flex">
-        {/* Centred by `items-center` on the sticky cell, which is the
-            same mechanism the swatch rail uses and measures at exactly
-            the viewport middle. The previous h-full + justify-center
-            pairing left this block 83px low at 1920 — h-full resolved
-            against a cell whose height was not what it looked like.
-
-            Label over value, one spacing token between the pair and
+      <div
+        data-enter=""
+        style={{ ["--enter" as string]: 2 }}
+        className="pointer-events-none col-span-12 col-start-1 row-start-1 hidden h-full items-center md:col-span-2 md:col-start-11 md:flex"
+      >
+        {/* Label over value, one spacing token between the pair and
             three between groups — the same rhythm the case-study header
             uses. Set inline, a long role like "concept + direction"
             wrapped under its own label and the rows stopped lining up. */}
@@ -557,7 +416,6 @@ export default function HomeIndex({ works }: HomeIndexProps) {
           ))}
         </div>
       </div>
-
     </div>
   );
 }

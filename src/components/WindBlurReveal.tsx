@@ -49,7 +49,7 @@ export default function WindBlurReveal({ children, delay = 0, duration = 600 }: 
           opacity: visible ? 1 : 0,
           transform: visible ? "translateX(0)" : "translateX(-16px)",
           filter: visible ? "none" : `url(#${filterId})`,
-          transition: `opacity ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1), filter ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+          transition: `opacity ${duration}ms var(--ease-move), transform ${duration}ms var(--ease-move), filter ${duration}ms var(--ease-move)`,
         }}
       >
         {children}

@@ -5,6 +5,7 @@ import RoomHeader from "@/components/RoomHeader";
 import { MediaRenderer } from "@/components/works/WorkTile";
 import CaseStudyMinimap from "@/components/works/CaseStudyMinimap";
 import CornerMark from "@/components/CornerMark";
+import RememberWork from "@/components/works/RememberWork";
 
 export function generateStaticParams() {
   return works.map((work) => ({ slug: work.slug }));
@@ -61,7 +62,14 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper text-ws-ink">
-      <RoomHeader activeRoom="index" />
+      {/* Going back to home or /works returns to THIS project. */}
+      <RememberWork slug={work.slug} />
+      {/* No activeRoom: a case study is not the index. It is a project
+          opened out of the home spread, and home has no nav item of its
+          own — so, like home, nothing in the nav reads as current. The
+          underline here used to sit under "index", which claimed the
+          visitor was in a room they had not entered. */}
+      <RoomHeader />
 
       {/* pb-56 leaves room for CornerMark, which is absolutely positioned
           against <main> and lands wherever this article's bottom edge is. */}

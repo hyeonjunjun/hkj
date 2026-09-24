@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Work } from "@/data/works";
 import { MediaRenderer } from "@/components/works/WorkTile";
+import { duration, easing } from "@/lib/motion";
 
 /** Swatch edge, px. Matches the 20px cell measured on dylan.camera. */
 const SWATCH = 20;
@@ -15,8 +16,8 @@ const PITCH = SWATCH + GAP;
  * window is simply the project count.
  */
 const MAX_VISIBLE = 9;
-/** Strip travel time. The fold below has to outlast it. */
-const TRAVEL_MS = 500;
+/** Strip travel time — the site's movement duration. The fold below has to outlast it. */
+const TRAVEL_MS = duration.move;
 
 /**
  * Shortest signed step from `from` to `to` around a ring of `n`.
@@ -26,7 +27,7 @@ const TRAVEL_MS = 500;
  * past every other project — when project 5 is sitting one row above.
  * Around the ring the step is -1, which is what the picture shows.
  */
-function ringStep(from: number, to: number, n: number): number {
+export function ringStep(from: number, to: number, n: number): number {
   let d = (to - from) % n;
   if (d > n / 2) d -= n;
   if (d < -n / 2) d += n;
@@ -37,6 +38,12 @@ interface SwatchRailProps {
   works: Work[];
   activeIndex: number;
   onSelect: (i: number) => void;
+  /**
+   * False while the page is restoring its opening position. The strip
+   * then jumps rather than travelling, so returning to home does not
+   * replay the journey to wherever the visitor left off.
+   */
+  animate?: boolean;
 }
 
 /**
@@ -89,7 +96,7 @@ interface SwatchRailProps {
  * that token derives from the viewport (100vw/180), so a resize would
  * change the row height and silently break the transform.
  */
-export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailProps) {
+export default function SwatchRail({ works, activeIndex, onSelect, animate: enabled = true }: SwatchRailProps) {
   const n = works.length;
 
   /** The strip's own position on the ring. Drifts, then folds. */
@@ -161,7 +168,7 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
           style={{
             gap: GAP,
             transform: `translateY(calc(-50% + ${offset}px))`,
-            transition: animate ? `transform ${TRAVEL_MS}ms cubic-bezier(0.65, 0, 0.35, 1)` : "none",
+            transition: animate && enabled ? `transform ${TRAVEL_MS}ms ${easing.move}` : "none",
           }}
         >
           {Array.from({ length: sets }).flatMap((_, s) =>
@@ -184,12 +191,24 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
                     // every project five times would be noise.
                     aria-hidden={!isPrimary && !isActive}
                     tabIndex={isPrimary ? undefined : -1}
-                    className={`block overflow-hidden bg-ws-fill transition-[border-radius,opacity] duration-300 ${
+                    className={`block overflow-hidden bg-ws-fill transition-[border-radius,opacity] duration-micro ${
                       isActive
                         ? "rounded-none opacity-100"
                         : "rounded-full opacity-45 hover:opacity-100"
                     }`}
-                    style={{ width: SWATCH, height: SWATCH }}
+                    style={{
+                      width: SWATCH,
+                      height: SWATCH,
+                      /* The swatches are the one thing that travels
+                         between home and /works: same column, same
+                         20px, a different pitch either side, so the
+                         browser redistributes them down the page
+                         instead of fading them. Only the primary copy
+                         is named — a view-transition-name must be
+                         unique, and the other four sets are scenery
+                         that makes the rail's own wrap seamless. */
+                      viewTransitionName: isPrimary ? `swatch-${w.slug}` : undefined,
+                    }}
                   >
                     {/* Guarded: the placeholder path draws its own
                         "content coming soon" copy, illegible at 20px. */}
@@ -203,9 +222,18 @@ export default function SwatchRail({ works, activeIndex, onSelect }: SwatchRailP
       </div>
 
       {/* Title, fixed on the centre line. aria-hidden because each button
-          above already carries its work's name. */}
+          above already carries its work's name.
+
+          NOT named, deliberately: the swatches are the only thing that
+          travels between home and the index. A title that flipped as
+          well put two labels in motion at once for the same project,
+          and the pair read as the layout sliding rather than as the
+          catalogue rearranging. It stages in with the rest of the text
+          instead — see [data-enter] in globals.css. */}
       <span
         aria-hidden="true"
+        data-enter=""
+        style={{ ["--enter" as string]: 1 }}
         className="hidden whitespace-nowrap text-label text-ws-ink md:block"
       >
         {works[activeIndex]?.title.toLowerCase()}

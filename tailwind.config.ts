@@ -43,6 +43,25 @@ const config: Config = {
         value: ["12px", { lineHeight: "14px", letterSpacing: "0", fontWeight: "400" }],
         prose: ["12px", { lineHeight: "18px", letterSpacing: "0", fontWeight: "400" }],
       },
+      /**
+       * The motion system, so a bare `transition-*` utility is already
+       * on the site's curve and pace instead of on Tailwind's 150ms
+       * cubic-bezier(0.4, 0, 0.2, 1). Values live in globals.css; these
+       * only expose them to the utilities.
+       *
+       * What a BARE `transition-*` falls back to is NOT set here — v4
+       * reads --default-transition-duration and
+       * --default-transition-timing-function, and a DEFAULT key in this
+       * object does not write them. Those live in globals.css.
+       */
+      transitionTimingFunction: {
+        move: "var(--ease-move)",
+      },
+      transitionDuration: {
+        micro: "var(--dur-micro)",
+        mid: "var(--dur-mid)",
+        move: "var(--dur-move)",
+      },
       fontFamily: {
         display: ["var(--font-display)", "General Sans", "sans-serif"],
         "instrument-sans": ["var(--font-instrument-sans)", "Instrument Sans", "sans-serif"],

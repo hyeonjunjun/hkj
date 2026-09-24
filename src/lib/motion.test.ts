@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { delay, duration, delaySeconds, durationSeconds, windEasing } from "./motion";
+import { delay, duration, delaySeconds, durationSeconds, easeMove, easing } from "./motion";
 
 describe("delaySeconds / durationSeconds", () => {
   it("converts every delay constant to seconds", () => {
@@ -11,15 +11,30 @@ describe("delaySeconds / durationSeconds", () => {
   });
 
   it("converts every duration constant to seconds", () => {
-    expect(durationSeconds.fast).toBeCloseTo(duration.fast / 1000);
-    expect(durationSeconds.base).toBeCloseTo(duration.base / 1000);
-    expect(durationSeconds.slow).toBeCloseTo(duration.slow / 1000);
+    expect(durationSeconds.micro).toBeCloseTo(duration.micro / 1000);
+    expect(durationSeconds.mid).toBeCloseTo(duration.mid / 1000);
+    expect(durationSeconds.move).toBeCloseTo(duration.move / 1000);
     expect(durationSeconds.reveal).toBeCloseTo(duration.reveal / 1000);
   });
 });
 
-describe("windEasing", () => {
-  it("is the Windswept brief's organic-deceleration cubic-bezier tuple", () => {
-    expect(windEasing).toEqual([0.16, 1, 0.3, 1]);
+describe("the motion system", () => {
+  it("exposes easing.move as the same curve in tuple form", () => {
+    expect(`cubic-bezier(${easeMove.join(", ")})`).toBe(easing.move);
+  });
+
+  it("pairs each duration with a curve, slowest last", () => {
+    expect(duration.micro).toBeLessThan(duration.mid);
+    expect(duration.mid).toBeLessThan(duration.move);
+  });
+
+  it("uses symmetric ease-in-out curves — the first control point must not start at full speed", () => {
+    // An ease-OUT reads as the page reacting; the site's character is a
+    // curve that gathers itself first. Both of ours start shallow.
+    for (const curve of [easing.micro, easing.move]) {
+      const [x1, y1] = curve.match(/[\d.]+/g)!.slice(0, 2).map(Number);
+      expect(y1).toBe(0);
+      expect(x1).toBeGreaterThan(0.5);
+    }
   });
 });

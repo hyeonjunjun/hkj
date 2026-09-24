@@ -33,6 +33,53 @@
   --space-8: calc(var(--gutter) * 8);
   --space-12: calc(var(--gutter) * 12);
 
+  /* ── Motion ───────────────────────────────────────────────────────
+     Two curves and three durations. Everything on the site uses one of
+     these; nothing declares a bezier of its own.
+
+     Both curves are SYMMETRIC ease-in-out, which is the whole character
+     of the thing. An ease-OUT starts at full speed and decelerates,
+     which reads as reactive — the page answering a click. An ease-in-out
+     gathers itself first, and that pause before anything moves is what
+     makes a transition read as considered rather than as feedback.
+
+     Measured off dylan.camera, which declares exactly two: 200ms
+     cubic-bezier(0.65, 0, 0.35, 1) on 138 elements, and 600ms
+     cubic-bezier(0.83, 0, 0.17, 1) on its layout moves. His travelling
+     swatch traces the second one exactly — flat for the first 100ms,
+     27% to 65% in the middle 50ms, then a long settle.
+
+     --ease       easeInOutCubic. Anything that changes in place: hover,
+                  opacity, colour, a radius.
+     --ease-move  easeInOutQuint. Anything that TRAVELS or rearranges.
+                  The steeper middle is what sells distance.
+
+     Durations pair with them: --dur-micro with --ease, --dur-move with
+     --ease-move, and --dur-mid for the fades that have to fit around a
+     move without being one. */
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-move: cubic-bezier(0.83, 0, 0.17, 1);
+  --dur-micro: 200ms;
+  --dur-mid: 400ms;
+  --dur-move: 600ms;
+
+  /* What a BARE `transition-*` utility falls back to. Tailwind v4 emits
+     `transition-duration: var(--tw-duration, var(--default-transition-duration))`
+     and reads these two names specifically — a `DEFAULT` key in the JS
+     theme does NOT set them, which left every unqualified
+     `transition-opacity` in the codebase resolving to `0s ease`, i.e.
+     no transition at all. Verified in the served stylesheet. */
+  /* The staged entrance: descriptive text arrives one line at a time
+     rather than as a block. --enter-step is the gap between lines;
+     --enter-after is how long the whole run waits when it is arriving
+     behind a flip, so that nothing reads before the swatches have
+     stopped moving. */
+  --enter-step: 70ms;
+  --enter-after: 440ms;
+
+  --default-transition-duration: var(--dur-micro);
+  --default-transition-timing-function: var(--ease);
+
   /* The palette. Three colours and three derived steps — that is the
      whole set, and every room uses it. The legacy --paper/--ink/--mist
      tokens this once sat beside were removed once nothing referenced
@@ -82,6 +129,47 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Staged entrance ──────────────────────────────────────────────
+   Anything carrying data-enter fades up in its own time, ordered by its
+   --enter index. Used for the project titles and the descriptive text
+   around them: they do NOT travel between home and the index, they
+   arrive one by one once whatever is travelling has landed.
+
+   `backwards` fill is what holds each line at zero through its own
+   delay; without it every line is fully present until its turn comes,
+   which is the opposite of the effect.
+
+   Deliberately CSS rather than the MotionReveal component used by the
+   gallery and the archive: this has to be able to sit out the flip, and
+   only a rule can know that a transition is in progress. */
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+[data-enter] {
+  animation: enter-fade var(--dur-mid) var(--ease) backwards;
+  animation-delay: calc(var(--enter-after, 0ms) + var(--enter, 0) * var(--enter-step));
+}
+
+/* --enter-after starts at 0 and is raised to the flip's length by
+   HomeShell, imperatively, BEFORE a transition begins.
+
+   It is not driven off the transition stamp, and not set in the same
+   commit that mounts the staged elements, because animation-delay is
+   live: change it under a running animation and the browser re-times
+   whatever has not started yet. Both of those were tried. Off the
+   stamp, the rows still pending when the stamp cleared recomputed to a
+   delay already in the past and snapped in at full opacity; set
+   alongside the view, the rows mounted on the old value and were
+   re-timed a frame later. In place before they exist, it cannot move
+   under them. */
 
 @keyframes pulse-soft {
 
@@ -183,7 +271,7 @@ body::-webkit-scrollbar {
   width: 0;
   height: 1px;
   background: currentColor;
-  transition: width 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width var(--dur-micro) var(--ease);
 }
 
 .nav-link:hover::after,
@@ -211,7 +299,7 @@ body::-webkit-scrollbar {
    200ms out — the outgoing page leaves slightly faster than the
    incoming arrives, so the two overlap rather than reading as a gap.
 
-   Named elements (a work's plate on home, its row on /index, its hero
+   Named elements (a work's plate on home, its row on /works, its hero
    on the case study all share `work-<slug>`) are animated by the
    browser instead of faded: it tweens position, size and radius
    between the two. Given a longer duration than the fade because it is
@@ -222,18 +310,138 @@ body::-webkit-scrollbar {
    element flying across the viewport is exactly what that setting is
    asking not to see. */
 ::view-transition-old(root) {
-  animation-duration: 200ms;
-  animation-timing-function: ease-out;
+  animation-duration: var(--dur-mid);
+  animation-timing-function: var(--ease);
 }
 
 ::view-transition-new(root) {
-  animation-duration: 260ms;
-  animation-timing-function: ease-out;
+  animation-duration: var(--dur-mid);
+  animation-timing-function: var(--ease);
 }
 
 ::view-transition-group(*) {
-  animation-duration: 420ms;
-  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  animation-duration: var(--dur-move);
+  animation-timing-function: var(--ease-move);
+}
+
+/* ── Home ↔ /works ───────────────────────────────────────────────
+   These two routes are one catalogue in two arrangements, not a step
+   further in, so the transition between them is a rearrangement rather
+   than a page change. Measured off dylan.camera, whose own home/works
+   toggle does exactly three things:
+
+     · the swatches TRAVEL — same column, same 20px, pitch 44px on his
+       home against 32px on his index, so they redistribute down the
+       page rather than fading. Ours go from the rail's 36px pitch,
+       centred on the viewport, to the index's 55px rows.
+     · the active project's TITLE travels with them, from beside the
+       swatch on home into its own row.
+     · everything else — the media, the metadata — fades out, and the
+       new arrangement fades in behind them. The chrome never moves.
+
+   Those first two are named elements, which the browser lifts out of
+   the page snapshot and tweens between their two positions. Everything
+   unnamed stays in the root snapshot and is carried by the sequenced
+   fade below. So the rule here is not "animate the swatches" — it is
+   "name them, and let the browser do it".
+
+   `data-vt-pair` is stamped on the root for the length of that one
+   navigation by ViewTransitions, so every other journey is untouched.
+
+   !important is load-bearing throughout: the names are inline styles,
+   and an inline style beats a stylesheet rule unless the rule is
+   important. */
+
+/* The media does not travel. On home it is a full-height plate and on
+   /works it does not exist at all, so there is nowhere to travel TO:
+   dropping the name puts it back in the root snapshot, where it fades
+   out where it stands. It keeps its name on every other journey, which
+   is how it still flips into a case study. */
+:root[data-vt-pair="home-index"] [data-vt-media] {
+  view-transition-name: none !important;
+}
+
+/* The index swatch holds two names and picks one here. Into a case
+   study it is the work's hero; on this journey it is the work's swatch
+   in the rail. An element can only carry one name at a time, and
+   view-transition-name reads through a var(), so swapping which custom
+   property it points at is the whole mechanism. */
+:root[data-vt-pair="home-index"] [data-vt-dual] {
+  view-transition-name: var(--vt-swatch) !important;
+}
+
+/* The chrome does not take part. Naming the nav row lifts it out of the
+   root snapshot entirely, so it is captured as its own layer and held in
+   place across the swap rather than fading out with the view it happens
+   to be sitting in — it is identical on both routes, so the browser
+   tweens it between two identical boxes and nothing visibly moves.
+
+   dylan.camera's own toggle does this: through the whole transition his
+   swatch rail and top chrome stay put at full ink, and only the content
+   between them changes. Set here rather than on the element so it
+   applies to this one journey; every other navigation keeps the nav in
+   the root fade with everything else. */
+:root[data-vt-pair="home-index"] [data-site-nav] {
+  view-transition-name: site-nav;
+}
+
+/* Sequenced, not crossed: the outgoing view is given the floor until it
+   has gone, and only then does the incoming one arrive. The two must not
+   overlap at all — an 80ms overlap was enough to show the plate's ghost
+   sitting behind the first index rows.
+
+   backwards fill: without it the new layer sits fully opaque through its
+   own delay, which is the one frame that would give the sequence away.
+
+   mix-blend-mode is the part that is easy to miss. Chrome composites
+   both halves of a view transition with `plus-lighter`, which is right
+   for a cross-fade — two layers at 50% add to a clean 100% — and wrong
+   for a sequence, where it washes the pair out toward white wherever
+   they meet. An author `!important` is the only thing that beats the UA
+   keyframes, since a plain declaration loses to a running animation. */
+:root[data-vt-pair="home-index"]::view-transition-old(root),
+:root[data-vt-pair="home-index"]::view-transition-new(root) {
+  mix-blend-mode: normal !important;
+}
+
+:root[data-vt-pair="home-index"]::view-transition-old(root) {
+  animation-duration: var(--dur-mid);
+  animation-timing-function: var(--ease);
+}
+
+:root[data-vt-pair="home-index"]::view-transition-new(root) {
+  /* Short, and only just before the staged text begins. This layer
+     carries the paper itself, so it cannot simply be switched off — an
+     opaque ground appearing at full strength would cut the outgoing
+     view dead instead of letting it fade. It brings in the ground; the
+     lines on top of it bring in themselves.
+
+     420ms is 70% of the flip, which on a quint is 96% of the DISTANCE —
+     the swatches are within a couple of pixels of their rows by then. */
+  animation-duration: 240ms;
+  animation-delay: 420ms;
+  animation-fill-mode: backwards;
+  animation-timing-function: var(--ease);
+}
+
+/* The travelling elements land exactly as the new arrangement arrives.
+
+   THE TIMINGS BELOW ARE ONE MECHANISM, NOT THREE KNOBS. The flip runs
+   0-FLIP, the outgoing view clears before that, and the incoming view is
+   delayed to start at FLIP. Pull them apart and the transition breaks in
+   a specific, visible way: with the flip at 560ms against an incoming
+   fade at 300ms, each row's title faded up at its final position while
+   that row's own swatch was still 50px away and sliding toward it. Four
+   rows sat visibly out of register with their own labels for a quarter
+   of a second. A swatch must never still be travelling toward a label
+   that has already arrived.
+
+   Eased out, not in-out: these are objects being set down, and the
+   symmetric curve read as a slow, deliberate slide rather than as the
+   page rearranging itself. */
+:root[data-vt-pair="home-index"]::view-transition-group(*) {
+  animation-duration: var(--dur-move);
+  animation-timing-function: var(--ease-move);
 }
 
 @media (prefers-reduced-motion: reduce) {

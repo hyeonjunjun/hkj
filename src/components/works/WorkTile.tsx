@@ -9,7 +9,7 @@ const ASPECT_RATIO_CSS: Record<MediaAsset["aspectRatio"], string> = {
 };
 
 const mediaClassesBase =
-  "block object-cover transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04]";
+  "block object-cover transition-[filter] duration-micro group-hover:brightness-[1.04]";
 
 /**
  * Exported so mobile/preview surfaces can reuse it with a forced aspect ratio.
@@ -72,7 +72,7 @@ export function MediaRenderer({
 
   return (
     <div
-      className={`flex items-center justify-center border border-ws-ink-mute transition-[filter] duration-[240ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.04] ${sizeClasses}`}
+      className={`flex items-center justify-center border border-ws-ink-mute transition-[filter] duration-micro group-hover:brightness-[1.04] ${sizeClasses}`}
       style={style}
       role="img"
       aria-label={media.alt}

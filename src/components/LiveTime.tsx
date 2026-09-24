@@ -126,7 +126,7 @@ export default function LiveTime() {
           will-change: transform;
         }
         .flap-digit[data-flipping] {
-          animation: flap-flip 320ms cubic-bezier(.4, 0, .2, 1);
+          animation: flap-flip var(--dur-mid) var(--ease);
         }
         @keyframes flap-flip {
           0%   { transform: scaleY(1); }

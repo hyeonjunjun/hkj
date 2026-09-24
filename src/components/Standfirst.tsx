@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { studio } from "@/data/studio";
-import { delaySeconds, durationSeconds, windEasing } from "@/lib/motion";
+import { delaySeconds, durationSeconds, easeMove } from "@/lib/motion";
 
 /**
  * Short supporting line beneath Wordmark in the landing page's composed
@@ -15,7 +15,7 @@ export default function Standfirst() {
     <motion.p
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delaySeconds.standfirst, duration: durationSeconds.reveal, ease: windEasing }}
+      transition={{ delay: delaySeconds.standfirst, duration: durationSeconds.reveal, ease: easeMove }}
       className="mt-2 max-w-[380px] text-prose text-ws-ink"
     >
       {studio.standfirst}

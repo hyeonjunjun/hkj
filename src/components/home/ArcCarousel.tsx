@@ -119,7 +119,7 @@ export default function ArcCarousel({ works, onPreview }: ArcCarouselProps) {
             href={`/works/${work.slug}`}
             onMouseEnter={() => onPreview(work)}
             onFocus={() => onPreview(work)}
-            className="absolute overflow-hidden bg-ws-fill transition-opacity duration-300 hover:opacity-90"
+            className="absolute overflow-hidden bg-ws-fill transition-opacity duration-micro hover:opacity-90"
             style={style}
           >
             <MediaRenderer media={work.media} fit="cover" />

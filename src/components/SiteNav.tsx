@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { studio } from "@/data/studio";
 import type { RoomKey } from "@/lib/types";
+import { rememberView, type HomeView } from "@/lib/homeView";
 
 /* ──────────────────────────────────────────────────────────────────
    NAV SPACING — tune these three values and nothing else.
@@ -33,6 +36,14 @@ const TOP_INSET = "var(--space-1)";
 
 interface SiteNavProps {
   /**
+   * Set only on home, where the index is an arrangement of this page
+   * rather than a route: the wordmark and the index link then switch
+   * the view in place instead of navigating. Absent everywhere else,
+   * where both are ordinary links back to `/`.
+   */
+  homeView?: HomeView;
+  onShowView?: (view: HomeView) => void;
+  /**
    * Which link renders active. Omitted on the landing page — no nav item
    * points at home, so nothing there should read as current.
    */
@@ -55,7 +66,7 @@ interface SiteNavProps {
  * The modifier comes from the same boolean that sets aria-current, so
  * the visual and semantic states cannot drift.
  */
-export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
+export default function SiteNav({ activeRoom, trailing, homeView, onShowView }: SiteNavProps) {
   const rooms = [...studio.navItems];
   const info = { label: "info", href: "/info", room: "info" as RoomKey };
 
@@ -63,13 +74,30 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
     `nav-link text-label text-ws-ink ${isActive ? "nav-link--active" : ""}`;
 
   return (
-    <div className="grid12 items-baseline font-switzer" style={{ paddingTop: TOP_INSET }}>
+    /* data-site-nav lets globals.css hold this row still through a
+       home <-> /works move, instead of fading it out with the view it
+       happens to be sitting in. */
+    <div
+      data-site-nav=""
+      className="grid12 items-baseline font-switzer"
+      style={{ paddingTop: TOP_INSET }}
+    >
       {/* Two columns, not four. The nav cell starts at column 3, and a
           four-column wordmark overlapped it — overlapping grid items get
           auto-placed into a new row, which is what put the whole nav 14px
           below the wordmark. It is left-aligned in its cell either way,
           so nothing moves visually. */}
-      <Link href="/" className="col-span-2 col-start-1 text-label text-ws-ink">
+      <Link
+        href="/"
+        onClick={(event) => {
+          // On home the wordmark returns to the spread without a
+          // navigation; elsewhere it is an ordinary link.
+          if (!onShowView) return;
+          event.preventDefault();
+          onShowView("home");
+        }}
+        className="col-span-2 col-start-1 text-label text-ws-ink"
+      >
         {studio.wordmark}
       </Link>
 
@@ -90,11 +118,26 @@ export default function SiteNav({ activeRoom, trailing }: SiteNavProps) {
         style={{ columnGap: LINK_GAP, rowGap: "4px" }}
       >
         {rooms.map((item) => {
-          const isActive = item.room === activeRoom;
+          // "index" is not a room. It is home's other arrangement, so on
+          // home it switches the view, and from any other page it asks
+          // home to open in that arrangement and then goes there. The
+          // href stays real either way, so middle-click and copy-link
+          // still do something sensible.
+          const isIndex = item.room === "index";
+          const isActive = isIndex ? homeView === "index" : item.room === activeRoom;
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={(event) => {
+                if (!isIndex) return;
+                if (onShowView) {
+                  event.preventDefault();
+                  onShowView("index");
+                  return;
+                }
+                rememberView("index");
+              }}
               aria-current={isActive ? "page" : undefined}
               className={linkClass(isActive)}
             >

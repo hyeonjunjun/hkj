@@ -86,10 +86,15 @@ const nextConfig: NextConfig = {
       { source: "/classic",    destination: "/",        permanent: true },
 
       // Home / Index / Gallery / Journal / Info rebuild (2026-09-11):
-      // /works (as a listing) -> /index, /archive and /notes -> /journal.
+      // The index is an arrangement of home, not a route (see
+      // lib/homeView), so both of its old paths land on home. /index
+      // could not have been a route in any case: Next writes the ROOT
+      // route to index.html, so a route named /index collides with it
+      // and silently serves the home page in production.
       // NOTE: this replaces an old "/journal -> /notes" alias from a
       // prior naming scheme, since /journal is now the real destination.
-      { source: "/works",         destination: "/index",     permanent: true },
+      { source: "/index",         destination: "/",          permanent: true },
+      { source: "/works",         destination: "/",          permanent: true },
       { source: "/archive",       destination: "/journal",   permanent: true },
       { source: "/archive/:slug", destination: "/journal/:slug", permanent: true },
       { source: "/notes",         destination: "/journal",   permanent: true },

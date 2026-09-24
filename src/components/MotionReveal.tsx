@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { duration as dur, easing } from "@/lib/motion";
 
 interface MotionRevealProps {
   children: ReactNode;
@@ -20,7 +21,7 @@ interface MotionRevealProps {
 export default function MotionReveal({
   children,
   delay = 0,
-  duration = 600,
+  duration = dur.reveal,
   translateY = 8,
 }: MotionRevealProps) {
   const [visible, setVisible] = useState(false);
@@ -35,7 +36,7 @@ export default function MotionReveal({
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : `translateY(${translateY}px)`,
-        transition: `opacity ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+        transition: `opacity ${duration}ms ${easing.move}, transform ${duration}ms ${easing.move}`,
       }}
     >
       {children}

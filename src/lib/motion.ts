@@ -4,22 +4,36 @@
  * room. Tune timing here rather than inside components.
  */
 
-/** Named easing curves, keyed by intent rather than by curve shape. */
+/**
+ * The two curves. These mirror --ease and --ease-move in globals.css,
+ * which is the canonical definition; they exist here only because inline
+ * styles and Framer Motion cannot read a CSS custom property.
+ *
+ * Both are symmetric ease-in-out on purpose — see the note in
+ * globals.css for why that, and not an ease-out, is the character of
+ * the site.
+ */
 export const easing = {
-  /** Quick out, slow in — the primary hover/reveal curve. */
-  out: "cubic-bezier(0.22, 1, 0.36, 1)",
-  /** Symmetric ease for state transitions. */
-  inOut: "cubic-bezier(0.65, 0, 0.35, 1)",
+  /** easeInOutCubic. Anything that changes in place. */
+  micro: "cubic-bezier(0.65, 0, 0.35, 1)",
+  /** easeInOutQuint. Anything that travels or rearranges. */
+  move: "cubic-bezier(0.83, 0, 0.17, 1)",
   /** Constant-rate motion, used for continuous effects like the pulse. */
   linear: "linear",
 } as const;
 
-/** Durations in milliseconds, keyed by the kind of motion they drive. */
+/** `easing.move` as a Framer Motion cubic-bezier tuple. */
+export const easeMove: [number, number, number, number] = [0.83, 0, 0.17, 1];
+
+/** Durations in milliseconds. Mirrors --dur-* in globals.css. */
 export const duration = {
-  fast: 180,
-  base: 240,
-  slow: 400,
-  /** Page-load entrance animations. */
+  /** Pairs with easing.micro. */
+  micro: 200,
+  /** Fades that have to fit around a move without being one. */
+  mid: 400,
+  /** Pairs with easing.move. */
+  move: 600,
+  /** Entrance animations — the same 600, named for how it reads at the call site. */
   reveal: 600,
   /** Ambient breathing pulse (corner mark dot). */
   pulse: 2400,
@@ -58,11 +72,8 @@ export const delaySeconds = {
 } as const;
 
 export const durationSeconds = {
-  fast: duration.fast / 1000,
-  base: duration.base / 1000,
-  slow: duration.slow / 1000,
+  micro: duration.micro / 1000,
+  mid: duration.mid / 1000,
+  move: duration.move / 1000,
   reveal: duration.reveal / 1000,
 } as const;
-
-/** The Windswept brief's "organic deceleration" curve, as a Framer Motion cubic-bezier tuple. */
-export const windEasing: [number, number, number, number] = [0.16, 1, 0.3, 1];

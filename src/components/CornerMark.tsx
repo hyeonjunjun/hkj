@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { studio } from "@/data/studio";
-import { delay, duration, delaySeconds, durationSeconds, windEasing } from "@/lib/motion";
+import { delay, duration, delaySeconds, durationSeconds, easeMove } from "@/lib/motion";
 import Clock from "./Clock";
 import MotionReveal from "./MotionReveal";
 
@@ -42,7 +42,7 @@ export default function CornerMark({ variant = "room" }: CornerMarkProps) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: delaySeconds.cornerMark, duration: durationSeconds.reveal, ease: windEasing }}
+          transition={{ delay: delaySeconds.cornerMark, duration: durationSeconds.reveal, ease: easeMove }}
         >
           <aside
             aria-label="Studio information"

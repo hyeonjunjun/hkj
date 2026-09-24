@@ -111,8 +111,8 @@ export default function ThemeToggle() {
           background-position: 0 100%;
           background-repeat: no-repeat;
           transition:
-            color 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
-            background-size 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+            color var(--dur-micro) var(--ease),
+            background-size var(--dur-micro) var(--ease);
         }
         .theme-toggle__btn[data-active] {
           color: var(--ink);

@@ -54,7 +54,7 @@ export const studio: StudioData = {
   },
   contactEmail: "hello@hkjstudio.com",
   navItems: [
-    { label: "index", href: "/index", room: "index" },
+    { label: "index", href: "/", room: "index" },
     { label: "gallery", href: "/gallery", room: "gallery" },
     { label: "journal", href: "/journal", room: "journal" },
   ],
