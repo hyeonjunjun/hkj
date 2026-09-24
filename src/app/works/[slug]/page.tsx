@@ -48,17 +48,6 @@ export default async function WorkPage({ params }: WorkPageProps) {
     return { section, figureIndex };
   });
 
-  // Hero first, then every section plate, in document order — the rail is
-  // a picture of the page, so it carries exactly what the page shows.
-  const minimapItems = [
-    { media: work.media, label: work.title },
-    ...sections
-      .filter(({ section }) => section.media)
-      .map(({ section, figureIndex }) => ({
-        media: section.media!,
-        label: section.caption ?? `figure ${figureIndex}`,
-      })),
-  ];
 
   return (
     <main className="relative min-h-screen w-full bg-ws-paper text-ws-ink">
@@ -176,7 +165,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
         </div>
       </article>
 
-      <CaseStudyMinimap items={minimapItems} />
+      <CaseStudyMinimap />
       <CornerMark />
     </main>
   );
