@@ -79,6 +79,16 @@ export default async function WorkPage({ params }: WorkPageProps) {
             {work.title}
           </h1>
 
+          {/* The work's second name, sitting under the first. `caption`
+              was previously only ever used as a figure label inside a
+              section, so a piece whose title and subtitle were split
+              across the two fields simply lost half of itself here. */}
+          {work.caption && (
+            <p className="col-span-12 col-start-1 mt-[var(--space-1)] text-value text-ws-ink-mute md:col-span-4 md:col-start-3">
+              {work.caption}
+            </p>
+          )}
+
           {/* Two metadata cells at columns 7 and 9. Every value carries its
               own label — stacking category and status under "Year" would
               have read as three years. Columns 11-12 stay clear because the
